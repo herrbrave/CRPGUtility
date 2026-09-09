@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_Silence
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-silence
+  displayName: Silence
+  description: For the duration (concentration, up to 10 minutes), no sound can be created within or pass through a 20-foot-radius sphere centered on a point you choose within range. Creatures entirely inside are immune to thunder damage and deafened, and casting a spell with a verbal component is impossible there. No sound system or verbal-component gating exists yet, so this is authored with Sphere targeting/range/area declared and zero mechanical Effects.
+  tags: 258
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: 88c970066da9eae4b816c66b9b46854b, type: 2}
+    amount: 1
+  targeting:
+    mode: 8
+    relation: 4
+    minTargets: 1
+    maxTargets: 1
+    range: 36
+    areaSize: 6
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects: []
+  references:
+    version: 2
+    RefIds: []

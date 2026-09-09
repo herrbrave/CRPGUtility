@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_ThievesCant
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-thieves-cant
+  displayName: Thieves' Cant
+  description: A secret mix of dialect, jargon, and code that allows you to hide messages in seemingly normal conversation. Only another creature that knows thieves' cant understands such messages. It takes four times longer to convey such a message than it does to speak the same idea plainly. In addition, you understand a set of secret signs and symbols used to convey short, simple messages. Flavor/roleplay only -- no mechanical modifiers.
+  modifiers: []
+  grantedAbilityIds: []
+  grantedResources: []
+  grantedProficiencies: []
+  choices: []

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a390dcea6735af4db8e13d87bc2be06, type: 3}
+  m_Name: OakhavenContentBundle
+  m_EditorClassIdentifier: Assembly-CSharp::OakhavenContentBundle
+  fighterContent: {fileID: 11400000, guid: 587061974fdb72a4ba4e0f3eedf2f0ff, type: 2}
+  definitions:
+  - {fileID: 11400000, guid: e8a22f1ffb510354eb1ae63853edfe31, type: 2}
+  - {fileID: 11400000, guid: 1bc5586516390724bbf9b9b272bfddac, type: 2}
+  - {fileID: 11400000, guid: 03bef3e73e3f94446a523bd80ebe1b17, type: 2}
+  - {fileID: 11400000, guid: b8ffae97f6bcd5a4daec41170a6ad20e, type: 2}
+  - {fileID: 11400000, guid: 9c39b4267c63de64fa4f7492c1c3b4ca, type: 2}
+  - {fileID: 11400000, guid: da48ef816b2eb394faa5a27772a28ed6, type: 2}
+  - {fileID: 11400000, guid: 65c2599ac3228124a9943d93c93a9733, type: 2}
+  - {fileID: 11400000, guid: 912d35ff6a8c3594287a94a20d2cb7a3, type: 2}
+  - {fileID: 11400000, guid: 3fc8ac8a274caa54fba987608f4876b6, type: 2}
+  - {fileID: 11400000, guid: 1593c3d5035164f49ba5adb0bbc6f62c, type: 2}
+  soldierTrainingFeature: {fileID: 11400000, guid: 1bc5586516390724bbf9b9b272bfddac, type: 2}
+  ringOfProtection: {fileID: 11400000, guid: 03bef3e73e3f94446a523bd80ebe1b17, type: 2}
+  dialogueEldor: {fileID: 11400000, guid: b8ffae97f6bcd5a4daec41170a6ad20e, type: 2}
+  dialogueGriff: {fileID: 11400000, guid: 9c39b4267c63de64fa4f7492c1c3b4ca, type: 2}
+  dialogueWellCavern: {fileID: 11400000, guid: da48ef816b2eb394faa5a27772a28ed6, type: 2}
+  dialogueMiningCrevasse: {fileID: 11400000, guid: 65c2599ac3228124a9943d93c93a9733, type: 2}
+  dialogueBroodChamber: {fileID: 11400000, guid: 912d35ff6a8c3594287a94a20d2cb7a3, type: 2}
+  questLostHeir: {fileID: 11400000, guid: 3fc8ac8a274caa54fba987608f4876b6, type: 2}
+  questGoblinMenace: {fileID: 11400000, guid: 1593c3d5035164f49ba5adb0bbc6f62c, type: 2}

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ec7340e5cf4c784daa235b7b6f353a8, type: 3}
+  m_Name: ConditionDefinition_Raging
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.ConditionDefinition
+  id: condition-raging
+  displayName: Raging
+  description: 'While raging, you gain the following benefits if you aren''t wearing heavy armor: you have advantage on Strength checks and Strength saving throws; when you make a melee weapon attack using Strength, you gain a bonus to the damage roll (+2 at levels 1-8); you have resistance to bludgeoning, piercing, and slashing damage. Your rage lasts for 1 minute (~10 rounds), and ends early if you are knocked unconscious or if your turn ends and you haven''t attacked a hostile creature or taken damage since your last turn. INERT modifiers: this condition carries no FeatureModifiers yet. The flat damage bonus has no hook on DamageEffect yet, and damage resistance/immunity isn''t a system in this engine yet (both are being built as separate engine features). Once they exist, this is exactly where Rage''s numeric benefits belong -- the activation loop around it (spend a rage use, become Raging for 10 rounds, expire) is fully real and testable today.'
+  modifiers: []

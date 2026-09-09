@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_ScorchingRay
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-scorching-ray
+  displayName: Scorching Ray
+  description: You create three rays of fire and hurl them at targets within range, one at a time or several. Make a ranged spell attack for each ray; on a hit, the target takes 2d6 fire damage. Modeled as up to 3 targets, each taking one attack-roll-gated 2d6 hit -- like Magic Missile, stacking multiple rays onto one target isn't modeled.
+  tags: 11
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: 88c970066da9eae4b816c66b9b46854b, type: 2}
+    amount: 1
+  targeting:
+    mode: 2
+    relation: 2
+    minTargets: 1
+    maxTargets: 3
+    range: 36.5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829188
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644164829188
+      type: {class: AttackRollEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        governingStatId:
+          value: 
+        onHit:
+          rid: 4304780644164829189
+    - rid: 4304780644164829189
+      type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+        amount:
+          count: 2
+          sides: 6
+          modifier: 0
+        damageTypeId:
+          value: 

@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Inventory",
+    "rootNamespace": "CRPG.Inventory",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

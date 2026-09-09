@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: DialogueDefinition_dlg-griff
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-griff
+  displayName: dlg-griff
+  startNodeId: start
+  nodes:
+  - rid: 4304780615459536896
+  - rid: 4304780615459536897
+  - rid: 4304780615459536898
+  - rid: 4304780615459536899
+  - rid: 4304780615459536900
+  - rid: 4304780615459536901
+  - rid: 4304780615459536902
+  - rid: 4304780615459536903
+  - rid: 4304780615459536904
+  - rid: 4304780615459536905
+  - rid: 4304780615459536906
+  - rid: 4304780615459536907
+  - rid: 4304780615459536908
+  - rid: 4304780615459536909
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780615459536896
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: start
+        timelineKey: cave-cleared
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: cleared-line
+        falseNodeId: not-cleared-gate
+    - rid: 4304780615459536897
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: not-cleared-gate
+        timelineKey: quest-goblin-menace-accepted
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: already-accepted-line
+        falseNodeId: greeting
+    - rid: 4304780615459536898
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: greeting
+        speakerName: Griff
+        text: Well met. If you're here about the goblins, Mayor's got a bounty. If you're here for gear, I'm low on ore. Those pests inside the caves are blocking the main vein. Clear 'em, and I'll make it worth your while.
+        nextNodeId: greeting-choice
+    - rid: 4304780615459536899
+      type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: greeting-choice
+        options:
+        - text: Consider the cave cleared, Griff.
+          nextNodeId: accept-action
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: Not interested in mining trouble.
+          nextNodeId: decline-line
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: Show me your wares.
+          nextNodeId: open-store-action
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+    - rid: 4304780615459536900
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: accept-action
+        action:
+          rid: 4304780615459536910
+        nextNodeId: accept-line
+    - rid: 4304780615459536901
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: accept-line
+        speakerName: Griff
+        text: Good. Watch yourself down there.
+        nextNodeId: end
+    - rid: 4304780615459536902
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: decline-line
+        speakerName: Griff
+        text: Suit yourself. Good steel isn't cheap when supply is choked.
+        nextNodeId: end
+    - rid: 4304780615459536903
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: already-accepted-line
+        speakerName: Griff
+        text: Those goblins still holed up in my vein. Clear 'em and my prices will thank you.
+        nextNodeId: already-accepted-choice
+    - rid: 4304780615459536904
+      type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: already-accepted-choice
+        options:
+        - text: Show me your wares.
+          nextNodeId: open-store-action
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: Farewell.
+          nextNodeId: end
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+    - rid: 4304780615459536905
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: open-store-action
+        action:
+          rid: 4304780615459536911
+        nextNodeId: end
+    - rid: 4304780615459536906
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: cleared-line
+        speakerName: Griff
+        text: Ore's flowing again thanks to you. Name's good with me -- take a look, prices are fair now.
+        nextNodeId: cleared-price-action
+    - rid: 4304780615459536907
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: cleared-price-action
+        action:
+          rid: 4304780615459536912
+        nextNodeId: cleared-choice
+    - rid: 4304780615459536908
+      type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: cleared-choice
+        options:
+        - text: Show me your wares.
+          nextNodeId: open-store-action
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: Farewell.
+          nextNodeId: end
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+    - rid: 4304780615459536909
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: end
+    - rid: 4304780615459536910
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: quest-goblin-menace-accepted
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1
+    - rid: 4304780615459536911
+      type: {class: OpenStoreAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 
+    - rid: 4304780615459536912
+      type: {class: SetStorePriceMultiplierAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        buyPriceMultiplier: 1
+        sellPriceMultiplier: 0.5

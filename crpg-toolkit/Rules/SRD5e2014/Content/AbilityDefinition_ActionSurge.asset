@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_ActionSurge
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: ability-action-surge
+  displayName: Action Surge
+  description: 
+  tags: 1024
+  costs:
+  - resource: {fileID: 11400000, guid: 6b04f302d9a27bf48a60ea1f434a56c6, type: 2}
+    amount: 1
+  targeting:
+    mode: 0
+    relation: 0
+    minTargets: 1
+    maxTargets: 1
+    range: 5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644754915329
+  spellLevel: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644754915329
+      type: {class: RestoreResourceEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+        amount: 1
+        applyToSelf: 1

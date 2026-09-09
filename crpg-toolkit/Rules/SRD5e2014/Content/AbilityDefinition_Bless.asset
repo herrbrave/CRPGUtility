@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_Bless
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-bless
+  displayName: Bless
+  description: You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw. Concentration, up to 1 minute. Modeled as a permanently granted FeatureDefinition (feature-bless) with a flat +2 approximation of the 1d4 bonus, applied to AttackBonus and every SavingThrow:<stat> query key, since there's no auto-expiring buff mechanism or rollable-modifier support yet -- see header comment.
+  tags: 258
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: 8cfe51950e82e104380cf1391b7fa15d, type: 2}
+    amount: 1
+  targeting:
+    mode: 2
+    relation: 1
+    minTargets: 1
+    maxTargets: 3
+    range: 9
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829201
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644164829201
+      type: {class: GrantFeatureEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        feature: {fileID: 11400000, guid: 06005c8adb87bc44b91d73f52e87b52a, type: 2}
+        applyToSelf: 0

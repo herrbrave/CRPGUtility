@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_SneakAttack
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-sneak-attack
+  displayName: Sneak Attack
+  description: 'Once per turn, you can deal an extra 1d6 damage to one creature you hit with an attack if you have advantage on the attack roll. The attack must use a finesse or a ranged weapon. You don''t need advantage on the attack roll if another enemy of the target is within 5 feet of it, that enemy isn''t incapacitated, and you don''t have disadvantage on the attack roll. The extra damage is 1d6 at levels 1-2, and increases to 2d6 at level 3 and beyond (SRD5 progresses further at higher levels, out of scope here). INERT: this feature grants no mechanical modifiers. Its real trigger -- advantage on the attack roll, OR an ally within 5 ft of the target -- is attacker-side/adjacency combat state that no effect type in this engine can currently see (ConditionalEffect only inspects the target''s own ConditionDefinitions). Authored ahead of a future ''conditional bonus damage on an attack'' effect hook.'
+  modifiers: []
+  grantedAbilityIds: []
+  grantedResources: []
+  grantedProficiencies: []
+  choices: []

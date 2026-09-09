@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_HighElfTraits
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-high-elf-traits
+  displayName: High Elf Traits
+  description: 'Ability Score Increase: Your Intelligence score increases by 1.
+
+
+    Elf Weapon Training: You have proficiency with the longsword, shortsword, shortbow, and longbow.
+
+
+    Cantrip: You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it.
+
+
+    Extra Language: You can speak, read, and write one extra language of your choice.'
+  modifiers:
+  - queryKey: stat-intelligence
+    operation: 0
+    value: 1
+    priority: 0
+  grantedAbilityIds: []
+  grantedResources: []
+  grantedProficiencies:
+  - value: item-longsword
+  choices:
+  - id: choose-high-elf-cantrip
+    displayName: Wizard Cantrip
+    type: 6
+    options: []
+    filterTag: wizard-cantrip
+    count: 1

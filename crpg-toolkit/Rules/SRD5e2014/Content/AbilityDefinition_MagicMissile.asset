@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_MagicMissile
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-magic-missile
+  displayName: Magic Missile
+  description: You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range, dealing 1d4 + 1 force damage. The darts all strike simultaneously and the attack automatically hits. Modeled here as up to 3 targets, each taking one guaranteed 1d4+1 hit -- stacking multiple darts onto a single target isn't modeled (no per-effect repeat/stack mechanism yet), so a focused single-target cast undercounts the real 3d4+3 total.
+  tags: 2
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: 8cfe51950e82e104380cf1391b7fa15d, type: 2}
+    amount: 1
+  targeting:
+    mode: 2
+    relation: 2
+    minTargets: 1
+    maxTargets: 3
+    range: 36.5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829194
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644164829194
+      type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+        amount:
+          count: 1
+          sides: 4
+          modifier: 1
+        damageTypeId:
+          value: 

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_MinorIllusion
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-minor-illusion
+  displayName: Minor Illusion
+  description: You create a sound or an image of an object within range that lasts for 1 minute. A creature can use its action to inspect the image and, on an Intelligence (Investigation) check against your spell save DC, discern it is an illusion. Pure utility -- no mechanical effect authored.
+  tags: 1026
+  costs: []
+  targeting:
+    mode: 3
+    relation: 4
+    minTargets: 1
+    maxTargets: 1
+    range: 9
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects: []
+  references:
+    version: 2
+    RefIds: []

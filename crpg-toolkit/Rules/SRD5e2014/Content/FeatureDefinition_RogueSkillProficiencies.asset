@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_RogueSkillProficiencies
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-rogue-skill-choice
+  displayName: Rogue Skill Proficiencies
+  description: 
+  modifiers: []
+  grantedAbilityIds: []
+  grantedResources: []
+  grantedProficiencies: []
+  choices:
+  - id: choose-rogue-skills
+    displayName: Choose 4 skills
+    type: 2
+    options:
+    - value: skill-acrobatics
+    - value: skill-athletics
+    - value: skill-deception
+    - value: skill-insight
+    - value: skill-intimidation
+    - value: skill-investigation
+    - value: skill-perception
+    - value: skill-performance
+    - value: skill-persuasion
+    - value: skill-sleight-of-hand
+    - value: skill-stealth
+    filterTag: 
+    count: 4

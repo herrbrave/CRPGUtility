@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ec7340e5cf4c784daa235b7b6f353a8, type: 3}
+  m_Name: ConditionDefinition_HeavilyEncumbered
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.ConditionDefinition
+  id: condition-heavily-encumbered
+  displayName: Heavily Encumbered
+  description: 'Carrying more than 10 times your Strength score in weight: your speed drops by 20 feet, and you have disadvantage on ability checks, attack rolls, and saving throws that use Strength, Dexterity, or Constitution. (Only the speed penalty and the saving-throw disadvantage are enforced -- AttackBonus has no per-governing-ability query key to attach the attack-roll part to, and no generic non-skill ability-check hook exists for that part either.)'
+  modifiers:
+  - queryKey: Speed
+    operation: 0
+    value: -20
+    priority: 0
+  - queryKey: SavingThrow:stat-strength
+    operation: 7
+    value: 0
+    priority: 0
+  - queryKey: SavingThrow:stat-dexterity
+    operation: 7
+    value: 0
+    priority: 0
+  - queryKey: SavingThrow:stat-constitution
+    operation: 7
+    value: 0
+    priority: 0
+  preventsActions: 0

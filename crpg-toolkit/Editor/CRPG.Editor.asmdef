@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Editor",
+    "rootNamespace": "CRPG.Editor",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Party", "CRPG.Abilities", "CRPG.Combat", "CRPG.Inventory", "CRPG.Dialogue", "CRPG.Quests", "CRPG.UI"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

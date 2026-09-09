@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Party",
+    "rootNamespace": "CRPG.Party",
+    "references": ["CRPG.Core", "CRPG.Actors"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

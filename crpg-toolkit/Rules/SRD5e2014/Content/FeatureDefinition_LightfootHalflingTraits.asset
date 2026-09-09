@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_LightfootHalflingTraits
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-lightfoot-halfling-traits
+  displayName: Lightfoot Halfling Traits
+  description: 'Ability Score Increase: Your Charisma score increases by 1.
+
+
+    Naturally Stealthy: You can attempt to hide even when you are obscured only by a creature that is at least one size larger than you.'
+  modifiers:
+  - queryKey: stat-charisma
+    operation: 0
+    value: 1
+    priority: 0
+  grantedAbilityIds: []
+  grantedResources: []
+  grantedProficiencies: []
+  choices: []

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_Rage
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: ability-rage
+  displayName: Rage
+  description: 'In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action. REAL/WORKING activation loop: costs a bonus action plus one use of resource-rage-uses (long-rest recovery) and applies condition-raging to yourself for 10 rounds (~1 minute). See condition-raging for which of Rage''s numeric benefits are still pending an engine hook.'
+  tags: 1024
+  costs:
+  - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: da7f3a656a8befc47908a7221560ed2c, type: 2}
+    amount: 1
+  targeting:
+    mode: 0
+    relation: 0
+    minTargets: 1
+    maxTargets: 1
+    range: 5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829212
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644164829212
+      type: {class: ApplyConditionEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        condition: {fileID: 11400000, guid: 50de16b0a08a73d48ae9d1d229ef7616, type: 2}
+        duration: 10

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_Shield
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-shield
+  displayName: Shield
+  description: An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from magic missile. Cast as a reaction. Granted permanently (no duration/"until start of your next turn" removal mechanism yet) -- see file header.
+  tags: 130
+  costs:
+  - resource: {fileID: 11400000, guid: 0e044852363362d44be2ee8ef0b053b8, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: 8cfe51950e82e104380cf1391b7fa15d, type: 2}
+    amount: 1
+  targeting:
+    mode: 0
+    relation: 0
+    minTargets: 1
+    maxTargets: 1
+    range: 5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829195
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644164829195
+      type: {class: GrantFeatureEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        feature: {fileID: 11400000, guid: b72681bcb1f10d943bb8727a65a6927e, type: 2}
+        applyToSelf: 1

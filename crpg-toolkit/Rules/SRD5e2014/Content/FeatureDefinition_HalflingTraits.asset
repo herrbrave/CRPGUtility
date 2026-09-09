@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_HalflingTraits
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-halfling-traits
+  displayName: Halfling Traits
+  description: 'Ability Score Increase: Your Dexterity score increases by 2.
+
+
+    Lucky: When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll.
+
+
+    Brave: You have advantage on saving throws against being frightened.
+
+
+    Halfling Nimbleness: You can move through the space of any creature that is of a size larger than yours.'
+  modifiers:
+  - queryKey: stat-dexterity
+    operation: 0
+    value: 2
+    priority: 0
+  - queryKey: Speed
+    operation: 0
+    value: 25
+    priority: 0
+  grantedAbilityIds: []
+  grantedResources: []
+  grantedProficiencies: []
+  choices: []

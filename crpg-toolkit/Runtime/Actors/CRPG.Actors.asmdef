@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Actors",
+    "rootNamespace": "CRPG.Actors",
+    "references": ["CRPG.Core", "CRPG.Rules"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_CunningAction
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: ability-cunning-action
+  displayName: Cunning Action
+  description: 'Your quick thinking and agility allow you to move and act quickly. You can take a bonus action on each of your turns to take the Dash, Disengage, or Hide action. INERT effects: Dash/Disengage/Hide have no engine-level meaning yet -- there is no Speed/movement-as-a-resource concept in this content folder. This ability is real data (it costs a bonus action and is granted at level 2) with zero mechanical effects pending that system.'
+  tags: 1088
+  costs:
+  - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}
+    amount: 1
+  targeting:
+    mode: 0
+    relation: 0
+    minTargets: 1
+    maxTargets: 1
+    range: 5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects: []
+  references:
+    version: 2
+    RefIds: []

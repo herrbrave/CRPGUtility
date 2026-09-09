@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Interaction",
+    "rootNamespace": "CRPG.Interaction",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

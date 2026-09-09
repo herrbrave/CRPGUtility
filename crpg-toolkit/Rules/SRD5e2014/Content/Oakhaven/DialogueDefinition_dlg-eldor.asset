@@ -1,0 +1,180 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: DialogueDefinition_dlg-eldor
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-eldor
+  displayName: dlg-eldor
+  startNodeId: start
+  nodes:
+  - rid: 4304780615459536931
+  - rid: 4304780615459536932
+  - rid: 4304780615459536933
+  - rid: 4304780615459536934
+  - rid: 4304780615459536935
+  - rid: 4304780615459536936
+  - rid: 4304780615459536937
+  - rid: 4304780615459536938
+  - rid: 4304780615459536939
+  - rid: 4304780615459536940
+  - rid: 4304780615459536941
+  - rid: 4304780615459536942
+  - rid: 4304780615459536943
+  - rid: 4304780615459536944
+  - rid: 4304780615459536945
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780615459536931
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: start
+        timelineKey: elian-fate-known
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: fate-known
+        falseNodeId: greeting-gate
+    - rid: 4304780615459536932
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: greeting-gate
+        timelineKey: quest-lost-heir-accepted
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: already-accepted
+        falseNodeId: greeting
+    - rid: 4304780615459536933
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: greeting
+        speakerName: Eldor
+        text: Greetings, traveler. You arrive at a dark hour. My son, Elian, is missing. He was investigating the old well. Goblins... I fear they took him. Find him, please, and I will reward you dearly.
+        nextNodeId: greeting-choice
+    - rid: 4304780615459536934
+      type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: greeting-choice
+        options:
+        - text: I will find your son, Eldor.
+          nextNodeId: accept-action
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: I have other matters.
+          nextNodeId: decline-line
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+    - rid: 4304780615459536935
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: accept-action
+        action:
+          rid: 4304780615459536946
+        nextNodeId: accept-line
+    - rid: 4304780615459536936
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: accept-line
+        speakerName: Eldor
+        text: Thank you. The well behind my manor... that is where he was last seen. May the gods watch over you.
+        nextNodeId: end
+    - rid: 4304780615459536937
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: decline-line
+        speakerName: Eldor
+        text: Then pray they do not involve the safety of your own family.
+        nextNodeId: end
+    - rid: 4304780615459536938
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: already-accepted
+        speakerName: Eldor
+        text: Please, hurry back with news of my son.
+        nextNodeId: end
+    - rid: 4304780615459536939
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: fate-known
+        timelineKey: elian-alive
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: joyful-line
+        falseNodeId: grief-line
+    - rid: 4304780615459536940
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: joyful-line
+        speakerName: Eldor
+        text: Elian! My boy! Safe! Oh, thank the gods. Words cannot express my gratitude, traveler.
+        nextNodeId: give-ring
+    - rid: 4304780615459536941
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: give-ring
+        action:
+          rid: 4304780615459536947
+        nextNodeId: ring-line
+    - rid: 4304780615459536942
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: ring-line
+        speakerName: Eldor
+        text: Take this family heirloom -- a Ring of Protection. It saved my father; may it save you.
+        nextNodeId: end
+    - rid: 4304780615459536943
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: grief-line
+        speakerName: Eldor
+        text: (Sobbing) The locket... it was his mother's. You promised you would find him! You failed us... Leave me. Leave Oakhaven. Your presence is a curse.
+        nextNodeId: grief-action
+    - rid: 4304780615459536944
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: grief-action
+        action:
+          rid: 4304780615459536948
+        nextNodeId: end
+    - rid: 4304780615459536945
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: end
+    - rid: 4304780615459536946
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: quest-lost-heir-accepted
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1
+    - rid: 4304780615459536947
+      type: {class: GiveItemAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        item: {fileID: 11400000, guid: 03bef3e73e3f94446a523bd80ebe1b17, type: 2}
+        quantity: 1
+    - rid: 4304780615459536948
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: eldor-hostile
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_Spellcasting(3rdLevel)
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-cleric-slots-3
+  displayName: Spellcasting (3rd Level)
+  description: 
+  modifiers: []
+  grantedAbilityIds: []
+  grantedResources:
+  - resource: {fileID: 11400000, guid: 8cfe51950e82e104380cf1391b7fa15d, type: 2}
+    maxAmount: 4
+  - resource: {fileID: 11400000, guid: 88c970066da9eae4b816c66b9b46854b, type: 2}
+    maxAmount: 2
+  grantedProficiencies: []
+  choices: []

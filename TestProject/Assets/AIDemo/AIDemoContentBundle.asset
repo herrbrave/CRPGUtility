@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb636c13272c3a9448d1843ab17efbe9, type: 3}
+  m_Name: AIDemoContentBundle
+  m_EditorClassIdentifier: Assembly-CSharp::AIDemoContentBundle
+  fighterContent: {fileID: 11400000, guid: 587061974fdb72a4ba4e0f3eedf2f0ff, type: 2}
+  definitions:
+  - {fileID: 11400000, guid: e79625f397be98c4fb1a8e4a369469c3, type: 2}
+  - {fileID: 11400000, guid: 2e2bc7917d967b24f8eeae7ff6d382d9, type: 2}
+  - {fileID: 11400000, guid: d33ee0a1f322d204993f11e19669c8dc, type: 2}
+  - {fileID: 11400000, guid: b7b8d1b7b343184458f30ce9c51d9673, type: 2}
+  - {fileID: 11400000, guid: 5406a318c2b65cc4388449c0857c6dd7, type: 2}
+  - {fileID: 11400000, guid: 3133ec32b577a824ea616bf0506a6027, type: 2}
+  - {fileID: 11400000, guid: 2c6482f8c2dc4c746928f1ad81aac7a4, type: 2}
+  - {fileID: 11400000, guid: 2ce8aff5fe22e0a4fb3d5968b301540b, type: 2}
+  - {fileID: 11400000, guid: c546676efa983754d938387341f041e7, type: 2}
+  - {fileID: 11400000, guid: 160979fb4d828b548bf6bd4fe807b9c7, type: 2}
+  movement: {fileID: 11400000, guid: e79625f397be98c4fb1a8e4a369469c3, type: 2}
+  strikeAbility: {fileID: 11400000, guid: 2e2bc7917d967b24f8eeae7ff6d382d9, type: 2}
+  heroAttackBehavior: {fileID: 11400000, guid: b7b8d1b7b343184458f30ce9c51d9673, type: 2}
+  goblinAttackBehavior: {fileID: 11400000, guid: 3133ec32b577a824ea616bf0506a6027, type: 2}
+  closeDistanceBehavior: {fileID: 11400000, guid: d33ee0a1f322d204993f11e19669c8dc, type: 2}
+  heroBehaviorSet: {fileID: 11400000, guid: 5406a318c2b65cc4388449c0857c6dd7, type: 2}
+  goblinBehaviorSet: {fileID: 11400000, guid: 2c6482f8c2dc4c746928f1ad81aac7a4, type: 2}
+  unconsciousCondition: {fileID: 11400000, guid: 2ce8aff5fe22e0a4fb3d5968b301540b, type: 2}
+  proneCondition: {fileID: 11400000, guid: c546676efa983754d938387341f041e7, type: 2}
+  restrainedCondition: {fileID: 11400000, guid: 160979fb4d828b548bf6bd4fe807b9c7, type: 2}

@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_FireBolt
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-fire-bolt
+  displayName: Fire Bolt
+  description: You hurl a mote of fire at a creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 fire damage. This spell's damage increases by 1d10 when you reach 5th, 11th, and 17th level (not modeled -- no character-level-scaling hook on AbilityDefinition yet).
+  tags: 11
+  costs: []
+  targeting:
+    mode: 1
+    relation: 2
+    minTargets: 1
+    maxTargets: 1
+    range: 36.5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829186
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644164829186
+      type: {class: AttackRollEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        governingStatId:
+          value: 
+        onHit:
+          rid: 4304780644164829187
+    - rid: 4304780644164829187
+      type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+        amount:
+          count: 1
+          sides: 10
+          modifier: 0
+        damageTypeId:
+          value: 

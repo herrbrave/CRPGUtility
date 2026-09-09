@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_RecklessAttack
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: ability-reckless-attack
+  displayName: Reckless Attack
+  description: When you make your first attack on your turn, you can decide to attack recklessly. Doing so gives you advantage on melee weapon attack rolls using Strength during this turn, but attack rolls against you have advantage until your next turn. Modeled here as a self-targeted, no-resource-cost ability (the real rule is a decision made alongside your first attack, not a separate action or bonus action) that applies condition-reckless to yourself for the rest of the round.
+  tags: 1024
+  costs: []
+  targeting:
+    mode: 0
+    relation: 0
+    minTargets: 1
+    maxTargets: 1
+    range: 5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829213
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780644164829213
+      type: {class: ApplyConditionEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        condition: {fileID: 11400000, guid: c1ee95148aa5db343a80c0d6899d26e6, type: 2}
+        duration: 1

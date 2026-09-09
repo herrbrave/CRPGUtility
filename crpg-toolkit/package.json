@@ -1,0 +1,42 @@
+{
+  "name": "com.crpgtoolkit.core",
+  "version": "0.1.0",
+  "displayName": "CRPG Toolkit",
+  "description": "A ruleset-agnostic party-based CRPG engine for Unity: exploration, party control, combat, dialogue, quests and inventory driven entirely by data. The engine has no knowledge of any specific tabletop ruleset; SRD 5.1 (2014-era 5e) content ships as a separate, replaceable ruleset module.",
+  "unity": "6000.6",
+  "unityRelease": "0f1",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "keywords": [
+    "crpg",
+    "rpg",
+    "party-based",
+    "turn-based",
+    "srd",
+    "5e",
+    "toolkit"
+  ],
+  "author": {
+    "name": "Your Studio"
+  },
+  "dependencies": {
+    "com.unity.inputsystem": "1.20.0",
+    "com.unity.ai.navigation": "2.0.14"
+  },
+  "samples": [
+    {
+      "displayName": "Basic CRPG",
+      "description": "A minimal scene demonstrating party movement, selection and interaction.",
+      "path": "Samples~/BasicCRPG"
+    },
+    {
+      "displayName": "Character Creator",
+      "description": "Reference SRD5 character creation flow using the generic choice-requirement system.",
+      "path": "Samples~/CharacterCreator"
+    },
+    {
+      "displayName": "Tactical Encounter",
+      "description": "A complete rules-driven combat encounter between two small groups of combatants.",
+      "path": "Samples~/TacticalEncounter"
+    }
+  ]
+}

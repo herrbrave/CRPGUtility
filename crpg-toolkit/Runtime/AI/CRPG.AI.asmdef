@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.AI",
+    "rootNamespace": "CRPG.AI",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Abilities", "CRPG.Combat"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

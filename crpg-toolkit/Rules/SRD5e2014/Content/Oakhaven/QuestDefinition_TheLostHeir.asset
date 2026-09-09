@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b6d7cab4f4ead449b17cae5bd9d8ae9, type: 3}
+  m_Name: QuestDefinition_TheLostHeir
+  m_EditorClassIdentifier: CRPG.Quests::CRPG.Quests.QuestDefinition
+  id: quest-lost-heir
+  displayName: The Lost Heir
+  description: Eldor's son Elian went missing investigating the old well. Find him.
+  objectives:
+  - id: find-elian
+    displayName: Learn Elian's fate
+    type: 1
+    trackingKey: elian-fate-known
+    targetCount: 1

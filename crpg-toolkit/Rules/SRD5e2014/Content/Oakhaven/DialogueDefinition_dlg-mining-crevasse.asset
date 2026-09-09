@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: DialogueDefinition_dlg-mining-crevasse
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-mining-crevasse
+  displayName: dlg-mining-crevasse
+  startNodeId: start
+  nodes:
+  - rid: 4304780615459536922
+  - rid: 4304780615459536923
+  - rid: 4304780615459536924
+  - rid: 4304780615459536925
+  - rid: 4304780615459536926
+  - rid: 4304780615459536927
+  - rid: 4304780615459536928
+  - rid: 4304780615459536929
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780615459536922
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: start
+        timelineKey: cave-cleared
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: already-cleared
+        falseNodeId: intro
+    - rid: 4304780615459536923
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: intro
+        speakerName: You
+        text: The crevasse walls glow faintly with exposed ore. Goblin miners swarm a crude blockade, picks in hand, with a hulking Hobgoblin Overseer barking orders over the din.
+        nextNodeId: check
+    - rid: 4304780615459536924
+      type: {class: CheckNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: check
+        queryKey: Skill:Athletics
+        difficultyClass: 14
+        performer: 1
+        successNodeId: success-line
+        failureNodeId: failure-line
+    - rid: 4304780615459536925
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: success-line
+        speakerName: You
+        text: You barrel through the blockade, scattering goblins and toppling the Overseer into his own tunnel. The vein is clear.
+        nextNodeId: clear-action
+    - rid: 4304780615459536926
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: failure-line
+        speakerName: You
+        text: The Overseer rallies his miners and drives you back up the passage, bruised but unbowed. You'll need another approach.
+        nextNodeId: end
+    - rid: 4304780615459536927
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: clear-action
+        action:
+          rid: 4304780615459536930
+        nextNodeId: end
+    - rid: 4304780615459536928
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: already-cleared
+        speakerName: You
+        text: The crevasse sits silent, the ore vein finally unguarded.
+        nextNodeId: end
+    - rid: 4304780615459536929
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: end
+    - rid: 4304780615459536930
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: cave-cleared
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1

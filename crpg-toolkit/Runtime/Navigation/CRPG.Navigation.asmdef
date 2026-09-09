@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Navigation",
+    "rootNamespace": "CRPG.Navigation",
+    "references": ["CRPG.Core", "Unity.AI.Navigation"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

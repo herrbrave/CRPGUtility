@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+
+namespace CRPG.Saving
+{
+    /// <summary>
+    /// The root save document (spec §51): pure state, every definition referenced by a stable DefinitionId
+    /// string rather than a direct asset reference, so a save survives content being reorganized. SceneState
+    /// and CombatState from the spec's list are deliberately not here yet -- there's no scene-persistence
+    /// system (which scene is loaded, where entities are positioned in the world) or combat-encounter
+    /// serialization built to produce them, and spec itself marks CombatState as "if supported."
+    /// </summary>
+    [Serializable]
+    public sealed class SaveData
+    {
+        public const int CurrentFormatVersion = 1;
+
+        public SaveHeader Header = new();
+        public PartySaveData Party = new();
+        public List<CharacterSaveData> Characters = new();
+        public List<ItemSaveData> InventoryItems = new();
+        public List<TimelineEventSaveData> TimelineEvents = new();
+        public List<QuestSaveData> Quests = new();
+    }
+}

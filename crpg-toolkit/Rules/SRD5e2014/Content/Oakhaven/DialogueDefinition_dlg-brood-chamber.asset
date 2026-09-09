@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: DialogueDefinition_dlg-brood-chamber
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-brood-chamber
+  displayName: dlg-brood-chamber
+  startNodeId: start
+  nodes:
+  - rid: 4304780615459536949
+  - rid: 4304780615459536950
+  - rid: 4304780615459536951
+  - rid: 4304780615459536952
+  - rid: 4304780615459536953
+  - rid: 4304780615459536954
+  - rid: 4304780615459536955
+  - rid: 4304780615459536956
+  - rid: 4304780615459536957
+  - rid: 4304780615459536958
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780615459536949
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: start
+        editorPosition: {x: 85, y: 112}
+        timelineKey: elian-fate-known
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: already-known
+        falseNodeId: intro
+    - rid: 4304780615459536950
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: intro
+        editorPosition: {x: 844, y: -32}
+        speakerName: You
+        text: Smoke thickens the air of the deepest chamber. Crude cages of bone and wood line the walls. Goblin stalkers circle a robed Witch Doctor muttering over a huddled captive -- Elian.
+        nextNodeId: check
+    - rid: 4304780615459536951
+      type: {class: CheckNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: check
+        editorPosition: {x: 858, y: -47}
+        queryKey: Skill:Persuasion
+        difficultyClass: 15
+        performer: 1
+        successNodeId: success-line
+        failureNodeId: failure-line
+    - rid: 4304780615459536952
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: success-line
+        editorPosition: {x: 461, y: -417}
+        speakerName: You
+        text: Your bold defiance rattles the stalkers -- they scatter into the dark, and the Witch Doctor flees rather than face you alone. You cut Elian free. He is shaken, but alive.
+        nextNodeId: alive-action
+    - rid: 4304780615459536953
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: alive-action
+        editorPosition: {x: 730, y: -206}
+        action:
+          rid: 4304780615459536959
+        nextNodeId: fate-action
+    - rid: 4304780615459536954
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: failure-line
+        editorPosition: {x: 402, y: 336}
+        speakerName: You
+        text: The stalkers close in before you can act. By the time you fight clear to the cage, Elian is already gone. You find only his mother's locket among the ashes.
+        nextNodeId: dead-action
+    - rid: 4304780615459536955
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: dead-action
+        editorPosition: {x: 641, y: -264}
+        action:
+          rid: 4304780615459536960
+        nextNodeId: fate-action
+    - rid: 4304780615459536956
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: fate-action
+        editorPosition: {x: 716, y: -148}
+        action:
+          rid: 4304780615459536961
+        nextNodeId: end
+    - rid: 4304780615459536957
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: already-known
+        editorPosition: {x: 1029, y: -197}
+        speakerName: You
+        text: The Brood Chamber lies empty and cold now.
+        nextNodeId: end
+    - rid: 4304780615459536958
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: end
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304780615459536959
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: elian-alive
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1
+    - rid: 4304780615459536960
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: elian-dead
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1
+    - rid: 4304780615459536961
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: elian-fate-known
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1

@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: DialogueDefinition_dlg-well-cavern
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-well-cavern
+  displayName: dlg-well-cavern
+  startNodeId: start
+  nodes:
+  - rid: 4304780615459536913
+  - rid: 4304780615459536914
+  - rid: 4304780615459536915
+  - rid: 4304780615459536916
+  - rid: 4304780615459536917
+  - rid: 4304780615459536918
+  - rid: 4304780615459536919
+  - rid: 4304780615459536920
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780615459536913
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: start
+        timelineKey: well-cavern-passed
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId: already-passed
+        falseNodeId: intro
+    - rid: 4304780615459536914
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: intro
+        speakerName: You
+        text: The well plunges into darkness. A knotted rope leads down into a damp, torch-lit cavern. Two goblin sentries pace an upper ledge above, unaware of you... for now.
+        nextNodeId: check
+    - rid: 4304780615459536915
+      type: {class: CheckNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: check
+        queryKey: Skill:Acrobatics
+        difficultyClass: 12
+        performer: 1
+        successNodeId: success-line
+        failureNodeId: failure-line
+    - rid: 4304780615459536916
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: success-line
+        speakerName: You
+        text: You slip past the ledge unseen, the sentries none the wiser.
+        nextNodeId: pass-action
+    - rid: 4304780615459536917
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: failure-line
+        speakerName: You
+        text: A loose stone clatters away beneath your foot. The sentries snap alert -- but by the time they scramble down, you're already past, deeper into the dark.
+        nextNodeId: pass-action
+    - rid: 4304780615459536918
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: pass-action
+        action:
+          rid: 4304780615459536921
+        nextNodeId: end
+    - rid: 4304780615459536919
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: already-passed
+        speakerName: You
+        text: The entrance cavern is quiet behind you now.
+        nextNodeId: end
+    - rid: 4304780615459536920
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId: end
+    - rid: 4304780615459536921
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: well-cavern-passed
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1

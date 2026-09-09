@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Exploration",
+    "rootNamespace": "CRPG.Exploration",
+    "references": ["CRPG.Core", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Interaction"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff190cd02d0f1b7409d3a48b1f9483ff, type: 3}
+  m_Name: FighterSampleContentBundle
+  m_EditorClassIdentifier: Assembly-CSharp::FighterSampleContentBundle
+  definitions:
+  - {fileID: 11400000, guid: 1337ac421eff03443a76be073a97d7f1, type: 2}
+  - {fileID: 11400000, guid: 25a44f67bc9d80d4caa5bcd64181cfe8, type: 2}
+  - {fileID: 11400000, guid: 71239d7e5dad75f42a541d17485064b1, type: 2}
+  - {fileID: 11400000, guid: 89d999264c2f531499105cde3f34c65f, type: 2}
+  - {fileID: 11400000, guid: 408f3c7ee8b3e784c8b3a32cd19ccd7e, type: 2}
+  - {fileID: 11400000, guid: e07c0d6b4cc7588418bd44ac4e6666c0, type: 2}
+  - {fileID: 11400000, guid: dbb96f49c991b7d47955f478019cfb89, type: 2}
+  - {fileID: 11400000, guid: 7c390024ae1005c41b1bc6a23c39843c, type: 2}
+  - {fileID: 11400000, guid: e982fe6d83c6b1b4095ceaf5ea82cfd9, type: 2}
+  - {fileID: 11400000, guid: f0f1b609010a7524b99ea7f85848c1b1, type: 2}
+  - {fileID: 11400000, guid: bf899ec315719934cb5c0b675ba081f0, type: 2}
+  - {fileID: 11400000, guid: 51b4793d57c3161428b784eab638067a, type: 2}
+  - {fileID: 11400000, guid: 06c44805e98ef5247a28a340734538ab, type: 2}
+  - {fileID: 11400000, guid: c1219330d0a531e45b828601f3a52a9c, type: 2}
+  - {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+  - {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+  - {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}
+  - {fileID: 11400000, guid: 0e044852363362d44be2ee8ef0b053b8, type: 2}
+  - {fileID: 11400000, guid: 7cac2aa89ebac5041a82154574c88b41, type: 2}
+  - {fileID: 11400000, guid: 6b04f302d9a27bf48a60ea1f434a56c6, type: 2}
+  - {fileID: 11400000, guid: 6fcf3fda131945f429a2e08985fb231a, type: 2}
+  - {fileID: 11400000, guid: 7a6d9b214512c8d458c210b3b78bd87f, type: 2}
+  - {fileID: 11400000, guid: 24e5ab49b1bf5a5428de1f7c14f810c6, type: 2}
+  - {fileID: 11400000, guid: d93719d3caf6aa1479147f7457f9a530, type: 2}
+  - {fileID: 11400000, guid: 35b42c2e467d9fd4081ffbe93bc46969, type: 2}
+  - {fileID: 11400000, guid: 3d15df98086795046928ff9933e9c8b3, type: 2}
+  - {fileID: 11400000, guid: 5e6b29282aa716341af7b7184d1730c2, type: 2}
+  - {fileID: 11400000, guid: d391719f89bb29e4ab8ccb91c4750ae3, type: 2}
+  - {fileID: 11400000, guid: f1c1fd8aebfdd434b8ea21a0369a1c9d, type: 2}
+  - {fileID: 11400000, guid: c4385a98f58956045a4f9d05f4e44c13, type: 2}
+  - {fileID: 11400000, guid: ac1214c75c0ef52489d7d795e6cbdb19, type: 2}
+  - {fileID: 11400000, guid: 7b3357caaa7be2242b8c56f56c9c5b77, type: 2}
+  - {fileID: 11400000, guid: b8cfe225d7a5eab4589904d152287069, type: 2}
+  - {fileID: 11400000, guid: 8e00c7ec1be63f548add284a41431cb7, type: 2}
+  - {fileID: 11400000, guid: 54538e408054d474e927a2d43a72f63f, type: 2}
+  - {fileID: 11400000, guid: e29d7bccc69a6a843be44bd454bb686a, type: 2}
+  - {fileID: 11400000, guid: 7e8c23509f2f9214e90c75a71d3d6896, type: 2}
+  - {fileID: 11400000, guid: 2f200a3a2d0790e4f9663d17885d514c, type: 2}
+  - {fileID: 11400000, guid: d4f62cee6e656114f94400c6fa5b6af1, type: 2}
+  - {fileID: 11400000, guid: 4cbaa2102f1eb23429844d38b340d2a4, type: 2}
+  - {fileID: 11400000, guid: f561aeb3ea8865d4081cde2574f29926, type: 2}
+  race: {fileID: 11400000, guid: 2f200a3a2d0790e4f9663d17885d514c, type: 2}
+  characterClass: {fileID: 11400000, guid: 4cbaa2102f1eb23429844d38b340d2a4, type: 2}
+  subclass: {fileID: 11400000, guid: d4f62cee6e656114f94400c6fa5b6af1, type: 2}
+  background: {fileID: 11400000, guid: f561aeb3ea8865d4081cde2574f29926, type: 2}
+  strength: {fileID: 11400000, guid: 1337ac421eff03443a76be073a97d7f1, type: 2}
+  dexterity: {fileID: 11400000, guid: 25a44f67bc9d80d4caa5bcd64181cfe8, type: 2}
+  constitution: {fileID: 11400000, guid: 71239d7e5dad75f42a541d17485064b1, type: 2}
+  intelligence: {fileID: 11400000, guid: 89d999264c2f531499105cde3f34c65f, type: 2}
+  wisdom: {fileID: 11400000, guid: 408f3c7ee8b3e784c8b3a32cd19ccd7e, type: 2}
+  charisma: {fileID: 11400000, guid: e07c0d6b4cc7588418bd44ac4e6666c0, type: 2}
+  hitPoints: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+  action: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+  bonusAction: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}
+  reactionResource: {fileID: 11400000, guid: 0e044852363362d44be2ee8ef0b053b8, type: 2}
+  mainHandSlot: {fileID: 11400000, guid: 6fcf3fda131945f429a2e08985fb231a, type: 2}
+  armorSlot: {fileID: 11400000, guid: 7a6d9b214512c8d458c210b3b78bd87f, type: 2}
+  longsword: {fileID: 11400000, guid: 24e5ab49b1bf5a5428de1f7c14f810c6, type: 2}
+  chainShirt: {fileID: 11400000, guid: d93719d3caf6aa1479147f7457f9a530, type: 2}
+  goldPiece: {fileID: 11400000, guid: 35b42c2e467d9fd4081ffbe93bc46969, type: 2}
+  healingPotion: {fileID: 11400000, guid: 3d15df98086795046928ff9933e9c8b3, type: 2}

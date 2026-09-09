@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 004d7c99a5c0e2d4b85c15e770836ef4, type: 3}
+  m_Name: FeatureDefinition_CriminalContact
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.FeatureDefinition
+  id: feature-criminal-background
+  displayName: Criminal Contact
+  description: You have a reliable contact who serves as your liaison to a network of other criminals. You know how to get messages to and from your contact, even over great distances, using the local messengers, corrupt caravan masters, and seedy sailors who move information for people like you.
+  modifiers: []
+  grantedAbilityIds: []
+  grantedResources: []
+  grantedProficiencies:
+  - value: skill-deception
+  - value: skill-stealth
+  choices: []

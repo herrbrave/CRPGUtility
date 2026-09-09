@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_Command
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-command
+  displayName: Command
+  description: You speak a one-word command to a creature you can see within range. The target must succeed on a Wisdom saving throw or follow the command on its next turn (Approach/Drop/Flee/Grovel/Halt; the DM decides other commands' effects). No effect on undead, creatures that don't understand your language, or creatures immune to being charmed by a command that would harm it. Simplified here to a single representative outcome -- 'Grovel', modeled as the Prone condition for 1 round -- since there's no branching command-word choice system. When cast using a higher-level slot, affects one additional creature per slot level above 1st.
+  tags: 2
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: 8cfe51950e82e104380cf1391b7fa15d, type: 2}
+    amount: 1
+  targeting:
+    mode: 1
+    relation: 2
+    minTargets: 1
+    maxTargets: 1
+    range: 18
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 4304780644164829206
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 4304780644164829206
+      type: {class: SavingThrowEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        savingStatId:
+          value: stat-wisdom
+        difficultyClass: 0
+        useCasterSpellSaveDC: 1
+        onFailure:
+          rid: 4304780644164829207
+        onSuccess:
+          rid: -2
+    - rid: 4304780644164829207
+      type: {class: ApplyConditionEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        condition: {fileID: 11400000, guid: 703bf817dd98c78448c8a461e03b69fa, type: 2}
+        duration: 1
