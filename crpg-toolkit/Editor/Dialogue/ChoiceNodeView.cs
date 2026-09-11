@@ -1,3 +1,5 @@
+using CRPG.Core;
+using CRPG.Editor.PropertyDrawers;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -35,7 +37,7 @@ namespace CRPG.Editor.Dialogue
             options.InsertArrayElementAtIndex(newIndex);
             var newOption = options.GetArrayElementAtIndex(newIndex);
             newOption.FindPropertyRelative("text").stringValue = "New Option";
-            newOption.FindPropertyRelative("nextNodeId").stringValue = "";
+            SerializableGuidPropertyExtensions.SetValue(newOption.FindPropertyRelative("nextNodeId"), SerializableGuid.Empty);
             newOption.FindPropertyRelative("hasVisibilityCondition").boolValue = false;
             NodeProperty.serializedObject.ApplyModifiedProperties();
             RebuildOptions();

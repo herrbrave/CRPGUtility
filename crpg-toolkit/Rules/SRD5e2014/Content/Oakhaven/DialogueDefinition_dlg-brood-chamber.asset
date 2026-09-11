@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
   id: dlg-brood-chamber
   displayName: dlg-brood-chamber
-  startNodeId: start
+  startNodeId:
+    low: 5150937467586202532
+    high: -3789460557818471274
   nodes:
   - rid: 4304780615459536949
   - rid: 4304780615459536950
@@ -32,84 +34,126 @@ MonoBehaviour:
     - rid: 4304780615459536949
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: start
+        nodeId:
+          low: 5150937467586202532
+          high: -3789460557818471274
         editorPosition: {x: 85, y: 112}
         timelineKey: elian-fate-known
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: already-known
-        falseNodeId: intro
+        trueNodeId:
+          low: 5135317049282876943
+          high: 7657674271015522462
+        falseNodeId:
+          low: 5619042034880888310
+          high: -1657804973477212799
     - rid: 4304780615459536950
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: intro
+        nodeId:
+          low: 5619042034880888310
+          high: -1657804973477212799
         editorPosition: {x: 844, y: -32}
         speakerName: You
         text: Smoke thickens the air of the deepest chamber. Crude cages of bone and wood line the walls. Goblin stalkers circle a robed Witch Doctor muttering over a huddled captive -- Elian.
-        nextNodeId: check
+        nextNodeId:
+          low: 4868053763084565220
+          high: -6977218168518249595
     - rid: 4304780615459536951
       type: {class: CheckNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: check
+        nodeId:
+          low: 4868053763084565220
+          high: -6977218168518249595
         editorPosition: {x: 858, y: -47}
         queryKey: Skill:Persuasion
         difficultyClass: 15
         performer: 1
-        successNodeId: success-line
-        failureNodeId: failure-line
+        successNodeId:
+          low: 5171724978187529670
+          high: 8857807455297603208
+        failureNodeId:
+          low: 5506719300199448647
+          high: -1792680031208158279
     - rid: 4304780615459536952
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: success-line
+        nodeId:
+          low: 5171724978187529670
+          high: 8857807455297603208
         editorPosition: {x: 461, y: -417}
         speakerName: You
         text: Your bold defiance rattles the stalkers -- they scatter into the dark, and the Witch Doctor flees rather than face you alone. You cut Elian free. He is shaken, but alive.
-        nextNodeId: alive-action
+        nextNodeId:
+          low: 5073195144003514543
+          high: 2596335003420756354
     - rid: 4304780615459536953
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: alive-action
+        nodeId:
+          low: 5073195144003514543
+          high: 2596335003420756354
         editorPosition: {x: 730, y: -206}
         action:
           rid: 4304780615459536959
-        nextNodeId: fate-action
+        nextNodeId:
+          low: 4872914006078391195
+          high: -3730380038082731874
     - rid: 4304780615459536954
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: failure-line
+        nodeId:
+          low: 5506719300199448647
+          high: -1792680031208158279
         editorPosition: {x: 402, y: 336}
         speakerName: You
         text: The stalkers close in before you can act. By the time you fight clear to the cage, Elian is already gone. You find only his mother's locket among the ashes.
-        nextNodeId: dead-action
+        nextNodeId:
+          low: 5431031555548179747
+          high: -6062861150600639320
     - rid: 4304780615459536955
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: dead-action
+        nodeId:
+          low: 5431031555548179747
+          high: -6062861150600639320
         editorPosition: {x: 641, y: -264}
         action:
           rid: 4304780615459536960
-        nextNodeId: fate-action
+        nextNodeId:
+          low: 4872914006078391195
+          high: -3730380038082731874
     - rid: 4304780615459536956
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: fate-action
+        nodeId:
+          low: 4872914006078391195
+          high: -3730380038082731874
         editorPosition: {x: 716, y: -148}
         action:
           rid: 4304780615459536961
-        nextNodeId: end
+        nextNodeId:
+          low: 4887571627435886722
+          high: -2752272715450523740
     - rid: 4304780615459536957
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: already-known
+        nodeId:
+          low: 5135317049282876943
+          high: 7657674271015522462
         editorPosition: {x: 1029, y: -197}
         speakerName: You
         text: The Brood Chamber lies empty and cold now.
-        nextNodeId: end
+        nextNodeId:
+          low: 4887571627435886722
+          high: -2752272715450523740
     - rid: 4304780615459536958
       type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: end
+        nodeId:
+          low: 4887571627435886722
+          high: -2752272715450523740
         editorPosition: {x: 0, y: 0}
     - rid: 4304780615459536959
       type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}

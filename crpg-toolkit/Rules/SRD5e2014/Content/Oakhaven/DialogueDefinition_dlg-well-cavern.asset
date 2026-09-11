@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
   id: dlg-well-cavern
   displayName: dlg-well-cavern
-  startNodeId: start
+  startNodeId:
+    low: 5052414475637591789
+    high: -9013866954331862908
   nodes:
   - rid: 4304780615459536913
   - rid: 4304780615459536914
@@ -30,61 +32,103 @@ MonoBehaviour:
     - rid: 4304780615459536913
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: start
+        nodeId:
+          low: 5052414475637591789
+          high: -9013866954331862908
+        editorPosition: {x: 0, y: 0}
         timelineKey: well-cavern-passed
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: already-passed
-        falseNodeId: intro
+        trueNodeId:
+          low: 5586840435566155398
+          high: 1674796161194710960
+        falseNodeId:
+          low: 4888089047190484571
+          high: -7118108767548204875
     - rid: 4304780615459536914
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: intro
+        nodeId:
+          low: 4888089047190484571
+          high: -7118108767548204875
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: The well plunges into darkness. A knotted rope leads down into a damp, torch-lit cavern. Two goblin sentries pace an upper ledge above, unaware of you... for now.
-        nextNodeId: check
+        nextNodeId:
+          low: 5602247634131095215
+          high: 284840017689226145
     - rid: 4304780615459536915
       type: {class: CheckNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: check
+        nodeId:
+          low: 5602247634131095215
+          high: 284840017689226145
+        editorPosition: {x: 0, y: 0}
         queryKey: Skill:Acrobatics
         difficultyClass: 12
         performer: 1
-        successNodeId: success-line
-        failureNodeId: failure-line
+        successNodeId:
+          low: 5395694847848279326
+          high: 7590240881722557605
+        failureNodeId:
+          low: 5340865830383374561
+          high: 7338311948627293857
     - rid: 4304780615459536916
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: success-line
+        nodeId:
+          low: 5395694847848279326
+          high: 7590240881722557605
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: You slip past the ledge unseen, the sentries none the wiser.
-        nextNodeId: pass-action
+        nextNodeId:
+          low: 5088297723851651095
+          high: 544590665865462417
     - rid: 4304780615459536917
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: failure-line
+        nodeId:
+          low: 5340865830383374561
+          high: 7338311948627293857
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: A loose stone clatters away beneath your foot. The sentries snap alert -- but by the time they scramble down, you're already past, deeper into the dark.
-        nextNodeId: pass-action
+        nextNodeId:
+          low: 5088297723851651095
+          high: 544590665865462417
     - rid: 4304780615459536918
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: pass-action
+        nodeId:
+          low: 5088297723851651095
+          high: 544590665865462417
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536921
-        nextNodeId: end
+        nextNodeId:
+          low: 4860232843579692425
+          high: 7632117299403461265
     - rid: 4304780615459536919
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: already-passed
+        nodeId:
+          low: 5586840435566155398
+          high: 1674796161194710960
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: The entrance cavern is quiet behind you now.
-        nextNodeId: end
+        nextNodeId:
+          low: 4860232843579692425
+          high: 7632117299403461265
     - rid: 4304780615459536920
       type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: end
+        nodeId:
+          low: 4860232843579692425
+          high: 7632117299403461265
+        editorPosition: {x: 0, y: 0}
     - rid: 4304780615459536921
       type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:

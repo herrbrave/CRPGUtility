@@ -46,6 +46,11 @@ namespace CRPG.Core
 
         QuestStarted,
         QuestObjectiveCompleted,
-        QuestCompleted
+        QuestCompleted,
+
+        ItemEquipped,
+        ItemUnequipped,
+
+        AnimationCueChanged
     }
 }

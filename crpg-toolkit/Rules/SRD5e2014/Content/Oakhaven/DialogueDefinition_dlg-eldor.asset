@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
   id: dlg-eldor
   displayName: dlg-eldor
-  startNodeId: start
+  startNodeId:
+    low: 5226235038033972061
+    high: -558167087446147173
   nodes:
   - rid: 4304780615459536931
   - rid: 4304780615459536932
@@ -37,44 +39,70 @@ MonoBehaviour:
     - rid: 4304780615459536931
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: start
+        nodeId:
+          low: 5226235038033972061
+          high: -558167087446147173
+        editorPosition: {x: 0, y: 0}
         timelineKey: elian-fate-known
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: fate-known
-        falseNodeId: greeting-gate
+        trueNodeId:
+          low: 4684102039169853566
+          high: 5988064666187366789
+        falseNodeId:
+          low: 5244689163056200544
+          high: -5182310539955651439
     - rid: 4304780615459536932
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: greeting-gate
+        nodeId:
+          low: 5244689163056200544
+          high: -5182310539955651439
+        editorPosition: {x: 0, y: 0}
         timelineKey: quest-lost-heir-accepted
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: already-accepted
-        falseNodeId: greeting
+        trueNodeId:
+          low: 4838274669066447542
+          high: -396687096703783278
+        falseNodeId:
+          low: 5410335366633465325
+          high: 4905219601168281494
     - rid: 4304780615459536933
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: greeting
+        nodeId:
+          low: 5410335366633465325
+          high: 4905219601168281494
+        editorPosition: {x: 0, y: 0}
         speakerName: Eldor
         text: Greetings, traveler. You arrive at a dark hour. My son, Elian, is missing. He was investigating the old well. Goblins... I fear they took him. Find him, please, and I will reward you dearly.
-        nextNodeId: greeting-choice
+        nextNodeId:
+          low: 5475100572283454029
+          high: -1074148236335513926
     - rid: 4304780615459536934
       type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: greeting-choice
+        nodeId:
+          low: 5475100572283454029
+          high: -1074148236335513926
+        editorPosition: {x: 0, y: 0}
         options:
         - text: I will find your son, Eldor.
-          nextNodeId: accept-action
+          nextNodeId:
+            low: 5248225690093419529
+            high: 5072912752711131787
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
           conditionType: 0
           threshold: 0
         - text: I have other matters.
-          nextNodeId: decline-line
+          nextNodeId:
+            low: 5354566156531703641
+            high: -4843673578859254354
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
@@ -83,80 +111,135 @@ MonoBehaviour:
     - rid: 4304780615459536935
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: accept-action
+        nodeId:
+          low: 5248225690093419529
+          high: 5072912752711131787
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536946
-        nextNodeId: accept-line
+        nextNodeId:
+          low: 5703780688726319795
+          high: 1546492945430047116
     - rid: 4304780615459536936
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: accept-line
+        nodeId:
+          low: 5703780688726319795
+          high: 1546492945430047116
+        editorPosition: {x: 0, y: 0}
         speakerName: Eldor
         text: Thank you. The well behind my manor... that is where he was last seen. May the gods watch over you.
-        nextNodeId: end
+        nextNodeId:
+          low: 5371963411559620666
+          high: -4909725883238091362
     - rid: 4304780615459536937
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: decline-line
+        nodeId:
+          low: 5354566156531703641
+          high: -4843673578859254354
+        editorPosition: {x: 0, y: 0}
         speakerName: Eldor
         text: Then pray they do not involve the safety of your own family.
-        nextNodeId: end
+        nextNodeId:
+          low: 5371963411559620666
+          high: -4909725883238091362
     - rid: 4304780615459536938
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: already-accepted
+        nodeId:
+          low: 4838274669066447542
+          high: -396687096703783278
+        editorPosition: {x: 0, y: 0}
         speakerName: Eldor
         text: Please, hurry back with news of my son.
-        nextNodeId: end
+        nextNodeId:
+          low: 5371963411559620666
+          high: -4909725883238091362
     - rid: 4304780615459536939
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: fate-known
+        nodeId:
+          low: 4684102039169853566
+          high: 5988064666187366789
+        editorPosition: {x: 0, y: 0}
         timelineKey: elian-alive
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: joyful-line
-        falseNodeId: grief-line
+        trueNodeId:
+          low: 5338202600399673160
+          high: 858007038599526553
+        falseNodeId:
+          low: 5177189308890276225
+          high: 5008521144784545939
     - rid: 4304780615459536940
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: joyful-line
+        nodeId:
+          low: 5338202600399673160
+          high: 858007038599526553
+        editorPosition: {x: 0, y: 0}
         speakerName: Eldor
         text: Elian! My boy! Safe! Oh, thank the gods. Words cannot express my gratitude, traveler.
-        nextNodeId: give-ring
+        nextNodeId:
+          low: 4810934439202020344
+          high: 5242166819521202052
     - rid: 4304780615459536941
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: give-ring
+        nodeId:
+          low: 4810934439202020344
+          high: 5242166819521202052
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536947
-        nextNodeId: ring-line
+        nextNodeId:
+          low: 5623032811808097970
+          high: -2169823209827953503
     - rid: 4304780615459536942
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: ring-line
+        nodeId:
+          low: 5623032811808097970
+          high: -2169823209827953503
+        editorPosition: {x: 0, y: 0}
         speakerName: Eldor
         text: Take this family heirloom -- a Ring of Protection. It saved my father; may it save you.
-        nextNodeId: end
+        nextNodeId:
+          low: 5371963411559620666
+          high: -4909725883238091362
     - rid: 4304780615459536943
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: grief-line
+        nodeId:
+          low: 5177189308890276225
+          high: 5008521144784545939
+        editorPosition: {x: 0, y: 0}
         speakerName: Eldor
         text: (Sobbing) The locket... it was his mother's. You promised you would find him! You failed us... Leave me. Leave Oakhaven. Your presence is a curse.
-        nextNodeId: grief-action
+        nextNodeId:
+          low: 5090094087340524717
+          high: -7969388227444753991
     - rid: 4304780615459536944
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: grief-action
+        nodeId:
+          low: 5090094087340524717
+          high: -7969388227444753991
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536948
-        nextNodeId: end
+        nextNodeId:
+          low: 5371963411559620666
+          high: -4909725883238091362
     - rid: 4304780615459536945
       type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: end
+        nodeId:
+          low: 5371963411559620666
+          high: -4909725883238091362
+        editorPosition: {x: 0, y: 0}
     - rid: 4304780615459536946
       type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:

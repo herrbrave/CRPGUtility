@@ -21,6 +21,7 @@ namespace CRPG.Inventory
         [SerializeField] private DefinitionId equipmentSlotId;
         [SerializeField] private DefinitionId grantedAbilityId;
         [SerializeField] private DefinitionId equippedFeatureId;
+        [SerializeField] private GameObject visualPrefab;
 
         public string DisplayName => displayName;
         public string Description => description;
@@ -38,6 +39,11 @@ namespace CRPG.Inventory
         /// unequipped or displaced (e.g. armor's AC bonus, a Fighting Style tag). None (the common case) means
         /// this item has no passive effect while worn.</summary>
         public DefinitionId EquippedFeatureId => equippedFeatureId;
+
+        /// <summary>Instantiated onto the wearer's character prefab while this item is equipped (a modular
+        /// outfit piece, a weapon mesh, ...), then destroyed on unequip. None (the common case, e.g. most
+        /// consumables) means this item has no visual representation.</summary>
+        public GameObject VisualPrefab => visualPrefab;
 
         public bool IsEquippable => equipmentSlotId.IsValid;
         public bool IsStackable => maxStackSize > 1;

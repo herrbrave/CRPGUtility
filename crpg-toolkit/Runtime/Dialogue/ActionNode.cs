@@ -1,4 +1,5 @@
 using System;
+using CRPG.Core;
 using UnityEngine;
 
 namespace CRPG.Dialogue
@@ -9,9 +10,9 @@ namespace CRPG.Dialogue
     public sealed class ActionNode : DialogueNode
     {
         [SerializeReference] private DialogueAction action;
-        [SerializeField] private string nextNodeId;
+        [SerializeField] private SerializableGuid nextNodeId;
 
         public DialogueAction Action => action;
-        public string NextNodeId => nextNodeId;
+        public SerializableGuid NextNodeId => nextNodeId;
     }
 }

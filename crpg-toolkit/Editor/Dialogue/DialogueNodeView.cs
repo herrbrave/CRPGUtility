@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using CRPG.Core;
 using CRPG.Dialogue;
+using CRPG.Editor.PropertyDrawers;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
@@ -31,7 +33,7 @@ namespace CRPG.Editor.Dialogue
             Model = (DialogueNode)nodeProperty.managedReferenceValue;
             OwnerGraphView = ownerGraphView;
             this.title = title;
-            viewDataKey = Model.NodeId;
+            viewDataKey = Model.NodeId.ToString();
 
             InputPort = Port.Create<Edge>(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
             InputPort.portName = "";
@@ -49,12 +51,12 @@ namespace CRPG.Editor.Dialogue
         /// <summary>Every (port, relative property path, current target NodeId) pair this node's outputs
         /// represent -- used by DialogueGraphView to build initial edges on load and to detect dangling
         /// references (a non-empty NodeId that doesn't match any node currently in the graph).</summary>
-        public IEnumerable<(Port Port, string RelativePath, string TargetNodeId)> GetOutputLinks()
+        public IEnumerable<(Port Port, string RelativePath, SerializableGuid TargetNodeId)> GetOutputLinks()
         {
             foreach (var port in outputPorts)
             {
                 var relativePath = (string)port.userData;
-                yield return (port, relativePath, NodeProperty.FindPropertyRelative(relativePath).stringValue);
+                yield return (port, relativePath, SerializableGuidPropertyExtensions.GetValue(NodeProperty.FindPropertyRelative(relativePath)));
             }
         }
 
@@ -111,11 +113,11 @@ namespace CRPG.Editor.Dialogue
 
         /// <summary>Tints an output port red if its target NodeId is set but doesn't resolve to any node
         /// currently in the graph -- an unset (empty) target is just "not wired up yet", not dangling.</summary>
-        public void RefreshDanglingState(HashSet<string> validNodeIds)
+        public void RefreshDanglingState(HashSet<SerializableGuid> validNodeIds)
         {
             foreach (var (port, _, targetNodeId) in GetOutputLinks())
             {
-                var dangling = !string.IsNullOrEmpty(targetNodeId) && !validNodeIds.Contains(targetNodeId);
+                var dangling = targetNodeId.IsValid && !validNodeIds.Contains(targetNodeId);
                 port.portColor = dangling ? DanglingPortColor : defaultPortColors[port];
             }
         }

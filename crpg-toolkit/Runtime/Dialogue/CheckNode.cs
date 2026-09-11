@@ -1,4 +1,5 @@
 using System;
+using CRPG.Core;
 using UnityEngine;
 
 namespace CRPG.Dialogue
@@ -16,13 +17,13 @@ namespace CRPG.Dialogue
         [SerializeField] private string queryKey;
         [SerializeField] private int difficultyClass;
         [SerializeField] private CheckPerformer performer = CheckPerformer.BestPartyMember;
-        [SerializeField] private string successNodeId;
-        [SerializeField] private string failureNodeId;
+        [SerializeField] private SerializableGuid successNodeId;
+        [SerializeField] private SerializableGuid failureNodeId;
 
         public string QueryKey => queryKey;
         public int DifficultyClass => difficultyClass;
         public CheckPerformer Performer => performer;
-        public string SuccessNodeId => successNodeId;
-        public string FailureNodeId => failureNodeId;
+        public SerializableGuid SuccessNodeId => successNodeId;
+        public SerializableGuid FailureNodeId => failureNodeId;
     }
 }

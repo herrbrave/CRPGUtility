@@ -16,12 +16,14 @@ namespace CRPG.Inventory
         private readonly ICharacterRegistry characters;
         private readonly IRulesDatabase rulesDatabase;
         private readonly PartyInventoryState inventory;
+        private readonly IGameEventBus eventBus;
 
-        public EquipmentService(ICharacterRegistry characters, IRulesDatabase rulesDatabase, PartyInventoryState inventory)
+        public EquipmentService(ICharacterRegistry characters, IRulesDatabase rulesDatabase, PartyInventoryState inventory, IGameEventBus eventBus = null)
         {
             this.characters = characters;
             this.rulesDatabase = rulesDatabase;
             this.inventory = inventory;
+            this.eventBus = eventBus;
         }
 
         /// <returns>The item displaced out of the slot back to the shared inventory, if any.</returns>
@@ -41,11 +43,13 @@ namespace CRPG.Inventory
             {
                 inventory.SetLocation(occupant.InstanceId, ItemLocation.SharedInventory);
                 RemoveEquippedFeature(character, occupant);
+                PublishItemEvent(GameEvent.ItemUnequipped, character, occupant.DefinitionId, slot);
                 displaced = occupant;
             }
 
             inventory.SetLocation(instanceId, ItemLocation.Equipped(character, slot));
             GrantEquippedFeature(character, item, definition);
+            PublishItemEvent(GameEvent.ItemEquipped, character, item.DefinitionId, slot);
             return displaced;
         }
 
@@ -56,7 +60,10 @@ namespace CRPG.Inventory
 
             var previousLocation = inventory.GetLocation(instanceId);
             inventory.SetLocation(instanceId, ItemLocation.SharedInventory);
-            if (previousLocation.IsEquipped) RemoveEquippedFeature(previousLocation.Character, item);
+            if (!previousLocation.IsEquipped) return;
+
+            RemoveEquippedFeature(previousLocation.Character, item);
+            PublishItemEvent(GameEvent.ItemUnequipped, previousLocation.Character, item.DefinitionId, previousLocation.Slot);
         }
 
         private void GrantEquippedFeature(RuntimeEntityId character, ItemInstance item, ItemDefinition definition)
@@ -69,6 +76,14 @@ namespace CRPG.Inventory
         {
             if (!rulesDatabase.TryResolve<ItemDefinition>(item.DefinitionId, out var definition) || !definition.EquippedFeatureId.IsValid) return;
             if (characters.TryGetCharacter(character, out var characterState)) characterState.RemoveFeature(definition.EquippedFeatureId);
+        }
+
+        private void PublishItemEvent(GameEvent gameEvent, RuntimeEntityId character, DefinitionId itemDefinitionId, DefinitionId slot)
+        {
+            var context = new GameEventContext(gameEvent, character, character);
+            context.Data["ItemDefinitionId"] = itemDefinitionId;
+            context.Data["SlotId"] = slot;
+            eventBus?.Publish(context);
         }
     }
 }

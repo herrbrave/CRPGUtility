@@ -48,6 +48,14 @@ namespace CRPG.Actors
         /// remove whatever the broken spell's effects already did (e.g. a condition it applied stays applied) --
         /// only new content built around this flag can decide to clean itself up when it sees concentration end.</summary>
         public DefinitionId ConcentratingOnAbilityId { get; set; }
+
+        /// <summary>The last animation cue requested for this character via AnimationOrderService -- e.g. an
+        /// attack swing or a combat-ready stance. DefinitionId.None means nothing's been explicitly requested.
+        /// Deliberately does NOT cover continuous locomotion (idle/walk blending) -- that's a purely visual
+        /// concern driven by movement speed, never routed through CharacterState. Purely a data record of the
+        /// last request; whatever visual layer is watching AnimationCueChanged decides what to actually play.</summary>
+        public DefinitionId CurrentAnimationCueId { get; set; }
+
         public IReadOnlyDictionary<DefinitionId, ResourceState> Resources => resources;
         public IReadOnlyList<ConditionInstance> Conditions => conditions;
         public IReadOnlyCollection<DefinitionId> Proficiencies => proficiencies;

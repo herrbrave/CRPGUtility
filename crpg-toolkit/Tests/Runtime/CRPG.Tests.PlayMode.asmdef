@@ -1,7 +1,7 @@
 {
     "name": "CRPG.Tests.PlayMode",
     "rootNamespace": "CRPG.Tests.PlayMode",
-    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Combat", "UnityEngine.TestRunner"],
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Combat", "CRPG.Inventory", "CRPG.Gameplay", "CRPG.Presentation", "Unity.AI.Navigation", "UnityEngine.TestRunner"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

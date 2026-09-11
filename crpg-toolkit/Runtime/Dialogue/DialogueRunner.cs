@@ -13,12 +13,12 @@ namespace CRPG.Dialogue
     public sealed class DialogueRunner
     {
         private readonly DialogueContext context;
-        private readonly Dictionary<string, DialogueNode> nodesById;
+        private readonly Dictionary<SerializableGuid, DialogueNode> nodesById;
 
         public DialogueRunner(DialogueDefinition definition, DialogueContext context)
         {
             this.context = context;
-            nodesById = new Dictionary<string, DialogueNode>();
+            nodesById = new Dictionary<SerializableGuid, DialogueNode>();
             foreach (var node in definition.Nodes) nodesById[node.NodeId] = node;
 
             CurrentNode = nodesById[definition.StartNodeId];
@@ -89,7 +89,7 @@ namespace CRPG.Dialogue
             return new DialogueCheckOutcome(success, rolls);
         }
 
-        private void MoveTo(string nodeId)
+        private void MoveTo(SerializableGuid nodeId)
         {
             CurrentNode = nodesById[nodeId];
             Settle();

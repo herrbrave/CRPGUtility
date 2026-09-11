@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
   id: dlg-mining-crevasse
   displayName: dlg-mining-crevasse
-  startNodeId: start
+  startNodeId:
+    low: 4887967211850817151
+    high: -2657130981618018152
   nodes:
   - rid: 4304780615459536922
   - rid: 4304780615459536923
@@ -30,61 +32,103 @@ MonoBehaviour:
     - rid: 4304780615459536922
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: start
+        nodeId:
+          low: 4887967211850817151
+          high: -2657130981618018152
+        editorPosition: {x: 0, y: 0}
         timelineKey: cave-cleared
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: already-cleared
-        falseNodeId: intro
+        trueNodeId:
+          low: 4675835579191409834
+          high: 4402658504637177483
+        falseNodeId:
+          low: 5260584857566288965
+          high: -2138342698947635318
     - rid: 4304780615459536923
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: intro
+        nodeId:
+          low: 5260584857566288965
+          high: -2138342698947635318
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: The crevasse walls glow faintly with exposed ore. Goblin miners swarm a crude blockade, picks in hand, with a hulking Hobgoblin Overseer barking orders over the din.
-        nextNodeId: check
+        nextNodeId:
+          low: 4930426054405511389
+          high: 8667552348684886718
     - rid: 4304780615459536924
       type: {class: CheckNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: check
+        nodeId:
+          low: 4930426054405511389
+          high: 8667552348684886718
+        editorPosition: {x: 0, y: 0}
         queryKey: Skill:Athletics
         difficultyClass: 14
         performer: 1
-        successNodeId: success-line
-        failureNodeId: failure-line
+        successNodeId:
+          low: 5022229451690752750
+          high: 5793476997073125780
+        failureNodeId:
+          low: 5414632706064891863
+          high: 3341781777045088136
     - rid: 4304780615459536925
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: success-line
+        nodeId:
+          low: 5022229451690752750
+          high: 5793476997073125780
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: You barrel through the blockade, scattering goblins and toppling the Overseer into his own tunnel. The vein is clear.
-        nextNodeId: clear-action
+        nextNodeId:
+          low: 5171365173856041227
+          high: -7272230160565526350
     - rid: 4304780615459536926
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: failure-line
+        nodeId:
+          low: 5414632706064891863
+          high: 3341781777045088136
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: The Overseer rallies his miners and drives you back up the passage, bruised but unbowed. You'll need another approach.
-        nextNodeId: end
+        nextNodeId:
+          low: 5648335944170537582
+          high: 1269317471076509580
     - rid: 4304780615459536927
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: clear-action
+        nodeId:
+          low: 5171365173856041227
+          high: -7272230160565526350
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536930
-        nextNodeId: end
+        nextNodeId:
+          low: 5648335944170537582
+          high: 1269317471076509580
     - rid: 4304780615459536928
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: already-cleared
+        nodeId:
+          low: 4675835579191409834
+          high: 4402658504637177483
+        editorPosition: {x: 0, y: 0}
         speakerName: You
         text: The crevasse sits silent, the ore vein finally unguarded.
-        nextNodeId: end
+        nextNodeId:
+          low: 5648335944170537582
+          high: 1269317471076509580
     - rid: 4304780615459536929
       type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: end
+        nodeId:
+          low: 5648335944170537582
+          high: 1269317471076509580
+        editorPosition: {x: 0, y: 0}
     - rid: 4304780615459536930
       type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:

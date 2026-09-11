@@ -6,16 +6,22 @@ using UnityEngine;
 
 namespace CRPG.Tests.EditMode
 {
-    /// <summary>Builds dialogue nodes/actions/definitions via reflection, same rationale as TestDefinitionFactory.</summary>
+    /// <summary>Builds dialogue nodes/actions/definitions via reflection, same rationale as TestDefinitionFactory.
+    /// Every "node id" parameter here is still a plain, readable string (e.g. "line-2") for test readability --
+    /// internally each one is converted to a real SerializableGuid via SerializableGuid.FromString, which is
+    /// deterministic, so the same string always produces the same id and a test's "line-2" reference still
+    /// resolves to the same node created with nodeId "line-2".</summary>
     internal static class DialogueTestFactory
     {
+        private static SerializableGuid Id(string seed) => SerializableGuid.FromString(seed);
+
         public static LineNode CreateLine(string nodeId, string speakerName, string text, string nextNodeId)
         {
             var node = new LineNode();
-            TestDefinitionFactory.SetPrivateField(node, "nodeId", nodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nodeId", Id(nodeId));
             TestDefinitionFactory.SetPrivateField(node, "speakerName", speakerName);
             TestDefinitionFactory.SetPrivateField(node, "text", text);
-            TestDefinitionFactory.SetPrivateField(node, "nextNodeId", nextNodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nextNodeId", Id(nextNodeId));
             return node;
         }
 
@@ -23,7 +29,7 @@ namespace CRPG.Tests.EditMode
         {
             var option = new ChoiceOption();
             TestDefinitionFactory.SetPrivateField(option, "text", text);
-            TestDefinitionFactory.SetPrivateField(option, "nextNodeId", nextNodeId);
+            TestDefinitionFactory.SetPrivateField(option, "nextNodeId", Id(nextNodeId));
             return option;
         }
 
@@ -42,7 +48,7 @@ namespace CRPG.Tests.EditMode
         public static ChoiceNode CreateChoice(string nodeId, params ChoiceOption[] options)
         {
             var node = new ChoiceNode();
-            TestDefinitionFactory.SetPrivateField(node, "nodeId", nodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nodeId", Id(nodeId));
             TestDefinitionFactory.SetPrivateField(node, "options", new List<ChoiceOption>(options));
             return node;
         }
@@ -52,13 +58,13 @@ namespace CRPG.Tests.EditMode
             string trueNodeId, string falseNodeId, string secondTimelineKey = null)
         {
             var node = new BranchNode();
-            TestDefinitionFactory.SetPrivateField(node, "nodeId", nodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nodeId", Id(nodeId));
             TestDefinitionFactory.SetPrivateField(node, "timelineKey", timelineKey);
             TestDefinitionFactory.SetPrivateField(node, "secondTimelineKey", secondTimelineKey);
             TestDefinitionFactory.SetPrivateField(node, "conditionType", conditionType);
             TestDefinitionFactory.SetPrivateField(node, "threshold", threshold);
-            TestDefinitionFactory.SetPrivateField(node, "trueNodeId", trueNodeId);
-            TestDefinitionFactory.SetPrivateField(node, "falseNodeId", falseNodeId);
+            TestDefinitionFactory.SetPrivateField(node, "trueNodeId", Id(trueNodeId));
+            TestDefinitionFactory.SetPrivateField(node, "falseNodeId", Id(falseNodeId));
             return node;
         }
 
@@ -66,28 +72,28 @@ namespace CRPG.Tests.EditMode
             string nodeId, string queryKey, int difficultyClass, CheckPerformer performer, string successNodeId, string failureNodeId)
         {
             var node = new CheckNode();
-            TestDefinitionFactory.SetPrivateField(node, "nodeId", nodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nodeId", Id(nodeId));
             TestDefinitionFactory.SetPrivateField(node, "queryKey", queryKey);
             TestDefinitionFactory.SetPrivateField(node, "difficultyClass", difficultyClass);
             TestDefinitionFactory.SetPrivateField(node, "performer", performer);
-            TestDefinitionFactory.SetPrivateField(node, "successNodeId", successNodeId);
-            TestDefinitionFactory.SetPrivateField(node, "failureNodeId", failureNodeId);
+            TestDefinitionFactory.SetPrivateField(node, "successNodeId", Id(successNodeId));
+            TestDefinitionFactory.SetPrivateField(node, "failureNodeId", Id(failureNodeId));
             return node;
         }
 
         public static ActionNode CreateAction(string nodeId, DialogueAction action, string nextNodeId)
         {
             var node = new ActionNode();
-            TestDefinitionFactory.SetPrivateField(node, "nodeId", nodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nodeId", Id(nodeId));
             TestDefinitionFactory.SetPrivateField(node, "action", action);
-            TestDefinitionFactory.SetPrivateField(node, "nextNodeId", nextNodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nextNodeId", Id(nextNodeId));
             return node;
         }
 
         public static EndNode CreateEnd(string nodeId)
         {
             var node = new EndNode();
-            TestDefinitionFactory.SetPrivateField(node, "nodeId", nodeId);
+            TestDefinitionFactory.SetPrivateField(node, "nodeId", Id(nodeId));
             return node;
         }
 
@@ -125,7 +131,7 @@ namespace CRPG.Tests.EditMode
         {
             var definition = ScriptableObject.CreateInstance<DialogueDefinition>();
             TestDefinitionFactory.SetPrivateField(definition, "id", id);
-            TestDefinitionFactory.SetPrivateField(definition, "startNodeId", startNodeId);
+            TestDefinitionFactory.SetPrivateField(definition, "startNodeId", Id(startNodeId));
             TestDefinitionFactory.SetPrivateField(definition, "nodes", new List<DialogueNode>(nodes));
             return definition;
         }

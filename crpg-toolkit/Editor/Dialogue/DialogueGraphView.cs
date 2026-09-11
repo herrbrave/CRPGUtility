@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CRPG.Core;
 using CRPG.Dialogue;
+using CRPG.Editor.PropertyDrawers;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -28,7 +30,7 @@ namespace CRPG.Editor.Dialogue
         private readonly DialogueDefinition dialogueDefinition;
         private readonly SerializedObject serializedObject;
         private readonly SerializedProperty nodesProperty;
-        private readonly Dictionary<string, DialogueNodeView> viewsByNodeId = new();
+        private readonly Dictionary<SerializableGuid, DialogueNodeView> viewsByNodeId = new();
 
         public event Action DirtyStateChanged;
 
@@ -69,7 +71,7 @@ namespace CRPG.Editor.Dialogue
             {
                 foreach (var (port, _, targetNodeId) in view.GetOutputLinks())
                 {
-                    if (string.IsNullOrEmpty(targetNodeId) || !viewsByNodeId.TryGetValue(targetNodeId, out var targetView)) continue;
+                    if (!targetNodeId.IsValid || !viewsByNodeId.TryGetValue(targetNodeId, out var targetView)) continue;
                     AddElement(port.ConnectTo(targetView.InputPort));
                 }
             }
@@ -111,7 +113,7 @@ namespace CRPG.Editor.Dialogue
             nodesProperty.InsertArrayElementAtIndex(index);
             var newProperty = nodesProperty.GetArrayElementAtIndex(index);
             newProperty.managedReferenceValue = Activator.CreateInstance<T>();
-            newProperty.FindPropertyRelative("nodeId").stringValue = "node-" + Guid.NewGuid().ToString("N")[..8];
+            SerializableGuidPropertyExtensions.SetValue(newProperty.FindPropertyRelative("nodeId"), SerializableGuid.NewGuid());
             newProperty.FindPropertyRelative("editorPosition").vector2Value = position;
             serializedObject.ApplyModifiedProperties();
 
@@ -119,10 +121,10 @@ namespace CRPG.Editor.Dialogue
             RaiseDirty();
         }
 
-        private void SetStartNode(string nodeId)
+        private void SetStartNode(SerializableGuid nodeId)
         {
             serializedObject.Update();
-            serializedObject.FindProperty("startNodeId").stringValue = nodeId;
+            SerializableGuidPropertyExtensions.SetValue(serializedObject.FindProperty("startNodeId"), nodeId);
             serializedObject.ApplyModifiedProperties();
             RefreshStartNodeHighlight();
             RaiseDirty();
@@ -158,7 +160,7 @@ namespace CRPG.Editor.Dialogue
                 foreach (var edge in change.edgesToCreate)
                 {
                     if (edge.output.node is not DialogueNodeView sourceView) continue;
-                    var targetId = edge.input.node is DialogueNodeView targetView ? targetView.Model.NodeId : "";
+                    var targetId = edge.input.node is DialogueNodeView targetView ? targetView.Model.NodeId : SerializableGuid.Empty;
                     WriteNextId(sourceView, (string)edge.output.userData, targetId);
                     dirty = true;
                 }
@@ -170,7 +172,7 @@ namespace CRPG.Editor.Dialogue
                 {
                     if (edge.output.node is DialogueNodeView sourceView)
                     {
-                        WriteNextId(sourceView, (string)edge.output.userData, "");
+                        WriteNextId(sourceView, (string)edge.output.userData, SerializableGuid.Empty);
                         dirty = true;
                     }
                 }
@@ -192,14 +194,14 @@ namespace CRPG.Editor.Dialogue
             return change;
         }
 
-        private void WriteNextId(DialogueNodeView sourceView, string relativePath, string targetNodeId)
+        private void WriteNextId(DialogueNodeView sourceView, string relativePath, SerializableGuid targetNodeId)
         {
             sourceView.NodeProperty.serializedObject.Update();
-            sourceView.NodeProperty.FindPropertyRelative(relativePath).stringValue = targetNodeId;
+            SerializableGuidPropertyExtensions.SetValue(sourceView.NodeProperty.FindPropertyRelative(relativePath), targetNodeId);
             sourceView.NodeProperty.serializedObject.ApplyModifiedProperties();
         }
 
-        private void RemoveNode(string nodeId)
+        private void RemoveNode(SerializableGuid nodeId)
         {
             serializedObject.Update();
             for (var i = 0; i < nodesProperty.arraySize; i++)
@@ -215,7 +217,7 @@ namespace CRPG.Editor.Dialogue
 
         private void RefreshDanglingStates()
         {
-            var validIds = new HashSet<string>(viewsByNodeId.Keys);
+            var validIds = new HashSet<SerializableGuid>(viewsByNodeId.Keys);
             foreach (var view in viewsByNodeId.Values) view.RefreshDanglingState(validIds);
         }
 

@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
   id: dlg-griff
   displayName: dlg-griff
-  startNodeId: start
+  startNodeId:
+    low: 5341194572806646110
+    high: 1696905769740527535
   nodes:
   - rid: 4304780615459536896
   - rid: 4304780615459536897
@@ -36,51 +38,79 @@ MonoBehaviour:
     - rid: 4304780615459536896
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: start
+        nodeId:
+          low: 5341194572806646110
+          high: 1696905769740527535
+        editorPosition: {x: 0, y: 0}
         timelineKey: cave-cleared
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: cleared-line
-        falseNodeId: not-cleared-gate
+        trueNodeId:
+          low: 5364545203589238474
+          high: 5341209636043684013
+        falseNodeId:
+          low: 4804245623842990149
+          high: 293613890113790862
     - rid: 4304780615459536897
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: not-cleared-gate
+        nodeId:
+          low: 4804245623842990149
+          high: 293613890113790862
+        editorPosition: {x: 0, y: 0}
         timelineKey: quest-goblin-menace-accepted
         secondTimelineKey: 
         conditionType: 0
         threshold: 0
-        trueNodeId: already-accepted-line
-        falseNodeId: greeting
+        trueNodeId:
+          low: 5136480325230566362
+          high: -5115469169078017611
+        falseNodeId:
+          low: 4703096616897548008
+          high: -4864555515416038238
     - rid: 4304780615459536898
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: greeting
+        nodeId:
+          low: 4703096616897548008
+          high: -4864555515416038238
+        editorPosition: {x: 0, y: 0}
         speakerName: Griff
         text: Well met. If you're here about the goblins, Mayor's got a bounty. If you're here for gear, I'm low on ore. Those pests inside the caves are blocking the main vein. Clear 'em, and I'll make it worth your while.
-        nextNodeId: greeting-choice
+        nextNodeId:
+          low: 5358736943240507087
+          high: -5525227412962082143
     - rid: 4304780615459536899
       type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: greeting-choice
+        nodeId:
+          low: 5358736943240507087
+          high: -5525227412962082143
+        editorPosition: {x: 0, y: 0}
         options:
         - text: Consider the cave cleared, Griff.
-          nextNodeId: accept-action
+          nextNodeId:
+            low: 5123278678330398004
+            high: -8814224450468886882
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
           conditionType: 0
           threshold: 0
         - text: Not interested in mining trouble.
-          nextNodeId: decline-line
+          nextNodeId:
+            low: 4781928470409730384
+            high: 1200083188613450149
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
           conditionType: 0
           threshold: 0
         - text: Show me your wares.
-          nextNodeId: open-store-action
+          nextNodeId:
+            low: 4669037847747996280
+            high: -3786353027315097699
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
@@ -89,45 +119,72 @@ MonoBehaviour:
     - rid: 4304780615459536900
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: accept-action
+        nodeId:
+          low: 5123278678330398004
+          high: -8814224450468886882
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536910
-        nextNodeId: accept-line
+        nextNodeId:
+          low: 4919102938849361486
+          high: -3708394839125784915
     - rid: 4304780615459536901
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: accept-line
+        nodeId:
+          low: 4919102938849361486
+          high: -3708394839125784915
+        editorPosition: {x: 0, y: 0}
         speakerName: Griff
         text: Good. Watch yourself down there.
-        nextNodeId: end
+        nextNodeId:
+          low: 5550792985001870146
+          high: -1010754953098359384
     - rid: 4304780615459536902
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: decline-line
+        nodeId:
+          low: 4781928470409730384
+          high: 1200083188613450149
+        editorPosition: {x: 0, y: 0}
         speakerName: Griff
         text: Suit yourself. Good steel isn't cheap when supply is choked.
-        nextNodeId: end
+        nextNodeId:
+          low: 5550792985001870146
+          high: -1010754953098359384
     - rid: 4304780615459536903
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: already-accepted-line
+        nodeId:
+          low: 5136480325230566362
+          high: -5115469169078017611
+        editorPosition: {x: 0, y: 0}
         speakerName: Griff
         text: Those goblins still holed up in my vein. Clear 'em and my prices will thank you.
-        nextNodeId: already-accepted-choice
+        nextNodeId:
+          low: 5511021529289768518
+          high: -3074392268729960543
     - rid: 4304780615459536904
       type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: already-accepted-choice
+        nodeId:
+          low: 5511021529289768518
+          high: -3074392268729960543
+        editorPosition: {x: 0, y: 0}
         options:
         - text: Show me your wares.
-          nextNodeId: open-store-action
+          nextNodeId:
+            low: 4669037847747996280
+            high: -3786353027315097699
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
           conditionType: 0
           threshold: 0
         - text: Farewell.
-          nextNodeId: end
+          nextNodeId:
+            low: 5550792985001870146
+            high: -1010754953098359384
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
@@ -136,38 +193,60 @@ MonoBehaviour:
     - rid: 4304780615459536905
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: open-store-action
+        nodeId:
+          low: 4669037847747996280
+          high: -3786353027315097699
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536911
-        nextNodeId: end
+        nextNodeId:
+          low: 5550792985001870146
+          high: -1010754953098359384
     - rid: 4304780615459536906
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: cleared-line
+        nodeId:
+          low: 5364545203589238474
+          high: 5341209636043684013
+        editorPosition: {x: 0, y: 0}
         speakerName: Griff
         text: Ore's flowing again thanks to you. Name's good with me -- take a look, prices are fair now.
-        nextNodeId: cleared-price-action
+        nextNodeId:
+          low: 5190543731013200316
+          high: -1711208099061648999
     - rid: 4304780615459536907
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: cleared-price-action
+        nodeId:
+          low: 5190543731013200316
+          high: -1711208099061648999
+        editorPosition: {x: 0, y: 0}
         action:
           rid: 4304780615459536912
-        nextNodeId: cleared-choice
+        nextNodeId:
+          low: 5113228379898830113
+          high: 7017558785155729335
     - rid: 4304780615459536908
       type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: cleared-choice
+        nodeId:
+          low: 5113228379898830113
+          high: 7017558785155729335
+        editorPosition: {x: 0, y: 0}
         options:
         - text: Show me your wares.
-          nextNodeId: open-store-action
+          nextNodeId:
+            low: 4669037847747996280
+            high: -3786353027315097699
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
           conditionType: 0
           threshold: 0
         - text: Farewell.
-          nextNodeId: end
+          nextNodeId:
+            low: 5550792985001870146
+            high: -1010754953098359384
           hasVisibilityCondition: 0
           timelineKey: 
           secondTimelineKey: 
@@ -176,7 +255,10 @@ MonoBehaviour:
     - rid: 4304780615459536909
       type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
-        nodeId: end
+        nodeId:
+          low: 5550792985001870146
+          high: -1010754953098359384
+        editorPosition: {x: 0, y: 0}
     - rid: 4304780615459536910
       type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:

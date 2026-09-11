@@ -8,11 +8,11 @@ namespace CRPG.Dialogue
     public sealed class DialogueDefinition : DefinitionAsset
     {
         [SerializeField] private string displayName;
-        [SerializeField] private string startNodeId;
+        [SerializeField] private SerializableGuid startNodeId;
         [SerializeReference] private List<DialogueNode> nodes = new();
 
         public string DisplayName => displayName;
-        public string StartNodeId => startNodeId;
+        public SerializableGuid StartNodeId => startNodeId;
         public IReadOnlyList<DialogueNode> Nodes => nodes;
     }
 }

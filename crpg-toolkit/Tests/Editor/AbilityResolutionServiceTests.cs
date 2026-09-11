@@ -292,6 +292,81 @@ namespace CRPG.Tests.EditMode
             Assert.IsFalse(service.CanUseAtSlotLevel(caster.Id, ability, lowSlot));
         }
 
+        // --- Task 0.2 (Production Foundation): the next two tests are characterization tests, not red
+        // regressions -- they document TODAY's actual (intentionally-to-be-changed) behavior for
+        // Docs/Design/Production-Foundation.md sec.6 / Task 4.2's unified validation and cost-plan work.
+        // Both currently PASS. When 4.2 lands, each assertion is expected to flip (see per-test comments);
+        // update the assertion and rename the test then -- do not delete it silently, since it's the
+        // regression baseline proving 4.2 actually changed this behavior on purpose.
+        [Test]
+        public void IsValidTargetSelectionAcceptsDuplicateTargetIds()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var ability = CreateAbility(resource, 0, 1, 2);
+            var service = new AbilityResolutionService(new CharacterRegistry(), new DiceService(new SeededRandomSource(1)));
+
+            var sameTargetTwice = RuntimeEntityId.NewId();
+
+            // Today IsValidTargetSelection only checks Count against Min/Max -- it never checks distinctness,
+            // so the same target listed twice passes as long as the count itself is in range. Task 4.2 is
+            // expected to reject this (Assert.IsFalse) once duplicate-target validation exists.
+            Assert.IsTrue(service.IsValidTargetSelection(ability, new[] { sameTargetTwice, sameTargetTwice }));
+        }
+
+        [Test]
+        public void UpcastingBypassesTheAbilitysOtherAuthoredCosts()
+        {
+            var baseSlot = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-1", "Spell Slot Level 1");
+            var higherSlot = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-3", "Spell Slot Level 3");
+            TestDefinitionFactory.SetPrivateField(higherSlot, "spellSlotLevel", 3);
+            TestDefinitionFactory.SetPrivateField(baseSlot, "spellSlotLevel", 1);
+            var materialResource = TestDefinitionFactory.CreateResourceDefinition("resource-material-ruby-dust", "Ruby Dust");
+
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(baseSlot.Id, max: 1));
+            caster.AddResource(new ResourceState(higherSlot.Id, max: 1));
+            caster.AddResource(new ResourceState(materialResource.Id, max: 1)); // this spell's one material component
+            registry.Register(caster);
+
+            // Built by hand (not via the single-cost CreateAbility helper) since this ability needs two
+            // authored Costs entries: the spell-slot cost every other upcast test already exercises, plus a
+            // second, unrelated material-component cost that upcasting should still charge.
+            var ability = ScriptableObject.CreateInstance<AbilityDefinition>();
+            TestDefinitionFactory.SetPrivateField(ability, "id", "ability-test-material-spell");
+            TestDefinitionFactory.SetPrivateField(ability, "displayName", "Test Material Spell");
+            TestDefinitionFactory.SetPrivateField(ability, "spellLevel", 1);
+
+            object slotCost = new AbilityCost();
+            TestDefinitionFactory.SetPrivateField(slotCost, "resource", baseSlot);
+            TestDefinitionFactory.SetPrivateField(slotCost, "amount", 1);
+            object materialCost = new AbilityCost();
+            TestDefinitionFactory.SetPrivateField(materialCost, "resource", materialResource);
+            TestDefinitionFactory.SetPrivateField(materialCost, "amount", 1);
+            TestDefinitionFactory.SetPrivateField(ability, "costs", new List<AbilityCost> { (AbilityCost)slotCost, (AbilityCost)materialCost });
+
+            var targeting = new TargetingDefinition();
+            TestDefinitionFactory.SetPrivateField(targeting, "minTargets", 1);
+            TestDefinitionFactory.SetPrivateField(targeting, "maxTargets", 1);
+            TestDefinitionFactory.SetPrivateField(ability, "targeting", targeting);
+            TestDefinitionFactory.SetPrivateField(ability, "effects", new List<AbilityEffect>());
+
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            service.Execute(caster.Id, ability, new[] { RuntimeEntityId.NewId() }, upcastWithSlot: higherSlot);
+
+            caster.TryGetResource(higherSlot.Id, out var higherState);
+            caster.TryGetResource(materialResource.Id, out var materialState);
+            Assert.AreEqual(0, higherState.Current); // the chosen slot is spent, as UpcastingSpendsTheChosenSlot... already proves
+
+            // Today Execute's upcast branch spends *only* the chosen slot and returns without ever touching
+            // ability.Costs -- so the material component is NOT spent, even though it's a real authored cost
+            // unrelated to which slot the spell was cast from. Task 4.2's AbilityCostPlan is expected to
+            // change this so alternate casting modes "transform a cost plan" rather than skip unrelated costs
+            // outright (Production-Foundation.md sec.6) -- once fixed, this should read Assert.AreEqual(0, ...).
+            Assert.AreEqual(1, materialState.Current, "Documents today's gap: upcasting currently skips unrelated authored costs entirely.");
+        }
+
         [Test]
         public void ExecuteThrowsWhenTargetCountIsInvalid()
         {

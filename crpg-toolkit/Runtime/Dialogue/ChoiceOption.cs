@@ -12,7 +12,7 @@ namespace CRPG.Dialogue
     public sealed class ChoiceOption
     {
         [SerializeField] private string text;
-        [SerializeField] private string nextNodeId;
+        [SerializeField] private SerializableGuid nextNodeId;
         [SerializeField] private bool hasVisibilityCondition;
         [SerializeField] private string timelineKey;
         [SerializeField] private string secondTimelineKey;
@@ -20,7 +20,7 @@ namespace CRPG.Dialogue
         [SerializeField] private double threshold;
 
         public string Text => text;
-        public string NextNodeId => nextNodeId;
+        public SerializableGuid NextNodeId => nextNodeId;
 
         public bool IsVisible(ITimeline timeline) =>
             !hasVisibilityCondition || TimelineConditionEvaluator.Evaluate(timeline, conditionType, timelineKey, secondTimelineKey, threshold);

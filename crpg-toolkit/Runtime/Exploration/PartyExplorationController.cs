@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CRPG.Core;
@@ -11,13 +12,20 @@ namespace CRPG.Exploration
     /// ...) onto <see cref="PartyState"/> and each selected member's movement. Knows nothing about how a
     /// command was produced, so swapping the Input System adapter for something else never touches this class.
     /// </summary>
-    public sealed class PartyExplorationController
+    /// <remarks>
+    /// Plain C# (not a MonoBehaviour), so nothing unsubscribes it automatically -- callers that rebuild a
+    /// session (or otherwise replace this controller) must call <see cref="Dispose"/> on the old instance
+    /// first, or its handlers stay live on <paramref name="commandSource"/> alongside the new controller's.
+    /// </remarks>
+    public sealed class PartyExplorationController : IDisposable
     {
         private readonly PartyState party;
         private readonly PartyMovementService movementService;
         private readonly IFormationSolver formationSolver;
         private readonly float formationSpacing;
+        private readonly IPlayerCommandSource commandSource;
         private readonly Dictionary<RuntimeEntityId, IMovable> motors = new();
+        private bool disposed;
 
         public PartyExplorationController(
             PartyState party,
@@ -30,6 +38,7 @@ namespace CRPG.Exploration
             this.movementService = movementService;
             this.formationSolver = formationSolver;
             this.formationSpacing = formationSpacing;
+            this.commandSource = commandSource;
 
             commandSource.Select += HandleSelect;
             commandSource.Move += HandleMove;
@@ -38,6 +47,17 @@ namespace CRPG.Exploration
         public void RegisterMotor(RuntimeEntityId character, IMovable motor) => motors[character] = motor;
 
         public void UnregisterMotor(RuntimeEntityId character) => motors.Remove(character);
+
+        /// <summary>Unsubscribes from <see cref="commandSource"/> so this controller stops reacting to
+        /// player input. Idempotent -- safe to call more than once.</summary>
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+
+            commandSource.Select -= HandleSelect;
+            commandSource.Move -= HandleMove;
+        }
 
         private void HandleSelect(SelectCommand command)
         {

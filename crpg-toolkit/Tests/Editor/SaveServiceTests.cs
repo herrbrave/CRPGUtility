@@ -19,6 +19,10 @@ namespace CRPG.Tests.EditMode
         private static DefinitionId ProficiencyId => new("skill-athletics");
         private static DefinitionId SwordId => new("item-longsword");
         private static DefinitionId SlotId => new("slot-mainhand");
+        private static DefinitionId WisId => new("stat-wisdom");
+        private static DefinitionId ConcentrationAbilityId => new("ability-bless");
+        private static DefinitionId KnownAbilityId => new("ability-firebolt");
+        private static DefinitionId PreparedAbilityId => new("ability-cure-wounds");
 
         private static (PartyState party, CharacterRegistry characters, PartyInventoryState inventory, Timeline timeline, QuestLog log, RuntimeEntityId fighterId)
             BuildLiveState()
@@ -30,6 +34,16 @@ namespace CRPG.Tests.EditMode
             fighter.ApplyCondition(new ConditionInstance(ProneId, RuntimeEntityId.NewId(), fighterId, remainingDuration: 2, stackCount: 1));
             fighter.GrantFeature(FeatureId);
             fighter.GrantProficiency(ProficiencyId);
+
+            // Fields CaptureCharacters/RestoreCharacters do not round-trip yet -- see
+            // Docs/Design/State-Persistence-Matrix.md. Set here so the gap is visible against the same live
+            // fixture every other SaveServiceTests case already shares, not a bespoke one-off setup.
+            fighter.Level = 5;
+            fighter.SpellcastingStatId = WisId;
+            fighter.ConcentratingOnAbilityId = ConcentrationAbilityId;
+            fighter.LearnAbility(KnownAbilityId);
+            fighter.PrepareSpells(new[] { PreparedAbilityId });
+            fighter.DeathSaves = new DeathSaveState { Successes = 1, Failures = 2 };
 
             var characters = new CharacterRegistry();
             characters.Register(fighter);
@@ -163,6 +177,63 @@ namespace CRPG.Tests.EditMode
             Assert.IsTrue(newCharacters.TryGetCharacter(fighterId, out var restored));
             Assert.AreEqual(16, restored.Stats.GetScore(StrId));
             Assert.AreEqual(5, newTimeline.Sum("guild-reputation"));
+        }
+
+        // --- Task 0.2 (Production Foundation): the six tests below document the gap in
+        // Docs/Design/State-Persistence-Matrix.md and are EXPECTED TO FAIL until Phase 1 migration adds the
+        // six missing CharacterState fields to CharacterSaveData/CaptureCharacters/RestoreCharacters. One
+        // field per test (rather than one bundled test) so a single run reports exactly which fields are
+        // still missing instead of stopping at the first failure. Do not "fix" by weakening an assertion --
+        // fix by extending the save DTO and capture/restore code, then each test should turn green unchanged.
+        private static CharacterState RestoreFighter((PartyState party, CharacterRegistry characters, PartyInventoryState inventory, Timeline timeline, QuestLog log, RuntimeEntityId fighterId) live)
+        {
+            var data = SaveService.Capture(live.party, live.characters, live.inventory, live.timeline, live.log);
+            var newCharacters = new CharacterRegistry();
+            SaveService.Restore(data, new PartyState(), newCharacters, new PartyInventoryState(), new Timeline(), new QuestLog());
+            Assert.IsTrue(newCharacters.TryGetCharacter(live.fighterId, out var restored));
+            return restored;
+        }
+
+        [Test]
+        public void RestoringCapturedCharacterReproducesLevel()
+        {
+            var restored = RestoreFighter(BuildLiveState());
+            Assert.AreEqual(5, restored.Level, "Level does not round-trip -- restored characters revert to the default (1).");
+        }
+
+        [Test]
+        public void RestoringCapturedCharacterReproducesDeathSaves()
+        {
+            var restored = RestoreFighter(BuildLiveState());
+            Assert.IsNotNull(restored.DeathSaves, "DeathSaves does not round-trip -- a dying character loses its death-save progress on load.");
+        }
+
+        [Test]
+        public void RestoringCapturedCharacterReproducesSpellcastingStatId()
+        {
+            var restored = RestoreFighter(BuildLiveState());
+            Assert.AreEqual(WisId, restored.SpellcastingStatId, "SpellcastingStatId does not round-trip -- reverts to DefinitionId.None.");
+        }
+
+        [Test]
+        public void RestoringCapturedCharacterReproducesConcentratingOnAbilityId()
+        {
+            var restored = RestoreFighter(BuildLiveState());
+            Assert.AreEqual(ConcentrationAbilityId, restored.ConcentratingOnAbilityId, "ConcentratingOnAbilityId does not round-trip.");
+        }
+
+        [Test]
+        public void RestoringCapturedCharacterReproducesKnownAbilities()
+        {
+            var restored = RestoreFighter(BuildLiveState());
+            Assert.IsTrue(restored.KnowsAbility(KnownAbilityId), "KnownAbilities does not round-trip -- a caster forgets every known spell/ability.");
+        }
+
+        [Test]
+        public void RestoringCapturedCharacterReproducesPreparedAbilities()
+        {
+            var restored = RestoreFighter(BuildLiveState());
+            Assert.IsTrue(restored.HasPrepared(PreparedAbilityId), "PreparedAbilities does not round-trip -- a prepared caster's daily selection is lost.");
         }
 
         [Test]

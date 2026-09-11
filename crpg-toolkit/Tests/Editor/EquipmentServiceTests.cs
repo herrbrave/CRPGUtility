@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
@@ -185,6 +186,81 @@ namespace CRPG.Tests.EditMode
 
             Assert.IsFalse(character.HasFeature(daggerFeature.Id));
             Assert.IsTrue(character.HasFeature(swordFeature.Id));
+        }
+
+        [Test]
+        public void EquippingPublishesItemEquippedWithTheItemAndSlot()
+        {
+            var rulesDatabase = new RulesDatabase();
+            var sword = TestDefinitionFactory.CreateItemDefinition("item-sword", "Longsword", equipmentSlotId: MainHand);
+            rulesDatabase.Register(sword);
+
+            var inventory = new PartyInventoryState();
+            var swordInstance = new ItemInstance(RuntimeEntityId.NewId(), sword.Id);
+            inventory.AddItem(swordInstance);
+            var character = RuntimeEntityId.NewId();
+
+            var eventBus = new GameEventBus();
+            GameEventContext received = null;
+            eventBus.Subscribe(GameEvent.ItemEquipped, context => received = context);
+
+            var service = new EquipmentService(new CharacterRegistry(), rulesDatabase, inventory, eventBus);
+            service.Equip(swordInstance.InstanceId, character, MainHand);
+
+            Assert.IsNotNull(received);
+            Assert.AreEqual(character, received.Target);
+            Assert.AreEqual(sword.Id, received.Data["ItemDefinitionId"]);
+            Assert.AreEqual(MainHand, received.Data["SlotId"]);
+        }
+
+        [Test]
+        public void UnequippingPublishesItemUnequipped()
+        {
+            var rulesDatabase = new RulesDatabase();
+            var sword = TestDefinitionFactory.CreateItemDefinition("item-sword", "Longsword", equipmentSlotId: MainHand);
+            rulesDatabase.Register(sword);
+
+            var inventory = new PartyInventoryState();
+            var swordInstance = new ItemInstance(RuntimeEntityId.NewId(), sword.Id);
+            inventory.AddItem(swordInstance);
+            var character = RuntimeEntityId.NewId();
+
+            var eventBus = new GameEventBus();
+            var receivedEvents = new List<GameEvent>();
+            eventBus.Subscribe(GameEvent.ItemUnequipped, context => receivedEvents.Add(context.Event));
+
+            var service = new EquipmentService(new CharacterRegistry(), rulesDatabase, inventory, eventBus);
+            service.Equip(swordInstance.InstanceId, character, MainHand);
+            service.Unequip(swordInstance.InstanceId);
+
+            Assert.AreEqual(1, receivedEvents.Count);
+        }
+
+        [Test]
+        public void EquippingIntoAnOccupiedSlotPublishesItemUnequippedForTheDisplacedItem()
+        {
+            var rulesDatabase = new RulesDatabase();
+            var dagger = TestDefinitionFactory.CreateItemDefinition("item-dagger", "Dagger", equipmentSlotId: MainHand);
+            var sword = TestDefinitionFactory.CreateItemDefinition("item-sword", "Longsword", equipmentSlotId: MainHand);
+            rulesDatabase.Register(dagger);
+            rulesDatabase.Register(sword);
+
+            var inventory = new PartyInventoryState();
+            var daggerInstance = new ItemInstance(RuntimeEntityId.NewId(), dagger.Id);
+            var swordInstance = new ItemInstance(RuntimeEntityId.NewId(), sword.Id);
+            inventory.AddItem(daggerInstance);
+            inventory.AddItem(swordInstance);
+            var character = RuntimeEntityId.NewId();
+
+            var eventBus = new GameEventBus();
+            DefinitionId? unequippedItemId = null;
+            eventBus.Subscribe(GameEvent.ItemUnequipped, context => unequippedItemId = (DefinitionId)context.Data["ItemDefinitionId"]);
+
+            var service = new EquipmentService(new CharacterRegistry(), rulesDatabase, inventory, eventBus);
+            service.Equip(daggerInstance.InstanceId, character, MainHand);
+            service.Equip(swordInstance.InstanceId, character, MainHand);
+
+            Assert.AreEqual(dagger.Id, unequippedItemId);
         }
     }
 }

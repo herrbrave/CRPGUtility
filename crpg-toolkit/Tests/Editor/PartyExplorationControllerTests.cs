@@ -37,10 +37,15 @@ namespace CRPG.Tests.EditMode
         private sealed class FakeMovable : IMovable
         {
             public Vector3? LastDestination;
-            public void SetDestination(Vector3 destination) => LastDestination = destination;
+
+            public MoveResult SetDestination(Vector3 destination)
+            {
+                LastDestination = destination;
+                return new MoveResult(MoveStatus.Pending, MoveRequestId.NewId());
+            }
+
             public void Stop() => LastDestination = null;
-            public bool HasArrived => true;
-            public float RemainingDistance => 0f;
+            public MotionSnapshot Snapshot => MotionSnapshot.None;
         }
 
         private static PartyExplorationController CreateController(PartyState party, FakeCommandSource commandSource) =>
@@ -93,6 +98,71 @@ namespace CRPG.Tests.EditMode
             commandSource.RaiseSelect(new SelectCommand(new[] { fighter }, SelectionMode.Toggle));
 
             Assert.IsFalse(party.IsSelected(fighter));
+        }
+
+        // --- Task 1.1 (Production Foundation): PartyExplorationController subscribed to its IPlayerCommandSource
+        // in the constructor with no disposal path at all (Docs/Design/Production-Foundation.md's gap table:
+        // "session rebuild can retain command handlers"). These tests require Dispose() to exist.
+
+        [Test]
+        public void DisposedControllerDoesNotReceiveFurtherMoveCommands()
+        {
+            var fighter = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { fighter });
+            var commandSource = new FakeCommandSource();
+            var controller = CreateController(party, commandSource);
+            var motor = new FakeMovable();
+            controller.RegisterMotor(fighter, motor);
+
+            controller.Dispose();
+            commandSource.RaiseMove(new MoveCommand(new Vector3(5f, 0f, 5f), Vector3.forward));
+
+            Assert.IsNull(motor.LastDestination);
+        }
+
+        [Test]
+        public void DisposedControllerDoesNotReceiveFurtherSelectCommands()
+        {
+            var fighter = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { fighter });
+            var commandSource = new FakeCommandSource();
+            var controller = CreateController(party, commandSource);
+
+            controller.Dispose();
+            party.ClearSelection();
+            commandSource.RaiseSelect(new SelectCommand(new[] { fighter }, SelectionMode.Replace));
+
+            Assert.IsFalse(party.IsSelected(fighter));
+        }
+
+        [Test]
+        public void DisposingTwiceDoesNotThrow()
+        {
+            var party = new PartyState();
+            var commandSource = new FakeCommandSource();
+            var controller = CreateController(party, commandSource);
+
+            controller.Dispose();
+            Assert.DoesNotThrow(() => controller.Dispose());
+        }
+
+        [Test]
+        public void DisposingOneControllerDoesNotAffectAnotherOnTheSameCommandSource()
+        {
+            var fighter = RuntimeEntityId.NewId();
+            var partyA = new PartyState(new[] { fighter });
+            var partyB = new PartyState(new[] { fighter });
+            var commandSource = new FakeCommandSource();
+
+            var controllerA = CreateController(partyA, commandSource);
+            controllerA.Dispose();
+            var controllerB = CreateController(partyB, commandSource);
+            var motorB = new FakeMovable();
+            controllerB.RegisterMotor(fighter, motorB);
+
+            commandSource.RaiseMove(new MoveCommand(new Vector3(3f, 0f, 3f), Vector3.forward));
+
+            Assert.IsNotNull(motorB.LastDestination);
         }
     }
 }

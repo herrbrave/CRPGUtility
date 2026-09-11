@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca970b19186da5041adba787d6f2fdaf, type: 3}
   m_Name: GilroyMasters
   m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.NpcDefinition
-  id: 
-  displayName: 
-  description: 
+  id: 2e525f96d2f043a68a0fdeb75d263363
+  displayName: Gilroy Masters
+  description: Grumpy old man, who owns the Hawk's Feather Tavern.
   faction:
     value: 
   dialogueId:
@@ -23,9 +23,14 @@ MonoBehaviour:
   abilityScores: []
   proficiencies: []
   resources: []
-  featureIds: []
+  featureIds:
+  - value: feature-human-traits
+  - value: feature-soldier-background
+  - value: feature-fighting-style-choice
+  - value: feature-second-wind
+  - value: feature-fighter-skill-choice
   abilityIds: []
   spellcastingStatId:
     value: 
   startingItemIds: []
-  visualPrefab: {fileID: 0}
+  visualPrefab: {fileID: 4408389645287448237, guid: 0baca25232862274498a9e9e039830e5, type: 3}
