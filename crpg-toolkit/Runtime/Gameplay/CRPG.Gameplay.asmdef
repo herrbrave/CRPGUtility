@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Gameplay",
+    "rootNamespace": "CRPG.Gameplay",
+    "references": ["CRPG.Core", "CRPG.Actors", "CRPG.Party", "CRPG.Inventory", "CRPG.Quests", "CRPG.Navigation", "CRPG.Presentation"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
