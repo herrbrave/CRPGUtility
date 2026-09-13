@@ -34,6 +34,14 @@ namespace CRPG.Party
         public IReadOnlyCollection<RuntimeEntityId> Selected => selected;
         public RuntimeEntityId ActiveCharacter { get; private set; } = RuntimeEntityId.None;
 
+        /// <summary>Task 3.6: fires once per public mutating operation, after invariants hold. Membership and
+        /// selection are also driven from outside PartyState's own commands (world click/drag-box via
+        /// PartyExplorationController) -- a UI roster panel needs this to stay in sync with world-driven
+        /// changes, not just its own button clicks. Raised only from the leaf mutating methods, never from a
+        /// thin public wrapper that delegates to one (SelectAll/SelectGroup call SelectMany, which already
+        /// raises -- a second raise there would double-notify for one logical operation).</summary>
+        public event Action Changed;
+
         /// <summary>New members join already selected -- exploration's default is the entire party selected.</summary>
         public void AddMember(RuntimeEntityId character)
         {
@@ -44,6 +52,7 @@ namespace CRPG.Party
             selected.Add(character);
 
             if (!ActiveCharacter.IsValid) ActiveCharacter = character;
+            Changed?.Invoke();
         }
 
         public void RemoveMember(RuntimeEntityId character)
@@ -54,6 +63,7 @@ namespace CRPG.Party
             groupByMember.Remove(character);
 
             if (ActiveCharacter == character) ActiveCharacter = FirstSelected();
+            Changed?.Invoke();
         }
 
         public bool IsMember(RuntimeEntityId character) => members.Contains(character);
@@ -66,6 +76,7 @@ namespace CRPG.Party
             selected.Clear();
             selected.Add(character);
             ActiveCharacter = character;
+            Changed?.Invoke();
         }
 
         /// <summary>Drag-box / "select all": select exactly this set. Active moves off only if it fell out of selection.</summary>
@@ -79,6 +90,7 @@ namespace CRPG.Party
             }
 
             if (!selected.Contains(ActiveCharacter)) ActiveCharacter = FirstSelected();
+            Changed?.Invoke();
         }
 
         public void SelectAll() => SelectMany(members);
@@ -99,12 +111,15 @@ namespace CRPG.Party
                 selected.Add(character);
                 if (!selected.Contains(ActiveCharacter)) ActiveCharacter = character;
             }
+
+            Changed?.Invoke();
         }
 
         public void ClearSelection()
         {
             selected.Clear();
             ActiveCharacter = RuntimeEntityId.None;
+            Changed?.Invoke();
         }
 
         /// <summary>Double-click a portrait: focus a character that's already part of the current selection
@@ -115,6 +130,7 @@ namespace CRPG.Party
                 throw new InvalidOperationException($"{character} must be selected before it can become the active character.");
 
             ActiveCharacter = character;
+            Changed?.Invoke();
         }
 
         public void CycleActiveNext() => CycleActive(1);
@@ -125,6 +141,7 @@ namespace CRPG.Party
         {
             EnsureMember(character);
             groupByMember[character] = string.IsNullOrEmpty(groupId) ? DefaultGroup : groupId;
+            Changed?.Invoke();
         }
 
         public string GetGroup(RuntimeEntityId character) => groupByMember.TryGetValue(character, out var group) ? group : DefaultGroup;
@@ -140,11 +157,13 @@ namespace CRPG.Party
             if (currentIndex < 0)
             {
                 ActiveCharacter = orderedSelected[0];
+                Changed?.Invoke();
                 return;
             }
 
             var nextIndex = ((currentIndex + direction) % orderedSelected.Count + orderedSelected.Count) % orderedSelected.Count;
             ActiveCharacter = orderedSelected[nextIndex];
+            Changed?.Invoke();
         }
 
         private RuntimeEntityId FirstSelected()

@@ -1,0 +1,3993 @@
+{
+  "Summary": {
+    "Total": 568,
+    "Passed": 568,
+    "Failed": 0,
+    "Skipped": 0,
+    "Inconclusive": 0
+  },
+  "Results": [
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectEventsTests.ApplyAndRemoveConditionEffectsPublishTheirEvents",
+      "Status": "Passed",
+      "Duration": 0.024296,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectEventsTests.BeforeDamageHandlerCanRewriteTheFinalAmount",
+      "Status": "Passed",
+      "Duration": 0.0186691,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectEventsTests.DamageEffectPublishesCreatureDroppedToZeroHPWhenItKills",
+      "Status": "Passed",
+      "Duration": 0.0014159,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.ApplyConditionEffectAppliesToEachTarget",
+      "Status": "Passed",
+      "Duration": 0.0011596,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.ConditionalEffectOnlyAppliesToTargetsMeetingTheCondition",
+      "Status": "Passed",
+      "Duration": 0.0044252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.DamageEffectSpendsRolledAmountFromHitPointResource",
+      "Status": "Passed",
+      "Duration": 0.0009326,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.GrantAndRemoveFeatureEffectsToggleTheFeature",
+      "Status": "Passed",
+      "Duration": 0.0014093,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.HealEffectRestoresRolledAmountToHitPointResource",
+      "Status": "Passed",
+      "Duration": 0.0018147,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.RemoveConditionEffectRemovesMatchingCondition",
+      "Status": "Passed",
+      "Duration": 0.0007081,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.RestoreResourceEffectCanTargetOthersInsteadOfTheCaster",
+      "Status": "Passed",
+      "Duration": 0.0010792,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.SequenceEffectAppliesEveryChildEffect",
+      "Status": "Passed",
+      "Duration": 0.0013034,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityEffectsTests.SpendResourceEffectDefaultsToApplyingToTheCaster",
+      "Status": "Passed",
+      "Duration": 0.0010655,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.CanUseAtSlotLevelIsFalseWhenTheSlotIsBelowTheSpellsOwnLevel",
+      "Status": "Passed",
+      "Duration": 0.0037273,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.CanUseIgnoresConditionsThatDoNotPreventActions",
+      "Status": "Passed",
+      "Duration": 0.0022604,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.CanUseIsFalseWhenAConditionPreventsActions",
+      "Status": "Passed",
+      "Duration": 0.0008493,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.CanUseIsFalseWhenCharacterIsMakingDeathSaves",
+      "Status": "Passed",
+      "Duration": 0.0008379,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.CanUseIsFalseWhenResourceIsInsufficient",
+      "Status": "Passed",
+      "Duration": 0.0005984,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.CanUseIsTrueWhenResourceIsAvailable",
+      "Status": "Passed",
+      "Duration": 0.0005906,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.CastingANewConcentrationAbilityReplacesTheOldOne",
+      "Status": "Passed",
+      "Duration": 0.0088587,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.ExecuteConsumesResourcesAppliesEffectsAndPublishesEvents",
+      "Status": "Passed",
+      "Duration": 0.0018501,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.ExecuteThrowsWhenCastingAsRitualWithoutTheRitualTag",
+      "Status": "Passed",
+      "Duration": 0.0064226,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.ExecuteThrowsWhenTargetCountIsInvalid",
+      "Status": "Passed",
+      "Duration": 0.0012369,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.ExecutingAConcentrationAbilitySetsConcentratingOnAbilityId",
+      "Status": "Passed",
+      "Duration": 0.0013547,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.IsValidTargetSelectionAcceptsDuplicateTargetIds",
+      "Status": "Passed",
+      "Duration": 0.0006636,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.IsValidTargetSelectionRespectsMinAndMax",
+      "Status": "Passed",
+      "Duration": 0.0006145,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.RitualCastSkipsResourceCostsAndRequiresTheRitualTag",
+      "Status": "Passed",
+      "Duration": 0.0022046,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.UpcastingBypassesTheAbilitysOtherAuthoredCosts",
+      "Status": "Passed",
+      "Duration": 0.0013234,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityResolutionServiceTests.UpcastingSpendsTheChosenSlotInsteadOfTheAbilitysOwnCost",
+      "Status": "Passed",
+      "Duration": 0.0010724,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityScoreGenerationTests.ManualEntryCopiesGivenScoresVerbatim",
+      "Status": "Passed",
+      "Duration": 0.0032274,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityScoreGenerationTests.PointBuyAcceptsAValidAllocationWithinBudget",
+      "Status": "Passed",
+      "Duration": 0.0047323,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityScoreGenerationTests.PointBuyThrowsWhenAllocationExceedsBudget",
+      "Status": "Passed",
+      "Duration": 0.0011348,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityScoreGenerationTests.RandomRollsDropsTheLowestOfFourD6",
+      "Status": "Passed",
+      "Duration": 0.0011464,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AbilityScoreGenerationTests.StandardArrayAssignsValuesInStatOrder",
+      "Status": "Passed",
+      "Duration": 0.0030844,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AdvantageCollectorTests.CombinesToNormalWhenBothAdvantageAndDisadvantageAreGathered",
+      "Status": "Passed",
+      "Duration": 0.006368,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AdvantageCollectorTests.IgnoresModifiersTaggedWithADifferentQueryKey",
+      "Status": "Passed",
+      "Duration": 0.0006898,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AdvantageCollectorTests.ReturnsAdvantageWhenOnlyAnAdvantageModifierIsGathered",
+      "Status": "Passed",
+      "Duration": 0.0007562,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AdvantageCollectorTests.ReturnsDisadvantageWhenOnlyADisadvantageModifierIsGathered",
+      "Status": "Passed",
+      "Duration": 0.0008835,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AdvantageCollectorTests.ReturnsNormalWhenNoModifiersAreGathered",
+      "Status": "Passed",
+      "Duration": 0.0005584,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AnimationOrderServiceTests.RequestAnimationForAnUnknownCharacterDoesNotThrowOrPublish",
+      "Status": "Passed",
+      "Duration": 0.0009529,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AnimationOrderServiceTests.RequestAnimationPublishesAnimationCueChangedWithTheCue",
+      "Status": "Passed",
+      "Duration": 0.0044892,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AnimationOrderServiceTests.RequestAnimationSetsTheCharactersCurrentAnimationCueId",
+      "Status": "Passed",
+      "Duration": 0.0004962,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.ALoweredCriticalThresholdCritsBelowTwenty",
+      "Status": "Passed",
+      "Duration": 0.0058204,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.DisadvantageRollsTwiceAndKeepsTheWorseResult",
+      "Status": "Passed",
+      "Duration": 0.0040317,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.DoesNothingWhenAttackRollRulesAreNotWiredUp",
+      "Status": "Passed",
+      "Duration": 0.0010094,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.DoesNothingWhenOnHitIsNotSet",
+      "Status": "Passed",
+      "Duration": 0.0007465,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.ExtraAttackRollsAndResolvesEachAttackSeparately",
+      "Status": "Passed",
+      "Duration": 0.0007288,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.FallsBackToCastersSpellcastingStatWhenGoverningStatIsNotSet",
+      "Status": "Passed",
+      "Duration": 0.001311,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.HitsAndAppliesOnHitEffectWhenTotalMeetsOrBeatsArmorClass",
+      "Status": "Passed",
+      "Duration": 0.0008882,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.MissesAndSkipsOnHitEffectWhenTotalIsBelowArmorClass",
+      "Status": "Passed",
+      "Duration": 0.0007175,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.NaturalOneAlwaysMissesEvenIfBonusWouldClearArmorClass",
+      "Status": "Passed",
+      "Duration": 0.0008038,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.AttackRollEffectTests.NaturalTwentyAlwaysHitsAndDoublesDamageDice",
+      "Status": "Passed",
+      "Duration": 0.000836,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.AGroundHeightProviderReturningFalseLeavesYUnchanged",
+      "Status": "Passed",
+      "Duration": 0.0021403,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.ApplyZoomClampsToMaximum",
+      "Status": "Passed",
+      "Duration": 0.0007272,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.ApplyZoomClampsToMinimum",
+      "Status": "Passed",
+      "Duration": 0.0003048,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.BoundsClampFocusPointForEveryMutator",
+      "Status": "Passed",
+      "Duration": 0.004186,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.FocusOnSetsFocusPointDirectly",
+      "Status": "Passed",
+      "Duration": 0.0006899,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.FollowTargetApproachesGraduallyAndNeverSnaps",
+      "Status": "Passed",
+      "Duration": 0.0010868,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.FollowTargetConvergesOverManyCalls",
+      "Status": "Passed",
+      "Duration": 0.0007132,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.GroundHeightProviderIsQueriedWithTheAlreadyBoundsClampedXZ",
+      "Status": "Passed",
+      "Duration": 0.000731,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.PanMovesFocusAlongYawRelativeAxes",
+      "Status": "Passed",
+      "Duration": 0.0004836,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.PanSuspendsFollowUntilResumeFollowIsCalled",
+      "Status": "Passed",
+      "Duration": 0.000989,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.RotateWrapsAtFullCircle",
+      "Status": "Passed",
+      "Duration": 0.0007314,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.SnapRotateJumpsByConfiguredDegrees",
+      "Status": "Passed",
+      "Duration": 0.0004895,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CameraRigStateTests.SnapToLandsExactlyInOneCallAndClearsManualOverride",
+      "Status": "Passed",
+      "Duration": 0.0004808,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CampPresenterTests.ConfirmLongRestRestoresTheWholePartysRestTriggeredResources",
+      "Status": "Passed",
+      "Duration": 0.0083509,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CampPresenterTests.GetPartyMembersIncludesEquippedSlots",
+      "Status": "Passed",
+      "Duration": 0.004838,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CampPresenterTests.GetPartyMembersReturnsNameAndHitPoints",
+      "Status": "Passed",
+      "Duration": 0.0014244,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterAgentTests.BindingToADifferentSessionWithoutUnbindingFirstThrows",
+      "Status": "Passed",
+      "Duration": 0.0042167,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterAgentTests.BindResolvesTheMotorFromTheSameGameObject",
+      "Status": "Passed",
+      "Duration": 0.0011693,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterAgentTests.BindSetsEntityIdAndSession",
+      "Status": "Passed",
+      "Duration": 0.0007614,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterAgentTests.BindThrowsWhenSessionIsNull",
+      "Status": "Passed",
+      "Duration": 0.0010958,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterAgentTests.MotorIsNullWhenTheGameObjectHasNone",
+      "Status": "Passed",
+      "Duration": 0.0009652,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterAgentTests.RebindingTheIdenticalTupleIsANoOp",
+      "Status": "Passed",
+      "Duration": 0.0011488,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterAgentTests.UnbindThenBindToADifferentSessionSucceeds",
+      "Status": "Passed",
+      "Duration": 0.0009344,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.BuildAppliesResolvedSelectSkillChoicesAsProficiencies",
+      "Status": "Passed",
+      "Duration": 0.0175478,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.BuildAppliesResolvedSelectSpellChoicesAsKnownAbilities",
+      "Status": "Passed",
+      "Duration": 0.0011404,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.BuildGrantsFeaturesStatsResourcesAndProficienciesFromEveryPart",
+      "Status": "Passed",
+      "Duration": 0.0113355,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.BuildGrantsProficiencyInTheClassesSavingThrows",
+      "Status": "Passed",
+      "Duration": 0.0009344,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.BuildSetsSpellcastingStatIdFromClass",
+      "Status": "Passed",
+      "Duration": 0.0010164,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.BuildThrowsWhileChoicesArePending",
+      "Status": "Passed",
+      "Duration": 0.0017537,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.RefreshPendingChoicesFindsChoicesFromRaceClassAndBackground",
+      "Status": "Passed",
+      "Duration": 0.0011534,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.ResolveChoiceThrowsWhenSelectionCountDoesNotMatch",
+      "Status": "Passed",
+      "Duration": 0.0010484,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterBuildTests.ResolvingAChoiceThatGrantsAFeatureSurfacesThatFeaturesOwnChoicesOnRefresh",
+      "Status": "Passed",
+      "Duration": 0.001449,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.CancelCurrentActionFiresCallbackWithCancelledExactlyOnce",
+      "Status": "Passed",
+      "Duration": 0.0028396,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.EnterTerminalCancelsAnyInFlightAction",
+      "Status": "Passed",
+      "Duration": 0.0008101,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.RecoverClearsTerminalStateAndAllowsRequestsAgain",
+      "Status": "Passed",
+      "Duration": 0.0003792,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.ReentrantRequestActionDuringACancellationCallbackGetsItsOwnUnclobberedOutcome",
+      "Status": "Passed",
+      "Duration": 0.0024867,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.ReentrantRequestActionDuringEnterTerminalsCancellationCallbackIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0008356,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.ReportActionFinishedWithAStaleSupersededTokenIsIgnored",
+      "Status": "Passed",
+      "Duration": 0.0005678,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.ReportActionFinishedWithTheCurrentTokenCompletesItExactlyOnce",
+      "Status": "Passed",
+      "Duration": 0.0007412,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.RequestActionReturnsAValidTokenAndMarksActionActive",
+      "Status": "Passed",
+      "Duration": 0.0007038,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.RequestActionWhileAnotherIsActiveCancelsThePreviousOneExactlyOnce",
+      "Status": "Passed",
+      "Duration": 0.0007573,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.ResetToDefaultWorksEvenWhileTerminalAndClearsEverything",
+      "Status": "Passed",
+      "Duration": 0.0007653,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.SetMovingContinuesToUpdateWhileAnActionIsActive",
+      "Status": "Passed",
+      "Duration": 0.000618,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.SetMovingUpdatesIsMoving",
+      "Status": "Passed",
+      "Duration": 0.0004544,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.SetMovingWithHysteresisClampsAnInvertedThresholdPair",
+      "Status": "Passed",
+      "Duration": 0.0003284,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.SetMovingWithHysteresisStartsMovingOnlyAboveStartThreshold",
+      "Status": "Passed",
+      "Duration": 0.0002702,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.SetMovingWithHysteresisStaysMovingThroughTheBandWithoutChattering",
+      "Status": "Passed",
+      "Duration": 0.0004135,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.SettingADifferentStanceRaisesStanceChanged",
+      "Status": "Passed",
+      "Duration": 0.0018616,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.SettingTheSameStanceTwiceDoesNotRaiseStanceChanged",
+      "Status": "Passed",
+      "Duration": 0.0009497,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterPresentationStateTests.TerminalStateRejectsFurtherActionStanceAndMovingRequests",
+      "Status": "Passed",
+      "Duration": 0.0007609,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.ADegenerateCapsuleIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0215148,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.AMandatoryCueWithANullClipIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0014415,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.AMandatoryCueWithAZeroLengthClipIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0019531,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.AMissingRequiredSocketIsAnError",
+      "Status": "Passed",
+      "Duration": 0.000923,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.ANonPositiveAgentSpeedIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0008363,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.AnOptionalCueWithANullClipIsAWarningNotAnError",
+      "Status": "Passed",
+      "Duration": 0.0018828,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.APresentRequiredSocketProducesNoError",
+      "Status": "Passed",
+      "Duration": 0.0011942,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.AValidSpecProducesNoErrors",
+      "Status": "Passed",
+      "Duration": 0.001006,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.DeclaringARigFamilyClearsTheWarning",
+      "Status": "Passed",
+      "Duration": 0.0010633,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.DuplicateCueIdsInTheProfileAreAnError",
+      "Status": "Passed",
+      "Duration": 0.001325,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.MissingAnimationProfileIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0010523,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.MissingMandatoryIdleCueIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0009588,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.MissingMandatoryMovingCueIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0008825,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.MissingModelPrefabIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0007775,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.MissingOptionalCueIsAWarningNotAnError",
+      "Status": "Passed",
+      "Duration": 0.0009272,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.MissingRigFamilyIsAWarningNotAnError",
+      "Status": "Passed",
+      "Duration": 0.0008374,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterRigValidatorTests.ModelWithNoAnimatorIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0008312,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterStateTests.CharacterStateTracksConditionsAndProficiencies",
+      "Status": "Passed",
+      "Duration": 0.0006219,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterStateTests.RemovingAConditionStopsItFromBeingActive",
+      "Status": "Passed",
+      "Duration": 0.0005536,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterStateTests.ResourceStateSpendAndRestoreClampToBounds",
+      "Status": "Passed",
+      "Duration": 0.0008914,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterStateTests.StatBlockStoresAndRetrievesScores",
+      "Status": "Passed",
+      "Duration": 0.000724,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterStateTests.UnsetStatScoreDefaultsToZero",
+      "Status": "Passed",
+      "Duration": 0.000352,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterWrapperBuilderTests.BuildOrUpdateAppliesCapsuleAndAgentSettingsFromTheSpec",
+      "Status": "Passed",
+      "Duration": 0.8405042,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterWrapperBuilderTests.BuildOrUpdateCreatesAPrefabWithTheExpectedComponents",
+      "Status": "Passed",
+      "Duration": 0.6017459,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterWrapperBuilderTests.BuildOrUpdateThrowsWhenSpecIsNull",
+      "Status": "Passed",
+      "Duration": 0.0011538,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterWrapperBuilderTests.BuildOrUpdateWiresTheAnimationProfileAndCueIds",
+      "Status": "Passed",
+      "Duration": 0.6032368,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterWrapperBuilderTests.BuildOrUpdateWithNoModelPrefabStillProducesAValidWrapper",
+      "Status": "Passed",
+      "Duration": 0.4505515,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterWrapperBuilderTests.UpdatingAnExistingWrapperTwicePreservesConsumerOwnedContentAndExternalReferences",
+      "Status": "Passed",
+      "Duration": 1.0678323,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CharacterWrapperBuilderTests.UpdatingAnExistingWrapperTwicePreservesItsGuid",
+      "Status": "Passed",
+      "Duration": 0.7729328,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterServiceTests.EndCombatClearsTheEncounterAndPublishesCombatEnded",
+      "Status": "Passed",
+      "Duration": 0.0091258,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterServiceTests.EndTurnAdvancesAndRestoresTheNextCombatantsResources",
+      "Status": "Passed",
+      "Duration": 0.0023997,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterServiceTests.StartCombatOrdersCombatantsAndRestoresFirstTurnResources",
+      "Status": "Passed",
+      "Duration": 0.0021116,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterServiceTests.StartCombatWithFactionsTagsEachCombatantSoTheEncounterCanTellSidesApart",
+      "Status": "Passed",
+      "Duration": 0.0051992,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterTests.AdvanceTurnWrapsToNextRoundAfterLastCombatant",
+      "Status": "Passed",
+      "Duration": 0.000614,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterTests.GetAlliesOfReturnsCombatantsWithTheSameFactionExcludingSelf",
+      "Status": "Passed",
+      "Duration": 0.0013334,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterTests.GetEnemiesOfAndGetAlliesOfAreEmptyForAnUnknownCombatant",
+      "Status": "Passed",
+      "Duration": 0.000449,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterTests.GetEnemiesOfAndGetAlliesOfExcludeCombatantsAlreadyRemoved",
+      "Status": "Passed",
+      "Duration": 0.0010552,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterTests.GetEnemiesOfReturnsCombatantsWithADifferentFaction",
+      "Status": "Passed",
+      "Duration": 0.0006824,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterTests.RemoveCombatantDropsThemFromTurnOrder",
+      "Status": "Passed",
+      "Duration": 0.0007897,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CombatEncounterTests.StartSortsCombatantsByInitiativeDescending",
+      "Status": "Passed",
+      "Duration": 0.0009124,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConcentrationServiceTests.AutoFailEndsConcentrationWithoutRolling",
+      "Status": "Passed",
+      "Duration": 0.0031071,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConcentrationServiceTests.ClearlyFailedSaveEndsConcentration",
+      "Status": "Passed",
+      "Duration": 0.0009343,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConcentrationServiceTests.NotConcentratingIsANoOp",
+      "Status": "Passed",
+      "Duration": 0.000558,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConcentrationServiceTests.SucceededSaveKeepsConcentration",
+      "Status": "Passed",
+      "Duration": 0.0003825,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConcentrationServiceTests.ZeroDamageDoesNotTriggerASave",
+      "Status": "Passed",
+      "Duration": 0.0004283,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConsiderationInputRegistryTests.CustomKeysCanBeRegistered",
+      "Status": "Passed",
+      "Duration": 0.0051746,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConsiderationInputRegistryTests.DistanceReturnsTheEuclideanDistanceBetweenSelfAndTarget",
+      "Status": "Passed",
+      "Duration": 0.0031236,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConsiderationInputRegistryTests.InfluenceMapSampleReadsAtTheRequestedEntitysPosition",
+      "Status": "Passed",
+      "Duration": 0.0039475,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConsiderationInputRegistryTests.RandomChanceReturnsAValueInUnitRange",
+      "Status": "Passed",
+      "Duration": 0.0005066,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConsiderationInputRegistryTests.SelfAndTargetResourcePercentReadFromCharacterState",
+      "Status": "Passed",
+      "Duration": 0.0004996,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ConsiderationInputRegistryTests.UnresolvedKeysReturnZeroRatherThanThrowing",
+      "Status": "Passed",
+      "Duration": 0.0003819,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.ADanglingEquippedCharacterIdIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0052215,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.ADanglingWorldSpawnCharacterIdIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0004949,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AnEmptyNpcDefinitionIdOnAWorldSpawnIsAcceptedPartyMemberCase",
+      "Status": "Passed",
+      "Duration": 0.0004956,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AnEmptySaveIsValid",
+      "Status": "Passed",
+      "Duration": 0.0003861,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AnEquippedCharacterIdThatIsPresentInTheSaveIsAccepted",
+      "Status": "Passed",
+      "Duration": 0.0008542,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.ANonEmptySpellcastingStatIdThatDoesNotResolveIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0004498,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AnUnresolvableItemDefinitionIdIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0005261,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AnUnresolvableNpcDefinitionIdOnAWorldSpawnIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0006673,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AnUnresolvableQuestIdIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0006465,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AResolvableStatIdIsAccepted",
+      "Status": "Passed",
+      "Duration": 0.0011332,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.AStatIdThatDoesNotResolveIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0005255,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.DefinitionIdNoneIsAcceptedForAnOptionalReference",
+      "Status": "Passed",
+      "Duration": 0.0005987,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.DuplicateCharacterIdsWithinTheSaveAreRejected",
+      "Status": "Passed",
+      "Duration": 0.0005546,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.DuplicateQuestIdsWithinTheSaveAreRejected",
+      "Status": "Passed",
+      "Duration": 0.0005536,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ContentValidatorTests.DuplicateWorldSpawnIdsWithinTheSaveAreRejected",
+      "Status": "Passed",
+      "Duration": 0.0005686,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CreateInfluenceSourceEffectTests.IsANoOpWhenTheContextHasNoSpatialServices",
+      "Status": "Passed",
+      "Duration": 0.0016016,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.CreateInfluenceSourceEffectTests.RegistersASourceAtEachTargetsPositionWhenSpatialServicesAreWiredUp",
+      "Status": "Passed",
+      "Duration": 0.0008182,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DamageEffectTests.AppliesResistanceRuleWhenDamageIsTyped",
+      "Status": "Passed",
+      "Duration": 0.0011988,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DamageEffectTests.DoesNotScaleBelowLevelFiveEvenWhenFlagIsSet",
+      "Status": "Passed",
+      "Duration": 0.0006882,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DamageEffectTests.DoesNotThrowWhenTypedButNoResistanceRuleIsWiredUp",
+      "Status": "Passed",
+      "Duration": 0.0009808,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DamageEffectTests.ScalesWithCasterLevelAddsExtraDiceAtBreakpoints",
+      "Status": "Passed",
+      "Duration": 0.0007414,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DamageEffectTests.SkipsResistanceRuleWhenDamageIsUntyped",
+      "Status": "Passed",
+      "Duration": 0.0011448,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DamageEffectTests.UpcastLevelsAddExtraDicePerConfiguredCount",
+      "Status": "Passed",
+      "Duration": 0.0011072,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DamageEffectTests.UpcastLevelsDoNothingWhenNoExtraDiceAreConfigured",
+      "Status": "Passed",
+      "Duration": 0.0011017,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.CriticalHitWhileAlreadyDownCountsAsTwoFailures",
+      "Status": "Passed",
+      "Duration": 0.0033356,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.DamageWhileAlreadyDownCountsAsAFailureInsteadOfFurtherHpLoss",
+      "Status": "Passed",
+      "Duration": 0.0010688,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.DroppingToZeroStartsDeathSavesInsteadOfInstantRemoval",
+      "Status": "Passed",
+      "Duration": 0.0018619,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.MassiveOverkillCausesInstantDeathInsteadOfUnconsciousness",
+      "Status": "Passed",
+      "Duration": 0.0008668,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.NaturalOneCountsAsTwoFailures",
+      "Status": "Passed",
+      "Duration": 0.0012206,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.NaturalTwentyHealsToOneHpAndStabilizes",
+      "Status": "Passed",
+      "Duration": 0.0010678,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.RollDeathSaveDoesNothingWhenCharacterIsNotDying",
+      "Status": "Passed",
+      "Duration": 0.0009116,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.ThreeFailuresKillsTheCharacter",
+      "Status": "Passed",
+      "Duration": 0.0009176,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DeathSaveServiceTests.ThreeSuccessesStabilizesTheCharacter",
+      "Status": "Passed",
+      "Duration": 0.0016632,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultArmorClassRuleTests.AddsGatheredArmorClassModifiersOnTopOfTheBase",
+      "Status": "Passed",
+      "Duration": 0.011626,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultArmorClassRuleTests.ComputesTenPlusDexterityModifierWithNoGatheredBonuses",
+      "Status": "Passed",
+      "Duration": 0.000617,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultArmorClassRuleTests.ReturnsTenForAnUnknownCombatant",
+      "Status": "Passed",
+      "Duration": 0.0005019,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultAttackBonusRuleTests.AddsGatheredAttackBonusModifiersOnTopOfAbilityAndProficiency",
+      "Status": "Passed",
+      "Duration": 0.0015959,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultAttackBonusRuleTests.ComputeAttackCountAddsExtraAttackModifiers",
+      "Status": "Passed",
+      "Duration": 0.0014124,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultAttackBonusRuleTests.ComputeAttackCountIsOneWithNoExtraAttackModifier",
+      "Status": "Passed",
+      "Duration": 0.0006807,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultAttackBonusRuleTests.ComputesAbilityModifierPlusProficiencyBonusByLevel",
+      "Status": "Passed",
+      "Duration": 0.0008011,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultAttackBonusRuleTests.CriticalThresholdDefaultsToTwentyWithNoGatheredModifier",
+      "Status": "Passed",
+      "Duration": 0.0034426,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultAttackBonusRuleTests.CriticalThresholdIsLoweredByAGatheredCriticalRangeModifier",
+      "Status": "Passed",
+      "Duration": 0.0020005,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultDamageResistanceRuleTests.DoublesDamageWhenVulnerable",
+      "Status": "Passed",
+      "Duration": 0.0042656,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultDamageResistanceRuleTests.HalvesDamageRoundedDownWhenResistant",
+      "Status": "Passed",
+      "Duration": 0.0007086,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultDamageResistanceRuleTests.ResistanceAndVulnerabilityFromDifferentSourcesCancelOut",
+      "Status": "Passed",
+      "Duration": 0.000971,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultDamageResistanceRuleTests.ReturnsRawAmountForAnUnknownCharacter",
+      "Status": "Passed",
+      "Duration": 0.0005843,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultDamageResistanceRuleTests.ReturnsRawAmountWhenTargetHasNoRelevantModifiers",
+      "Status": "Passed",
+      "Duration": 0.000552,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultDamageResistanceRuleTests.ZeroesDamageWhenImmuneEvenIfAlsoVulnerable",
+      "Status": "Passed",
+      "Duration": 0.0008522,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultInitiativeRuleTests.RollInitiativeAddsGatheredModifierToTheD20Roll",
+      "Status": "Passed",
+      "Duration": 0.0032839,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultInitiativeRuleTests.RollInitiativeWorksWithNoModifiersForAnUnknownCombatant",
+      "Status": "Passed",
+      "Duration": 0.0004511,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultMovementSpeedRuleTests.ExhaustionLevelFiveZeroesSpeed",
+      "Status": "Passed",
+      "Duration": 0.002616,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultMovementSpeedRuleTests.ExhaustionLevelOneDoesNotAffectSpeed",
+      "Status": "Passed",
+      "Duration": 0.000648,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultMovementSpeedRuleTests.ExhaustionLevelTwoHalvesSpeed",
+      "Status": "Passed",
+      "Duration": 0.0007218,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultMovementSpeedRuleTests.GrappledOverridesSpeedToZero",
+      "Status": "Passed",
+      "Duration": 0.0012855,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultMovementSpeedRuleTests.IgnoresExhaustionWhenNoExhaustionConditionIdIsConfigured",
+      "Status": "Passed",
+      "Duration": 0.0007244,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultMovementSpeedRuleTests.ReturnsBaseSpeedWhenNoModifiersOrExhaustionApply",
+      "Status": "Passed",
+      "Duration": 0.0005624,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.AddsGatheredSavingThrowModifiersOnTopOfAbilityAndProficiency",
+      "Status": "Passed",
+      "Duration": 0.0014908,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.AddsProficiencyBonusWhenProficientInThisSavingThrow",
+      "Status": "Passed",
+      "Duration": 0.0004599,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.AutoFailsWhenAnAutoFailSaveModifierIsGathered",
+      "Status": "Passed",
+      "Duration": 0.001622,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.ComputeAdvantageGathersModifiersUnderTheSavingThrowKey",
+      "Status": "Passed",
+      "Duration": 0.0011521,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.ComputesAbilityModifierOnlyWhenNotProficient",
+      "Status": "Passed",
+      "Duration": 0.0005251,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.ComputeSpellSaveDCAddsGatheredModifiersUnderTheSpellSaveDCKey",
+      "Status": "Passed",
+      "Duration": 0.0011206,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.ComputeSpellSaveDCIsEightPlusAbilityModifierPlusProficiencyBonus",
+      "Status": "Passed",
+      "Duration": 0.0005264,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.ComputeSpellSaveDCReturnsZeroForAnUnknownCharacter",
+      "Status": "Passed",
+      "Duration": 0.0004098,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSavingThrowRuleTests.ReturnsZeroBonusAndNormalAdvantageForAnUnknownCharacter",
+      "Status": "Passed",
+      "Duration": 0.0003905,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSkillCheckRuleTests.ComputeAdvantageGathersModifiersUnderTheSameKey",
+      "Status": "Passed",
+      "Duration": 0.0012964,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSkillCheckRuleTests.ComputesOnlyGatheredModifiersWithNoAbilityOrProficiencyBase",
+      "Status": "Passed",
+      "Duration": 0.0012395,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSkillCheckRuleTests.IgnoresModifiersTaggedForADifferentSkill",
+      "Status": "Passed",
+      "Duration": 0.0011695,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DefaultSkillCheckRuleTests.ReturnsZeroBonusAndNormalAdvantageForAnUnknownCharacter",
+      "Status": "Passed",
+      "Duration": 0.0004624,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueCheckResolverTests.ActiveCharacterPolicyReturnsThePartysActiveCharacterRegardlessOfModifiers",
+      "Status": "Passed",
+      "Duration": 0.0027572,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueCheckResolverTests.BestPartyMemberPicksTheHighestGatheredModifierForTheQueryKey",
+      "Status": "Passed",
+      "Duration": 0.0011992,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueCheckResolverTests.EntirePartyPolicyReturnsEveryPartyMember",
+      "Status": "Passed",
+      "Duration": 0.0009848,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueCheckResolverTests.SpecificSpeakerPolicyReturnsTheNpcRatherThanAnyPartyMember",
+      "Status": "Passed",
+      "Duration": 0.0007059,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialoguePresenterTests.AdvanceMovesPastALine",
+      "Status": "Passed",
+      "Duration": 0.0177708,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialoguePresenterTests.ChooseOptionUsesTheOriginalIndexFromGetChoices",
+      "Status": "Passed",
+      "Duration": 0.0038015,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialoguePresenterTests.GetChoicesOnlyReturnsCurrentlyVisibleOptionsWithTheirOriginalIndex",
+      "Status": "Passed",
+      "Duration": 0.004401,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialoguePresenterTests.OnACheckNodeExposesTheQueryKeyAndDifficultyClass",
+      "Status": "Passed",
+      "Duration": 0.0020058,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialoguePresenterTests.OnALineNodeExposesSpeakerAndText",
+      "Status": "Passed",
+      "Duration": 0.001876,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialoguePresenterTests.PerformCheckAdvancesToTheOutcomeNodeAndReturnsTheRoll",
+      "Status": "Passed",
+      "Duration": 0.0027587,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.ActionNodeExecutesGiveItemThenAutoAdvances",
+      "Status": "Passed",
+      "Duration": 0.0043896,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.ActionNodeExecutesRecordEventThenAutoAdvances",
+      "Status": "Passed",
+      "Duration": 0.0061512,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.ADanglingNodeReferenceThrowsADiagnosableExceptionInsteadOfKeyNotFoundException",
+      "Status": "Passed",
+      "Duration": 0.0016985,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.ADuplicateNodeIdThrowsADiagnosableExceptionInsteadOfSilentlyOverwriting",
+      "Status": "Passed",
+      "Duration": 0.0013538,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.AdvanceMovesFromALineToItsNextNode",
+      "Status": "Passed",
+      "Duration": 0.0009418,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.AdvanceThrowsWhenCurrentNodeIsNotALine",
+      "Status": "Passed",
+      "Duration": 0.001438,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.AMissingStartNodeThrowsADiagnosableException",
+      "Status": "Passed",
+      "Duration": 0.0011162,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.AnAuthoredActionCycleThrowsInsteadOfHangingForever",
+      "Status": "Passed",
+      "Duration": 0.0029681,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.BranchAutoSettlesBasedOnHasOccurred",
+      "Status": "Passed",
+      "Duration": 0.0015615,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.BranchAutoSettlesBasedOnOccurredBefore",
+      "Status": "Passed",
+      "Duration": 0.001378,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.BranchAutoSettlesBasedOnSumAtLeast",
+      "Status": "Passed",
+      "Duration": 0.001635,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.ChooseOptionMovesToTheSelectedOptionsNextNode",
+      "Status": "Passed",
+      "Duration": 0.0011896,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.ChooseOptionThrowsWhenTheSelectedOptionIsGatedAndItsConditionIsUnmet",
+      "Status": "Passed",
+      "Duration": 0.0015525,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.FullConversationLineChoiceCheckAndRecordEventFlowTogether",
+      "Status": "Passed",
+      "Duration": 0.0021252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.GetVisibleOptionsExcludesAGatedOptionUntilItsConditionIsMet",
+      "Status": "Passed",
+      "Duration": 0.0026174,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.OpenStoreActionRequestsTheContextsStoreThenAutoAdvances",
+      "Status": "Passed",
+      "Duration": 0.0015845,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.PerformCheckFailsAndBranchesToFailureNode",
+      "Status": "Passed",
+      "Duration": 0.0012115,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.PerformCheckSucceedsAndBranchesToSuccessNode",
+      "Status": "Passed",
+      "Duration": 0.0019694,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.PerformCheckThrowsWhenCurrentNodeIsNotACheck",
+      "Status": "Passed",
+      "Duration": 0.0012704,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.PerformCheckWithEntirePartyFailsWhenFewerThanHalfSucceed",
+      "Status": "Passed",
+      "Duration": 0.001762,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.PerformCheckWithEntirePartySucceedsWhenAtLeastHalfOfThePartySucceeds",
+      "Status": "Passed",
+      "Duration": 0.0012408,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.PerformCheckWithSpecificSpeakerRollsUsingTheNpcsOwnModifiers",
+      "Status": "Passed",
+      "Duration": 0.0013512,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.RunnerStartsAtTheDefinitionsStartNode",
+      "Status": "Passed",
+      "Duration": 0.0008469,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.SetStorePriceMultiplierActionChangesTheContextsStorePricesThenAutoAdvances",
+      "Status": "Passed",
+      "Duration": 0.0019453,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueRunnerTests.SetStorePriceMultiplierActionIsANoOpWhenTheContextHasNoStore",
+      "Status": "Passed",
+      "Duration": 0.0016906,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.ABranchNodeDanglingReferenceOnEitherSideIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0087682,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.ABranchNodeWithBothSidesEscapingIsNotFlagged",
+      "Status": "Passed",
+      "Duration": 0.000941,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.ABranchNodeWithOnlyOneEscapingSideIsStillAnError",
+      "Status": "Passed",
+      "Duration": 0.0008032,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.AChoiceOptionDanglingReferenceIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0008986,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.ADuplicateNodeIdIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0009989,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.ALineNodeDanglingReferenceIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0008733,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.AMissingStartNodeIsAnError",
+      "Status": "Passed",
+      "Duration": 0.0006926,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.AnInescapableActionCycleIsAnError",
+      "Status": "Passed",
+      "Duration": 0.000842,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.ANodeUnreachableFromStartIsAWarningNotAnError",
+      "Status": "Passed",
+      "Duration": 0.0007934,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DialogueValidatorTests.AWellFormedDialogueProducesNoResults",
+      "Status": "Passed",
+      "Duration": 0.000743,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DiceServiceTests.AdvantageRollsTwiceAndKeepsHigherTotal",
+      "Status": "Passed",
+      "Duration": 0.0021449,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DiceServiceTests.CombineCancelsAdvantageAndDisadvantage",
+      "Status": "Passed",
+      "Duration": 0.0012529,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DiceServiceTests.DiceExpressionParsesStandardNotation",
+      "Status": "Passed",
+      "Duration": 0.0005111,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DiceServiceTests.DisadvantageRollsTwiceAndKeepsLowerTotal",
+      "Status": "Passed",
+      "Duration": 0.0006237,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.DiceServiceTests.FixedRollProducesExpectedTotal",
+      "Status": "Passed",
+      "Duration": 0.0005102,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceCalculatorTests.DisabledCalculatorAlwaysReturnsZero",
+      "Status": "Passed",
+      "Duration": 0.000695,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceCalculatorTests.PartyCombinedCalculatorSumsEveryItemRegardlessOfOwner",
+      "Status": "Passed",
+      "Duration": 0.0032193,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceCalculatorTests.PerCharacterCalculatorOnlyCountsThatCharactersEquippedItems",
+      "Status": "Passed",
+      "Duration": 0.0017803,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceServiceTests.CarryingCapacityIsStrengthTimesFifteen",
+      "Status": "Passed",
+      "Duration": 0.0007415,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceServiceTests.RefreshAppliesTheEncumberedConditionAtTheEncumberedTier",
+      "Status": "Passed",
+      "Duration": 0.0008543,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceServiceTests.RefreshRemovesBothConditionsOnceUnencumberedAgain",
+      "Status": "Passed",
+      "Duration": 0.0004591,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceServiceTests.RefreshSwapsToHeavilyEncumberedAsWeightIncreases",
+      "Status": "Passed",
+      "Duration": 0.0003322,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceServiceTests.TierIsEncumberedAboveFiveTimesStrength",
+      "Status": "Passed",
+      "Duration": 0.0003064,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceServiceTests.TierIsHeavilyEncumberedAboveTenTimesStrength",
+      "Status": "Passed",
+      "Duration": 0.0003735,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EncumbranceServiceTests.TierIsUnencumberedBelowFiveTimesStrength",
+      "Status": "Passed",
+      "Duration": 0.000328,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquipMovesItemToTheRequestedSlot",
+      "Status": "Passed",
+      "Duration": 0.0032892,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquippingANonEquippableItemThrows",
+      "Status": "Passed",
+      "Duration": 0.001777,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquippingGrantsTheItemsEquippedFeature",
+      "Status": "Passed",
+      "Duration": 0.0009578,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquippingIntoAnOccupiedSlotDisplacesThePreviousItemToSharedInventory",
+      "Status": "Passed",
+      "Duration": 0.0014252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquippingIntoAnOccupiedSlotPublishesItemUnequippedForTheDisplacedItem",
+      "Status": "Passed",
+      "Duration": 0.0016847,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquippingIntoAnOccupiedSlotRemovesTheDisplacedItemsFeatureAndGrantsTheNewOne",
+      "Status": "Passed",
+      "Duration": 0.0012711,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquippingIntoTheWrongSlotThrows",
+      "Status": "Passed",
+      "Duration": 0.0009558,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.EquippingPublishesItemEquippedWithTheItemAndSlot",
+      "Status": "Passed",
+      "Duration": 0.0012959,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.UnequipMovesItemBackToSharedInventory",
+      "Status": "Passed",
+      "Duration": 0.0011865,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.UnequippingPublishesItemUnequipped",
+      "Status": "Passed",
+      "Duration": 0.0008553,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.EquipmentServiceTests.UnequippingRemovesTheItemsEquippedFeature",
+      "Status": "Passed",
+      "Duration": 0.000868,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ExhaustionServiceTests.DecreaseExhaustionReducesTheStack",
+      "Status": "Passed",
+      "Duration": 0.0011237,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ExhaustionServiceTests.DecreaseExhaustionToZeroRemovesTheCondition",
+      "Status": "Passed",
+      "Duration": 0.000504,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ExhaustionServiceTests.GetLevelIsZeroWhenNeverExhausted",
+      "Status": "Passed",
+      "Duration": 0.0004448,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ExhaustionServiceTests.IncreaseExhaustionBelowSixDoesNotReportDeath",
+      "Status": "Passed",
+      "Duration": 0.0004524,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ExhaustionServiceTests.IncreaseExhaustionCapsAtSixAndReportsDeath",
+      "Status": "Passed",
+      "Duration": 0.000742,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ExhaustionServiceTests.IncreaseExhaustionStacksOnTheSameConditionInstance",
+      "Status": "Passed",
+      "Duration": 0.0005877,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ExhaustionServiceTests.IncreaseExhaustionStartsAtTheGivenAmount",
+      "Status": "Passed",
+      "Duration": 0.00054,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FeatureModifierCollectorTests.CollectIgnoresFeaturesThatDoNotResolve",
+      "Status": "Passed",
+      "Duration": 0.0017432,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FeatureModifierCollectorTests.CollectReturnsModifiersFromActiveConditions",
+      "Status": "Passed",
+      "Duration": 0.0017102,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FeatureModifierCollectorTests.CollectReturnsModifiersFromActiveFeaturesMatchingTheQueryKey",
+      "Status": "Passed",
+      "Duration": 0.001039,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FormationSolverTests.ClusterSolverPlacesFirstMemberExactlyAtDestination",
+      "Status": "Passed",
+      "Duration": 0.0017211,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FormationSolverTests.ColumnSolverSpacesMembersBehindTheDestination",
+      "Status": "Passed",
+      "Duration": 0.0008354,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FormationSolverTests.LineSolverIsSymmetricAroundTheDestination",
+      "Status": "Passed",
+      "Duration": 0.0008068,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FormationSolverTests.PartyMoveOrderAssignsEachMemberADistinctFormationPoint",
+      "Status": "Passed",
+      "Duration": 0.0013447,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.FormationSolverTests.WedgeSolverPlacesFirstMemberAtDestination",
+      "Status": "Passed",
+      "Duration": 0.000556,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameEventBusTests.PublishDoesNotInvokeHandlersForOtherEvents",
+      "Status": "Passed",
+      "Duration": 0.0006422,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameEventBusTests.PublishInvokesSubscribedHandlerForMatchingEvent",
+      "Status": "Passed",
+      "Duration": 0.0006614,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameEventBusTests.UnsubscribeStopsFurtherNotifications",
+      "Status": "Passed",
+      "Duration": 0.0008552,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionHostTests.EndSessionIsIdempotent",
+      "Status": "Passed",
+      "Duration": 0.0014755,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionHostTests.StartSessionAfterEndSessionSucceeds",
+      "Status": "Passed",
+      "Duration": 0.0013238,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionHostTests.StartSessionCreatesAndExposesASession",
+      "Status": "Passed",
+      "Duration": 0.0008112,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionHostTests.StartSessionWhileAlreadyActiveThrows",
+      "Status": "Passed",
+      "Duration": 0.0014462,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionTests.AcceptsCommandsIsTrueUntilDisposed",
+      "Status": "Passed",
+      "Duration": 0.0003373,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionTests.ConstructorThrowsWhenDiceServiceIsNull",
+      "Status": "Passed",
+      "Duration": 0.0007698,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionTests.ConstructorThrowsWhenRulesDatabaseIsNull",
+      "Status": "Passed",
+      "Duration": 0.0008572,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionTests.DisposingASessionTwiceDoesNotThrow",
+      "Status": "Passed",
+      "Duration": 0.000708,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.GameSessionTests.TwoSessionsDoNotShareState",
+      "Status": "Passed",
+      "Duration": 0.0012952,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.HealEffectTests.RestoreNeverExceedsMax",
+      "Status": "Passed",
+      "Duration": 0.0014217,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.HealEffectTests.RestoresTheRolledAmount",
+      "Status": "Passed",
+      "Duration": 0.0009125,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.HealEffectTests.UpcastLevelsAddExtraDicePerConfiguredCount",
+      "Status": "Passed",
+      "Duration": 0.0009366,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InfluenceMapTests.DifferentLayersAreIndependent",
+      "Status": "Passed",
+      "Duration": 0.0008013,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InfluenceMapTests.OverlappingSourcesOnTheSameLayerSum",
+      "Status": "Passed",
+      "Duration": 0.0006952,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InfluenceMapTests.RemoveSourceStopsItFromContributing",
+      "Status": "Passed",
+      "Duration": 0.0012005,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InfluenceMapTests.SampleFallsOffLinearlyWithDistanceToTheSourceCenter",
+      "Status": "Passed",
+      "Duration": 0.0005594,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InfluenceMapTests.SampleIsZeroBeyondTheSourcesRadius",
+      "Status": "Passed",
+      "Duration": 0.0005299,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InteractionAdapterTests.DoorAdapterTogglesOpenStateAndTheObstacleEachExecute",
+      "Status": "Passed",
+      "Duration": 0.0039344,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InteractionAdapterTests.LootAdapterIsAvailableAndTakesEverythingIntoPartyInventory",
+      "Status": "Passed",
+      "Duration": 0.0011038,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InteractionAdapterTests.LootAdapterIsUnavailableWhenTheContainerIsEmpty",
+      "Status": "Passed",
+      "Duration": 0.0006032,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InteractionAdapterTests.LootAdapterReportsFailureIfTheContainerIsAlreadyEmptyAtExecuteTime",
+      "Status": "Passed",
+      "Duration": 0.0008689,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.DropRejectsAnEquippedItemWithoutRemovingIt",
+      "Status": "Passed",
+      "Duration": 0.0028635,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.DropRemovesASharedItem",
+      "Status": "Passed",
+      "Duration": 0.0022776,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.EquipMovesAnEligibleItemIntoTheRequestedSlot",
+      "Status": "Passed",
+      "Duration": 0.0010516,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.EquipReportsItemNotFoundForAnUnknownInstance",
+      "Status": "Passed",
+      "Duration": 0.00086,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.EquipReportsWrongSlotWithoutThrowing",
+      "Status": "Passed",
+      "Duration": 0.0010956,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.GetSharedItemsExposesTheRequiredSlotForEquippableItems",
+      "Status": "Passed",
+      "Duration": 0.0027315,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.RebindSwapsInANewInventoryAndEquipmentService",
+      "Status": "Passed",
+      "Duration": 0.0014663,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.UnequipMovesTheItemBackToSharedInventory",
+      "Status": "Passed",
+      "Duration": 0.0018292,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.InventoryPresenterTests.UseAlwaysReportsNotSupportedYet",
+      "Status": "Passed",
+      "Duration": 0.0014484,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.LocationStatePersistenceTests.AnNpcsRecordSurvivesItsLocationBeingReleasedAndItsViewRebindsOnReturnWithoutRegrantingItems",
+      "Status": "Passed",
+      "Duration": 0.0157289,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.LocationStatePersistenceTests.StoreStockAndLootContainerPersistThroughLeavingAndReturningToALocation",
+      "Status": "Passed",
+      "Duration": 0.0062354,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.LootServiceTests.TakeAllEmptiesTheContainerIntoSharedInventory",
+      "Status": "Passed",
+      "Duration": 0.000516,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.LootServiceTests.TakeMovesOneItemIntoSharedInventoryAndOutOfTheContainer",
+      "Status": "Passed",
+      "Duration": 0.0013396,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.CanMoveIsFalseWhenSpeedRuleCapsToZero",
+      "Status": "Passed",
+      "Duration": 0.001446,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.ClampsRequestedDistanceToWhicheverIsSmallerOfBudgetAndDesiredDistance",
+      "Status": "Passed",
+      "Duration": 0.0017851,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.DoesNothingWhenAlreadyWithinStopDistance",
+      "Status": "Passed",
+      "Duration": 0.0005976,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.DoesNothingWhenNoMovementResourceIsLeft",
+      "Status": "Passed",
+      "Duration": 0.0004322,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.LeavingAThreatenedAreaTriggersAnOpportunityAttack",
+      "Status": "Passed",
+      "Duration": 0.0036566,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.LogsAMovementEntryWhenMovementOccurs",
+      "Status": "Passed",
+      "Duration": 0.0009272,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.MovingStillWorksWithoutReactionSupportWiredUp",
+      "Status": "Passed",
+      "Duration": 0.0006056,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.SpeedRuleCapsMovementEvenWhenBudgetHasMoreLeft",
+      "Status": "Passed",
+      "Duration": 0.0005031,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.SpendsExactlyWhatTheControllerReportsWasActuallyMoved",
+      "Status": "Passed",
+      "Duration": 0.0004538,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.MovementResolutionServiceTests.StayingWithinThreatRangeDoesNotTriggerAnOpportunityAttack",
+      "Status": "Passed",
+      "Duration": 0.0011326,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NpcSpawnServiceTests.SpawnAppliesAbilityScoreBonusesFromGrantedFeatures",
+      "Status": "Passed",
+      "Duration": 0.0039107,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NpcSpawnServiceTests.SpawnGrantsFeaturesAndTheirOwnResourceAndProficiencyGrants",
+      "Status": "Passed",
+      "Duration": 0.0010313,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NpcSpawnServiceTests.SpawnGrantsProficienciesResourcesAndKnownAbilitiesDirectly",
+      "Status": "Passed",
+      "Duration": 0.0014545,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NpcSpawnServiceTests.SpawnSetsLevelAndAbilityScoresDirectly",
+      "Status": "Passed",
+      "Duration": 0.000704,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NpcSpawnServiceTests.SpawnSetsSpellcastingStatIdDirectly",
+      "Status": "Passed",
+      "Duration": 0.0008989,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NumericRuleQueryTests.AddAndMultiplyModifiersApplyInDefinedOrder",
+      "Status": "Passed",
+      "Duration": 0.0009832,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NumericRuleQueryTests.EvaluateRecordsATraceForEveryStep",
+      "Status": "Passed",
+      "Duration": 0.0011639,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NumericRuleQueryTests.MinimumClampsFinalValue",
+      "Status": "Passed",
+      "Duration": 0.000703,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.NumericRuleQueryTests.OverrideReplacesAccumulatedValue",
+      "Status": "Passed",
+      "Duration": 0.0005443,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyCameraFollowTests.SnapToActiveCharacterLandsExactlyInOneCall",
+      "Status": "Passed",
+      "Duration": 0.003986,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyCameraFollowTests.TickFollowsTheActiveCharactersCurrentPosition",
+      "Status": "Passed",
+      "Duration": 0.0013634,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyCameraFollowTests.TickNoOpsWhenTheActiveCharacterIsMissingFromTheSelectableSource",
+      "Status": "Passed",
+      "Duration": 0.0016643,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyCameraFollowTests.TickNoOpsWhenThereIsNoActiveCharacter",
+      "Status": "Passed",
+      "Duration": 0.0042115,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyCameraFollowTests.TickRetargetsWhenTheActiveCharacterChanges",
+      "Status": "Passed",
+      "Duration": 0.000941,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyExplorationControllerTests.DisposedControllerDoesNotReceiveFurtherMoveCommands",
+      "Status": "Passed",
+      "Duration": 0.0027673,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyExplorationControllerTests.DisposedControllerDoesNotReceiveFurtherSelectCommands",
+      "Status": "Passed",
+      "Duration": 0.0010053,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyExplorationControllerTests.DisposingOneControllerDoesNotAffectAnotherOnTheSameCommandSource",
+      "Status": "Passed",
+      "Duration": 0.0104576,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyExplorationControllerTests.DisposingTwiceDoesNotThrow",
+      "Status": "Passed",
+      "Duration": 0.0006168,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyExplorationControllerTests.MoveCommandSendsEachSelectedMemberToADistinctFormationPoint",
+      "Status": "Passed",
+      "Duration": 0.000834,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyExplorationControllerTests.SelectCommandReplaceWithOneCharacterNarrowsSelection",
+      "Status": "Passed",
+      "Duration": 0.0011173,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyExplorationControllerTests.SelectCommandToggleFlipsMembership",
+      "Status": "Passed",
+      "Duration": 0.0013052,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyInventoryStateTests.AddedItemDefaultsToSharedInventory",
+      "Status": "Passed",
+      "Duration": 0.0015902,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyInventoryStateTests.RemoveItemDropsItFromInventoryAndLocation",
+      "Status": "Passed",
+      "Duration": 0.0006248,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyInventoryStateTests.TryGetEquippedItemFindsItemInSpecificSlot",
+      "Status": "Passed",
+      "Duration": 0.0007145,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyMovementServiceTests.ALaterAttemptSucceedingReportsFallbackCompressedTowardTheSharedDestination",
+      "Status": "Passed",
+      "Duration": 0.0027784,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyMovementServiceTests.AMemberMissingFromTheSelectableSourceReportsUnreachableWithoutQueryingTheNavMesh",
+      "Status": "Passed",
+      "Duration": 0.0007158,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyMovementServiceTests.AttemptZeroSucceedingReportsExact",
+      "Status": "Passed",
+      "Duration": 0.0010416,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyMovementServiceTests.ExhaustingTheRetryBudgetReportsUnreachableWithNoResolvedDestination",
+      "Status": "Passed",
+      "Duration": 0.0006642,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyMovementServiceTests.GetSelectablesIsCalledExactlyOncePerResolveDestinationsCallRegardlessOfPartySize",
+      "Status": "Passed",
+      "Duration": 0.0008371,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyPresenterTests.GetMembersReturnsSelectionAndHitPoints",
+      "Status": "Passed",
+      "Duration": 0.0031026,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyPresenterTests.RebindSwapsInANewPartyAndRegistry",
+      "Status": "Passed",
+      "Duration": 0.0019192,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyPresenterTests.SetActiveOnAnUnselectedMemberReturnsNotSelectedInsteadOfThrowing",
+      "Status": "Passed",
+      "Duration": 0.0019983,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyPresenterTests.SetActiveOnASelectedMemberSucceeds",
+      "Status": "Passed",
+      "Duration": 0.0016443,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyPresenterTests.ToggleSelectAndCycleActiveDelegateStraightToPartyState",
+      "Status": "Passed",
+      "Duration": 0.0020485,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.AddingAnAlreadyPresentMemberDoesNotRaiseChanged",
+      "Status": "Passed",
+      "Duration": 0.0009276,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.AddingMembersSelectsThemAndActivatesTheFirst",
+      "Status": "Passed",
+      "Duration": 0.0006608,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.ChangedFiresExactlyOnceForSelectAllAndSelectGroupNotTwice",
+      "Status": "Passed",
+      "Duration": 0.0034887,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.ChangedFiresOnceForEachOfTheLeafMutatingOperations",
+      "Status": "Passed",
+      "Duration": 0.0025696,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.CycleActiveWrapsAcrossSelectedMembersOnlyInPartyOrder",
+      "Status": "Passed",
+      "Duration": 0.0006042,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.GroupsDefaultToOneGroupAndCanBeSplit",
+      "Status": "Passed",
+      "Duration": 0.0019261,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.RemovingActiveMemberReassignsActiveOrClearsIt",
+      "Status": "Passed",
+      "Duration": 0.0004275,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.SelectNarrowsToOneCharacterAndActivatesIt",
+      "Status": "Passed",
+      "Duration": 0.0009527,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.SetActiveRequiresTheCharacterToAlreadyBeSelected",
+      "Status": "Passed",
+      "Duration": 0.0006264,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.ToggleSelectAddingDoesNotStealActiveFromExistingSelection",
+      "Status": "Passed",
+      "Duration": 0.0003252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.PartyStateTests.ToggleSelectRemovingActiveReassignsActiveInPartyOrder",
+      "Status": "Passed",
+      "Duration": 0.0002759,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestDialogueIntegrationTests.ABranchedConversationReachingTheSameRecordEventViaEitherChoiceCompletesTheQuestExactlyOnce",
+      "Status": "Passed",
+      "Duration": 0.0032536,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestDialogueIntegrationTests.TalkingThroughADialogueRecordEventActionCompletesAMatchingTalkToObjective",
+      "Status": "Passed",
+      "Duration": 0.0012826,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestLogPresenterTests.GetActiveAndGetCompletedFilterByStatus",
+      "Status": "Passed",
+      "Duration": 0.0011642,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestLogPresenterTests.GetQuestsReportsDisplayNameStatusAndObjectiveProgress",
+      "Status": "Passed",
+      "Duration": 0.0011863,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestLogPresenterTests.GetQuestsSurfacesItemRewards",
+      "Status": "Passed",
+      "Duration": 0.0018596,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestLogPresenterTests.RebindSwapsInANewLogAndRulesDatabase",
+      "Status": "Passed",
+      "Duration": 0.0008718,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.CompletingAQuestGrantsItsRewardsExactlyOnceAcrossTwoRefreshCalls",
+      "Status": "Passed",
+      "Duration": 0.0018044,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.CountSinceActivationIgnoresOccurrencesRecordedBeforeTheQuestStarted",
+      "Status": "Passed",
+      "Duration": 0.0015353,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.CurrentStatePredicateCompletesBasedOnLiveTimelineStateNotACount",
+      "Status": "Passed",
+      "Duration": 0.0009458,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.HistoricalCountStillCountsOccurrencesFromBeforeActivationUnlikeCountSinceActivation",
+      "Status": "Passed",
+      "Duration": 0.0010004,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.QuestStartedAndCompletedEventsCarryTheQuestId",
+      "Status": "Passed",
+      "Duration": 0.0014927,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.RefreshProgressCompletesAnObjectiveOnceItsTrackingKeyReachesTargetCount",
+      "Status": "Passed",
+      "Duration": 0.0011584,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.RefreshProgressCompletesTheQuestOnlyOnceEveryObjectiveIsComplete",
+      "Status": "Passed",
+      "Duration": 0.0010141,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.RefreshProgressIsANoOpForAQuestThatWasNeverStarted",
+      "Status": "Passed",
+      "Duration": 0.0010964,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.RefreshProgressPublishesQuestCompletedWhenTheLastObjectiveFinishes",
+      "Status": "Passed",
+      "Duration": 0.0012924,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.RefreshProgressPublishesQuestObjectiveCompletedExactlyOncePerObjective",
+      "Status": "Passed",
+      "Duration": 0.0015023,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.RewardIsNotDoubleGrantedAfterASimulatedReload",
+      "Status": "Passed",
+      "Duration": 0.0009719,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.StartQuestCreatesAnActiveQuestWithIncompleteObjectives",
+      "Status": "Passed",
+      "Duration": 0.0007325,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.StartQuestIsIdempotent",
+      "Status": "Passed",
+      "Duration": 0.0006861,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.QuestServiceTests.StartQuestPublishesQuestStarted",
+      "Status": "Passed",
+      "Duration": 0.0008287,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ReactionServiceTests.ResolveOpportunityDeclinesWhenProviderDeclines",
+      "Status": "Passed",
+      "Duration": 0.0023432,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ReactionServiceTests.ResolveOpportunityExecutesTheChosenReactionAndSpendsTheResource",
+      "Status": "Passed",
+      "Duration": 0.0011013,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ReactionServiceTests.ResolveOpportunityFailsWhenReactorHasNoReactionLeft",
+      "Status": "Passed",
+      "Duration": 0.0008273,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.ReactionServiceTests.ResolveOpportunityIgnoresNonReactionAbilities",
+      "Status": "Passed",
+      "Duration": 0.000794,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RestServiceTests.LongRestRestoresEverythingTaggedLongRestOrBoth",
+      "Status": "Passed",
+      "Duration": 0.0010416,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RestServiceTests.RestAppliesToEveryPartyMemberGiven",
+      "Status": "Passed",
+      "Duration": 0.0015793,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RestServiceTests.RestPublishesExactlyOneEventForTheWholeParty",
+      "Status": "Passed",
+      "Duration": 0.00145,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RestServiceTests.ShortRestOnlyRestoresResourcesTaggedShortRestOrBoth",
+      "Status": "Passed",
+      "Duration": 0.0009516,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RulesDatabaseTests.AllReturnsEveryRegisteredDefinitionOfType",
+      "Status": "Passed",
+      "Duration": 0.0008584,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RulesDatabaseTests.RegisteredDefinitionResolvesById",
+      "Status": "Passed",
+      "Duration": 0.0005011,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RulesDatabaseTests.RegisteringDuplicateIdThrows",
+      "Status": "Passed",
+      "Duration": 0.0010413,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.RulesDatabaseTests.TryResolveFailsForUnknownId",
+      "Status": "Passed",
+      "Duration": 0.0003836,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SafePointGateTests.CombatActiveBlocksSaving",
+      "Status": "Passed",
+      "Duration": 0.0010478,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SafePointGateTests.LoadInProgressBlocksSaving",
+      "Status": "Passed",
+      "Duration": 0.0004518,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SafePointGateTests.NoBlockOnceCombatEnds",
+      "Status": "Passed",
+      "Duration": 0.0005562,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SafePointGateTests.NoBlockWhenTheSharedTransitionGateIsWiredButNotBusy",
+      "Status": "Passed",
+      "Duration": 0.000372,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SafePointGateTests.NoneWhenNoDependenciesAreWired",
+      "Status": "Passed",
+      "Duration": 0.000356,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SafePointGateTests.SceneTransitionInProgressBlocksSavingAndTakesPriorityOverLoadInProgress",
+      "Status": "Passed",
+      "Duration": 0.0009054,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.ACorruptExistingPrimaryIsNotRotatedOverAGoodBackup",
+      "Status": "Passed",
+      "Duration": 0.0526408,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.AFailureDuringReplaceLeavesBothThePrimaryAndBackupUnchanged",
+      "Status": "Passed",
+      "Duration": 0.018252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.LoadOfAMissingFileReturnsFileNotFound",
+      "Status": "Passed",
+      "Duration": 0.003288,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.LoadOfANewerUnsupportedVersionIsRejected",
+      "Status": "Passed",
+      "Duration": 0.010969,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.LoadOfAVersionStuckBelowCurrentWithNoMigrationPathIsRejected",
+      "Status": "Passed",
+      "Duration": 0.0132232,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.LoadOfCorruptJsonReturnsCorrupt",
+      "Status": "Passed",
+      "Duration": 0.0113047,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.SaveThenLoadRoundTrips",
+      "Status": "Passed",
+      "Duration": 0.0143508,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveFileStoreTests.SecondSaveProducesACorrectBackupOfTheFirst",
+      "Status": "Passed",
+      "Duration": 0.0126541,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveMigrationRunnerTests.ApplyIsANoOpWhenTheSavesVersionAlreadyHasNoRegisteredMigration",
+      "Status": "Passed",
+      "Duration": 0.0004184,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveMigrationRunnerTests.ApplyRunsAMatchingMigrationAndStopsOnceNoMigrationMatchesTheNewVersion",
+      "Status": "Passed",
+      "Duration": 0.0016471,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveMigrationRunnerTests.V1ToV2MigrationDefaultsLevelToOneNotTheClrDefaultOfZero",
+      "Status": "Passed",
+      "Duration": 0.0011576,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveMigrationRunnerTests.V1ToV2MigrationPreservesAnAlreadyAuthoredLevel",
+      "Status": "Passed",
+      "Duration": 0.0005716,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavePresenterTests.GetSlotsReflectsTheCatalog",
+      "Status": "Passed",
+      "Duration": 0.003793,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavePresenterTests.IsLoadingReflectsThePort",
+      "Status": "Passed",
+      "Duration": 0.0019643,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavePresenterTests.RequestLoadDelegatesToThePortAndReportsTheOutcome",
+      "Status": "Passed",
+      "Duration": 0.0031281,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavePresenterTests.RequestSaveDelegatesToThePortWithTheSlotsPath",
+      "Status": "Passed",
+      "Duration": 0.0023102,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveRequestServiceTests.ABlockedSafePointAbortsBeforeAnyWriteAttempt",
+      "Status": "Passed",
+      "Duration": 0.0015252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveRequestServiceTests.ASafeRequestWritesSuccessfully",
+      "Status": "Passed",
+      "Duration": 0.00113,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.CapturedHeaderCarriesTheCurrentFormatVersion",
+      "Status": "Passed",
+      "Duration": 0.0067834,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.CapturingWithAdditionalCharacterIdsPersistsANonPartyCharacter",
+      "Status": "Passed",
+      "Duration": 0.0094982,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.LootContainerStateRoundTripsThroughCaptureAndRestore",
+      "Status": "Passed",
+      "Duration": 0.0023556,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedCharacterReproducesConcentratingOnAbilityId",
+      "Status": "Passed",
+      "Duration": 0.002818,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedCharacterReproducesDeathSaves",
+      "Status": "Passed",
+      "Duration": 0.001186,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedCharacterReproducesKnownAbilities",
+      "Status": "Passed",
+      "Duration": 0.0012201,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedCharacterReproducesLevel",
+      "Status": "Passed",
+      "Duration": 0.0011036,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedCharacterReproducesPreparedAbilities",
+      "Status": "Passed",
+      "Duration": 0.0010488,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedCharacterReproducesSpellcastingStatId",
+      "Status": "Passed",
+      "Duration": 0.0007597,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedCharacterReproducesStatsResourcesConditionsFeaturesAndProficiencies",
+      "Status": "Passed",
+      "Duration": 0.001349,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedInventoryReproducesSharedAndEquippedItemsWithCustomState",
+      "Status": "Passed",
+      "Duration": 0.0019072,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedPartyStateReproducesMembershipSelectionAndGroups",
+      "Status": "Passed",
+      "Duration": 0.000829,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedQuestsReproducesActivationCursorAndRewardClaimed",
+      "Status": "Passed",
+      "Duration": 0.0008886,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedQuestsReproducesStatusAndObjectiveProgress",
+      "Status": "Passed",
+      "Duration": 0.0010724,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.RestoringCapturedTimelineReproducesAllQuerySurfaceResults",
+      "Status": "Passed",
+      "Duration": 0.0009998,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.SaveHeaderCapturesScenePathRulesetIdAndContentCompatibilityId",
+      "Status": "Passed",
+      "Duration": 0.0004846,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.StoreStateRoundTripsThroughCaptureAndRestore",
+      "Status": "Passed",
+      "Duration": 0.0016808,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.ToJsonThenFromJsonRoundTripsThroughTextWithoutLosingData",
+      "Status": "Passed",
+      "Duration": 0.0016627,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveServiceTests.WorldSpawnSnapshotsRoundTripIncludingADefeatedEntry",
+      "Status": "Passed",
+      "Duration": 0.0020037,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveSlotCatalogTests.ACorruptSlotReportsCorruptNotEmpty",
+      "Status": "Passed",
+      "Duration": 0.0129,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveSlotCatalogTests.ANewerFormatVersionSlotIsDistinguishedFromCorrupt",
+      "Status": "Passed",
+      "Duration": 0.0125627,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveSlotCatalogTests.AnUnwrittenSlotReportsEmpty",
+      "Status": "Passed",
+      "Duration": 0.0028632,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SaveSlotCatalogTests.AWrittenSlotReportsOccupiedWithATimestamp",
+      "Status": "Passed",
+      "Duration": 0.01772,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.AutoFailSkipsTheRollAndAppliesOnFailureEffect",
+      "Status": "Passed",
+      "Duration": 0.0041599,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.DisadvantageRollsTwiceAndKeepsTheWorseResult",
+      "Status": "Passed",
+      "Duration": 0.0018297,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.DoesNothingWhenNeitherEffectIsSet",
+      "Status": "Passed",
+      "Duration": 0.0012682,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.DoesNothingWhenSavingThrowRuleIsNotWiredUp",
+      "Status": "Passed",
+      "Duration": 0.0011096,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.FailedSaveAppliesOnFailureEffect",
+      "Status": "Passed",
+      "Duration": 0.0015213,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.SucceededSaveAppliesOnSuccessEffectWhenSet",
+      "Status": "Passed",
+      "Duration": 0.0008022,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.SucceededSaveSkipsOnFailureEffect",
+      "Status": "Passed",
+      "Duration": 0.0008511,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SavingThrowEffectTests.UsesCasterSpellSaveDCWhenFlagIsSet",
+      "Status": "Passed",
+      "Duration": 0.0017751,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SceneTravelResultTests.FailReportsTheGivenOutcomeAndMessage",
+      "Status": "Passed",
+      "Duration": 0.0007127,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SceneTravelResultTests.OkReportsSuccess",
+      "Status": "Passed",
+      "Duration": 0.000723,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SceneTravelResultTests.WorldTransitionGateTracksBusyStateAndRejectsReentrantBegin",
+      "Status": "Passed",
+      "Duration": 0.0012814,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.DefaultValueEqualsEmpty",
+      "Status": "Passed",
+      "Duration": 0.0005432,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.EmptyIsNotValid",
+      "Status": "Passed",
+      "Duration": 0.0002163,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.EqualityOperatorsMatchEquals",
+      "Status": "Passed",
+      "Duration": 0.000864,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.EqualValuesHaveEqualHashCodes",
+      "Status": "Passed",
+      "Duration": 0.0002903,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.FromGuidRoundTripsExactly",
+      "Status": "Passed",
+      "Duration": 0.0008533,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.FromStringIsDeterministic",
+      "Status": "Passed",
+      "Duration": 0.0004806,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.FromStringOfNullOrEmptyIsEmpty",
+      "Status": "Passed",
+      "Duration": 0.0004056,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.FromStringProducesDifferentValuesForDifferentSeeds",
+      "Status": "Passed",
+      "Duration": 0.0004692,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.NewGuidIsValid",
+      "Status": "Passed",
+      "Duration": 0.000284,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.NewGuidProducesDistinctValues",
+      "Status": "Passed",
+      "Duration": 0.0004139,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.ToStringOfAValidGuidIsNotEmpty",
+      "Status": "Passed",
+      "Duration": 0.0006304,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.ToStringOfEmptyIsEmptyString",
+      "Status": "Passed",
+      "Duration": 0.000331,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SerializableGuidTests.WorksAsADictionaryKey",
+      "Status": "Passed",
+      "Duration": 0.0031822,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.MaxPreparedHalvesLevelForAHalfCaster",
+      "Status": "Passed",
+      "Duration": 0.0013743,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.MaxPreparedIsLevelPlusAbilityModifier",
+      "Status": "Passed",
+      "Duration": 0.0006252,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.MaxPreparedNeverGoesBelowOne",
+      "Status": "Passed",
+      "Duration": 0.0005089,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.PrepareSpellsReplacesThePreviousSelectionEntirely",
+      "Status": "Passed",
+      "Duration": 0.0004016,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.TryPrepareFailsWhenAbilityIsNotOnTheClassSpellList",
+      "Status": "Passed",
+      "Duration": 0.0020729,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.TryPrepareFailsWhenClassIsNotAPreparedCaster",
+      "Status": "Passed",
+      "Duration": 0.0006094,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.TryPrepareFailsWhenExceedingMax",
+      "Status": "Passed",
+      "Duration": 0.00062,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.SpellPreparationServiceTests.TryPrepareSucceedsWithinPoolAndLimit",
+      "Status": "Passed",
+      "Duration": 0.0006972,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.BuyDecrementsListedStockAndAddsToPartyInventory",
+      "Status": "Passed",
+      "Duration": 0.0031998,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.BuyReportsInsufficientFundsWithoutTouchingStock",
+      "Status": "Passed",
+      "Duration": 0.0011311,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.BuyReportsNotListedForAnUnknownItem",
+      "Status": "Passed",
+      "Duration": 0.0006487,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.BuyReportsOutOfStockWithoutSpendingAnyGold",
+      "Status": "Passed",
+      "Duration": 0.0007006,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.GetListingsReportsDisplayNamePriceAndRemainingStock",
+      "Status": "Passed",
+      "Duration": 0.0009342,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.GetSellableItemsReportsWhatThePartyIsCarrying",
+      "Status": "Passed",
+      "Duration": 0.0021768,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.PartyGoldReflectsTheSharedInventorysCurrencyStacks",
+      "Status": "Passed",
+      "Duration": 0.0005681,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.SellRemovesTheItemAndIncreasesPartyGold",
+      "Status": "Passed",
+      "Duration": 0.0015652,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.SellReportsItemEquippedForAnEquippedItem",
+      "Status": "Passed",
+      "Duration": 0.0008838,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StorePresenterTests.SellReportsItemNotOwnedForAnInstanceThePartyDoesNotHave",
+      "Status": "Passed",
+      "Duration": 0.0006812,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.ChangingBuyPriceMultiplierAfterConstructionAffectsSubsequentPrices",
+      "Status": "Passed",
+      "Duration": 0.001545,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.GetBuyPriceMultipliesBaseValueByTheStoresBuyMultiplier",
+      "Status": "Passed",
+      "Duration": 0.0008618,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.GetSellPriceMultipliesBaseValueByTheStoresSellMultiplier",
+      "Status": "Passed",
+      "Duration": 0.0007329,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.TryBuyFailsWhenItemIsNotListed",
+      "Status": "Passed",
+      "Duration": 0.0009198,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.TryBuyFailsWithoutSideEffectsWhenPartyCannotAfford",
+      "Status": "Passed",
+      "Duration": 0.0012205,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.TryBuyWithFiniteStockDepletesAndEventuallyFails",
+      "Status": "Passed",
+      "Duration": 0.0010225,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.TryBuyWithUnlimitedStockSucceedsAndNeverDepletes",
+      "Status": "Passed",
+      "Duration": 0.0011375,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.TrySellFailsForAnEquippedItem",
+      "Status": "Passed",
+      "Duration": 0.0013418,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.TrySellFailsWhenTheInstanceIsNotInThePartyInventory",
+      "Status": "Passed",
+      "Duration": 0.0009001,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.StoreServiceTests.TrySellRemovesTheItemAndPaysTheParty",
+      "Status": "Passed",
+      "Duration": 0.0009019,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.AllEventsFiltersToOnlyTheGivenKeyInOrder",
+      "Status": "Passed",
+      "Duration": 0.0010992,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.CountOccurrencesCountsRecordCallsRegardlessOfAmount",
+      "Status": "Passed",
+      "Duration": 0.000683,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.GetLatestReturnsNullForAKeyThatNeverOccurred",
+      "Status": "Passed",
+      "Duration": 0.0008417,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.GetLatestReturnsTheMostRecentValueForAKey",
+      "Status": "Passed",
+      "Duration": 0.0010058,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.HasOccurredIsFalseUntilRecordedThenTrue",
+      "Status": "Passed",
+      "Duration": 0.000468,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.OccurredBeforeComparesFirstOccurrenceOrder",
+      "Status": "Passed",
+      "Duration": 0.0006273,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.OccurredBeforeIsFalseWhenEitherKeyNeverOccurred",
+      "Status": "Passed",
+      "Duration": 0.0004799,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.OccurredBeforeUsesFirstOccurrenceEvenIfKeyRecordedAgainLater",
+      "Status": "Passed",
+      "Duration": 0.0005865,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.RecordAssignsStrictlyIncreasingSequenceNumbers",
+      "Status": "Passed",
+      "Duration": 0.000909,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.RecordCapturesSourceAndEntityRefValues",
+      "Status": "Passed",
+      "Duration": 0.0008821,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TimelineTests.SumAccumulatesAmountsAcrossRecordsOfTheSameKey",
+      "Status": "Passed",
+      "Duration": 0.0005422,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.TurnResourceSetTests.RestoreFullRestoresEveryConfiguredResourceToMax",
+      "Status": "Passed",
+      "Duration": 0.0012166,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.AMoveBehaviorIsSkippedWhenNoMovementResourceIsLeft",
+      "Status": "Passed",
+      "Duration": 0.007941,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.AMoveBehaviorPicksTheFarthestTargetWhenFavoringDistance",
+      "Status": "Passed",
+      "Duration": 0.0080204,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.AnInfluenceMapConsiderationShiftsTheWinnerWhenASourceIsAdded",
+      "Status": "Passed",
+      "Duration": 0.0028779,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.AttackAndMoveBehaviorsCompeteOnTheSameScoreAndAttackWinsWhenInRange",
+      "Status": "Passed",
+      "Duration": 0.0020724,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.AttackAndMoveBehaviorsCompeteOnTheSameScoreAndMoveWinsWhenOutOfRange",
+      "Status": "Passed",
+      "Duration": 0.0022849,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.AZeroScoringConsiderationVetoesThatTargetEvenIfOtherAxesAreGood",
+      "Status": "Passed",
+      "Duration": 0.0019988,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.PicksTheHigherScoringTargetWhenFavoringLowTargetHealth",
+      "Status": "Passed",
+      "Duration": 0.0013549,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityAIDecisionProviderTests.ReturnsNullWhenNoBehaviorCanBeUsed",
+      "Status": "Passed",
+      "Duration": 0.000716,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityMathTests.CombineScoresAppliesTheCompensationFactorForMultipleConsiderations",
+      "Status": "Passed",
+      "Duration": 0.0020408,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityMathTests.CombineScoresLeavesASingleScoreUnchanged",
+      "Status": "Passed",
+      "Duration": 0.000342,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityMathTests.CombineScoresReturnsZeroForAnEmptyList",
+      "Status": "Passed",
+      "Duration": 0.0003401,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.UtilityMathTests.CombineScoresTreatsAZeroScoreAsAHardVeto",
+      "Status": "Passed",
+      "Duration": 0.0003901,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.BindRestoredViewNeverGrantsItemsOrMutatesCharacterState",
+      "Status": "Passed",
+      "Duration": 0.002688,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.ImportDefeatedTombstoneMakesCaptureSnapshotReportDefeatedWithNoLiveAgent",
+      "Status": "Passed",
+      "Duration": 0.0018533,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.MarkDefeatedTombstonesTheRecordAndUnbindsTheAgent",
+      "Status": "Passed",
+      "Duration": 0.0025034,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.OwnedAgentsIncludesADisabledAgentUnlikeCharacterAgentAllLive",
+      "Status": "Passed",
+      "Duration": 0.0013269,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcGrantsAndEquipsStartingItems",
+      "Status": "Passed",
+      "Duration": 0.0012098,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcInitializesAVisualEquipmentComponentPresentOnTheVisualPrefab",
+      "Status": "Passed",
+      "Duration": 0.0016534,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcRecordsFaction",
+      "Status": "Passed",
+      "Duration": 0.0030653,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcRegistersCharacterStateAndBindsAgent",
+      "Status": "Passed",
+      "Duration": 0.0010983,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcSkipsAnUnresolvableStartingItemWithoutFailingTheWholeSpawn",
+      "Status": "Passed",
+      "Duration": 0.0015218,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcThrowsOnDuplicateSpawnId",
+      "Status": "Passed",
+      "Duration": 0.0012256,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcThrowsWhenSessionIsAlreadyDisposed",
+      "Status": "Passed",
+      "Duration": 0.0008393,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcThrowsWhenVisualPrefabIsNull",
+      "Status": "Passed",
+      "Duration": 0.000852,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcUsesAnExistingCharacterAgentOnTheVisualPrefabRatherThanAddingASecondOne",
+      "Status": "Passed",
+      "Duration": 0.0014977,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.EditMode.WorldSpawnServiceTests.SpawnNpcWithNoFactionRecordsNone",
+      "Status": "Passed",
+      "Duration": 0.0009346,
+      "Message": null,
+      "StackTrace": null
+    }
+  ],
+  "Duration": 15.86,
+  "StatusPath": null,
+  "Mode": "EditMode",
+  "FilterApplied": null,
+  "success": true,
+  "result": null
+}

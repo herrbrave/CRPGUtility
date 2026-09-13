@@ -13,7 +13,9 @@ namespace CRPG.Saving
     [Serializable]
     public sealed class SaveData
     {
-        public const int CurrentFormatVersion = 1;
+        // Task 3.5: bumped 1 -> 2, a real schema change (six new CharacterSaveData fields plus header/world/
+        // store/loot sections). See Migrations/V1ToV2Migration.cs.
+        public const int CurrentFormatVersion = 2;
 
         public SaveHeader Header = new();
         public PartySaveData Party = new();
@@ -21,5 +23,8 @@ namespace CRPG.Saving
         public List<ItemSaveData> InventoryItems = new();
         public List<TimelineEventSaveData> TimelineEvents = new();
         public List<QuestSaveData> Quests = new();
+        public List<WorldSpawnSaveEntry> WorldSpawns = new();
+        public List<StoreSaveData> Stores = new();
+        public List<LootContainerSaveData> LootContainers = new();
     }
 }

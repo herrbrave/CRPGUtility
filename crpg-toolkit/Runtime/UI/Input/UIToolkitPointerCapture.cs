@@ -46,7 +46,10 @@ namespace CRPG.UI
                 var panel = document.rootVisualElement?.panel;
                 if (panel == null) continue;
 
-                var panelPosition = RuntimePanelUtils.ScreenToPanel(panel, screenPosition);
+                // Input System / Camera screen coordinates start at bottom-left; UI Toolkit's
+                // ScreenToPanel expects top-left pixels (and then applies panel scaling).
+                var topLeftPosition = new Vector2(screenPosition.x, Screen.height - screenPosition.y);
+                var panelPosition = RuntimePanelUtils.ScreenToPanel(panel, topLeftPosition);
                 if (panel.Pick(panelPosition) != null) return true;
             }
 

@@ -34,6 +34,22 @@ namespace CRPG.Gameplay
             Session = null;
         }
 
+        /// <summary>Task 3.5: adopts an already-built session directly, without constructing one -- used by
+        /// SessionLoadCoordinator's commit step, once the new session has already been fully built/restored
+        /// and validated off to the side. Throws under the same "clear the old one first" guard StartSession
+        /// uses; the coordinator is responsible for disposing the previous session itself before calling this
+        /// (this method does not do it implicitly, since the coordinator also needs to despawn the previous
+        /// session's world agents in a specific order around that disposal -- see SessionLoadCoordinator).</summary>
+        public GameSession AdoptSession(GameSession session)
+        {
+            if (session == null) throw new ArgumentNullException(nameof(session));
+            if (Session is { IsDisposed: false })
+                throw new InvalidOperationException($"{name} already has an active session -- dispose it before adopting another.");
+
+            Session = session;
+            return Session;
+        }
+
         private void OnDestroy() => EndSession();
     }
 }

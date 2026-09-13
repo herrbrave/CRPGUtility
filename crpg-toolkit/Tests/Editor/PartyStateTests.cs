@@ -123,5 +123,58 @@ namespace CRPG.Tests.EditMode
             Assert.IsTrue(party.IsSelected(rogue));
             CollectionAssert.AreEquivalent(new[] { rogue }, party.MembersInGroup("Scouts").ToList());
         }
+
+        [Test]
+        public void ChangedFiresOnceForEachOfTheLeafMutatingOperations()
+        {
+            var fighter = RuntimeEntityId.NewId();
+            var rogue = RuntimeEntityId.NewId();
+            var party = new PartyState();
+            var changeCount = 0;
+            party.Changed += () => changeCount++;
+
+            party.AddMember(fighter); // 1
+            party.AddMember(rogue); // 2
+            party.Select(fighter); // 3
+            party.ToggleSelect(rogue); // 4
+            party.SetActive(rogue); // 5
+            party.CycleActiveNext(); // 6
+            party.CycleActivePrevious(); // 7
+            party.SetGroup(rogue, "Scouts"); // 8
+            party.ClearSelection(); // 9
+            party.RemoveMember(fighter); // 10
+
+            Assert.AreEqual(10, changeCount);
+        }
+
+        [Test]
+        public void ChangedFiresExactlyOnceForSelectAllAndSelectGroupNotTwice()
+        {
+            var fighter = RuntimeEntityId.NewId();
+            var rogue = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { fighter, rogue });
+            party.SetGroup(rogue, "Scouts");
+            var changeCount = 0;
+            party.Changed += () => changeCount++;
+
+            party.SelectAll(); // delegates to SelectMany -- must raise exactly once, not twice
+            Assert.AreEqual(1, changeCount);
+
+            party.SelectGroup("Scouts"); // also delegates to SelectMany -- must raise exactly once
+            Assert.AreEqual(2, changeCount);
+        }
+
+        [Test]
+        public void AddingAnAlreadyPresentMemberDoesNotRaiseChanged()
+        {
+            var fighter = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { fighter });
+            var changeCount = 0;
+            party.Changed += () => changeCount++;
+
+            party.AddMember(fighter); // early-return no-op
+
+            Assert.AreEqual(0, changeCount);
+        }
     }
 }

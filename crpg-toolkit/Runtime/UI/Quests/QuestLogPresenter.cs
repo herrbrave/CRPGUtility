@@ -12,8 +12,8 @@ namespace CRPG.UI
     /// </summary>
     public sealed class QuestLogPresenter
     {
-        private readonly QuestLog log;
-        private readonly IRulesDatabase rulesDatabase;
+        private QuestLog log;
+        private IRulesDatabase rulesDatabase;
 
         public QuestLogPresenter(QuestLog log, IRulesDatabase rulesDatabase)
         {
@@ -37,10 +37,46 @@ namespace CRPG.UI
                         objectiveDefinition.DisplayName, objectiveState.CurrentCount, objectiveDefinition.TargetCount, objectiveState.IsComplete));
                 }
 
-                summaries.Add(new QuestSummary(definition.DisplayName, definition.Description, quest.Status, objectives));
+                var rewards = new List<QuestRewardSummary>();
+                foreach (var reward in definition.Rewards)
+                {
+                    if (reward.Item == null) continue;
+                    rewards.Add(new QuestRewardSummary(TextKey.Literal(reward.Item.DisplayName), reward.Quantity));
+                }
+
+                summaries.Add(new QuestSummary(definition.DisplayName, definition.Description, quest.Status, objectives, rewards));
             }
 
             return summaries;
+        }
+
+        public IReadOnlyList<QuestSummary> GetActiveQuests()
+        {
+            var active = new List<QuestSummary>();
+            foreach (var quest in GetQuests())
+            {
+                if (quest.Status == QuestStatus.Active) active.Add(quest);
+            }
+            return active;
+        }
+
+        public IReadOnlyList<QuestSummary> GetCompletedQuests()
+        {
+            var completed = new List<QuestSummary>();
+            foreach (var quest in GetQuests())
+            {
+                if (quest.Status == QuestStatus.Completed) completed.Add(quest);
+            }
+            return completed;
+        }
+
+        /// <summary>Task 3.6: called by the composition root after a successful load -- a plain method rather
+        /// than a shared ISessionConsumer interface, for the same CRPG.UI/CRPG.Gameplay layering reason
+        /// PartyPresenter.Rebind documents.</summary>
+        public void Rebind(QuestLog log, IRulesDatabase rulesDatabase)
+        {
+            this.log = log;
+            this.rulesDatabase = rulesDatabase;
         }
     }
 }

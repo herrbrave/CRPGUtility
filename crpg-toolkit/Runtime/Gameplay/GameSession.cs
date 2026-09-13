@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
@@ -34,6 +35,19 @@ namespace CRPG.Gameplay
         public IRulesDatabase RulesDatabase { get; }
         public IDiceService DiceService { get; }
 
+        /// <summary>Task 3.6: every store/loot container this session has ever brought into existence, keyed by
+        /// the caller-supplied stable id its owning location authors -- lives here (not on whatever scene
+        /// GameObject currently represents it) specifically so a location's state survives that location's
+        /// scene being unloaded during travel. Same "outlives any single GameObject" principle
+        /// WorldSpawnService's own spawn records already establish for NPCs, extended to store/loot state.
+        /// GetOrCreate* construct-and-seed exactly once per id (whatever the caller's seed callback does the
+        /// first time an id is requested); every later request -- same visit or a later return -- gets back the
+        /// already-existing, possibly-modified instance untouched.</summary>
+        private readonly Dictionary<string, StoreInventoryState> stores = new();
+        private readonly Dictionary<string, LootContainerState> lootContainers = new();
+        public IReadOnlyDictionary<string, StoreInventoryState> Stores => stores;
+        public IReadOnlyDictionary<string, LootContainerState> LootContainers => lootContainers;
+
         public bool IsDisposed { get; private set; }
 
         /// <summary>Whether new player commands should currently be admitted. Real pause/turn-gating is a
@@ -52,6 +66,26 @@ namespace CRPG.Gameplay
             Timeline = new Timeline();
             Quests = new QuestLog();
             EventBus = new GameEventBus();
+        }
+
+        public StoreInventoryState GetOrCreateStore(string storeId, Action<StoreInventoryState> seedIfNew = null)
+        {
+            if (stores.TryGetValue(storeId, out var existing)) return existing;
+
+            var store = new StoreInventoryState();
+            seedIfNew?.Invoke(store);
+            stores[storeId] = store;
+            return store;
+        }
+
+        public LootContainerState GetOrCreateLootContainer(string containerId, Action<LootContainerState> seedIfNew = null)
+        {
+            if (lootContainers.TryGetValue(containerId, out var existing)) return existing;
+
+            var container = new LootContainerState();
+            seedIfNew?.Invoke(container);
+            lootContainers[containerId] = container;
+            return container;
         }
 
         /// <summary>Marks the session torn down. Idempotent. Does not by itself unbind spawned

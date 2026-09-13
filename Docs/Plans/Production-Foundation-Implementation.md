@@ -150,6 +150,8 @@ Implement the persistence matrix, schema migration fixture and safe-point reject
 
 ### Task 3.6: Functional UI contract and adventure fixture
 
+**Status: Complete — Gate B accepted by the user.** All manual acceptance checks, including both standalone relaunch cycles and playability/integration burden, passed. Phase 3 is closed. Evidence: `Docs/Verification/Gate-B-Results.md`. Next task: 4.1; implementation has not been started by this status update.
+
 Extend `Runtime/UI/` presenters; NEW `Runtime/UI/Party/PartyPresenter.cs`, `Inventory/InventoryPresenter.cs`, `Saving/SavePresenter.cs`, `Quests/QuestLogView.cs` (sample view may instead live under Samples~). Add localization-ready reason/text keys and typed audio/visual output hooks without requiring third-party packages.
 
 Use default views to author a small adventure fixture under `TestProject/Assets/AdventureSlice/`; scene under `Assets/Scenes/AdventureSlice.unity`. Complete Gate B including standalone save/exit/relaunch/load. Record consumer-specific code and move only genuinely reusable orchestration into Gameplay. USER REVIEW GATE: playable adventure and integration burden.

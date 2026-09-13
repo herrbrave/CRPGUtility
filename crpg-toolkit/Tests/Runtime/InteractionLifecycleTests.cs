@@ -6,6 +6,7 @@ using CRPG.Gameplay;
 using CRPG.Gameplay.Interactions;
 using CRPG.Navigation;
 using CRPG.Party;
+using CRPG.Saving;
 using NUnit.Framework;
 using Unity.AI.Navigation;
 using UnityEngine;
@@ -813,6 +814,36 @@ namespace CRPG.Tests.PlayMode
 
             Assert.AreEqual(InteractionOutcome.Unavailable, outcome);
             Assert.AreEqual(0, adapter.BeginExecuteCallCount);
+
+            controller.Dispose();
+        }
+
+        // ---------------------------------------------------------------- Task 3.5: SafePointGate integration
+
+        /// <summary>Confirms SafePointGate.CheckSafeToSave() reads a real InteractionController's
+        /// CurrentRequest correctly -- placed here (PlayMode), not in the EditMode SafePointGateTests, because
+        /// CharacterAgent.AllLive/WorldInteractable.AllLive (which HandleInteract resolves performer/target
+        /// through) are populated by OnEnable, and Unity does not reliably dispatch that synchronously within a
+        /// plain EditMode test for freshly AddComponent'd objects (confirmed empirically) -- PlayMode's real
+        /// player loop does not have this issue, matching every other scenario in this file.</summary>
+        [Test]
+        public void SafePointGateReportsInteractionInProgressWhileExecuting()
+        {
+            var session = NewSession();
+            var party = session.Party;
+            CreatePerformerNoFacing(session, party, Vector3.zero);
+            var (_, interactable, adapter) = CreateTarget(Vector3.zero); // same position -- already in range, no approach
+
+            var commandSource = new FakeCommandSource();
+            var controller = new InteractionController(commandSource, party, session);
+
+            commandSource.RaiseInteract(interactable.EntityId);
+
+            Assert.IsNotNull(controller.CurrentRequest, "Performer starts at the target's anchor position -- should reach Executing synchronously.");
+            Assert.AreEqual(1, adapter.BeginExecuteCallCount);
+
+            var gate = new SafePointGate(interactions: controller);
+            Assert.AreEqual(SafePointBlockReason.InteractionInProgress, gate.CheckSafeToSave());
 
             controller.Dispose();
         }

@@ -1,7 +1,7 @@
 {
     "name": "CRPG.Saving",
     "rootNamespace": "CRPG.Saving",
-    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Party", "CRPG.Inventory", "CRPG.Quests"],
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Party", "CRPG.Inventory", "CRPG.Quests", "CRPG.Abilities"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -1,0 +1,8 @@
+var docs = UnityEngine.Object.FindObjectsByType<UnityEngine.UIElements.UIDocument>(UnityEngine.FindObjectsInactive.Exclude, UnityEngine.FindObjectsSortMode.None);
+var output = new System.Collections.Generic.List<object>();
+foreach (var doc in docs) { var items = new System.Collections.Generic.List<object>(); void Walk(UnityEngine.UIElements.VisualElement e) { if (e is UnityEngine.UIElements.TextElement t && e.worldBound.width > 0) items.Add(new { type=e.GetType().Name, text=t.text, x=e.worldBound.center.x,y=e.worldBound.center.y, w=e.worldBound.width,h=e.worldBound.height, enabled=e.enabledInHierarchy }); foreach(var child in e.Children()) Walk(child); } Walk(doc.rootVisualElement); output.Add(new {name=doc.name,items}); }
+var cam=UnityEngine.Camera.main;
+var world=new System.Collections.Generic.List<object>();
+foreach(var a in UnityEngine.Object.FindObjectsByType<CRPG.Gameplay.Interactions.WorldInteractable>(UnityEngine.FindObjectsInactive.Exclude,UnityEngine.FindObjectsSortMode.None)) { var p=cam.WorldToScreenPoint(a.transform.position); world.Add(new{name=a.name,id=a.EntityId.ToString(),position=a.transform.position.ToString(),screen=p.ToString()}); }
+var host=UnityEngine.Object.FindAnyObjectByType<CRPG.Gameplay.GameSessionHost>();
+return new { frame=UnityEngine.Time.frameCount, size=new{w=UnityEngine.Screen.width,h=UnityEngine.Screen.height},scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,docs=output,world,party=host.Session.Party.Members.Select(id=>id.ToString()).ToArray(),inventory=host.Session.Inventory.AllItems.Select(i=>new{id=i.DefinitionId.ToString(),qty=i.Quantity}).ToArray(),quests=host.Session.Quests.Quests.Select(q=>new{id=q.QuestId.ToString(),status=q.Status.ToString()}).ToArray()};

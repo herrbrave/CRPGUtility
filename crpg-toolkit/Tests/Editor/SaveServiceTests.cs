@@ -177,6 +177,101 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void CapturingWithAdditionalCharacterIdsPersistsANonPartyCharacter()
+        {
+            var fighterId = RuntimeEntityId.NewId();
+            var characters = new CharacterRegistry();
+            characters.Register(new CharacterState(fighterId));
+            var party = new PartyState(new[] { fighterId });
+
+            var npcId = RuntimeEntityId.NewId();
+            var npc = new CharacterState(npcId) { Level = 3 };
+            characters.Register(npc);
+
+            var data = SaveService.Capture(party, characters, new PartyInventoryState(), new Timeline(), new QuestLog(), additionalCharacterIds: new[] { npcId });
+
+            Assert.AreEqual(2, data.Characters.Count, "Capture without additionalCharacterIds would only ever see the party member.");
+
+            var newCharacters = new CharacterRegistry();
+            SaveService.Restore(data, new PartyState(), newCharacters, new PartyInventoryState(), new Timeline(), new QuestLog());
+
+            Assert.IsTrue(newCharacters.TryGetCharacter(npcId, out var restoredNpc));
+            Assert.AreEqual(3, restoredNpc.Level);
+        }
+
+        [Test]
+        public void StoreStateRoundTripsThroughCaptureAndRestore()
+        {
+            var store = new StoreInventoryState(buyPriceMultiplier: 1.5f, sellPriceMultiplier: 0.4f);
+            store.AddListing(new DefinitionId("item-potion"), 5);
+            var stores = new System.Collections.Generic.Dictionary<string, StoreInventoryState> { ["griff-store"] = store };
+
+            var data = SaveService.Capture(new PartyState(), new CharacterRegistry(), new PartyInventoryState(), new Timeline(), new QuestLog(), stores: stores);
+
+            Assert.AreEqual(1, data.Stores.Count);
+            Assert.AreEqual("griff-store", data.Stores[0].StoreId);
+            Assert.AreEqual(1.5f, data.Stores[0].BuyPriceMultiplier);
+
+            var newStore = new StoreInventoryState();
+            SaveService.RestoreStores(data, new System.Collections.Generic.Dictionary<string, StoreInventoryState> { ["griff-store"] = newStore });
+
+            Assert.AreEqual(1.5f, newStore.BuyPriceMultiplier);
+            Assert.AreEqual(0.4f, newStore.SellPriceMultiplier);
+            Assert.IsTrue(newStore.TryGetListing(new DefinitionId("item-potion"), out var listing));
+            Assert.AreEqual(5, listing.Quantity);
+        }
+
+        [Test]
+        public void LootContainerStateRoundTripsThroughCaptureAndRestore()
+        {
+            var container = new LootContainerState();
+            var item = new ItemInstance(RuntimeEntityId.NewId(), new DefinitionId("item-gem"), quantity: 2);
+            container.AddItem(item);
+            var lootContainers = new System.Collections.Generic.Dictionary<string, LootContainerState> { ["chest-1"] = container };
+
+            var data = SaveService.Capture(new PartyState(), new CharacterRegistry(), new PartyInventoryState(), new Timeline(), new QuestLog(), lootContainers: lootContainers);
+
+            Assert.AreEqual(1, data.LootContainers.Count);
+            Assert.AreEqual(1, data.LootContainers[0].Items.Count);
+
+            var newContainer = new LootContainerState();
+            SaveService.RestoreLootContainers(data, new System.Collections.Generic.Dictionary<string, LootContainerState> { ["chest-1"] = newContainer });
+
+            Assert.AreEqual(1, newContainer.Items.Count);
+            Assert.AreEqual(2, newContainer.Items[0].Quantity);
+        }
+
+        [Test]
+        public void WorldSpawnSnapshotsRoundTripIncludingADefeatedEntry()
+        {
+            var alive = new WorldSpawnSnapshot("spawn-goblin", RuntimeEntityId.NewId().ToString(), "npc-goblin", new UnityEngine.Vector3(1, 2, 3), 90f, defeated: false);
+            var defeated = new WorldSpawnSnapshot("spawn-slain", "", "npc-slain-goblin", UnityEngine.Vector3.zero, 0f, defeated: true);
+
+            var data = SaveService.Capture(new PartyState(), new CharacterRegistry(), new PartyInventoryState(), new Timeline(), new QuestLog(), worldSpawns: new[] { alive, defeated });
+
+            Assert.AreEqual(2, data.WorldSpawns.Count);
+            var aliveEntry = data.WorldSpawns.Single(e => e.SpawnId == "spawn-goblin");
+            Assert.IsFalse(aliveEntry.Defeated);
+            Assert.AreEqual(1f, aliveEntry.PosX);
+            Assert.AreEqual(90f, aliveEntry.FacingYaw);
+
+            var defeatedEntry = data.WorldSpawns.Single(e => e.SpawnId == "spawn-slain");
+            Assert.IsTrue(defeatedEntry.Defeated);
+        }
+
+        [Test]
+        public void SaveHeaderCapturesScenePathRulesetIdAndContentCompatibilityId()
+        {
+            var data = SaveService.Capture(new PartyState(), new CharacterRegistry(), new PartyInventoryState(), new Timeline(), new QuestLog(),
+                scenePath: "Assets/Scenes/InteractionLab.unity", rulesetId: "srd5-2014", contentCompatibilityId: "content-v1");
+
+            Assert.AreEqual("Assets/Scenes/InteractionLab.unity", data.Header.ScenePath);
+            Assert.AreEqual("srd5-2014", data.Header.RulesetId);
+            Assert.AreEqual("content-v1", data.Header.ContentCompatibilityId);
+            Assert.AreEqual(2, data.Header.FormatVersion);
+        }
+
+        [Test]
         public void ToJsonThenFromJsonRoundTripsThroughTextWithoutLosingData()
         {
             var (party, characters, inventory, timeline, log, fighterId) = BuildLiveState();

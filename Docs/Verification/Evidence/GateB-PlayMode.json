@@ -1,0 +1,1112 @@
+{
+  "status": "completed",
+  "duration": 20.45,
+  "summary": {
+    "total": 157,
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0
+  },
+  "results": [
+    {
+      "FullName": "CRPG.Tests.PlayMode.CameraInputTests.HeldPanContinuesToMoveTheRigAcrossMultipleFramesWithoutANewKeyEvent",
+      "Status": "Passed",
+      "Duration": 0.2192056,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CameraInputTests.OpeningAModalMidHoldStopsCameraMovementOnTheNextFrame",
+      "Status": "Passed",
+      "Duration": 0.0643805,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CameraInputTests.RecenterClearsManualOverrideSoAFollowingFollowTargetCallResumes",
+      "Status": "Passed",
+      "Duration": 0.060693,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterAnimatorBaselineRecoveryTests.BaselineResumesAfterRecoveringFromTerminal",
+      "Status": "Passed",
+      "Duration": 0.0758375,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterAnimatorBaselineRecoveryTests.BaselineResumesIdleAfterAnActionCompletesNaturally",
+      "Status": "Passed",
+      "Duration": 0.0895526,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterAnimatorBaselineRecoveryTests.BaselineResumesIdleAfterAnActionIsExplicitlyCancelled",
+      "Status": "Passed",
+      "Duration": 0.0433308,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterAnimatorBaselineRecoveryTests.ModelRebindDuringAnInFlightActionCancelsItExactlyOnceAndResumesBaseline",
+      "Status": "Passed",
+      "Duration": 0.050698,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterAnimatorBaselineRecoveryTests.ModelRebindWhileTerminalRestoresTheTerminalPoseOnTheNewGraph",
+      "Status": "Passed",
+      "Duration": 0.0493432,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterAnimatorBaselineRecoveryTests.RequestingAnActionBeforeAnyPresentationIsBoundIsCancelledOnceBoundRatherThanStrandedForever",
+      "Status": "Passed",
+      "Duration": 0.0377109,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.DestroyingTheGameObjectUnsubscribes",
+      "Status": "Passed",
+      "Duration": 0.0090684,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.DisablingThenReenablingResubscribesExactlyOnce",
+      "Status": "Passed",
+      "Duration": 0.0008278,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.ExplicitUnbindThenDestroyDoesNotDoubleUnsubscribe",
+      "Status": "Passed",
+      "Duration": 0.0031617,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.InitializeOnADisabledComponentDefersSubscribingUntilEnabled",
+      "Status": "Passed",
+      "Duration": 0.0009621,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.InitializeOnAnInactiveGameObjectDefersSubscribingUntilEnabled",
+      "Status": "Passed",
+      "Duration": 0.001029,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.InitializeSubscribesExactlyOnce",
+      "Status": "Passed",
+      "Duration": 0.000767,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.InitializeWithADifferentBindingWithoutUnbindingFirstThrows",
+      "Status": "Passed",
+      "Duration": 0.0042807,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.RepeatInitializeWithTheIdenticalBindingIsANoOp",
+      "Status": "Passed",
+      "Duration": 0.0006561,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.UnbindResetsPresentationState",
+      "Status": "Passed",
+      "Duration": 0.0050457,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.UnbindThenDisableThenEnableLeavesTheComponentDetached",
+      "Status": "Passed",
+      "Duration": 0.0009365,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+AnimatorSubscriptionTests.UnbindThenInitializeToADifferentEventBusSucceeds",
+      "Status": "Passed",
+      "Duration": 0.0012704,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.DestroyingTheGameObjectUnsubscribes",
+      "Status": "Passed",
+      "Duration": 0.0060428,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.DisablingDoesNotUnsubscribeFromEquipmentEvents",
+      "Status": "Passed",
+      "Duration": 0.0007069,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.DisablingThenReenablingDoesNotDestroyAlreadyEquippedVisuals",
+      "Status": "Passed",
+      "Duration": 0.0241621,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.InitializeOnADisabledComponentDefersSubscribingUntilEnabled",
+      "Status": "Passed",
+      "Duration": 0.0008438,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.InitializeOnAnInactiveGameObjectDefersSubscribingUntilEnabled",
+      "Status": "Passed",
+      "Duration": 0.0009871,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.InitializeSubscribesToItemEquippedAndUnequippedExactlyOnce",
+      "Status": "Passed",
+      "Duration": 0.0007986,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.InitializeWithADifferentBindingWithoutUnbindingFirstThrows",
+      "Status": "Passed",
+      "Duration": 0.0018862,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.RepeatInitializeWithTheIdenticalBindingIsANoOp",
+      "Status": "Passed",
+      "Duration": 0.0007946,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.RepeatInitializeWithTheIdenticalBindingPreservesAlreadyEquippedGear",
+      "Status": "Passed",
+      "Duration": 0.0016664,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.UnbindDestroysTheEquippedVisualThenAFreshInitializeBindsCleanly",
+      "Status": "Passed",
+      "Duration": 0.0399091,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterBindingTests+EquipmentVisualBinderSubscriptionTests.UnbindThenDisableThenEnableLeavesTheComponentDetached",
+      "Status": "Passed",
+      "Duration": 0.0009262,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterMotionTests.AnInvalidRequestLeavesThePreviousRequestUntouched",
+      "Status": "Passed",
+      "Duration": 0.068279,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterMotionTests.RetargetingIssuesANewRequestIdAndTheOldOneNoLongerReflectsCurrentState",
+      "Status": "Passed",
+      "Duration": 2.1748806,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterMotionTests.SetDestinationOnADisconnectedNavMeshIslandReportsBlockedNotArrived",
+      "Status": "Passed",
+      "Duration": 2.5797923,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterMotionTests.SetDestinationRoutesAroundARealObstacleAndArrives",
+      "Status": "Passed",
+      "Duration": 3.1449684,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterMotionTests.SetDestinationWithNoBakedNavMeshReturnsInvalid",
+      "Status": "Passed",
+      "Duration": 0.0290846,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterMotionTests.StopCancelsTheCurrentRequestWithTheSameRequestId",
+      "Status": "Passed",
+      "Duration": 0.0797742,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.BindPresentationIsCalledDuringAutomaticBind",
+      "Status": "Passed",
+      "Duration": 0.0078393,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.CharacterAgentResolvesViewOnBind",
+      "Status": "Passed",
+      "Duration": 0.0061526,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.CharacterViewAutomaticallyBindsAnAlreadyPresentModelAtAwake",
+      "Status": "Passed",
+      "Duration": 0.0028197,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.MotorAndIdentityAreUnaffectedBySettingModel",
+      "Status": "Passed",
+      "Duration": 0.0461915,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.SetModelLeavesExactlyOneNavMeshAgentAndOneAnimatorInTheHierarchy",
+      "Status": "Passed",
+      "Duration": 0.0696148,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.SetModelReplacesTheModelAndDestroysTheOldOne",
+      "Status": "Passed",
+      "Duration": 0.048122,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.SetModelThrowsWhenPrefabIsNull",
+      "Status": "Passed",
+      "Duration": 0.0025526,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests.TheRealMigratedHumanMalePrefabBindsItsNestedModelByTheFollowingFrame",
+      "Status": "Passed",
+      "Duration": 0.0630826,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+CharacterPlayableAnimatorPresentationTests.BindPresentationCreatesAValidGraph",
+      "Status": "Passed",
+      "Duration": 0.0019032,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+CharacterPlayableAnimatorPresentationTests.BindPresentationThrowsWhenAnimatorIsNull",
+      "Status": "Passed",
+      "Duration": 0.0020733,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+CharacterPlayableAnimatorPresentationTests.RebindingToADifferentAnimatorStillLeavesExactlyOneLiveGraph",
+      "Status": "Passed",
+      "Duration": 0.001589,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+CharacterPlayableAnimatorPresentationTests.UnbindPresentationIsIdempotent",
+      "Status": "Passed",
+      "Duration": 0.0013652,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+CharacterPlayableAnimatorPresentationTests.UpdateDoesNotThrowBeforeAnyPresentationIsBound",
+      "Status": "Passed",
+      "Duration": 0.0020237,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+EquipmentVisualBinderRefreshBoneMapTests.RefreshBoneMapDestroysStaleEquippedVisuals",
+      "Status": "Passed",
+      "Duration": 0.0253554,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+EquipmentVisualBinderRefreshBoneMapTests.RefreshBoneMapPicksUpTheNewSkeletonsBones",
+      "Status": "Passed",
+      "Duration": 0.0020001,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+PlayableCharacterAnimationDriverTests.BindCreatesAValidGraph",
+      "Status": "Passed",
+      "Duration": 0.000754,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+PlayableCharacterAnimationDriverTests.BindThrowsWhenAnimatorIsNull",
+      "Status": "Passed",
+      "Duration": 0.0005511,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+PlayableCharacterAnimationDriverTests.PlayOnceWithAMissingClipCompletesImmediately",
+      "Status": "Passed",
+      "Duration": 0.0008049,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+PlayableCharacterAnimationDriverTests.RebindingToADifferentAnimatorDestroysThePreviousGraph",
+      "Status": "Passed",
+      "Duration": 0.000723,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+PlayableCharacterAnimationDriverTests.TickDoesNotThrowBeforeAnyBind",
+      "Status": "Passed",
+      "Duration": 0.0005778,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CharacterWrapperTests+PlayableCharacterAnimationDriverTests.UnbindIsIdempotent",
+      "Status": "Passed",
+      "Duration": 0.0007026,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.ConversationControllerTests.AConversationThatStartsAtEndCompletesImmediatelyOnConstruction",
+      "Status": "Passed",
+      "Duration": 0.0263412,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.ConversationControllerTests.AConversationWithNoStoreRequestShowsTheDialogueViewAndDoesNotCompleteImmediately",
+      "Status": "Passed",
+      "Duration": 0.0465566,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.ConversationControllerTests.CancelIsIdempotentAndSafeAfterAlreadyCompleting",
+      "Status": "Passed",
+      "Duration": 0.0072983,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.ConversationControllerTests.CancelTearsDownAndFiresCancelledNeverCompleted",
+      "Status": "Passed",
+      "Duration": 0.0129592,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.ConversationControllerTests.ClosingTheStoreResumesTheConversationAtWhereverItActuallyLeftOffRatherThanCompleting",
+      "Status": "Passed",
+      "Duration": 0.0322724,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.ConversationControllerTests.OpeningTheStoreShowsTheStoreViewInsteadOfCompletingEvenThoughTheRunnerAlreadySettledPastIt",
+      "Status": "Passed",
+      "Duration": 0.0041529,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.CrossSceneLoadTests.LoadingASaveCapturedInADifferentSceneLoadsThatSceneAndUnloadsTheCurrentOne",
+      "Status": "Passed",
+      "Duration": 0.234965,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.AFailedReplacementLeavesThePreviousValidVisualInPlace",
+      "Status": "Passed",
+      "Duration": 0.0086541,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.AGenuineUnequipWithNoReplacementDestroysTheVisualByEndOfFrame",
+      "Status": "Passed",
+      "Duration": 0.0644684,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.LoadBeforeViewBindDefersUntilASkeletonIsBound",
+      "Status": "Passed",
+      "Duration": 0.0025781,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.RealServiceReplacementWithAnInvalidNewItemRetainsTheKnownGoodVisual",
+      "Status": "Passed",
+      "Duration": 0.0032467,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.RealServiceReplacementWithAValidNewItemSwapsToTheNewVisualAndReleasesTheOldOneByEndOfFrame",
+      "Status": "Passed",
+      "Duration": 0.0421329,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.RemovalOrderDoesNotMatterForRevealingAHiddenRegion",
+      "Status": "Passed",
+      "Duration": 0.0433153,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.RigidAttachmentBindsToTheNamedSocket",
+      "Status": "Passed",
+      "Duration": 0.0023062,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.RigidAttachmentWithAMissingSocketFailsWithoutInstantiatingAnything",
+      "Status": "Passed",
+      "Duration": 0.0022496,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.SkinnedAttachmentRebindsRendererBonesByExplicitPath",
+      "Status": "Passed",
+      "Duration": 0.0017694,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.SkinnedAttachmentRejectsADuplicateTargetBonePath",
+      "Status": "Passed",
+      "Duration": 0.002309,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.SkinnedAttachmentRejectsAMissingSourceBonePathBeforeTouchingAnyRenderer",
+      "Status": "Passed",
+      "Duration": 0.0025439,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.SkinnedAttachmentRejectsAMissingTargetBonePathBeforeTouchingAnyRenderer",
+      "Status": "Passed",
+      "Duration": 0.0022463,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.SkinnedAttachmentRejectsAnIncompatibleRigFamily",
+      "Status": "Passed",
+      "Duration": 0.0026468,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.SkinnedAttachmentRejectsARendererBoneNotCoveredByTheMap",
+      "Status": "Passed",
+      "Duration": 0.0026133,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.SkinnedAttachmentSucceedsWhenNeitherSideDeclaresARigFamily",
+      "Status": "Passed",
+      "Duration": 0.0012996,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.TwoGarmentsHidingTheSameRegionOnlyRevealItWhenTheLastOneIsRemoved",
+      "Status": "Passed",
+      "Duration": 0.0403794,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.EquipmentVisualBindingTests.ViewBindBeforeLoadReconcilesAlreadyEquippedItemsOnInitialize",
+      "Status": "Passed",
+      "Duration": 0.0013413,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.FacingControllerTests.AwakeDisablesTheNavMeshAgentsOwnRotation",
+      "Status": "Passed",
+      "Duration": 0.0019216,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.FacingControllerTests.ClearingTheHigherPriorityRequestFallsBackToTheNextOne",
+      "Status": "Passed",
+      "Duration": 0.0495888,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.FacingControllerTests.TurnsTowardTheHighestPriorityRequestOverTime",
+      "Status": "Passed",
+      "Duration": 0.2716333,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.GameSessionDestructionTests.DestroyingTheGameObjectUnbindsTheAgent",
+      "Status": "Passed",
+      "Duration": 0.0007684,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.GameSessionDestructionTests.DestroyingTheHostDisposesItsSession",
+      "Status": "Passed",
+      "Duration": 0.0005326,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.GateAFixtureTests.TheFirstHumanoidFixtureStandsUprightRatherThanCollapsingDuringRealPlayback",
+      "Status": "Passed",
+      "Duration": 0.1957646,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.GateAFixtureTests.TheSecondHumanoidFixtureBindsAndPlaysBaselineLocomotionWithoutError",
+      "Status": "Passed",
+      "Duration": 0.1897257,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.ADuplicateOnFinishedInvocationFromABuggyAdapterIsIgnored",
+      "Status": "Passed",
+      "Duration": 0.013464,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.AlreadyInRangeSkipsApproachAndExecutesImmediately",
+      "Status": "Passed",
+      "Duration": 0.0008449,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.ANewMoveOrderDuringExecutingSupersedesTheInteraction",
+      "Status": "Passed",
+      "Duration": 0.0027939,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.AnExceptionFromBeginExecuteIsCaughtAndReportedAsFailed",
+      "Status": "Passed",
+      "Duration": 0.0129908,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.ApproachThatNeverReachesATerminalStatusTimesOut",
+      "Status": "Passed",
+      "Duration": 0.0026892,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.ARejectedNewMoveOrderDoesNotDisturbAnInFlightApproach",
+      "Status": "Passed",
+      "Duration": 0.0011103,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.ArrivingWithoutActuallyClosingTheDistanceEndsAsApproachInsufficient",
+      "Status": "Passed",
+      "Duration": 0.000957,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.ASecondInteractCommandWhileApproachingReplacesTheFirst",
+      "Status": "Passed",
+      "Duration": 0.0008795,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.ASecondInteractCommandWhileExecutingReplacesTheFirst",
+      "Status": "Passed",
+      "Duration": 0.0012086,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.BecomingUnavailableBetweenQueueingAndArrivalEndsAsUnavailable",
+      "Status": "Passed",
+      "Duration": 0.0013894,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.CancelDuringApproachingStopsOwnedMovementAndNeverClaimsFacing",
+      "Status": "Passed",
+      "Duration": 0.0024329,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.CancelDuringExecutingCancelsTheExecutionExactlyOnceAndIgnoresALateCallback",
+      "Status": "Passed",
+      "Duration": 0.0012387,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.DestroyingThePerformerDuringApproachEndsAsPerformerLost",
+      "Status": "Passed",
+      "Duration": 0.0012647,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.DestroyingTheTargetDuringApproachEndsAsTargetLost",
+      "Status": "Passed",
+      "Duration": 0.0009644,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.DisablingTheHostBehaviourCancelsAnyActiveRequest",
+      "Status": "Passed",
+      "Duration": 0.0016528,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.DisablingThePerformerDuringApproachEndsAsPerformerLost",
+      "Status": "Passed",
+      "Duration": 0.0009832,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.DisablingTheTargetDuringApproachEndsAsTargetLost",
+      "Status": "Passed",
+      "Duration": 0.0012504,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.DisposingTheSessionMidInteractionEndsItAsSessionEndedOnNextTick",
+      "Status": "Passed",
+      "Duration": 0.0011964,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.FakeBlockedStatusEndsTheInteractionWithoutExecuting",
+      "Status": "Passed",
+      "Duration": 0.001441,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.FullLifecycleApproachTurnExecuteCompletesAndReleasesFacing",
+      "Status": "Passed",
+      "Duration": 2.1059084,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.RealDisconnectedNavMeshIslandApproachEndsBlocked",
+      "Status": "Passed",
+      "Duration": 2.6312919,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.SafePointGateReportsInteractionInProgressWhileExecuting",
+      "Status": "Passed",
+      "Duration": 0.0016144,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.InteractionLifecycleTests.SynchronousCompletionEndsExactlyOnceBeforeBeginExecuteEvenReturns",
+      "Status": "Passed",
+      "Duration": 0.001506,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PartyCameraFollowBehaviourTests.FollowSelectionFalseLeavesTheRigUntouchedAcrossManyTicks",
+      "Status": "Passed",
+      "Duration": 0.1748302,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PartyCameraFollowBehaviourTests.FollowSelectionTrueTicksTowardTheActiveCharacter",
+      "Status": "Passed",
+      "Duration": 0.0266216,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PartyCameraFollowBehaviourTests.InitializeSnapsToTheActiveCharacterImmediately",
+      "Status": "Passed",
+      "Duration": 0.0313709,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PartyNavigationTests.AFormationSlotOnADisconnectedIslandResolvesUnreachableWithoutFreezingOtherSelectedMembers",
+      "Status": "Passed",
+      "Duration": 0.126554,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PartyNavigationTests.ALegitimateLongDetourAroundAWallStillResolvesExact",
+      "Status": "Passed",
+      "Duration": 0.0697995,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PartyNavigationTests.AMoveOrderToASelectedSubsetNeverTouchesUnselectedMembersMotors",
+      "Status": "Passed",
+      "Duration": 0.0907741,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.ALoopingCueWrapsItsTimeBackPastItsOwnClipLengthInsteadOfFreezing",
+      "Status": "Passed",
+      "Duration": 0.1339564,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.AnEqualWeightInterruptionStillPreservesTheFullOutgoingPoseContribution",
+      "Status": "Passed",
+      "Duration": 0.0032156,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.ANonLoopingCueDoesNotHaveItsTimeWrapped",
+      "Status": "Passed",
+      "Duration": 1.0293382,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.AttackHitDeathChainDuringCrossfadeSettlesBackToFullNormalizedWeightOnTheFinalClip",
+      "Status": "Passed",
+      "Duration": 0.3361371,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.CrossfadeResumesExactlyWhereItLeftOffAfterAPause",
+      "Status": "Passed",
+      "Duration": 0.0340704,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.DisablingByUnbindingDuringAPendingOneShotNeverInvokesItsCallbackAfterTeardown",
+      "Status": "Passed",
+      "Duration": 0.0008466,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.InterruptingMidCrossfadeKeepsCombinedWeightExactlyNormalized",
+      "Status": "Passed",
+      "Duration": 0.0012453,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.RapidInterruptionsBeyondThePortBoundCollapseTheWeakestContributorOnly",
+      "Status": "Passed",
+      "Duration": 0.040634,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.SpeedBlendingClampsToABoundedPlaybackRateRange",
+      "Status": "Passed",
+      "Duration": 0.0023316,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.SpeedBlendingDoesNotApplyWhileACueHasNoAuthoredReferenceSpeed",
+      "Status": "Passed",
+      "Duration": 0.0009084,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.SpeedBlendingDoesNotApplyWhileAOneShotActionIsPlaying",
+      "Status": "Passed",
+      "Duration": 0.000692,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.SpeedBlendingScalesTheActiveLoopsPlaybackRateByActualOverReferenceSpeed",
+      "Status": "Passed",
+      "Duration": 0.0005823,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.TickWithZeroDeltaTimeDuringPauseDoesNotAdvanceCrossfadeOrCompletion",
+      "Status": "Passed",
+      "Duration": 0.0854688,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PlayableCharacterAnimationTests.UnbindMidCrossfadeLeavesNoLeakedPlayablesAndDoesNotThrow",
+      "Status": "Passed",
+      "Duration": 0.0024771,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.AClickIsSuppressedWhileAModalScopeIsActiveAndResolvesNormallyOnceItEnds",
+      "Status": "Passed",
+      "Duration": 0.3589422,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.AClickOnAnObjectThatIsBothSelectableAndInteractableResolvesAsSelectNeverInteract",
+      "Status": "Passed",
+      "Duration": 0.0618412,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.AClickOnASelectableRaisesSelectWithReplaceMode",
+      "Status": "Passed",
+      "Duration": 0.0537335,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.AClickOnBareGroundRaisesMoveAtTheHitPoint",
+      "Status": "Passed",
+      "Duration": 0.0527891,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.AGestureThatStartsOverUiNeverRaisesMoveEvenIfReleasedOverTheWorld",
+      "Status": "Passed",
+      "Duration": 0.0606626,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.AModalThatOpensMidGestureSuppressesTheReleaseEvenThoughTheGestureStartedClean",
+      "Status": "Passed",
+      "Duration": 0.0609956,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.ASelectableRemovedFromTheSourceMidGestureIsSilentlyExcluded",
+      "Status": "Passed",
+      "Duration": 0.0292737,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.CancelRaisesCancel",
+      "Status": "Passed",
+      "Duration": 0.0296041,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.DragBoxSelectsExactlyTheSelectablesInsideTheRectAndExcludesOneOutsideIt",
+      "Status": "Passed",
+      "Duration": 0.0183991,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.SceneSelectableSourceExcludesADestroyedCharacterAgent",
+      "Status": "Passed",
+      "Duration": 0.0655628,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.PointerCommandTests.ShiftHeldClickOnASelectableRaisesSelectWithToggleMode",
+      "Status": "Passed",
+      "Duration": 0.0599939,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SceneTravelTests.AnUnreachableDestinationFailsPlacementValidationBeforeMovingAnyone",
+      "Status": "Passed",
+      "Duration": 0.1173201,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SceneTravelTests.APartyMemberMissingAMoverFailsRepositioningAndRollsBackAnyoneAlreadyWarped",
+      "Status": "Passed",
+      "Duration": 0.1364633,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SceneTravelTests.HappyPathTravelsFromAToBAndBackReleasingTheOutgoingLocationEachTime",
+      "Status": "Passed",
+      "Duration": 0.2062504,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SceneTravelTests.NonexistentScenePathFailsCleanly",
+      "Status": "Passed",
+      "Duration": 0.146324,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SceneTravelTests.TravelRefusesToStartWhileTheSharedGateIsAlreadyBusy",
+      "Status": "Passed",
+      "Duration": 0.1380864,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SceneTravelTests.UnknownDestinationIdFailsWithoutUnloadingTheOldScene",
+      "Status": "Passed",
+      "Duration": 0.1897862,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SessionLoadCoordinatorTests.ADisabledCharacterAgentBelongingToTheOldSessionIsStillTornDown",
+      "Status": "Passed",
+      "Duration": 0.0888617,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SessionLoadCoordinatorTests.ASceneMismatchIsRejectedBeforeTouchingAnything",
+      "Status": "Passed",
+      "Duration": 0.0187097,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SessionLoadCoordinatorTests.AValidationFailureLeavesTheOldSessionCompletelyUntouched",
+      "Status": "Passed",
+      "Duration": 0.0193742,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SessionLoadCoordinatorTests.AViewBindingFailureAfterAtLeastOneStagedViewLeavesTheOldSessionUsable",
+      "Status": "Passed",
+      "Duration": 0.0211402,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SessionLoadCoordinatorTests.FullSameSceneRoundTripRestoresStateAndReplacesWorldAgentsWithoutDuplication",
+      "Status": "Passed",
+      "Duration": 0.0703272,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.SessionLoadCoordinatorTests.SaveLoadSaveLoadKeepsADefeatedNpcDefeated",
+      "Status": "Passed",
+      "Duration": 0.033463,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.UIToolkitPointerCaptureTests.BottomLeftScreenCoordinatesPickTopOnlyPanelAtMultipleScales",
+      "Status": "Passed",
+      "Duration": 0.2384825,
+      "Message": null,
+      "StackTrace": null
+    },
+    {
+      "FullName": "CRPG.Tests.PlayMode.UseDoorInteractionAdapterTests.ClosingTheDoorBlocksThePathAndOpeningItRestoresPath",
+      "Status": "Passed",
+      "Duration": 0.0858987,
+      "Message": null,
+      "StackTrace": null
+    }
+  ]
+}

@@ -44,6 +44,12 @@ namespace CRPG.InputSystem
         public event Action<InteractCommand> Interact { add => Router.Interact += value; remove => Router.Interact -= value; }
         public event Action Cancel { add => Router.Cancel += value; remove => Router.Cancel -= value; }
 
+        /// <summary>Task 3.6: forwards to the internal router's own TransitionGate -- Router itself is
+        /// intentionally private (lazily/internally constructed), so this is the composition root's only way to
+        /// wire the shared IWorldTransitionGate through to pointer-gesture suppression during a scene
+        /// travel/cross-scene load.</summary>
+        public CRPG.Gameplay.Scenes.IWorldTransitionGate TransitionGate { get => Router.TransitionGate; set => Router.TransitionGate = value; }
+
         private UnityEngine.Camera ActiveCamera => raycastCamera != null ? raycastCamera : UnityEngine.Camera.main;
 
         private void Awake()

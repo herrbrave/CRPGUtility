@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
@@ -19,17 +21,35 @@ namespace CRPG.Saving
     /// </summary>
     public static class SaveService
     {
-        public static SaveData Capture(PartyState party, ICharacterRegistry characters, PartyInventoryState inventory, ITimeline timeline, QuestLog questLog)
+        public static SaveData Capture(
+            PartyState party,
+            ICharacterRegistry characters,
+            PartyInventoryState inventory,
+            ITimeline timeline,
+            QuestLog questLog,
+            IEnumerable<RuntimeEntityId> additionalCharacterIds = null,
+            IEnumerable<WorldSpawnSnapshot> worldSpawns = null,
+            IReadOnlyDictionary<string, StoreInventoryState> stores = null,
+            IReadOnlyDictionary<string, LootContainerState> lootContainers = null,
+            string scenePath = null,
+            string rulesetId = null,
+            string contentCompatibilityId = null)
         {
             var data = new SaveData();
             data.Header.FormatVersion = SaveData.CurrentFormatVersion;
             data.Header.SavedAtUtc = DateTime.UtcNow.ToString("o");
+            data.Header.ScenePath = scenePath ?? string.Empty;
+            data.Header.RulesetId = rulesetId ?? string.Empty;
+            data.Header.ContentCompatibilityId = contentCompatibilityId ?? string.Empty;
 
             CaptureParty(party, data.Party);
-            CaptureCharacters(party, characters, data);
+            CaptureCharacters(party, characters, data, additionalCharacterIds);
             CaptureInventory(inventory, data);
             CaptureTimeline(timeline, data);
             CaptureQuests(questLog, data);
+            CaptureWorldSpawns(worldSpawns, data);
+            CaptureStores(stores, data);
+            CaptureLootContainers(lootContainers, data);
 
             return data;
         }
@@ -41,6 +61,43 @@ namespace CRPG.Saving
             RestoreInventory(data, inventory);
             RestoreTimeline(data, timeline);
             RestoreQuests(data, questLog);
+        }
+
+        /// <summary>Applies saved listings/multipliers onto ALREADY-CONSTRUCTED StoreInventoryState instances,
+        /// keyed by the same caller-supplied stable id Capture was given -- a store with no matching key in
+        /// <paramref name="stores"/> is silently skipped (the caller decides which stores exist in this
+        /// session; SaveService never constructs one itself).</summary>
+        public static void RestoreStores(SaveData data, IReadOnlyDictionary<string, StoreInventoryState> stores)
+        {
+            if (stores == null) return;
+            foreach (var entry in data.Stores)
+            {
+                if (!stores.TryGetValue(entry.StoreId, out var store)) continue;
+                store.BuyPriceMultiplier = entry.BuyPriceMultiplier;
+                store.SellPriceMultiplier = entry.SellPriceMultiplier;
+                foreach (var listing in entry.Listings) store.AddListing(new DefinitionId(listing.ItemId), listing.Quantity);
+            }
+        }
+
+        /// <summary>Same contract as <see cref="RestoreStores"/>: applies onto already-constructed
+        /// LootContainerState instances, keyed by caller-supplied id.</summary>
+        public static void RestoreLootContainers(SaveData data, IReadOnlyDictionary<string, LootContainerState> lootContainers)
+        {
+            if (lootContainers == null) return;
+            foreach (var entry in data.LootContainers)
+            {
+                if (!lootContainers.TryGetValue(entry.ContainerId, out var container)) continue;
+                foreach (var itemEntry in entry.Items)
+                {
+                    var item = new ItemInstance(
+                        RuntimeEntityId.FromString(itemEntry.InstanceId),
+                        new DefinitionId(itemEntry.DefinitionId),
+                        itemEntry.Quantity,
+                        itemEntry.HasCharges ? itemEntry.Charges : null);
+                    foreach (var custom in itemEntry.CustomState) item.SetCustomState(custom.Key, custom.Value);
+                    container.AddItem(item);
+                }
+            }
         }
 
         public static string ToJson(SaveData data) => JsonUtility.ToJson(data, prettyPrint: true);
@@ -66,11 +123,14 @@ namespace CRPG.Saving
             if (party.IsSelected(active)) party.SetActive(active);
         }
 
-        private static void CaptureCharacters(PartyState party, ICharacterRegistry characters, SaveData data)
+        private static void CaptureCharacters(PartyState party, ICharacterRegistry characters, SaveData data, IEnumerable<RuntimeEntityId> additionalCharacterIds)
         {
-            foreach (var memberId in party.Members)
+            var idsToCapture = new HashSet<RuntimeEntityId>(party.Members);
+            if (additionalCharacterIds != null) idsToCapture.UnionWith(additionalCharacterIds);
+
+            foreach (var characterId in idsToCapture)
             {
-                if (!characters.TryGetCharacter(memberId, out var character)) continue;
+                if (!characters.TryGetCharacter(characterId, out var character)) continue;
 
                 var entry = new CharacterSaveData { Id = character.Id.ToString() };
                 foreach (var pair in character.Stats.AllScores) entry.Stats.Add(new StatScoreSaveEntry { StatId = pair.Key.Value, Score = pair.Value });
@@ -90,6 +150,15 @@ namespace CRPG.Saving
                 }
                 foreach (var proficiencyId in character.Proficiencies) entry.Proficiencies.Add(proficiencyId.Value);
                 foreach (var featureId in character.Features) entry.Features.Add(featureId.Value);
+
+                entry.Level = character.Level;
+                entry.HasDeathSaves = character.DeathSaves != null;
+                entry.DeathSaveSuccesses = character.DeathSaves?.Successes ?? 0;
+                entry.DeathSaveFailures = character.DeathSaves?.Failures ?? 0;
+                entry.SpellcastingStatId = character.SpellcastingStatId.Value;
+                entry.ConcentratingOnAbilityId = character.ConcentratingOnAbilityId.Value;
+                foreach (var abilityId in character.KnownAbilities) entry.KnownAbilities.Add(abilityId.Value);
+                foreach (var abilityId in character.PreparedAbilities) entry.PreparedAbilities.Add(abilityId.Value);
 
                 data.Characters.Add(entry);
             }
@@ -115,7 +184,67 @@ namespace CRPG.Saving
                 foreach (var proficiencyId in entry.Proficiencies) character.GrantProficiency(new DefinitionId(proficiencyId));
                 foreach (var featureId in entry.Features) character.GrantFeature(new DefinitionId(featureId));
 
+                character.Level = entry.Level;
+                character.DeathSaves = entry.HasDeathSaves ? new DeathSaveState { Successes = entry.DeathSaveSuccesses, Failures = entry.DeathSaveFailures } : null;
+                character.SpellcastingStatId = new DefinitionId(entry.SpellcastingStatId);
+                character.ConcentratingOnAbilityId = new DefinitionId(entry.ConcentratingOnAbilityId);
+                foreach (var abilityId in entry.KnownAbilities) character.LearnAbility(new DefinitionId(abilityId));
+                character.PrepareSpells(entry.PreparedAbilities.Select(id => new DefinitionId(id)));
+
                 characters.Register(character);
+            }
+        }
+
+        private static void CaptureWorldSpawns(IEnumerable<WorldSpawnSnapshot> worldSpawns, SaveData data)
+        {
+            if (worldSpawns == null) return;
+            foreach (var snapshot in worldSpawns)
+            {
+                data.WorldSpawns.Add(new WorldSpawnSaveEntry
+                {
+                    SpawnId = snapshot.SpawnId,
+                    CharacterId = snapshot.CharacterId,
+                    NpcDefinitionId = snapshot.NpcDefinitionId,
+                    PosX = snapshot.Position.x,
+                    PosY = snapshot.Position.y,
+                    PosZ = snapshot.Position.z,
+                    FacingYaw = snapshot.FacingYaw,
+                    Defeated = snapshot.Defeated,
+                });
+            }
+        }
+
+        private static void CaptureStores(IReadOnlyDictionary<string, StoreInventoryState> stores, SaveData data)
+        {
+            if (stores == null) return;
+            foreach (var pair in stores)
+            {
+                var entry = new StoreSaveData { StoreId = pair.Key, BuyPriceMultiplier = pair.Value.BuyPriceMultiplier, SellPriceMultiplier = pair.Value.SellPriceMultiplier };
+                foreach (var listing in pair.Value.Listings) entry.Listings.Add(new StoreListingSaveEntry { ItemId = listing.ItemId.Value, Quantity = listing.Quantity });
+                data.Stores.Add(entry);
+            }
+        }
+
+        private static void CaptureLootContainers(IReadOnlyDictionary<string, LootContainerState> lootContainers, SaveData data)
+        {
+            if (lootContainers == null) return;
+            foreach (var pair in lootContainers)
+            {
+                var entry = new LootContainerSaveData { ContainerId = pair.Key };
+                foreach (var item in pair.Value.Items)
+                {
+                    var itemEntry = new ItemSaveData
+                    {
+                        InstanceId = item.InstanceId.ToString(),
+                        DefinitionId = item.DefinitionId.Value,
+                        Quantity = item.Quantity,
+                        HasCharges = item.Charges.HasValue,
+                        Charges = item.Charges ?? 0,
+                    };
+                    foreach (var pair2 in item.CustomState) itemEntry.CustomState.Add(new ItemCustomStateSaveEntry { Key = pair2.Key, Value = pair2.Value });
+                    entry.Items.Add(itemEntry);
+                }
+                data.LootContainers.Add(entry);
             }
         }
 

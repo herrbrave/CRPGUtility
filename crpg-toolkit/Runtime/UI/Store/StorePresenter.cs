@@ -51,8 +51,27 @@ namespace CRPG.UI
             return summaries;
         }
 
-        public bool Buy(DefinitionId itemId, int quantity = 1) => storeService.TryBuy(store, itemId, quantity);
+        /// <summary>Task 3.6: re-derives the specific failure reason from the same cheap checks StoreService.TryBuy
+        /// itself performs, immediately before calling through -- StoreService's own bool-returning signature is
+        /// deliberately left untouched (already tested, called from other real code paths).</summary>
+        public StoreTransactionResult Buy(DefinitionId itemId, int quantity = 1)
+        {
+            if (!store.TryGetListing(itemId, out var listing)) return StoreTransactionResult.Fail(StoreTransactionOutcome.NotListed);
+            if (!listing.IsUnlimited && listing.Quantity < quantity) return StoreTransactionResult.Fail(StoreTransactionOutcome.OutOfStock);
+            if (storeService.GetCurrencyTotal() < storeService.GetBuyPrice(store, itemId) * quantity)
+                return StoreTransactionResult.Fail(StoreTransactionOutcome.InsufficientFunds);
 
-        public bool Sell(RuntimeEntityId instanceId) => storeService.TrySell(store, instanceId);
+            var succeeded = storeService.TryBuy(store, itemId, quantity);
+            return succeeded ? StoreTransactionResult.Ok() : StoreTransactionResult.Fail(StoreTransactionOutcome.NotListed);
+        }
+
+        public StoreTransactionResult Sell(RuntimeEntityId instanceId)
+        {
+            if (!partyInventory.TryGetItem(instanceId, out _)) return StoreTransactionResult.Fail(StoreTransactionOutcome.ItemNotOwned);
+            if (partyInventory.GetLocation(instanceId).IsEquipped) return StoreTransactionResult.Fail(StoreTransactionOutcome.ItemEquipped);
+
+            var succeeded = storeService.TrySell(store, instanceId);
+            return succeeded ? StoreTransactionResult.Ok() : StoreTransactionResult.Fail(StoreTransactionOutcome.ItemNotOwned);
+        }
     }
 }

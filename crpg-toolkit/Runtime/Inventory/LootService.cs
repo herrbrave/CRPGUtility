@@ -10,7 +10,7 @@ namespace CRPG.Inventory
 
         public LootService(PartyInventoryState inventory)
         {
-            this.inventory = inventory;
+            this.inventory = inventory ?? throw new System.ArgumentNullException(nameof(inventory));
         }
 
         public void Take(LootContainerState container, ItemInstance item)

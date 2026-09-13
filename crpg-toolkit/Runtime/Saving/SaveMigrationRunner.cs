@@ -20,7 +20,11 @@ namespace CRPG.Saving
             }
         }
 
-        private static int ReadFormatVersion(string json)
+        /// <summary>Public so SaveFileStore can check the FINAL version after Apply -- Apply itself silently
+        /// stops once no matching migration is found, whether that's because the save is genuinely caught up
+        /// to CurrentFormatVersion or because there's a gap in the migration chain; the caller must tell those
+        /// two cases apart (Task 3.5).</summary>
+        public static int ReadFormatVersion(string json)
         {
             var partial = JsonUtility.FromJson<HeaderOnly>(json);
             return partial?.Header?.FormatVersion ?? SaveData.CurrentFormatVersion;

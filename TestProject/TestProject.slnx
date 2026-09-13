@@ -21,9 +21,11 @@
   <Project Path="Unity.AI.Navigation.Editor.csproj" />
   <Project Path="Unity.Pipeline.Editor.csproj" />
   <Project Path="Unity.VisualStudio.Editor.csproj" />
+  <Project Path="CRPG.UI.csproj" />
   <Project Path="CRPG.Quests.csproj" />
   <Project Path="CRPG.Abilities.csproj" />
   <Project Path="Unity.PathTracing.Runtime.csproj" />
+  <Project Path="CRPG.Gameplay.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Runtime.Shared.csproj" />
   <Project Path="Unity.TextMeshPro.Editor.csproj" />
   <Project Path="Unity.Rider.Editor.csproj" />
@@ -42,8 +44,6 @@
   <Project Path="Unity.Pipeline.CodeGen.csproj" />
   <Project Path="Unity.TextMeshPro.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Editor.Shared.csproj" />
-  <Project Path="CRPG.Gameplay.csproj" />
-  <Project Path="CRPG.UI.csproj" />
   <Project Path="CRPG.Dialogue.csproj" />
   <Project Path="CRPG.Tests.PlayMode.csproj" />
   <Project Path="Unity.AI.Navigation.Updater.csproj" />

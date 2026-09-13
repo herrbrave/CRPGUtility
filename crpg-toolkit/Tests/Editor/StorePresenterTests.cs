@@ -58,7 +58,8 @@ namespace CRPG.Tests.EditMode
 
             var bought = presenter.Buy(potion.Id);
 
-            Assert.IsTrue(bought);
+            Assert.IsTrue(bought.Success);
+            Assert.AreEqual(StoreTransactionOutcome.Success, bought.Outcome);
             Assert.AreEqual(2, presenter.GetListings()[0].RemainingQuantity);
             Assert.IsTrue(inventory.ItemsInSharedInventory.Any(i => i.DefinitionId == potion.Id));
         }
@@ -84,9 +85,77 @@ namespace CRPG.Tests.EditMode
 
             var sold = presenter.Sell(owned.InstanceId);
 
-            Assert.IsTrue(sold);
+            Assert.IsTrue(sold.Success);
+            Assert.AreEqual(StoreTransactionOutcome.Success, sold.Outcome);
             Assert.AreEqual(200 + 25, presenter.PartyGold);
             Assert.IsFalse(inventory.TryGetItem(owned.InstanceId, out _));
+        }
+
+        [Test]
+        public void BuyReportsOutOfStockWithoutSpendingAnyGold()
+        {
+            var (presenter, _, potion, _) = BuildScenario();
+
+            var result = presenter.Buy(potion.Id, quantity: 99); // only 3 listed
+
+            Assert.AreEqual(StoreTransactionOutcome.OutOfStock, result.Outcome);
+            Assert.AreEqual(200, presenter.PartyGold); // untouched
+        }
+
+        [Test]
+        public void BuyReportsInsufficientFundsWithoutTouchingStock()
+        {
+            var rulesDatabase = new RulesDatabase();
+            var inventory = new PartyInventoryState();
+            var gold = TestDefinitionFactory.CreateItemDefinition("item-gold", "Gold Piece", maxStackSize: 999);
+            var potion = TestDefinitionFactory.CreateItemDefinition("item-potion", "Healing Potion", baseValue: 50f);
+            rulesDatabase.Register(gold);
+            rulesDatabase.Register(potion);
+            var shop = new StoreInventoryState();
+            shop.AddListing(potion.Id, quantity: 3);
+            inventory.AddItem(new ItemInstance(RuntimeEntityId.NewId(), gold.Id, 10)); // not enough for 50g potion
+            var presenter = new StorePresenter(shop, inventory, rulesDatabase, new StoreService(rulesDatabase, inventory, gold.Id));
+
+            var result = presenter.Buy(potion.Id);
+
+            Assert.AreEqual(StoreTransactionOutcome.InsufficientFunds, result.Outcome);
+            Assert.AreEqual(3, presenter.GetListings()[0].RemainingQuantity); // untouched
+        }
+
+        [Test]
+        public void BuyReportsNotListedForAnUnknownItem()
+        {
+            var (presenter, _, _, _) = BuildScenario();
+            var unlisted = TestDefinitionFactory.CreateItemDefinition("item-unlisted", "Mystery Item");
+
+            var result = presenter.Buy(unlisted.Id);
+
+            Assert.AreEqual(StoreTransactionOutcome.NotListed, result.Outcome);
+        }
+
+        [Test]
+        public void SellReportsItemNotOwnedForAnInstanceThePartyDoesNotHave()
+        {
+            var (presenter, _, _, _) = BuildScenario();
+
+            var result = presenter.Sell(RuntimeEntityId.NewId());
+
+            Assert.AreEqual(StoreTransactionOutcome.ItemNotOwned, result.Outcome);
+        }
+
+        [Test]
+        public void SellReportsItemEquippedForAnEquippedItem()
+        {
+            var (presenter, inventory, potion, _) = BuildScenario();
+            var owned = new ItemInstance(RuntimeEntityId.NewId(), potion.Id);
+            var equippedCharacter = RuntimeEntityId.NewId();
+            var slot = TestDefinitionFactory.CreateEquipmentSlotDefinition("slot-trinket", "Trinket");
+            inventory.AddItem(owned, ItemLocation.Equipped(equippedCharacter, slot.Id));
+
+            var result = presenter.Sell(owned.InstanceId);
+
+            Assert.AreEqual(StoreTransactionOutcome.ItemEquipped, result.Outcome);
+            Assert.IsTrue(inventory.TryGetItem(owned.InstanceId, out _)); // not removed
         }
     }
 }

@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: DialogueDefinition_MerchantGreeting
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-merchant-greeting-adventureslice
+  displayName: Merchant Greeting
+  startNodeId:
+    low: -3685329267909687332
+    high: -31374664357277613
+  nodes:
+  - rid: 4304780725480325198
+  - rid: 4304780725480325199
+  - rid: 4304780725480325200
+  - rid: 4304780725480325201
+  - rid: 4304780725480325202
+  - rid: 4304780725480325203
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780725480325198
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -3685329267909687332
+          high: -31374664357277613
+        editorPosition: {x: 0, y: 0}
+        speakerName: Merchant
+        text: Welcome, traveler! Fine wares for a fine adventurer.
+        nextNodeId:
+          low: 1303212644480781046
+          high: -3385189260082795902
+    - rid: 4304780725480325199
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 1303212644480781046
+          high: -3385189260082795902
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304780725480325204
+        nextNodeId:
+          low: -4400115599834427301
+          high: 3506196997839003194
+    - rid: 4304780725480325200
+      type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -4400115599834427301
+          high: 3506196997839003194
+        editorPosition: {x: 0, y: 0}
+        options:
+        - text: Browse your wares.
+          nextNodeId:
+            low: -4341161846918364813
+            high: 1840538862612240173
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: Just saying hello.
+          nextNodeId:
+            low: 1240901967057175722
+            high: -782090535906663839
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+    - rid: 4304780725480325201
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -4341161846918364813
+          high: 1840538862612240173
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304780725480325205
+        nextNodeId:
+          low: -8890300380199627597
+          high: -7507242056992616128
+    - rid: 4304780725480325202
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 1240901967057175722
+          high: -782090535906663839
+        editorPosition: {x: 0, y: 0}
+        speakerName: Merchant
+        text: Safe travels, friend!
+        nextNodeId:
+          low: -8890300380199627597
+          high: -7507242056992616128
+    - rid: 4304780725480325203
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -8890300380199627597
+          high: -7507242056992616128
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304780725480325204
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: greeted-merchant
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1
+    - rid: 4304780725480325205
+      type: {class: OpenStoreAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 

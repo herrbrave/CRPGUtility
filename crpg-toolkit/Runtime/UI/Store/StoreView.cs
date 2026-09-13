@@ -16,6 +16,7 @@ namespace CRPG.UI
         private StorePresenter presenter;
         private UIDocument document;
         private Label goldLabel;
+        private Label statusLabel;
         private VisualElement columns;
         private VisualElement buyContainer;
         private VisualElement sellContainer;
@@ -55,8 +56,14 @@ namespace CRPG.UI
 
             goldLabel = new Label();
             goldLabel.style.fontSize = 16;
-            goldLabel.style.marginBottom = 16;
+            goldLabel.style.marginBottom = 8;
             root.Add(goldLabel);
+
+            statusLabel = new Label();
+            statusLabel.style.fontSize = 13;
+            statusLabel.style.color = Color.red;
+            statusLabel.style.marginBottom = 8;
+            root.Add(statusLabel);
 
             columns = new VisualElement();
             columns.style.flexDirection = FlexDirection.Row;
@@ -140,14 +147,26 @@ namespace CRPG.UI
 
         private void OnBuyClicked(DefinitionId itemId)
         {
-            presenter.Buy(itemId);
+            var result = presenter.Buy(itemId);
+            statusLabel.text = result.Success ? string.Empty : DescribeFailure(result.Outcome);
             Refresh();
         }
 
         private void OnSellClicked(RuntimeEntityId instanceId)
         {
-            presenter.Sell(instanceId);
+            var result = presenter.Sell(instanceId);
+            statusLabel.text = result.Success ? string.Empty : DescribeFailure(result.Outcome);
             Refresh();
         }
+
+        private static string DescribeFailure(StoreTransactionOutcome outcome) => outcome switch
+        {
+            StoreTransactionOutcome.NotListed => "That item is no longer available.",
+            StoreTransactionOutcome.OutOfStock => "Out of stock.",
+            StoreTransactionOutcome.InsufficientFunds => "Not enough gold.",
+            StoreTransactionOutcome.ItemNotOwned => "You don't have that item.",
+            StoreTransactionOutcome.ItemEquipped => "Unequip that item before selling it.",
+            _ => "That didn't work.",
+        };
     }
 }

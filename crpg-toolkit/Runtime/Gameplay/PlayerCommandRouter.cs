@@ -44,6 +44,12 @@ namespace CRPG.Gameplay
         /// entirely.</summary>
         public IPointerTargetingGate TargetingGate { get; set; }
 
+        /// <summary>Task 3.6: while set and IsBusy, every pointer gesture is suppressed outright -- a stray
+        /// click can't issue a new Move/Select/Interact order while a scene travel or cross-scene load is
+        /// transitioning the world out from under whatever's currently loaded. Null (the default) skips this
+        /// check entirely, matching TargetingGate's own "reserved seam ahead of its consumer" precedent.</summary>
+        public CRPG.Gameplay.Scenes.IWorldTransitionGate TransitionGate { get; set; }
+
         public PlayerCommandRouter(
             ISelectableSource selectableSource,
             IPointerCaptureProvider pointerCapture,
@@ -67,7 +73,10 @@ namespace CRPG.Gameplay
             exceededThreshold = false;
             downScreenPosition = screenPosition;
             currentScreenPosition = screenPosition;
-            gestureSuppressed = pointerCapture.IsPointerOverUI(screenPosition);
+            // Task 3.6: folded into the same suppression flag as UI/modal capture -- a gesture that starts
+            // while the world is mid-transition (scene travel or a cross-scene load) must never issue a
+            // Move/Select/Interact order, exactly like one that starts over UI.
+            gestureSuppressed = pointerCapture.IsPointerOverUI(screenPosition) || (TransitionGate?.IsBusy ?? false);
         }
 
         /// <summary>Call while the pointer/tap is held down and moving. A no-op outside an active gesture.</summary>
@@ -85,19 +94,23 @@ namespace CRPG.Gameplay
         /// pointer is over UI/a modal right now -- a gesture that started clean over the world but ends after a
         /// modal opened mid-gesture (e.g. a synchronous interaction execute triggered by a different click)
         /// must not leak a Move/Select through just because the down-time check didn't see it coming.</summary>
-        public void HandlePointerUp(Vector2 screenPosition, Ray ray, Camera camera, bool shiftHeld)
+        public void HandlePointerUp(Vector2 screenPosition, Ray ray, UnityEngine.Camera camera, bool shiftHeld)
         {
             if (!gestureActive) return;
             gestureActive = false;
             currentScreenPosition = screenPosition;
 
-            if (gestureSuppressed || pointerCapture.IsPointerOverUI(screenPosition)) return;
+            if (gestureSuppressed || pointerCapture.IsPointerOverUI(screenPosition) || (TransitionGate?.IsBusy ?? false)) return;
 
             if (exceededThreshold) ResolveDragSelect(camera, shiftHeld);
             else ResolveClick(ray, shiftHeld);
         }
 
-        public void HandleCancel() => Cancel?.Invoke();
+        public void HandleCancel()
+        {
+            if (TransitionGate?.IsBusy ?? false) return;
+            Cancel?.Invoke();
+        }
 
         private void ResolveClick(Ray ray, bool shiftHeld)
         {
@@ -129,7 +142,7 @@ namespace CRPG.Gameplay
             Move?.Invoke(new MoveCommand(hit.point, Vector3.forward));
         }
 
-        private void ResolveDragSelect(Camera camera, bool shiftHeld)
+        private void ResolveDragSelect(UnityEngine.Camera camera, bool shiftHeld)
         {
             if (camera == null) return;
 

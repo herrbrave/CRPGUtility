@@ -43,5 +43,17 @@ namespace CRPG.Saving
         public List<ConditionSaveEntry> Conditions = new();
         public List<string> Proficiencies = new();
         public List<string> Features = new();
+
+        // Task 3.5: closes the gap Docs/Design/State-Persistence-Matrix.md named and Task 0.2's
+        // intentional-red SaveServiceTests cases document -- CurrentAnimationCueId stays deliberately absent
+        // (transient presentation state, not gameplay-authoritative).
+        public int Level;
+        public bool HasDeathSaves;
+        public int DeathSaveSuccesses;
+        public int DeathSaveFailures;
+        public string SpellcastingStatId;
+        public string ConcentratingOnAbilityId;
+        public List<string> KnownAbilities = new();
+        public List<string> PreparedAbilities = new();
     }
 }

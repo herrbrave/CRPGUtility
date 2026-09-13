@@ -295,7 +295,9 @@ namespace CRPG.Tests.PlayMode
             go = new GameObject("TestFacing");
             var facing = go.AddComponent<FacingController>();
 
-            facing.RequestFacing(FacingPriority.Motion, Vector3.forward);
+            // Motion is motor-owned and cleared when this fixture has no IMovable.
+            // Use a persistent lower-priority request so this actually tests fallback.
+            facing.RequestFacing(FacingPriority.Interaction, Vector3.forward);
             facing.RequestFacing(FacingPriority.CommittedAction, Vector3.right);
             yield return null;
 
@@ -304,7 +306,7 @@ namespace CRPG.Tests.PlayMode
             yield return WaitForFacingComplete(facing);
 
             var forward = go.transform.forward;
-            Assert.Greater(Vector3.Dot(forward, Vector3.forward), 0.99f, "With CommittedAction cleared, Motion must take over.");
+            Assert.Greater(Vector3.Dot(forward, Vector3.forward), 0.99f, "With CommittedAction cleared, Interaction must take over.");
         }
     }
 }
