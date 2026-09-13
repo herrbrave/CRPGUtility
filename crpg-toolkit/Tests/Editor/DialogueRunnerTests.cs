@@ -4,6 +4,7 @@ using CRPG.Dialogue;
 using CRPG.Inventory;
 using CRPG.Party;
 using CRPG.Rules;
+using CRPG.Rules.SRD5;
 using NUnit.Framework;
 
 namespace CRPG.Tests.EditMode
@@ -32,7 +33,8 @@ namespace CRPG.Tests.EditMode
         }
 
         private DialogueContext CreateContext(IDiceService diceService = null, StoreInventoryState store = null) =>
-            new(npc, party, characters, rulesDatabase, timeline, inventory, diceService ?? new DiceService(new SeededRandomSource(1)), store: store);
+            new(npc, party, characters, rulesDatabase, timeline, inventory, diceService ?? new DiceService(new SeededRandomSource(1)),
+                new DefaultSkillCheckRule(characters, rulesDatabase), store: store);
 
         [Test]
         public void RunnerStartsAtTheDefinitionsStartNode()
@@ -369,6 +371,22 @@ namespace CRPG.Tests.EditMode
             var line = DialogueTestFactory.CreateLine("start", "Grimjaw", "Halt.", "end");
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", line, end);
             var runner = new DialogueRunner(dialogue, CreateContext());
+
+            Assert.Throws<System.InvalidOperationException>(() => runner.PerformCheck());
+        }
+
+        // Task 4.1: a context built with no SkillCheckRule (the default for a conversation that never expects
+        // to reach a check) must fail loudly at the point of use, never silently construct a concrete rule --
+        // that fallback would quietly reintroduce the exact SRD5 coupling this seam removes.
+        [Test]
+        public void PerformCheckThrowsWhenContextHasNoSkillCheckRule()
+        {
+            var success = DialogueTestFactory.CreateEnd("success");
+            var failure = DialogueTestFactory.CreateEnd("failure");
+            var check = DialogueTestFactory.CreateCheck("start", "Skill:Persuasion", 15, CheckPerformer.ActiveCharacter, "success", "failure");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", check, success, failure);
+            var contextWithNoRule = new DialogueContext(npc, party, characters, rulesDatabase, timeline, inventory, new DiceService(new SeededRandomSource(1)));
+            var runner = new DialogueRunner(dialogue, contextWithNoRule);
 
             Assert.Throws<System.InvalidOperationException>(() => runner.PerformCheck());
         }

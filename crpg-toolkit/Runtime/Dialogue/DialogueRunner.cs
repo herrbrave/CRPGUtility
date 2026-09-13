@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using CRPG.Actors;
 using CRPG.Core;
 
 namespace CRPG.Dialogue
@@ -79,18 +78,23 @@ namespace CRPG.Dialogue
             if (CurrentNode is not CheckNode check)
                 throw new InvalidOperationException($"PerformCheck() isn't valid on a {CurrentNode.GetType().Name}.");
 
-            var checkers = DialogueCheckResolver.ResolveCheckers(
-                check.Performer, context.NpcId, context.Party, context.Characters, context.RulesDatabase, check.QueryKey);
+            // Task 4.1: no fallback construction of a concrete rule here -- a context built without one means
+            // this conversation was never wired for checks, and that must fail loudly, not silently reintroduce
+            // the exact SRD5 coupling this DI seam removes.
+            if (context.SkillCheckRule == null)
+                throw new InvalidOperationException("PerformCheck() requires DialogueContext.SkillCheckRule to be set.");
 
-            var skillCheckRule = new DefaultSkillCheckRule(context.Characters, context.RulesDatabase);
+            var checkers = DialogueCheckResolver.ResolveCheckers(
+                check.Performer, context.NpcId, context.Party, context.Characters, context.SkillCheckRule, check.QueryKey);
+
             var rolls = new List<RollResult>(checkers.Count);
             foreach (var checkerId in checkers)
             {
-                var bonus = skillCheckRule.ComputeSkillCheckBonus(checkerId, check.QueryKey);
-                var advantage = skillCheckRule.ComputeAdvantage(checkerId, check.QueryKey);
+                var bonus = context.SkillCheckRule.ComputeSkillCheckBonus(checkerId, check.QueryKey);
+                var advantage = context.SkillCheckRule.ComputeAdvantage(checkerId, check.QueryKey);
                 var modifiers = bonus != 0 ? new[] { new RollModifier(check.QueryKey, bonus) } : null;
 
-                var roll = context.DiceService.Roll(new RollRequest(new DiceExpression(1, 20), RollPurpose.AbilityCheck, advantage, source: checkerId, modifiers: modifiers));
+                var roll = context.DiceService.Roll(new RollRequest(context.SkillCheckRule.CheckDie, RollPurpose.AbilityCheck, advantage, source: checkerId, modifiers: modifiers));
                 context.CombatLog?.Log(new RollLogEntry(roll));
                 rolls.Add(roll);
             }

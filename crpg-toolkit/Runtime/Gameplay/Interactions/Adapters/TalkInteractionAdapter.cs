@@ -30,6 +30,11 @@ namespace CRPG.Gameplay.Interactions.Adapters
         public StoreInventoryState Store { get; set; }
         public DefinitionId CurrencyItemId { get; set; }
 
+        /// <summary>Task 4.1: null is valid for a dialogue that never reaches a CheckNode; whichever composition
+        /// root wires this adapter's other session dependencies is expected to also supply this when its content
+        /// might include a check (see DialogueContext.SkillCheckRule's own remarks on why there's no fallback).</summary>
+        public ISkillCheckRule SkillCheckRule { get; set; }
+
         public DefinitionId ActionId { get; } = new("interact-talk");
 
         private bool conversationOpen;
@@ -40,7 +45,7 @@ namespace CRPG.Gameplay.Interactions.Adapters
         {
             conversationOpen = true;
 
-            var context = new DialogueContext(performer, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, store: Store, currencyItemId: CurrencyItemId);
+            var context = new DialogueContext(performer, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, SkillCheckRule, store: Store, currencyItemId: CurrencyItemId);
             var controller = new ConversationController(dialogue, context, panelSettings);
 
             return new Execution(this, controller, onFinished);

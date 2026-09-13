@@ -2,6 +2,7 @@ using CRPG.Actors;
 using CRPG.Combat;
 using CRPG.Core;
 using CRPG.Rules;
+using CRPG.Rules.SRD5;
 using NUnit.Framework;
 
 namespace CRPG.Tests.EditMode

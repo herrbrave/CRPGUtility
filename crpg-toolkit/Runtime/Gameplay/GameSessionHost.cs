@@ -1,16 +1,20 @@
 using System;
+using System.Collections.Generic;
+using CRPG.Actors;
 using CRPG.Core;
+using CRPG.Rules;
 using UnityEngine;
 
 namespace CRPG.Gameplay
 {
     /// <summary>
     /// Unity-facing composition root: constructs one <see cref="GameSession"/>, exposes it to the rest of the
-    /// scene, and disposes it on teardown. The formal "ruleset entrypoint receives a typed registration
-    /// builder... the shipped composition root accepts that entrypoint via a Unity-serializable provider
-    /// adapter" (Docs/Design/Production-Foundation.md sec.3) is Task 4.1's concern -- until that exists, this
-    /// takes an already-built <see cref="IRulesDatabase"/>/<see cref="IDiceService"/> via
-    /// <see cref="StartSession"/>, matching how every existing demo bootstrap constructs these by hand today.
+    /// scene, and disposes it on teardown. Two ways to start a session:
+    /// <see cref="StartSession(IRulesDatabase, IDiceService)"/> takes an already-built rules database, matching
+    /// how every existing demo bootstrap constructs one by hand today (unchanged, still the only path any
+    /// current composition root uses); <see cref="StartSession(IRulesetDefinition, IDiceService, IReadOnlyList{Type})"/>
+    /// is Task 4.1's new seam -- "a ruleset entrypoint receives a typed registration builder... validate
+    /// required registrations before enabling input" (Docs/Design/Production-Foundation.md sec.3).
     /// </summary>
     public sealed class GameSessionHost : MonoBehaviour
     {
@@ -24,6 +28,39 @@ namespace CRPG.Gameplay
                 throw new InvalidOperationException($"{name} already has an active session -- call EndSession() before starting another.");
 
             Session = new GameSession(rulesDatabase, diceService);
+            return Session;
+        }
+
+        /// <summary>Builds a fresh session, lets <paramref name="provider"/> register its content and policies
+        /// against it, then validates every type in <paramref name="requiredPolicyTypes"/> was actually
+        /// registered before exposing the session as <see cref="Session"/> -- on a validation failure the
+        /// locally-built session/database/policy-registry are discarded without ever being assigned anywhere,
+        /// so a failed start never leaves partially-registered content visible (mirrors
+        /// <c>SessionLoadCoordinator</c>'s own build-then-validate-then-commit shape). <paramref
+        /// name="requiredPolicyTypes"/> is the caller's own choice of what its game actually needs (e.g. a
+        /// combat demo requires <c>IArmorClassRule</c>; a dialogue-only fixture might not) -- this method never
+        /// hardcodes which policies matter.</summary>
+        public GameSession StartSession(IRulesetDefinition provider, IDiceService diceService, IReadOnlyList<Type> requiredPolicyTypes = null)
+        {
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+            if (Session is { IsDisposed: false })
+                throw new InvalidOperationException($"{name} already has an active session -- call EndSession() before starting another.");
+
+            var rulesDatabase = new RulesDatabase();
+            var candidate = new GameSession(rulesDatabase, diceService);
+            try
+            {
+                var builder = new RulesetRegistrationBuilder(rulesDatabase, candidate.Characters, diceService, candidate.Policies);
+                provider.Register(builder);
+                candidate.Policies.ValidateRequired(requiredPolicyTypes);
+            }
+            catch
+            {
+                candidate.Dispose();
+                throw;
+            }
+
+            Session = candidate;
             return Session;
         }
 

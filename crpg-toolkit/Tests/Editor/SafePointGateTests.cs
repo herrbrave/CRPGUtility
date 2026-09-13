@@ -5,6 +5,7 @@ using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Gameplay.Scenes;
 using CRPG.Rules;
+using CRPG.Rules.SRD5;
 using CRPG.Saving;
 using NUnit.Framework;
 

@@ -63,6 +63,7 @@ public sealed class OakhavenDemoBootstrap : MonoBehaviour
             questService.RefreshProgress(content.QuestGoblinMenace);
         }
 
+        var skillCheckRule = new CRPG.Rules.SRD5.DefaultSkillCheckRule(registry, rulesDatabase);
         foreach (var trigger in FindObjectsByType<DialogueTriggerZone>(FindObjectsSortMode.None))
         {
             trigger.Party = party;
@@ -71,6 +72,7 @@ public sealed class OakhavenDemoBootstrap : MonoBehaviour
             trigger.Timeline = timeline;
             trigger.Inventory = inventory;
             trigger.DiceService = diceService;
+            trigger.SkillCheckRule = skillCheckRule;
             trigger.Completed += RefreshQuests;
 
             if (trigger.name == "GriffTrigger") trigger.Store = griffStore;

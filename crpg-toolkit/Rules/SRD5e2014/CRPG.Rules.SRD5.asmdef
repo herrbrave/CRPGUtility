@@ -1,7 +1,7 @@
 {
     "name": "CRPG.Rules.SRD5",
     "rootNamespace": "CRPG.Rules.SRD5",
-    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Abilities", "CRPG.Combat", "CRPG.Inventory", "CRPG.Interaction"],
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Combat"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

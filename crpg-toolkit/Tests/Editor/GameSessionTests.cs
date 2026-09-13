@@ -6,6 +6,7 @@ using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Inventory;
 using CRPG.Presentation.Equipment;
+using CRPG.Rules;
 using CRPG.Saving;
 using NUnit.Framework;
 using UnityEngine;
@@ -148,6 +149,89 @@ namespace CRPG.Tests.EditMode
         // DestroyImmediate's OnDestroy callback never fires in headless -batchmode EditMode (no Play session),
         // even after polling many editor ticks -- only a real Play session (PlayMode tests) delivers it
         // synchronously, the same constraint Task 1.1's CharacterBindingTests already worked within.
+
+        // Task 4.1: the new StartSession(IRulesetDefinition, ...) overload.
+        private interface IFakePolicy
+        {
+        }
+
+        private sealed class FakePolicy : IFakePolicy
+        {
+        }
+
+        private sealed class FakeDefinition : IDefinition
+        {
+            public FakeDefinition(string id) => Id = new DefinitionId(id);
+            public DefinitionId Id { get; }
+        }
+
+        private sealed class FakeRulesetProvider : IRulesetDefinition
+        {
+            private readonly bool registerPolicy;
+
+            public FakeRulesetProvider(bool registerPolicy = true) => this.registerPolicy = registerPolicy;
+
+            public string RulesetId => "fake-ruleset";
+
+            public void Register(IRulesetRegistrationBuilder builder)
+            {
+                builder.RegisterDefinitions(new IDefinition[] { new FakeDefinition("fake-def") });
+                if (registerPolicy) builder.RegisterPolicy<IFakePolicy>(new FakePolicy());
+            }
+        }
+
+        [Test]
+        public void StartSessionWithProviderRegistersDefinitionsAndPolicies()
+        {
+            var host = CreateHost();
+
+            var session = host.StartSession(new FakeRulesetProvider(), new DiceService(new SeededRandomSource(1)));
+
+            Assert.IsTrue(session.RulesDatabase.TryResolve<FakeDefinition>(new DefinitionId("fake-def"), out _));
+            Assert.IsTrue(session.Policies.TryGet<IFakePolicy>(out _));
+            Assert.AreSame(session, host.Session);
+        }
+
+        [Test]
+        public void StartSessionWithProviderAndSatisfiedRequiredPoliciesSucceeds()
+        {
+            var host = CreateHost();
+
+            Assert.DoesNotThrow(() =>
+                host.StartSession(new FakeRulesetProvider(), new DiceService(new SeededRandomSource(1)),
+                    new[] { typeof(IFakePolicy) }));
+        }
+
+        [Test]
+        public void StartSessionWithProviderAndMissingRequiredPolicyThrowsAndLeavesNoSession()
+        {
+            var host = CreateHost();
+
+            Assert.Throws<RulesetValidationException>(() =>
+                host.StartSession(new FakeRulesetProvider(registerPolicy: false), new DiceService(new SeededRandomSource(1)),
+                    new[] { typeof(IFakePolicy) }));
+
+            Assert.IsNull(host.Session);
+        }
+
+        [Test]
+        public void StartSessionWithNullProviderThrows()
+        {
+            var host = CreateHost();
+
+            Assert.Throws<ArgumentNullException>(() =>
+                host.StartSession((IRulesetDefinition)null, new DiceService(new SeededRandomSource(1))));
+        }
+
+        [Test]
+        public void StartSessionWithProviderWhileAlreadyActiveThrows()
+        {
+            var host = CreateHost();
+            host.StartSession(new RulesDatabase(), new DiceService(new SeededRandomSource(1)));
+
+            Assert.Throws<InvalidOperationException>(() =>
+                host.StartSession(new FakeRulesetProvider(), new DiceService(new SeededRandomSource(2))));
+        }
     }
 
     public class CharacterAgentTests

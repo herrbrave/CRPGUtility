@@ -4,6 +4,7 @@ using CRPG.Combat;
 using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Rules;
+using CRPG.Rules.SRD5;
 using CRPG.Saving;
 using NUnit.Framework;
 

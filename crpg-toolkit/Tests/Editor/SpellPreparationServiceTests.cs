@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CRPG.Actors;
 using CRPG.Core;
+using CRPG.Rules.SRD5;
 using NUnit.Framework;
 
 namespace CRPG.Tests.EditMode

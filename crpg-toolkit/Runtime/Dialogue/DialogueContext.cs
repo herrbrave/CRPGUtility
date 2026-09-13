@@ -21,6 +21,7 @@ namespace CRPG.Dialogue
             ITimeline timeline,
             PartyInventoryState partyInventory,
             IDiceService diceService,
+            ISkillCheckRule skillCheckRule = null,
             ICombatLog combatLog = null,
             StoreInventoryState store = null,
             DefinitionId currencyItemId = default)
@@ -32,6 +33,7 @@ namespace CRPG.Dialogue
             Timeline = timeline;
             PartyInventory = partyInventory;
             DiceService = diceService;
+            SkillCheckRule = skillCheckRule;
             CombatLog = combatLog;
             Store = store;
             CurrencyItemId = currencyItemId;
@@ -44,6 +46,14 @@ namespace CRPG.Dialogue
         public ITimeline Timeline { get; }
         public PartyInventoryState PartyInventory { get; }
         public IDiceService DiceService { get; }
+
+        /// <summary>Task 4.1: the ruleset's skill-check policy, sourced by whoever builds this context from
+        /// the session's PolicyRegistry -- never constructed here or by DialogueRunner. Null is valid for a
+        /// conversation that never reaches a CheckNode; PerformCheck() fails loudly if it's null and actually
+        /// needed, rather than silently falling back to a concrete rule (which would reintroduce the exact
+        /// SRD5 coupling this seam removes).</summary>
+        public ISkillCheckRule SkillCheckRule { get; }
+
         public ICombatLog CombatLog { get; }
 
         /// <summary>The shop this NPC runs, if any -- null for an NPC that doesn't sell anything.</summary>

@@ -3,6 +3,7 @@ using CRPG.Core;
 using CRPG.Dialogue;
 using CRPG.Inventory;
 using CRPG.Party;
+using CRPG.Rules.SRD5;
 using CRPG.UI;
 using NUnit.Framework;
 
@@ -21,7 +22,7 @@ namespace CRPG.Tests.EditMode
 
             return new DialogueContext(
                 RuntimeEntityId.NewId(), party, characters, rulesDatabase, new Timeline(), new PartyInventoryState(),
-                diceService ?? new DiceService(new SeededRandomSource(1)));
+                diceService ?? new DiceService(new SeededRandomSource(1)), new DefaultSkillCheckRule(characters, rulesDatabase));
         }
 
         [Test]

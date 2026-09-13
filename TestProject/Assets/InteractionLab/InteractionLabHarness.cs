@@ -51,6 +51,7 @@ public sealed class InteractionLabHarness : MonoBehaviour
             talkAdapter.Timeline = session.Timeline;
             talkAdapter.Inventory = session.Inventory;
             talkAdapter.DiceService = session.DiceService;
+            talkAdapter.SkillCheckRule = new CRPG.Rules.SRD5.DefaultSkillCheckRule(session.Characters, session.RulesDatabase);
         }
 
         // LootContainerState is deliberately plain runtime C# state (not [SerializeField]) -- an item added to

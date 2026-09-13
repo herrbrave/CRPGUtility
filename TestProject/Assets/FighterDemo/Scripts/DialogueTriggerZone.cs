@@ -35,6 +35,9 @@ public sealed class DialogueTriggerZone : MonoBehaviour
     /// <summary>The shop this NPC runs, if any -- left null for NPCs that don't sell anything.</summary>
     public StoreInventoryState Store { get; set; }
 
+    /// <summary>Task 4.1: null is valid for a dialogue that never reaches a CheckNode.</summary>
+    public ISkillCheckRule SkillCheckRule { get; set; }
+
     /// <summary>Fired once this conversation ends -- the bootstrap uses this to refresh quest progress after
     /// anything that might have just recorded a Timeline event, without this script needing to know about Quests.</summary>
     public event System.Action Completed;
@@ -58,7 +61,7 @@ public sealed class DialogueTriggerZone : MonoBehaviour
         everTriggered = true;
         conversationOpen = true;
 
-        var context = new DialogueContext(npcId, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, store: Store);
+        var context = new DialogueContext(npcId, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, SkillCheckRule, store: Store);
 
         var uiGo = new GameObject("DialogueUI", typeof(UIDocument));
         var document = uiGo.GetComponent<UIDocument>();

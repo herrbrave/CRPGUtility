@@ -5,6 +5,7 @@ using CRPG.Core;
 using CRPG.Inventory;
 using CRPG.Party;
 using CRPG.Quests;
+using CRPG.Rules;
 
 namespace CRPG.Gameplay
 {
@@ -35,6 +36,12 @@ namespace CRPG.Gameplay
         public IRulesDatabase RulesDatabase { get; }
         public IDiceService DiceService { get; }
 
+        /// <summary>Task 4.1: the concrete policy instances (IArmorClassRule, ISkillCheckRule, ...) whichever
+        /// ruleset provider was used to start this session registered. Empty (never null) for a session started
+        /// via the pre-existing <see cref="GameSessionHost.StartSession(IRulesDatabase, IDiceService)"/>
+        /// overload, which no composition root has been migrated to populate yet.</summary>
+        public PolicyRegistry Policies { get; }
+
         /// <summary>Task 3.6: every store/loot container this session has ever brought into existence, keyed by
         /// the caller-supplied stable id its owning location authors -- lives here (not on whatever scene
         /// GameObject currently represents it) specifically so a location's state survives that location's
@@ -55,10 +62,11 @@ namespace CRPG.Gameplay
         /// been torn down," the minimum the command-admission ownership invariant requires today.</summary>
         public bool AcceptsCommands => !IsDisposed;
 
-        public GameSession(IRulesDatabase rulesDatabase, IDiceService diceService)
+        public GameSession(IRulesDatabase rulesDatabase, IDiceService diceService, PolicyRegistry policies = null)
         {
             RulesDatabase = rulesDatabase ?? throw new ArgumentNullException(nameof(rulesDatabase));
             DiceService = diceService ?? throw new ArgumentNullException(nameof(diceService));
+            Policies = policies ?? new PolicyRegistry();
 
             Party = new PartyState();
             Characters = new CharacterRegistry();

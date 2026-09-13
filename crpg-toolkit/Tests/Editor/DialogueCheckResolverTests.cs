@@ -3,6 +3,7 @@ using CRPG.Core;
 using CRPG.Dialogue;
 using CRPG.Party;
 using CRPG.Rules;
+using CRPG.Rules.SRD5;
 using NUnit.Framework;
 
 namespace CRPG.Tests.EditMode
@@ -33,7 +34,8 @@ namespace CRPG.Tests.EditMode
             var party = new PartyState(new[] { bruiser.Id, smoothTalker.Id });
 
             var checkers = DialogueCheckResolver.ResolveCheckers(
-                CheckPerformer.BestPartyMember, RuntimeEntityId.NewId(), party, registry, rulesDatabase, "Skill:Persuasion");
+                CheckPerformer.BestPartyMember, RuntimeEntityId.NewId(), party, registry,
+                new DefaultSkillCheckRule(registry, rulesDatabase), "Skill:Persuasion");
 
             Assert.AreEqual(1, checkers.Count);
             Assert.AreEqual(smoothTalker.Id, checkers[0]);
@@ -54,7 +56,7 @@ namespace CRPG.Tests.EditMode
             party.Select(b.Id);
 
             var checkers = DialogueCheckResolver.ResolveCheckers(
-                CheckPerformer.ActiveCharacter, RuntimeEntityId.NewId(), party, registry, rulesDatabase, "Skill:Persuasion");
+                CheckPerformer.ActiveCharacter, RuntimeEntityId.NewId(), party, registry, null, "Skill:Persuasion");
 
             Assert.AreEqual(1, checkers.Count);
             Assert.AreEqual(b.Id, checkers[0]);
@@ -69,7 +71,7 @@ namespace CRPG.Tests.EditMode
             var npc = RuntimeEntityId.NewId();
 
             var checkers = DialogueCheckResolver.ResolveCheckers(
-                CheckPerformer.SpecificSpeaker, npc, party, registry, rulesDatabase, "Skill:Persuasion");
+                CheckPerformer.SpecificSpeaker, npc, party, registry, null, "Skill:Persuasion");
 
             Assert.AreEqual(1, checkers.Count);
             Assert.AreEqual(npc, checkers[0]);
@@ -85,11 +87,23 @@ namespace CRPG.Tests.EditMode
             var party = new PartyState(new[] { a, b });
 
             var checkers = DialogueCheckResolver.ResolveCheckers(
-                CheckPerformer.EntireParty, RuntimeEntityId.NewId(), party, registry, rulesDatabase, "Skill:Persuasion");
+                CheckPerformer.EntireParty, RuntimeEntityId.NewId(), party, registry, null, "Skill:Persuasion");
 
             Assert.AreEqual(2, checkers.Count);
             Assert.AreEqual(a, checkers[0]);
             Assert.AreEqual(b, checkers[1]);
+        }
+
+        [Test]
+        public void BestPartyMemberWithNoSkillCheckRuleThrows()
+        {
+            var registry = new CharacterRegistry();
+            var member = new CharacterState(RuntimeEntityId.NewId());
+            registry.Register(member);
+            var party = new PartyState(new[] { member.Id });
+
+            Assert.Throws<System.InvalidOperationException>(() => DialogueCheckResolver.ResolveCheckers(
+                CheckPerformer.BestPartyMember, RuntimeEntityId.NewId(), party, registry, null, "Skill:Persuasion"));
         }
     }
 }

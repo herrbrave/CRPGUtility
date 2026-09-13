@@ -9,10 +9,11 @@ namespace CRPG.Dialogue
     public static class DialogueCheckResolver
     {
         /// <summary>Everyone who needs to roll for this performer policy. Every policy but EntireParty resolves
-        /// to exactly one roller.</summary>
+        /// to exactly one roller. Only BestPartyMember actually needs <paramref name="skillCheckRule"/> (to
+        /// compare each member's bonus); it may be null for every other policy.</summary>
         public static IReadOnlyList<RuntimeEntityId> ResolveCheckers(
             CheckPerformer performer, RuntimeEntityId npcId, PartyState party, ICharacterRegistry characters,
-            IRulesDatabase rulesDatabase, string queryKey)
+            ISkillCheckRule skillCheckRule, string queryKey)
         {
             switch (performer)
             {
@@ -24,7 +25,7 @@ namespace CRPG.Dialogue
                     return party.Members;
                 case CheckPerformer.BestPartyMember:
                 default:
-                    return new[] { ResolveBestPartyMember(party, characters, rulesDatabase, queryKey) };
+                    return new[] { ResolveBestPartyMember(party, characters, skillCheckRule, queryKey) };
             }
         }
 
@@ -42,9 +43,11 @@ namespace CRPG.Dialogue
         }
 
         private static RuntimeEntityId ResolveBestPartyMember(
-            PartyState party, ICharacterRegistry characters, IRulesDatabase rulesDatabase, string queryKey)
+            PartyState party, ICharacterRegistry characters, ISkillCheckRule skillCheckRule, string queryKey)
         {
-            var skillCheckRule = new DefaultSkillCheckRule(characters, rulesDatabase);
+            if (skillCheckRule == null)
+                throw new System.InvalidOperationException("CheckPerformer.BestPartyMember requires a SkillCheckRule.");
+
             var best = RuntimeEntityId.None;
             var bestModifier = int.MinValue;
 

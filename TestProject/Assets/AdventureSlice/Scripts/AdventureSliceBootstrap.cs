@@ -324,6 +324,7 @@ public sealed class AdventureSliceBootstrap : MonoBehaviour
     /// rest, for every TalkInteractionAdapter currently loaded, idempotently.</summary>
     private void WireTalkAdapters(GameSession session)
     {
+        var skillCheckRule = new CRPG.Rules.SRD5.DefaultSkillCheckRule(session.Characters, session.RulesDatabase);
         foreach (var adapter in FindObjectsByType<TalkInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             adapter.Party = session.Party;
@@ -333,6 +334,7 @@ public sealed class AdventureSliceBootstrap : MonoBehaviour
             adapter.Inventory = session.Inventory;
             adapter.DiceService = session.DiceService;
             adapter.CurrencyItemId = currencyItem != null ? currencyItem.Id : default;
+            adapter.SkillCheckRule = skillCheckRule;
         }
     }
 
