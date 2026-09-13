@@ -5,6 +5,8 @@ using CRPG.Gameplay;
 using CRPG.Inventory;
 using CRPG.Navigation;
 using CRPG.Presentation;
+using CRPG.Presentation.Animation;
+using CRPG.Presentation.Equipment;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -13,11 +15,12 @@ using UnityEngine.AI;
 //
 // Builds/updates the CharacterRoot/VisualRoot/Model wrapper (Docs/Design/Production-Foundation.md sec.4.1)
 // around the Universal Base Characters pack's Superhero_Male_FullBody.fbx -- not a pre-dressed outfit, since
-// clothing is equipment (see PeasantOutfitEquipmentAuthor): CharacterVisualEquipment instantiates and
-// bone-rebinds each equipped piece onto this body's own skeleton at runtime, verified to share the exact same
-// 65-bone rig across both packs via a live Editor query rather than assumed from file names. Reconfigures the
-// FBX from its default Generic rig to a Humanoid Avatar (so it can later share animation clips with e.g.
-// Universal Animation Library[Standard]).
+// clothing is equipment (see PeasantOutfitEquipmentAuthor): EquipmentVisualBinder instantiates and rebinds
+// each equipped piece's bones onto this body's own skeleton at runtime via an explicit, authored
+// RigBindingMap (Task 2.4) -- the two packs share the exact same 65-bone rig, verified via a live Editor
+// query rather than assumed from file names. Explicitly (re)configures the FBX as a Generic rig with a
+// Generic Avatar -- NOT Humanoid, corrected after a real visually-reproduced bug (see ConfigureGenericRig's
+// own remarks): a Humanoid avatar actively corrupts this system's raw Playables-based clip playback.
 //
 // Task 1.3: CharacterRoot (gameplay: collider/rigidbody/NavMeshAgent/NavMeshCharacterMotor/CharacterAgent/
 // CharacterVisualEquipment/CharacterPlayableAnimator) is now a separate GameObject from VisualRoot/Model (the
@@ -39,7 +42,7 @@ public static class BaseHumanMaleCharacterAuthor
     [MenuItem("CRPG Toolkit/Characters/Author Base Human Male Character")]
     public static void Author()
     {
-        if (!ConfigureHumanoidRig()) return;
+        if (!ConfigureGenericRig()) return;
 
         var model = AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath);
         if (model == null)
@@ -61,6 +64,9 @@ public static class BaseHumanMaleCharacterAuthor
         var modelInstance = (GameObject)PrefabUtility.InstantiatePrefab(model);
         modelInstance.name = "Model";
         modelInstance.transform.SetParent(visualRoot.transform, false);
+        // This pack's body and Generic clips face -Z. Normalize the art to CharacterRoot's
+        // +Z facing contract outside the animated skeleton; never reverse motion or clip playback.
+        modelInstance.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
 
         // CharacterView.Awake() runs the instant it's added to this already-active GameObject, and
         // auto-binds to whatever child it finds -- so Model must already be parented first.
@@ -110,9 +116,14 @@ public static class BaseHumanMaleCharacterAuthor
         rigidbody.useGravity = false;
         root.AddComponent<NavMeshAgent>();
         root.AddComponent<NavMeshCharacterMotor>();
+        // Task 2.5 discovery: FacingController (Task 2.1, "sole writer of Transform rotation") was never
+        // actually wired onto this real prefab -- only exercised via synthetic PlayMode fixtures. Added here
+        // so this fixture matches what CharacterWrapperBuilder now builds by default, and Gate A's
+        // interruption/turning inspection has a real, correctly-composed character to look at.
+        root.AddComponent<FacingController>();
 
         root.AddComponent<CharacterAgent>();
-        root.AddComponent<CharacterVisualEquipment>();
+        root.AddComponent<EquipmentVisualBinder>();
 
         var animator = root.AddComponent<CharacterPlayableAnimator>();
         if (existingProfile != null) SetField(animator, "profile", existingProfile);
@@ -127,12 +138,22 @@ public static class BaseHumanMaleCharacterAuthor
         return existingAnimator == null ? null : (CharacterAnimationProfile)GetField(existingAnimator, "profile");
     }
 
-    // Superhero_Male_FullBody.fbx ships with animationType: Generic (no bone-to-Humanoid mapping at all) --
-    // switching to Human + CreateFromThisModel asks Unity to auto-map bones by name. Verify it actually
-    // succeeded rather than trusting it silently: an unmapped skeleton still produces an Avatar asset, just
-    // one with isHuman == false, which would make every future animation-retargeting plan silently
-    // impossible without ever throwing an error.
-    private static bool ConfigureHumanoidRig()
+    // CORRECTED after a real, visually-reproduced bug (Phase 2 review follow-up, 2026-09-11 -- see
+    // Docs/Verification/Gate-A-Results.md's "visual defect" addendum): this used to configure a HUMANOID
+    // avatar here, on the theory that it would "let this character later share animation clips with e.g.
+    // Universal Animation Library[Standard]" via Humanoid retargeting. It never actually did that --
+    // CharacterAnimationAuthor's clips are imported as Generic (raw bone-path curves, not Humanoid muscle
+    // data), and PlayableCharacterAnimationDriver plays them via a raw AnimationClipPlayable -> Animator
+    // output with NO retargeting step at all; sharing works purely because both FBX packs happen to use an
+    // identical bone-path hierarchy (confirmed via a live Editor query), not because of Humanoid retargeting.
+    // Worse: a HUMANOID avatar actively corrupts this specific setup. Confirmed empirically with a live
+    // repro: a character bound this way collapsed into a wrong, ground-level pose within about a second of
+    // Play starting -- reproducible via Unity's own continuous graph evaluation but NOT via a one-shot manual
+    // Evaluate() call, and momentarily "fixed" by Animator.Rebind() only to immediately re-corrupt on the
+    // next frame. Removing the Humanoid avatar (Generic animation type instead) made the same character
+    // stand and idle correctly and stay stable. This is now Generic, matching what this animation system
+    // actually does (path-based curve application, no muscle-space retargeting anywhere).
+    private static bool ConfigureGenericRig()
     {
         var importer = AssetImporter.GetAtPath(ModelPath) as ModelImporter;
         if (importer == null)
@@ -141,18 +162,17 @@ public static class BaseHumanMaleCharacterAuthor
             return false;
         }
 
-        importer.animationType = ModelImporterAnimationType.Human;
+        importer.animationType = ModelImporterAnimationType.Generic;
         importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
         importer.SaveAndReimport();
 
         var avatar = AssetDatabase.LoadAssetAtPath<Avatar>(ModelPath);
-        if (avatar == null || !avatar.isValid || !avatar.isHuman)
+        if (avatar == null || !avatar.isValid)
         {
             Debug.LogError(
-                $"[BaseHumanMaleCharacterAuthor] Humanoid avatar mapping failed for {ModelPath} " +
-                $"(avatar={(avatar == null ? "null" : "non-null")}, isValid={avatar?.isValid}, isHuman={avatar?.isHuman}). " +
-                "This FBX's skeleton likely doesn't auto-map to Unity's Humanoid bone set -- open the " +
-                "model's Rig tab in the Inspector and configure the Avatar Mapper manually.");
+                $"[BaseHumanMaleCharacterAuthor] Generic avatar setup failed for {ModelPath} " +
+                $"(avatar={(avatar == null ? "null" : "non-null")}, isValid={avatar?.isValid}). " +
+                "Open the model's Rig tab in the Inspector and check its Avatar setup manually.");
             return false;
         }
 

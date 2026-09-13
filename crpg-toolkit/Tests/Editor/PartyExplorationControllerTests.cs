@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using CRPG.Core;
 using CRPG.Exploration;
+using CRPG.Gameplay;
 using CRPG.Navigation;
 using CRPG.Party;
 using NUnit.Framework;
@@ -14,9 +16,13 @@ namespace CRPG.Tests.EditMode
         {
             public event Action<SelectCommand> Select;
             public event Action<MoveCommand> Move;
+            public event Action<InteractCommand> Interact;
+            public event Action Cancel;
 
             public void RaiseSelect(SelectCommand command) => Select?.Invoke(command);
             public void RaiseMove(MoveCommand command) => Move?.Invoke(command);
+            public void RaiseInteract(InteractCommand command) => Interact?.Invoke(command);
+            public void RaiseCancel() => Cancel?.Invoke();
         }
 
         private sealed class FakeNavMeshService : INavMeshService
@@ -48,8 +54,26 @@ namespace CRPG.Tests.EditMode
             public MotionSnapshot Snapshot => MotionSnapshot.None;
         }
 
-        private static PartyExplorationController CreateController(PartyState party, FakeCommandSource commandSource) =>
-            new(party, new PartyMovementService(new FakeNavMeshService()), new LineFormationSolver(), commandSource);
+        private sealed class FakeSelectableSource : ISelectableSource
+        {
+            private readonly List<SelectableEntity> entities = new();
+
+            public void Add(RuntimeEntityId id, Vector3 position) => entities.Add(new SelectableEntity(id, position));
+
+            public IEnumerable<SelectableEntity> GetSelectables() => entities;
+        }
+
+        // Every party member gets a placeholder position (origin) so PartyMovementService's reachability
+        // check always has a known starting point for these tests -- none of them care about real distances,
+        // only whether movement was routed at all.
+        private static PartyExplorationController CreateController(PartyState party, FakeCommandSource commandSource)
+        {
+            var selectableSource = new FakeSelectableSource();
+            foreach (var member in party.Members) selectableSource.Add(member, Vector3.zero);
+
+            return new PartyExplorationController(
+                party, new PartyMovementService(new FakeNavMeshService(), selectableSource), new LineFormationSolver(), commandSource);
+        }
 
         [Test]
         public void MoveCommandSendsEachSelectedMemberToADistinctFormationPoint()

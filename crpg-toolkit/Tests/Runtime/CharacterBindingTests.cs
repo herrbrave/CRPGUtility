@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
+using CRPG.Presentation.Animation;
+using CRPG.Presentation.Equipment;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -12,7 +13,8 @@ using UnityEngine.TestTools;
 namespace CRPG.Tests.PlayMode
 {
     /// <summary>
-    /// Task 1.1 (Production Foundation): CharacterPlayableAnimator and CharacterVisualEquipment both subscribe
+    /// Task 1.1 (Production Foundation): CharacterPlayableAnimator and EquipmentVisualBinder (originally
+    /// CharacterVisualEquipment, migrated to CRPG.Presentation.Equipment in Task 2.4) both subscribe
     /// to an IGameEventBus in Initialize() with only destruction-time unsubscribe (see
     /// Docs/Design/Production-Foundation.md's repository-grounded-baseline gap table). Revised after code
     /// review to match the design's actual binding contract (Production-Foundation.md sec.4.2): rebinding the
@@ -228,27 +230,32 @@ namespace CRPG.Tests.PlayMode
             }
 
             [Test]
-            public void UnbindResetsBaselineAndTransientAnimationState()
+            public void UnbindResetsPresentationState()
             {
+                // Task 2.2: the baseline/transient fields this test used to poke via reflection now live in
+                // CharacterPresentationState (exposed publicly as animator.PresentationState) rather than as
+                // private fields on CharacterPlayableAnimator itself -- exercised directly here since
+                // PresentationState.RequestAction/SetStance don't need a bound AnimationProfile the way
+                // CharacterPlayableAnimator's own wrapper methods do.
                 var animator = CreateAnimator();
                 var bus = new RecordingGameEventBus();
                 animator.Initialize(RuntimeEntityId.NewId(), bus);
 
-                // Simulate a live explicit stance + in-flight transient, as a previous character's animation
-                // state would leave behind -- without needing a real AnimationProfile/AnimationClip fixture.
-                SetPrivateField(animator, "currentBaselineCueId", new DefinitionId("anim-combat-stance"));
-                SetPrivateField(animator, "baselineIsExplicit", true);
-                SetPrivateField(animator, "transientCueId", (DefinitionId?)new DefinitionId("anim-attack"));
+                // Simulate a live stance + in-flight action, as a previous character's animation state would
+                // leave behind if not cleared on a full identity unbind.
+                animator.PresentationState.SetStance(new DefinitionId("anim-combat-stance"));
+                var outcomes = new List<AnimationOutcome>();
+                animator.PresentationState.RequestAction(new DefinitionId("anim-attack"), outcome => outcomes.Add(outcome));
 
                 animator.Unbind();
 
-                Assert.AreEqual(default(DefinitionId), GetPrivateField(animator, "currentBaselineCueId"), "A rebind must not resume the previous character's explicit baseline.");
-                Assert.IsFalse((bool)GetPrivateField(animator, "baselineIsExplicit"));
-                Assert.IsNull(GetPrivateField(animator, "transientCueId"), "A rebind must not resume the previous character's in-flight transient.");
+                Assert.AreEqual(DefinitionId.None, animator.PresentationState.StanceId, "A rebind must not resume the previous character's stance.");
+                Assert.IsFalse(animator.PresentationState.IsActionActive, "A rebind must not resume the previous character's in-flight action.");
+                CollectionAssert.Contains(outcomes, AnimationOutcome.Cancelled, "The in-flight action must be cancelled, not silently dropped, when identity is unbound.");
             }
         }
 
-        public class VisualEquipmentSubscriptionTests
+        public class EquipmentVisualBinderSubscriptionTests
         {
             private GameObject go;
             private GameObject visualPrefab;
@@ -260,18 +267,42 @@ namespace CRPG.Tests.PlayMode
                 if (visualPrefab != null) UnityEngine.Object.DestroyImmediate(visualPrefab);
             }
 
-            private CharacterVisualEquipment CreateVisualEquipment()
+            private EquipmentVisualBinder CreateVisualBinder()
             {
                 go = new GameObject("TestCharacter");
-                return go.AddComponent<CharacterVisualEquipment>();
+                return go.AddComponent<EquipmentVisualBinder>();
             }
 
-            private static ItemDefinition CreateEquippableItem(string id, DefinitionId slotId, GameObject prefab)
+            // A Skinned profile with an EMPTY bone map is the equipment-visual equivalent of the bare
+            // "no-op" prefabs these subscription tests only care about instantiating/destroying -- zero bone
+            // paths means zero validation work and zero renderers touched, so it always succeeds regardless
+            // of what (if anything) the test character's own hierarchy looks like.
+            private static RigBindingMap CreateEmptyBoneMap(string id)
             {
+                var map = ScriptableObject.CreateInstance<RigBindingMap>();
+                SetPrivateField(map, "id", id);
+                SetPrivateField(map, "bonePaths", new List<RigBindingMap.BonePathEntry>());
+                return map;
+            }
+
+            private static ItemDefinition RegisterEquippableVisualItem(RulesDatabase rulesDatabase, string itemId, DefinitionId slotId, GameObject prefab)
+            {
+                var map = CreateEmptyBoneMap($"{itemId}-map");
+                var profile = ScriptableObject.CreateInstance<EquipmentVisualProfile>();
+                SetPrivateField(profile, "id", $"{itemId}-profile");
+                SetPrivateField(profile, "kind", EquipmentVisualKind.Skinned);
+                SetPrivateField(profile, "visualPrefab", prefab);
+                SetPrivateField(profile, "boneMap", map);
+                SetPrivateField(profile, "hiddenBodyRegions", new List<DefinitionId>());
+
                 var item = ScriptableObject.CreateInstance<ItemDefinition>();
-                SetPrivateField(item, "id", id);
+                SetPrivateField(item, "id", itemId);
                 SetPrivateField(item, "equipmentSlotId", slotId);
-                SetPrivateField(item, "visualPrefab", prefab);
+                SetPrivateField(item, "equipmentVisualProfileId", profile.Id);
+
+                rulesDatabase.Register(map);
+                rulesDatabase.Register(profile);
+                rulesDatabase.Register(item);
                 return item;
             }
 
@@ -286,10 +317,10 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void InitializeSubscribesToItemEquippedAndUnequippedExactlyOnce()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
                 var bus = new RecordingGameEventBus();
 
-                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), bus);
+                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new PartyInventoryState(), bus);
 
                 Assert.AreEqual(1, bus.NetSubscribers(GameEvent.ItemEquipped));
                 Assert.AreEqual(1, bus.NetSubscribers(GameEvent.ItemUnequipped));
@@ -300,10 +331,10 @@ namespace CRPG.Tests.PlayMode
             {
                 go = new GameObject("TestCharacter");
                 go.SetActive(false);
-                var equipment = go.AddComponent<CharacterVisualEquipment>();
+                var equipment = go.AddComponent<EquipmentVisualBinder>();
                 var bus = new RecordingGameEventBus();
 
-                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), bus);
+                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new PartyInventoryState(), bus);
                 Assert.AreEqual(0, bus.NetSubscribers(GameEvent.ItemEquipped), "An inactive GameObject must not subscribe yet.");
 
                 go.SetActive(true);
@@ -313,11 +344,11 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void InitializeOnADisabledComponentDefersSubscribingUntilEnabled()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
                 equipment.enabled = false;
                 var bus = new RecordingGameEventBus();
 
-                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), bus);
+                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new PartyInventoryState(), bus);
                 Assert.AreEqual(0, bus.NetSubscribers(GameEvent.ItemEquipped), "A disabled component must not subscribe yet.");
 
                 equipment.enabled = true;
@@ -327,13 +358,14 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void RepeatInitializeWithTheIdenticalBindingIsANoOp()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
                 var bus = new RecordingGameEventBus();
                 var rulesDatabase = new RulesDatabase();
+                var inventory = new PartyInventoryState();
                 var character = RuntimeEntityId.NewId();
 
-                equipment.Initialize(character, rulesDatabase, bus);
-                equipment.Initialize(character, rulesDatabase, bus); // identical tuple
+                equipment.Initialize(character, rulesDatabase, inventory, bus);
+                equipment.Initialize(character, rulesDatabase, inventory, bus); // identical tuple
 
                 Assert.AreEqual(1, bus.NetSubscribers(GameEvent.ItemEquipped));
                 Assert.AreEqual(1, bus.NetSubscribers(GameEvent.ItemUnequipped));
@@ -342,20 +374,21 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void RepeatInitializeWithTheIdenticalBindingPreservesAlreadyEquippedGear()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
+                equipment.RefreshBoneMap(null); // simulates CharacterView already having bound a (trivial) skeleton
                 var bus = new GameEventBus(); // the real bus -- this test needs actual Publish delivery
                 var rulesDatabase = new RulesDatabase();
+                var inventory = new PartyInventoryState();
                 var slotId = new DefinitionId("slot-test");
                 visualPrefab = new GameObject("VisualPrefab");
-                var item = CreateEquippableItem("item-test-visual-repeat-init", slotId, visualPrefab);
-                rulesDatabase.Register(item);
+                var item = RegisterEquippableVisualItem(rulesDatabase, "item-test-visual-repeat-init", slotId, visualPrefab);
                 var character = RuntimeEntityId.NewId();
 
-                equipment.Initialize(character, rulesDatabase, bus);
+                equipment.Initialize(character, rulesDatabase, inventory, bus);
                 bus.Publish(EquipContext(character, item.Id, slotId));
                 Assert.AreEqual(1, go.transform.childCount);
 
-                equipment.Initialize(character, rulesDatabase, bus); // identical tuple -- must be a true no-op
+                equipment.Initialize(character, rulesDatabase, inventory, bus); // identical tuple -- must be a true no-op
 
                 Assert.AreEqual(1, go.transform.childCount, "Repeating Initialize for the same binding must not destroy already-equipped gear.");
             }
@@ -363,20 +396,21 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void InitializeWithADifferentBindingWithoutUnbindingFirstThrows()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
+                equipment.RefreshBoneMap(null);
                 var bus = new GameEventBus(); // the real bus -- this test needs actual Publish delivery
                 var rulesDatabase = new RulesDatabase();
+                var inventory = new PartyInventoryState();
                 var slotId = new DefinitionId("slot-test");
                 visualPrefab = new GameObject("VisualPrefab");
-                var item = CreateEquippableItem("item-test-visual-throw", slotId, visualPrefab);
-                rulesDatabase.Register(item);
+                var item = RegisterEquippableVisualItem(rulesDatabase, "item-test-visual-throw", slotId, visualPrefab);
 
                 var characterA = RuntimeEntityId.NewId();
-                equipment.Initialize(characterA, rulesDatabase, bus);
+                equipment.Initialize(characterA, rulesDatabase, inventory, bus);
                 bus.Publish(EquipContext(characterA, item.Id, slotId));
                 Assert.AreEqual(1, go.transform.childCount);
 
-                Assert.Throws<InvalidOperationException>(() => equipment.Initialize(RuntimeEntityId.NewId(), rulesDatabase, bus));
+                Assert.Throws<InvalidOperationException>(() => equipment.Initialize(RuntimeEntityId.NewId(), rulesDatabase, inventory, bus));
 
                 Assert.AreEqual(1, go.transform.childCount, "The original binding's equipped visual must be untouched by the failed rebind attempt.");
             }
@@ -384,9 +418,9 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void DestroyingTheGameObjectUnsubscribes()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
                 var bus = new RecordingGameEventBus();
-                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), bus);
+                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new PartyInventoryState(), bus);
 
                 UnityEngine.Object.DestroyImmediate(go);
                 go = null;
@@ -399,12 +433,12 @@ namespace CRPG.Tests.PlayMode
             public void DisablingDoesNotUnsubscribeFromEquipmentEvents()
             {
                 // Deliberately different from the animator's policy (Task 1.1 code review, issue 4): missing
-                // an equip/unequip event while disabled would leave worn gear silently wrong once re-enabled,
-                // and full reconciliation-on-enable is Task 2.4 work. Interim policy: keep listening even
-                // while inactive/disabled, so equipment state never has a chance to drift.
-                var equipment = CreateVisualEquipment();
+                // an equip/unequip event while disabled would leave worn gear silently wrong once re-enabled.
+                // Interim policy: keep listening even while inactive/disabled, so equipment state never has a
+                // chance to drift.
+                var equipment = CreateVisualBinder();
                 var bus = new RecordingGameEventBus();
-                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), bus);
+                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new PartyInventoryState(), bus);
 
                 go.SetActive(false);
 
@@ -415,16 +449,17 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void DisablingThenReenablingDoesNotDestroyAlreadyEquippedVisuals()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
+                equipment.RefreshBoneMap(null);
                 var bus = new GameEventBus(); // the real bus -- this test needs actual Publish delivery
                 var rulesDatabase = new RulesDatabase();
+                var inventory = new PartyInventoryState();
                 var slotId = new DefinitionId("slot-test");
                 visualPrefab = new GameObject("VisualPrefab");
-                var item = CreateEquippableItem("item-test-visual-disable", slotId, visualPrefab);
-                rulesDatabase.Register(item);
+                var item = RegisterEquippableVisualItem(rulesDatabase, "item-test-visual-disable", slotId, visualPrefab);
 
                 var character = RuntimeEntityId.NewId();
-                equipment.Initialize(character, rulesDatabase, bus);
+                equipment.Initialize(character, rulesDatabase, inventory, bus);
                 bus.Publish(EquipContext(character, item.Id, slotId));
                 Assert.AreEqual(1, go.transform.childCount);
 
@@ -437,9 +472,9 @@ namespace CRPG.Tests.PlayMode
             [Test]
             public void UnbindThenDisableThenEnableLeavesTheComponentDetached()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
                 var bus = new RecordingGameEventBus();
-                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), bus);
+                equipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new PartyInventoryState(), bus);
 
                 equipment.Unbind();
                 go.SetActive(false);
@@ -449,24 +484,24 @@ namespace CRPG.Tests.PlayMode
                 Assert.AreEqual(0, bus.NetSubscribers(GameEvent.ItemUnequipped));
             }
 
-            // [UnityTest]/IEnumerator, not [Test]: CharacterVisualEquipment.Unbind() calls the real
+            // [UnityTest]/IEnumerator, not [Test]: EquipmentVisualBinder's RemoveVisual calls the real
             // UnityEngine.Object.Destroy (deliberately, not DestroyImmediate -- this is runtime gameplay
-            // code, and Destroy is what the rest of this file already uses in RemoveVisual), which defers
-            // actual removal to the end of the frame. A synchronous [Test] would observe the stale child
-            // still present immediately after Unbind() returns.
+            // code), which defers actual removal to the end of the frame. A synchronous [Test] would observe
+            // the stale child still present immediately after Unbind() returns.
             [UnityTest]
             public IEnumerator UnbindDestroysTheEquippedVisualThenAFreshInitializeBindsCleanly()
             {
-                var equipment = CreateVisualEquipment();
+                var equipment = CreateVisualBinder();
+                equipment.RefreshBoneMap(null);
                 var bus = new GameEventBus(); // the real bus -- this test needs actual Publish delivery
                 var rulesDatabase = new RulesDatabase();
+                var inventory = new PartyInventoryState();
                 var slotId = new DefinitionId("slot-test");
                 visualPrefab = new GameObject("VisualPrefab");
-                var item = CreateEquippableItem("item-test-visual-rebind", slotId, visualPrefab);
-                rulesDatabase.Register(item);
+                var item = RegisterEquippableVisualItem(rulesDatabase, "item-test-visual-rebind", slotId, visualPrefab);
 
                 var characterA = RuntimeEntityId.NewId();
-                equipment.Initialize(characterA, rulesDatabase, bus);
+                equipment.Initialize(characterA, rulesDatabase, inventory, bus);
                 bus.Publish(EquipContext(characterA, item.Id, slotId));
                 Assert.AreEqual(1, go.transform.childCount, "Equipping should have instantiated one visual.");
 
@@ -480,7 +515,7 @@ namespace CRPG.Tests.PlayMode
                 Assert.AreEqual(0, go.transform.childCount, "Unbind must release the previous character's equipped visual.");
 
                 var characterB = RuntimeEntityId.NewId();
-                Assert.DoesNotThrow(() => equipment.Initialize(characterB, rulesDatabase, bus));
+                Assert.DoesNotThrow(() => equipment.Initialize(characterB, rulesDatabase, inventory, bus));
             }
         }
     }

@@ -37,7 +37,9 @@ namespace CRPG.Tests.EditMode
         }
 
         public static QuestObjectiveDefinition CreateQuestObjective(
-            string id, string displayName, QuestObjectiveType type, string trackingKey, int targetCount = 1)
+            string id, string displayName, QuestObjectiveType type, string trackingKey, int targetCount = 1,
+            QuestObjectiveProgressMode progressMode = QuestObjectiveProgressMode.HistoricalCount,
+            TimelineConditionType conditionType = default, string secondTimelineKey = null, double threshold = 0)
         {
             var objective = new QuestObjectiveDefinition();
             SetPrivateField(objective, "id", id);
@@ -45,7 +47,19 @@ namespace CRPG.Tests.EditMode
             SetPrivateField(objective, "type", type);
             SetPrivateField(objective, "trackingKey", trackingKey);
             SetPrivateField(objective, "targetCount", targetCount);
+            SetPrivateField(objective, "progressMode", progressMode);
+            SetPrivateField(objective, "conditionType", conditionType);
+            SetPrivateField(objective, "secondTimelineKey", secondTimelineKey);
+            SetPrivateField(objective, "threshold", threshold);
             return objective;
+        }
+
+        public static QuestItemReward CreateQuestReward(ItemDefinition item, int quantity = 1)
+        {
+            var reward = new QuestItemReward();
+            SetPrivateField(reward, "item", item);
+            SetPrivateField(reward, "quantity", quantity);
+            return reward;
         }
 
         public static QuestDefinition CreateQuestDefinition(string id, string displayName, params QuestObjectiveDefinition[] objectives)
@@ -54,6 +68,13 @@ namespace CRPG.Tests.EditMode
             SetPrivateField(definition, "id", id);
             SetPrivateField(definition, "displayName", displayName);
             SetPrivateField(definition, "objectives", new List<QuestObjectiveDefinition>(objectives));
+            return definition;
+        }
+
+        public static QuestDefinition CreateQuestDefinitionWithRewards(string id, string displayName, QuestObjectiveDefinition[] objectives, params QuestItemReward[] rewards)
+        {
+            var definition = CreateQuestDefinition(id, displayName, objectives);
+            SetPrivateField(definition, "rewards", new List<QuestItemReward>(rewards));
             return definition;
         }
 

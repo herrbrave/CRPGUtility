@@ -19,6 +19,8 @@ namespace CRPG.Camera
         [SerializeField] private float snapRotationDegrees = 45f;
         [SerializeField] private bool enableEdgeScrolling;
         [SerializeField] private bool followSelection = true;
+        [SerializeField] private float followSmoothingSpeed = 8f;
+        [SerializeField] private float edgeScrollMarginPixels = 20f;
 
         public float PanSpeed => panSpeed;
         public float RotationSpeed => rotationSpeed;
@@ -32,5 +34,7 @@ namespace CRPG.Camera
         public float SnapRotationDegrees => snapRotationDegrees;
         public bool EnableEdgeScrolling => enableEdgeScrolling;
         public bool FollowSelection => followSelection;
+        public float FollowSmoothingSpeed => followSmoothingSpeed;
+        public float EdgeScrollMarginPixels => edgeScrollMarginPixels;
     }
 }

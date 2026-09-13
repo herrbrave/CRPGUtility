@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: DialogueDefinition_InteractionLabGreeting
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-interaction-lab-greeting
+  displayName: 
+  startNodeId:
+    low: -1965644479958760601
+    high: 4354524052503213889
+  nodes:
+  - rid: 4304780725480325164
+  - rid: 4304780725480325165
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304780725480325164
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -1965644479958760601
+          high: 4354524052503213889
+        editorPosition: {x: 0, y: 0}
+        speakerName: Wayfarer
+        text: Safe travels, friend -- the Interaction Lab greets you.
+        nextNodeId:
+          low: 6397027352653549145
+          high: 1404303076226499604
+    - rid: 4304780725480325165
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 6397027352653549145
+          high: 1404303076226499604
+        editorPosition: {x: 0, y: 0}

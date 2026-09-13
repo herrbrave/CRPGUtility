@@ -3,6 +3,7 @@ using CRPG.Actors;
 using CRPG.Camera;
 using CRPG.Core;
 using CRPG.Exploration;
+using CRPG.Gameplay;
 using CRPG.Inventory;
 using CRPG.Navigation;
 using CRPG.Party;
@@ -85,7 +86,12 @@ public sealed class OakhavenDemoBootstrap : MonoBehaviour
             var commandSource = gameObject.GetComponent<MouseClickCommandSource>();
             if (commandSource == null) commandSource = gameObject.AddComponent<MouseClickCommandSource>();
 
-            var movementService = new PartyMovementService(new NavMeshService());
+            // Oakhaven doesn't build a full GameSession/CharacterAgent for its single player character (this
+            // bootstrap deliberately composes lighter-weight pieces directly) -- CRPG.Gameplay.SceneSelectableSource
+            // needs a live CharacterAgent, so it doesn't apply here. This tiny local adapter reports the one
+            // character PartyMovementService actually needs to know about, matching the "not adopting the
+            // Gameplay/CharacterAgent stack here" scope this demo has already chosen.
+            var movementService = new PartyMovementService(new NavMeshService(), new SinglePlayerSelectableSource(fighter.Id, playerTransform));
             var explorationController = new PartyExplorationController(party, movementService, new ClusterFormationSolver(), commandSource);
             explorationController.RegisterMotor(fighter.Id, motor);
         }
@@ -94,11 +100,34 @@ public sealed class OakhavenDemoBootstrap : MonoBehaviour
         if (cameraRig != null && playerTransform != null) cameraRig.Rig.FocusOn(playerTransform.position);
     }
 
-    // IsometricCameraRig has no built-in follow behavior (CRPGCameraSettings.FollowSelection is a
-    // config flag nothing currently reads) -- the demo needs the camera to track the player itself.
+    // CRPG.Exploration.PartyCameraFollowBehaviour now exists (Task 3.2) and would be the correct replacement
+    // for this hard per-frame FocusOn -- deliberately NOT adopted here, matching this demo's existing "not
+    // investing further Gameplay/Exploration composition here" scope (it isn't built around GameSession/
+    // CharacterAgent/PartyState's fuller wiring either -- see SinglePlayerSelectableSource below). Left as-is
+    // rather than removed: this demo never calls Pan/FollowTarget/SnapTo, only FocusOn, so it doesn't
+    // conflict with anything Task 3.2 added to CameraRigState.
     private void Update()
     {
         if (cameraRig != null && playerTransform != null) cameraRig.Rig.FocusOn(playerTransform.position);
+    }
+
+    // Reports just the one character PartyMovementService needs a position for -- see the comment at its
+    // construction site for why this demo doesn't use CRPG.Gameplay.SceneSelectableSource.
+    private sealed class SinglePlayerSelectableSource : ISelectableSource
+    {
+        private readonly RuntimeEntityId id;
+        private readonly Transform transform;
+
+        public SinglePlayerSelectableSource(RuntimeEntityId id, Transform transform)
+        {
+            this.id = id;
+            this.transform = transform;
+        }
+
+        public System.Collections.Generic.IEnumerable<SelectableEntity> GetSelectables()
+        {
+            if (transform != null) yield return new SelectableEntity(id, transform.position);
+        }
     }
 
     private static CharacterState BuildFighter(IRulesDatabase rulesDatabase, FighterSampleContentBundle content)

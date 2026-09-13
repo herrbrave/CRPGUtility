@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using CRPG.Actors;
 using CRPG.Core;
+using CRPG.Presentation.Animation;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,12 +25,21 @@ public static class CharacterAnimationAuthor
     private const string StandardClipsPath =
         "Assets/ThirdPartyAssets/Universal Animation Library[Standard]/Universal Animation Library[Standard]/Unity/UAL1_Standard.fbx";
 
-    private static readonly (string CueId, string ClipName, float Crossfade, bool Loop)[] Cues =
+    // Task 2.3: reference speed (m/s) for continuous locomotion speed blending -- see
+    // AnimationCueClip.ReferenceSpeed and PlayableCharacterAnimationDriver's speed-blending remarks. 0 means
+    // "not a locomotion clip, don't blend." "Armature|Walk_Loop" is a non-root-motion clip (see the class
+    // comment) with no principled authored speed to measure, so it's calibrated against the prefab's own
+    // configured NavMeshAgent.speed (3.5, BaseHumanMaleCharacter.prefab) -- 1x playback at today's default
+    // configured walk speed, scaling proportionally if that ever changes. Re-author if the agent's configured
+    // speed changes materially.
+    private const float WalkReferenceSpeed = 3.5f;
+
+    private static readonly (string CueId, string ClipName, float Crossfade, bool Loop, float ReferenceSpeed)[] Cues =
     {
-        ("anim-idle", "Armature|Idle_Loop", 0.2f, true),
-        ("anim-moving", "Armature|Walk_Loop", 0.2f, true),
-        ("anim-attack-idle", "Armature|Sword_Idle", 0.25f, true),
-        ("anim-attack-melee", "Armature|Sword_Attack", 0.1f, false),
+        ("anim-idle", "Armature|Idle_Loop", 0.2f, true, 0f),
+        ("anim-moving", "Armature|Walk_Loop", 0.2f, true, WalkReferenceSpeed),
+        ("anim-attack-idle", "Armature|Sword_Idle", 0.25f, true, 0f),
+        ("anim-attack-melee", "Armature|Sword_Attack", 0.1f, false, 0f),
     };
 
     [MenuItem("CRPG Toolkit/Characters/Author Base Human Male Animations")]
@@ -65,6 +75,7 @@ public static class CharacterAnimationAuthor
             SetField(boxed, "clip", clip);
             SetField(boxed, "crossfadeDuration", cue.Crossfade);
             SetField(boxed, "loop", cue.Loop);
+            SetField(boxed, "referenceSpeed", cue.ReferenceSpeed);
             cueList.Add((AnimationCueClip)boxed);
         }
 

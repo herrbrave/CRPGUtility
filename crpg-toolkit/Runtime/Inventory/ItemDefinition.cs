@@ -21,7 +21,7 @@ namespace CRPG.Inventory
         [SerializeField] private DefinitionId equipmentSlotId;
         [SerializeField] private DefinitionId grantedAbilityId;
         [SerializeField] private DefinitionId equippedFeatureId;
-        [SerializeField] private GameObject visualPrefab;
+        [SerializeField] private DefinitionId equipmentVisualProfileId;
 
         public string DisplayName => displayName;
         public string Description => description;
@@ -40,10 +40,14 @@ namespace CRPG.Inventory
         /// this item has no passive effect while worn.</summary>
         public DefinitionId EquippedFeatureId => equippedFeatureId;
 
-        /// <summary>Instantiated onto the wearer's character prefab while this item is equipped (a modular
-        /// outfit piece, a weapon mesh, ...), then destroyed on unequip. None (the common case, e.g. most
-        /// consumables) means this item has no visual representation.</summary>
-        public GameObject VisualPrefab => visualPrefab;
+        /// <summary>Task 2.4: a bare <see cref="DefinitionId"/> tag for an
+        /// <c>CRPG.Presentation.Equipment.EquipmentVisualProfile</c> -- same "reference by id, not by direct
+        /// type" pattern as <see cref="GrantedAbilityId"/>/<see cref="EquippedFeatureId"/>, since Inventory
+        /// must never reference Presentation directly (Gameplay -&gt; Presentation -&gt; {Actors, Inventory,
+        /// Core}, never the reverse). None (the common case, e.g. most consumables) means this item has no
+        /// visual representation. Resolved through the same IRulesDatabase everything else uses, so this
+        /// assembly has no compile-time dependency on Presentation at all.</summary>
+        public DefinitionId EquipmentVisualProfileId => equipmentVisualProfileId;
 
         public bool IsEquippable => equipmentSlotId.IsValid;
         public bool IsStackable => maxStackSize > 1;

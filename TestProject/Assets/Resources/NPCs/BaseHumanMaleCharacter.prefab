@@ -13,8 +13,9 @@ GameObject:
   - component: {fileID: 5900146633709248957}
   - component: {fileID: 6837874781294520711}
   - component: {fileID: 5824704013658717150}
+  - component: {fileID: 9011818708749820923}
   - component: {fileID: 3345245899040985592}
-  - component: {fileID: 7020981884084298024}
+  - component: {fileID: 5784529549383863061}
   - component: {fileID: 7693189246506935675}
   m_Layer: 0
   m_Name: BaseHumanMaleCharacter
@@ -124,6 +125,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CRPG.Navigation::CRPG.Navigation.NavMeshCharacterMotor
   arrivalThreshold: 0.1
+--- !u!114 &9011818708749820923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4408389645287448237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ddcc41865aad3d4bb1b3e7274e14fc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CRPG.Gameplay::CRPG.Gameplay.FacingController
+  angularSpeedDegreesPerSecond: 360
+  facingCompletionToleranceDegrees: 1
+  movingVelocityThreshold: 0.1
 --- !u!114 &3345245899040985592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 548ea19f9a648c74da6e3f1029820274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CRPG.Gameplay::CRPG.Gameplay.CharacterAgent
---- !u!114 &7020981884084298024
+--- !u!114 &5784529549383863061
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,9 +161,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4408389645287448237}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8062bf7afd1319d4d885228cfa3946e2, type: 3}
+  m_Script: {fileID: 11500000, guid: cef8ec8309a0372469938e6053c3cc34, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CRPG.Inventory::CRPG.Inventory.CharacterVisualEquipment
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Equipment.EquipmentVisualBinder
 --- !u!114 &7693189246506935675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,13 +175,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ddedffeb2cbcb2340981d16b9fa32b26, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.CharacterPlayableAnimator
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Animation.CharacterPlayableAnimator
   profile: {fileID: 11400000, guid: a5043623ac6fd73419469aee072ed6a7, type: 2}
   idleCueId:
     value: anim-idle
   movingCueId:
     value: anim-moving
   movingSpeedThreshold: 0.1
+  movingStopSpeedThreshold: 0.05
 --- !u!1 &4708899969859199961
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,7 +251,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3a4812424886e534d82790a9ab1256a2, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: -0.00000004371139
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3a4812424886e534d82790a9ab1256a2, type: 3}
       propertyPath: m_LocalRotation.x
@@ -242,7 +259,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3a4812424886e534d82790a9ab1256a2, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3a4812424886e534d82790a9ab1256a2, type: 3}
       propertyPath: m_LocalRotation.z

@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Reflection;
 using CRPG.Inventory;
-using CRPG.Quests;
 using CRPG.Saving;
 using NUnit.Framework;
 
@@ -47,22 +46,10 @@ namespace CRPG.Tests.EditMode
                 "world/store persistence has been wired up. Replace this tripwire with a real round-trip test and remove this assertion.");
         }
 
-        [Test]
-        public void QuestObjectiveStateHasNoActivationCursorOrRewardClaimFieldYet()
-        {
-            // Docs/Design/State-Persistence-Matrix.md: Task 3.4 needs a since-activation cursor and a
-            // persisted reward-claim marker on the quest objective/quest state before its save-schema and
-            // "reload cannot duplicate reward" acceptance criteria are even representable. Confirms today's
-            // actual field set directly from the type rather than trusting the design doc's claim.
-            var objectiveProperties = typeof(QuestObjectiveState).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name).ToList();
-            CollectionAssert.AreEquivalent(new[] { "ObjectiveId", "CurrentCount", "IsComplete" }, objectiveProperties,
-                "QuestObjectiveState's field set changed -- if an activation cursor and/or reward-claim marker were added, " +
-                "replace this tripwire with a real save round-trip test for them and remove this assertion.");
-
-            var questProperties = typeof(QuestState).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name).ToList();
-            Assert.IsFalse(questProperties.Any(n => n.Contains("Claim") || n.Contains("Reward")),
-                "QuestState now has a reward-claim-related member -- replace this tripwire with a real test covering " +
-                "'reload cannot duplicate reward' and remove this assertion.");
-        }
+        // Task 3.4 closed this gap: QuestObjectiveState now has ActivationCursor, QuestState now has
+        // RewardClaimed, and both round-trip through SaveService (see SaveServiceTests'
+        // RestoringCapturedQuestsReproducesActivationCursorAndRewardClaimed). Per this class's own docstring,
+        // the tripwire that used to guard this gap (QuestObjectiveStateHasNoActivationCursorOrRewardClaimFieldYet)
+        // is deleted rather than loosened now that the real test exists.
     }
 }

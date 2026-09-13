@@ -1,4 +1,6 @@
+using System.Linq;
 using CRPG.Core;
+using CRPG.Inventory;
 using CRPG.Quests;
 using CRPG.Rules;
 using NUnit.Framework;
@@ -145,6 +147,131 @@ namespace CRPG.Tests.EditMode
 
             Assert.DoesNotThrow(() => service.RefreshProgress(quest));
             Assert.IsFalse(log.TryGetQuest(quest.Id, out _));
+        }
+
+        [Test]
+        public void CountSinceActivationIgnoresOccurrencesRecordedBeforeTheQuestStarted()
+        {
+            timeline.Record("kill-wolf", TimelineValue.Flag); // pre-existing history, before the quest exists
+            var quest = RegisterQuest(TestDefinitionFactory.CreateQuestObjective(
+                "kill-wolves", "Kill 2 Wolves", QuestObjectiveType.Kill, "kill-wolf", 2,
+                progressMode: QuestObjectiveProgressMode.CountSinceActivation));
+            var state = service.StartQuest(quest);
+
+            timeline.Record("kill-wolf", TimelineValue.Flag); // only this one counts
+            service.RefreshProgress(quest);
+            state.TryGetObjective("kill-wolves", out var objective);
+
+            Assert.AreEqual(1, objective.CurrentCount);
+            Assert.IsFalse(objective.IsComplete);
+
+            timeline.Record("kill-wolf", TimelineValue.Flag);
+            service.RefreshProgress(quest);
+            state.TryGetObjective("kill-wolves", out objective);
+
+            Assert.AreEqual(2, objective.CurrentCount);
+            Assert.IsTrue(objective.IsComplete);
+        }
+
+        [Test]
+        public void HistoricalCountStillCountsOccurrencesFromBeforeActivationUnlikeCountSinceActivation()
+        {
+            timeline.Record("kill-wolf", TimelineValue.Flag); // pre-existing history
+            var quest = RegisterQuest(TestDefinitionFactory.CreateQuestObjective(
+                "kill-wolves", "Kill 1 Wolf", QuestObjectiveType.Kill, "kill-wolf", 1)); // default HistoricalCount
+            var state = service.StartQuest(quest);
+
+            service.RefreshProgress(quest); // no NEW occurrence needed -- history alone already satisfies it
+
+            state.TryGetObjective("kill-wolves", out var objective);
+            Assert.IsTrue(objective.IsComplete);
+        }
+
+        [Test]
+        public void CurrentStatePredicateCompletesBasedOnLiveTimelineStateNotACount()
+        {
+            var quest = RegisterQuest(TestDefinitionFactory.CreateQuestObjective(
+                "flagged", "Something Happened", QuestObjectiveType.Custom, "world-event", targetCount: 0,
+                progressMode: QuestObjectiveProgressMode.CurrentStatePredicate, conditionType: TimelineConditionType.HasOccurred));
+            var state = service.StartQuest(quest);
+
+            service.RefreshProgress(quest);
+            state.TryGetObjective("flagged", out var beforeObjective);
+            Assert.IsFalse(beforeObjective.IsComplete);
+
+            timeline.Record("world-event", TimelineValue.Flag);
+            service.RefreshProgress(quest);
+            state.TryGetObjective("flagged", out var afterObjective);
+
+            Assert.IsTrue(afterObjective.IsComplete);
+            Assert.AreEqual(QuestStatus.Completed, state.Status);
+        }
+
+        [Test]
+        public void QuestStartedAndCompletedEventsCarryTheQuestId()
+        {
+            var quest = RegisterQuest(TestDefinitionFactory.CreateQuestObjective("obj", "Objective", QuestObjectiveType.Custom, "custom-key", 1));
+            GameEventContext startedEvent = null, completedEvent = null, objectiveEvent = null;
+            eventBus.Subscribe(GameEvent.QuestStarted, e => startedEvent = e);
+            eventBus.Subscribe(GameEvent.QuestCompleted, e => completedEvent = e);
+            eventBus.Subscribe(GameEvent.QuestObjectiveCompleted, e => objectiveEvent = e);
+
+            service.StartQuest(quest);
+            timeline.Record("custom-key", TimelineValue.Flag);
+            service.RefreshProgress(quest);
+
+            Assert.AreEqual(quest.Id.Value, startedEvent.Data["QuestId"]);
+            Assert.AreEqual(quest.Id.Value, completedEvent.Data["QuestId"]);
+            Assert.AreEqual(quest.Id.Value, objectiveEvent.Data["QuestId"]);
+            Assert.AreEqual("obj", objectiveEvent.Data["ObjectiveId"]);
+        }
+
+        [Test]
+        public void CompletingAQuestGrantsItsRewardsExactlyOnceAcrossTwoRefreshCalls()
+        {
+            var inventory = new PartyInventoryState();
+            var reward = TestDefinitionFactory.CreateItemDefinition("item-gem", "Gem");
+            rulesDatabase.Register(reward);
+            var quest = TestDefinitionFactory.CreateQuestDefinitionWithRewards(
+                "quest-reward", "Reward Quest",
+                new[] { TestDefinitionFactory.CreateQuestObjective("obj", "Objective", QuestObjectiveType.Custom, "custom-key", 1) },
+                TestDefinitionFactory.CreateQuestReward(reward, quantity: 2));
+            rulesDatabase.Register(quest);
+            var rewardingService = new QuestService(log, timeline, eventBus, inventory);
+            var state = rewardingService.StartQuest(quest);
+
+            timeline.Record("custom-key", TimelineValue.Flag);
+            rewardingService.RefreshProgress(quest);
+            rewardingService.RefreshProgress(quest); // already Completed -- must not grant a second time
+
+            Assert.IsTrue(state.RewardClaimed);
+            var granted = inventory.AllItems.Where(i => i.DefinitionId == reward.Id).ToList();
+            Assert.AreEqual(1, granted.Count);
+            Assert.AreEqual(2, granted[0].Quantity);
+        }
+
+        [Test]
+        public void RewardIsNotDoubleGrantedAfterASimulatedReload()
+        {
+            // Simulates SaveService.RestoreQuests: a QuestState is reconstructed directly with Status already
+            // Completed and RewardClaimed already true, bypassing StartQuest/RefreshProgress entirely.
+            var inventory = new PartyInventoryState();
+            var reward = TestDefinitionFactory.CreateItemDefinition("item-gem", "Gem");
+            rulesDatabase.Register(reward);
+            var quest = TestDefinitionFactory.CreateQuestDefinitionWithRewards(
+                "quest-reward", "Reward Quest",
+                new[] { TestDefinitionFactory.CreateQuestObjective("obj", "Objective", QuestObjectiveType.Custom, "custom-key", 1) },
+                TestDefinitionFactory.CreateQuestReward(reward, quantity: 2));
+            rulesDatabase.Register(quest);
+
+            var reloadedQuest = new QuestState(quest.Id) { Status = QuestStatus.Completed, RewardClaimed = true };
+            reloadedQuest.AddObjective(new QuestObjectiveState("obj") { IsComplete = true });
+            log.Add(reloadedQuest);
+
+            var rewardingService = new QuestService(log, timeline, eventBus, inventory);
+            rewardingService.RefreshProgress(quest); // Status != Active guard makes this a no-op regardless
+
+            Assert.IsEmpty(inventory.AllItems.Where(i => i.DefinitionId == reward.Id));
         }
     }
 }

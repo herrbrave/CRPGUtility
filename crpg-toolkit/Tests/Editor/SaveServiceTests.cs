@@ -162,6 +162,21 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void RestoringCapturedQuestsReproducesActivationCursorAndRewardClaimed()
+        {
+            var (party, characters, inventory, timeline, log, _) = BuildLiveState();
+            var data = SaveService.Capture(party, characters, inventory, timeline, log);
+
+            var newLog = new QuestLog();
+            SaveService.Restore(data, new PartyState(), new CharacterRegistry(), new PartyInventoryState(), new Timeline(), newLog);
+
+            Assert.IsTrue(newLog.TryGetQuest(new DefinitionId("quest-elder"), out var quest));
+            Assert.IsTrue(quest.RewardClaimed, "BuildLiveState's quest completes via RefreshProgress, which claims the reward step even with no authored Rewards.");
+            Assert.IsTrue(quest.TryGetObjective("talk", out var objective));
+            Assert.AreEqual(3, objective.ActivationCursor, "BuildLiveState records 3 Timeline events (met-grimjaw, guild-reputation, coronation) before starting the quest.");
+        }
+
+        [Test]
         public void ToJsonThenFromJsonRoundTripsThroughTextWithoutLosingData()
         {
             var (party, characters, inventory, timeline, log, fighterId) = BuildLiveState();

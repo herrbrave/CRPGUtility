@@ -1,7 +1,7 @@
 {
     "name": "CRPG.Quests",
     "rootNamespace": "CRPG.Quests",
-    "references": ["CRPG.Core", "CRPG.Rules"],
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Inventory"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

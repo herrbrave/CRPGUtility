@@ -22,7 +22,8 @@ namespace CRPG.Dialogue
             PartyInventoryState partyInventory,
             IDiceService diceService,
             ICombatLog combatLog = null,
-            StoreInventoryState store = null)
+            StoreInventoryState store = null,
+            DefinitionId currencyItemId = default)
         {
             NpcId = npcId;
             Party = party;
@@ -33,6 +34,7 @@ namespace CRPG.Dialogue
             DiceService = diceService;
             CombatLog = combatLog;
             Store = store;
+            CurrencyItemId = currencyItemId;
         }
 
         public RuntimeEntityId NpcId { get; }
@@ -47,10 +49,23 @@ namespace CRPG.Dialogue
         /// <summary>The shop this NPC runs, if any -- null for an NPC that doesn't sell anything.</summary>
         public StoreInventoryState Store { get; }
 
-        /// <summary>Set by OpenStoreAction. The host reads this after driving the runner (same pattern as
-        /// checking CurrentNode/IsComplete) to know it should show the store screen for Store.</summary>
-        public bool StoreOpenRequested { get; private set; }
+        /// <summary>Which authored ItemDefinition this game treats as currency -- needed to build a StoreService
+        /// for the conversation's store handoff. Only meaningful when Store is non-null; left DefinitionId.None
+        /// (default) for an NPC that doesn't sell anything.</summary>
+        public DefinitionId CurrencyItemId { get; }
 
-        public void RequestOpenStore() => StoreOpenRequested = true;
+        private bool storeOpenRequested;
+
+        public void RequestOpenStore() => storeOpenRequested = true;
+
+        /// <summary>Consume-once: returns true exactly once per RequestOpenStore() call, clearing the flag so a
+        /// caller driving the runner in a loop (ConversationController) reacts to each store request exactly
+        /// once instead of re-triggering on every subsequent check.</summary>
+        public bool ConsumeStoreOpenRequest()
+        {
+            if (!storeOpenRequested) return false;
+            storeOpenRequested = false;
+            return true;
+        }
     }
 }

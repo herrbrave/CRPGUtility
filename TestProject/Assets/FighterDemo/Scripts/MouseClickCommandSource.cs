@@ -14,6 +14,8 @@ public sealed class MouseClickCommandSource : MonoBehaviour, IPlayerCommandSourc
 
     public event Action<SelectCommand> Select;
     public event Action<MoveCommand> Move;
+    public event Action<InteractCommand> Interact;
+    public event Action Cancel;
 
     private void Update()
     {

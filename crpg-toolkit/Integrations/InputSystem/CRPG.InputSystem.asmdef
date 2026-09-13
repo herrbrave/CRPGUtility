@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.InputSystem",
+    "rootNamespace": "CRPG.InputSystem",
+    "references": ["CRPG.Core", "CRPG.Gameplay", "CRPG.UI", "CRPG.Camera", "Unity.InputSystem"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

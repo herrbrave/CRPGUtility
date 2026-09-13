@@ -1,6 +1,6 @@
 using System;
-using CRPG.Actors;
-using CRPG.Inventory;
+using CRPG.Presentation.Animation;
+using CRPG.Presentation.Equipment;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,7 +9,7 @@ namespace CRPG.Presentation
     /// <summary>
     /// Lives on VisualRoot and manages the replaceable art child ("Model") beneath it -- the art-independent
     /// wrapper Docs/Design/Production-Foundation.md sec.4.1 describes. Rebinds the rig-dependent parts of
-    /// <see cref="CharacterPlayableAnimator"/>/<see cref="CharacterVisualEquipment"/> (which stay on
+    /// <see cref="CharacterPlayableAnimator"/>/<see cref="Equipment.EquipmentVisualBinder"/> (which stay on
     /// CharacterRoot, not here -- they're gameplay-adjacent per-character-instance scripts, not replaceable
     /// art) whenever Model changes, without ever touching CharacterRoot's NavMeshAgent/collider/rigidbody or
     /// the character's entity/session identity.
@@ -22,12 +22,13 @@ namespace CRPG.Presentation
     [DisallowMultipleComponent]
     public sealed class CharacterView : MonoBehaviour
     {
-        [Tooltip("Optional -- identifies which skeleton family this wrapper's Model(s) belong to. Not yet " +
-                 "validated against by anything (Task 2.4).")]
+        [Tooltip("Optional -- identifies which skeleton family this wrapper's Model(s) belong to. Passed to " +
+                 "EquipmentVisualBinder for Skinned-profile rig-family validation (Task 2.4); a Skinned " +
+                 "profile with no rig family authored on either side simply skips the check.")]
         [SerializeField] private CharacterRigDefinition rigDefinition;
 
         private CharacterPlayableAnimator playableAnimator;
-        private CharacterVisualEquipment visualEquipment;
+        private EquipmentVisualBinder visualEquipment;
         private NavMeshAgent motionSource;
 
         public GameObject Model { get; private set; }
@@ -37,7 +38,7 @@ namespace CRPG.Presentation
         private void Awake()
         {
             playableAnimator = GetComponentInParent<CharacterPlayableAnimator>();
-            visualEquipment = GetComponentInParent<CharacterVisualEquipment>();
+            visualEquipment = GetComponentInParent<EquipmentVisualBinder>();
             motionSource = GetComponentInParent<NavMeshAgent>();
 
             TryBindInitialModel();
@@ -62,7 +63,7 @@ namespace CRPG.Presentation
 
         /// <summary>Replaces the current Model with a freshly-instantiated copy of <paramref name="modelPrefab"/>,
         /// destroying the old one and rebinding CharacterPlayableAnimator's Animator/motion-provider reference
-        /// and CharacterVisualEquipment's bone map to the new skeleton. Only Model changes -- CharacterRoot's
+        /// and EquipmentVisualBinder's bone map to the new skeleton. Only Model changes -- CharacterRoot's
         /// gameplay components and the character's identity are never touched, and no second
         /// motor/Animator/physics writer is created (CharacterRoot's NavMeshAgent/collider/rigidbody are
         /// untouched; the old Model's Animator/PlayableGraph is torn down before the new one is bound).</summary>
@@ -85,7 +86,7 @@ namespace CRPG.Presentation
             Animator = model.GetComponentInChildren<Animator>(true);
 
             if (Animator != null) playableAnimator?.BindPresentation(Animator, motionSource);
-            visualEquipment?.RefreshBoneMap();
+            visualEquipment?.RefreshBoneMap(rigDefinition);
         }
     }
 }

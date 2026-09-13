@@ -34,6 +34,14 @@ namespace CRPG.UI
             Refresh();
         }
 
+        // Task 3.1: registers with the shared pointer-capture provider so a world click landing on this
+        // panel's own UI Toolkit elements is correctly suppressed rather than falling through to a Move/Select
+        // command. Uses GetComponent directly (not the `document` field) since OnEnable can run before an
+        // external Initialize() call sets it.
+        private void OnEnable() => UIToolkitPointerCapture.Register(GetComponent<UIDocument>());
+
+        private void OnDisable() => UIToolkitPointerCapture.Unregister(GetComponent<UIDocument>());
+
         private void BuildLayout()
         {
             root = document.rootVisualElement;

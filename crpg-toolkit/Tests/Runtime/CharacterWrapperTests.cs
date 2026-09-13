@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
-using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Inventory;
 using CRPG.Presentation;
+using CRPG.Presentation.Animation;
+using CRPG.Presentation.Equipment;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
@@ -17,7 +19,7 @@ namespace CRPG.Tests.PlayMode
     /// <summary>
     /// Task 1.3 (Production Foundation): the art-independent wrapper (Docs/Design/Production-Foundation.md
     /// sec.4.1) -- CharacterRoot (gameplay: CharacterAgent/NavMeshAgent/CharacterPlayableAnimator/
-    /// CharacterVisualEquipment) versus VisualRoot/Model (replaceable art, managed by CharacterView).
+    /// EquipmentVisualBinder) versus VisualRoot/Model (replaceable art, managed by CharacterView).
     /// Acceptance from the implementation plan: replacing only Model must leave movement/selection identity
     /// valid and never duplicate a motor/Animator/physics writer.
     /// </summary>
@@ -53,14 +55,14 @@ namespace CRPG.Tests.PlayMode
 
         /// <summary>Builds CharacterRoot/VisualRoot/Model with an already-authored Model child, matching how
         /// BaseHumanMaleCharacter.prefab is migrated -- CharacterView's Awake() auto-binds to it.</summary>
-        private (CharacterAgent agent, CharacterPlayableAnimator animator, CharacterVisualEquipment equipment, CharacterView view, GameObject model)
+        private (CharacterAgent agent, CharacterPlayableAnimator animator, EquipmentVisualBinder equipment, CharacterView view, GameObject model)
             CreateCharacterRootWithModel()
         {
             go = new GameObject("CharacterRoot");
             go.AddComponent<NavMeshAgent>();
             var agent = go.AddComponent<CharacterAgent>();
             var animator = go.AddComponent<CharacterPlayableAnimator>();
-            var equipment = go.AddComponent<CharacterVisualEquipment>();
+            var equipment = go.AddComponent<EquipmentVisualBinder>();
 
             var visualRoot = new GameObject("VisualRoot");
             visualRoot.transform.SetParent(go.transform, false);
@@ -88,8 +90,7 @@ namespace CRPG.Tests.PlayMode
         {
             var (_, animator, _, _, _) = CreateCharacterRootWithModel();
 
-            // Indirect proof: BindPresentation creates a live PlayableGraph; nothing else does.
-            Assert.IsTrue(((PlayableGraph)GetPrivateField(animator, "graph")).IsValid());
+            Assert.IsTrue(animator.IsPresentationBound);
         }
 
         [Test]
@@ -227,23 +228,27 @@ namespace CRPG.Tests.PlayMode
 
                 animator.BindPresentation(modelGo.GetComponent<Animator>(), null);
 
-                Assert.IsTrue(((PlayableGraph)GetPrivateField(animator, "graph")).IsValid());
+                Assert.IsTrue(animator.IsPresentationBound);
             }
 
             [Test]
-            public void RebindingToADifferentAnimatorDestroysThePreviousGraph()
+            public void RebindingToADifferentAnimatorStillLeavesExactlyOneLiveGraph()
             {
+                // The actual graph-object lifecycle (is the PREVIOUS graph specifically destroyed, not just
+                // superseded) is covered directly against PlayableCharacterAnimationDriver in
+                // PlayableCharacterAnimationDriverTests.RebindingToADifferentAnimatorDestroysThePreviousGraph
+                // -- CharacterPlayableAnimator no longer owns a graph field to reflect into (Task 2.2), so
+                // this level only re-confirms the public, black-box contract: still bound, no exception, and
+                // (via BindPresentationDoesNotThrowWhenCalledTwiceInARow-style coverage) no duplicate Animator
+                // output left driving the old Model.
                 var animator = CreateAnimator();
                 modelGo = CreateModel("ModelA");
                 var modelB = CreateModel("ModelB");
 
                 animator.BindPresentation(modelGo.GetComponent<Animator>(), null);
-                var firstGraph = (PlayableGraph)GetPrivateField(animator, "graph");
+                Assert.DoesNotThrow(() => animator.BindPresentation(modelB.GetComponent<Animator>(), null));
 
-                animator.BindPresentation(modelB.GetComponent<Animator>(), null);
-
-                Assert.IsFalse(firstGraph.IsValid(), "The previous graph must be destroyed, not leaked, when rebinding to a new Animator.");
-                Assert.IsTrue(((PlayableGraph)GetPrivateField(animator, "graph")).IsValid());
+                Assert.IsTrue(animator.IsPresentationBound);
                 UnityEngine.Object.DestroyImmediate(modelB);
             }
 
@@ -256,11 +261,100 @@ namespace CRPG.Tests.PlayMode
 
                 animator.UnbindPresentation();
                 Assert.DoesNotThrow(() => animator.UnbindPresentation());
-                Assert.IsFalse(((PlayableGraph)GetPrivateField(animator, "graph")).IsValid());
+                Assert.IsFalse(animator.IsPresentationBound);
             }
         }
 
-        public class CharacterVisualEquipmentRefreshBoneMapTests
+        /// <summary>Task 2.2: the actual PlayableGraph/mixer/port lifecycle now lives entirely in
+        /// PlayableCharacterAnimationDriver, a plain C# class -- testable directly (still needs a real
+        /// Animator component to bind against, so PlayMode, but no GameObject/MonoBehaviour host of its own
+        /// required) rather than only indirectly through CharacterPlayableAnimator's black-box IsPresentationBound.</summary>
+        public class PlayableCharacterAnimationDriverTests
+        {
+            private GameObject modelGo;
+            private GameObject modelGoB;
+
+            [TearDown]
+            public void TearDown()
+            {
+                if (modelGo != null) UnityEngine.Object.DestroyImmediate(modelGo);
+                if (modelGoB != null) UnityEngine.Object.DestroyImmediate(modelGoB);
+            }
+
+            [Test]
+            public void BindCreatesAValidGraph()
+            {
+                modelGo = CreateModel("Model");
+                var driver = new PlayableCharacterAnimationDriver();
+
+                driver.Bind(modelGo.GetComponent<Animator>());
+
+                Assert.IsTrue(driver.IsBound);
+            }
+
+            [Test]
+            public void BindThrowsWhenAnimatorIsNull()
+            {
+                var driver = new PlayableCharacterAnimationDriver();
+                Assert.Throws<ArgumentNullException>(() => driver.Bind(null));
+            }
+
+            [Test]
+            public void RebindingToADifferentAnimatorDestroysThePreviousGraph()
+            {
+                modelGo = CreateModel("ModelA");
+                modelGoB = CreateModel("ModelB");
+                var driver = new PlayableCharacterAnimationDriver();
+
+                driver.Bind(modelGo.GetComponent<Animator>());
+                var firstGraph = (PlayableGraph)GetPrivateField(driver, "graph");
+
+                driver.Bind(modelGoB.GetComponent<Animator>());
+
+                Assert.IsFalse(firstGraph.IsValid(), "The previous graph must be destroyed, not leaked, when rebinding to a new Animator.");
+                Assert.IsTrue(driver.IsBound);
+            }
+
+            [Test]
+            public void UnbindIsIdempotent()
+            {
+                modelGo = CreateModel("Model");
+                var driver = new PlayableCharacterAnimationDriver();
+                driver.Bind(modelGo.GetComponent<Animator>());
+
+                driver.Unbind();
+                Assert.DoesNotThrow(() => driver.Unbind());
+                Assert.IsFalse(driver.IsBound);
+            }
+
+            [Test]
+            public void TickDoesNotThrowBeforeAnyBind()
+            {
+                var driver = new PlayableCharacterAnimationDriver();
+                Assert.DoesNotThrow(() => driver.Tick(0.016f));
+            }
+
+            [Test]
+            public void PlayOnceWithAMissingClipCompletesImmediately()
+            {
+                modelGo = CreateModel("Model");
+                var driver = new PlayableCharacterAnimationDriver();
+                driver.Bind(modelGo.GetComponent<Animator>());
+
+                var completedCount = 0;
+                driver.PlayOnce(null, () => completedCount++);
+
+                Assert.AreEqual(1, completedCount, "Missing art must not soft-lock the caller -- design sec.4.4.");
+            }
+        }
+
+        /// <summary>Task 2.4: renamed from CharacterVisualEquipmentRefreshBoneMapTests -- the migrated
+        /// EquipmentVisualBinder's RefreshBoneMap(CharacterRigDefinition) now also performs the "initial full
+        /// reconciliation from inventory on bind/load" design sec.4.5 calls for; the full
+        /// Rigid/Skinned/hiding-region test matrix lives in the new Tests/Runtime/EquipmentVisualBindingTests.cs
+        /// instead of here -- this class keeps just the two RefreshBoneMap-specific scenarios that were
+        /// already here.</summary>
+        public class EquipmentVisualBinderRefreshBoneMapTests
         {
             private GameObject characterGo;
             private GameObject visualPrefab;
@@ -285,12 +379,27 @@ namespace CRPG.Tests.PlayMode
                 throw new Exception($"Field '{fieldName}' not found on {target.GetType().Name} or its base types.");
             }
 
-            private static ItemDefinition CreateEquippableItem(string id, DefinitionId slotId, GameObject prefab)
+            private static ItemDefinition RegisterEquippableVisualItem(RulesDatabase rulesDatabase, string itemId, DefinitionId slotId, GameObject prefab)
             {
+                var map = ScriptableObject.CreateInstance<RigBindingMap>();
+                SetPrivateField(map, "id", $"{itemId}-map");
+                SetPrivateField(map, "bonePaths", new List<RigBindingMap.BonePathEntry>());
+
+                var profile = ScriptableObject.CreateInstance<EquipmentVisualProfile>();
+                SetPrivateField(profile, "id", $"{itemId}-profile");
+                SetPrivateField(profile, "kind", EquipmentVisualKind.Skinned);
+                SetPrivateField(profile, "visualPrefab", prefab);
+                SetPrivateField(profile, "boneMap", map);
+                SetPrivateField(profile, "hiddenBodyRegions", new List<DefinitionId>());
+
                 var item = ScriptableObject.CreateInstance<ItemDefinition>();
-                SetPrivateField(item, "id", id);
+                SetPrivateField(item, "id", itemId);
                 SetPrivateField(item, "equipmentSlotId", slotId);
-                SetPrivateField(item, "visualPrefab", prefab);
+                SetPrivateField(item, "equipmentVisualProfileId", profile.Id);
+
+                rulesDatabase.Register(map);
+                rulesDatabase.Register(profile);
+                rulesDatabase.Register(item);
                 return item;
             }
 
@@ -306,20 +415,20 @@ namespace CRPG.Tests.PlayMode
             public IEnumerator RefreshBoneMapDestroysStaleEquippedVisuals()
             {
                 characterGo = new GameObject("CharacterRoot");
-                var equipment = characterGo.AddComponent<CharacterVisualEquipment>();
+                var equipment = characterGo.AddComponent<EquipmentVisualBinder>();
+                equipment.RefreshBoneMap(null); // simulates CharacterView already having bound a (trivial) skeleton
                 var bus = new GameEventBus();
                 var rulesDatabase = new RulesDatabase();
                 var slotId = new DefinitionId("slot-test");
                 visualPrefab = new GameObject("VisualPrefab");
-                var item = CreateEquippableItem("item-refresh-test", slotId, visualPrefab);
-                rulesDatabase.Register(item);
+                var item = RegisterEquippableVisualItem(rulesDatabase, "item-refresh-test", slotId, visualPrefab);
                 var character = RuntimeEntityId.NewId();
 
-                equipment.Initialize(character, rulesDatabase, bus);
+                equipment.Initialize(character, rulesDatabase, new PartyInventoryState(), bus);
                 bus.Publish(EquipContext(character, item.Id, slotId));
                 Assert.AreEqual(1, characterGo.transform.childCount, "Equipping should have instantiated one visual.");
 
-                equipment.RefreshBoneMap();
+                equipment.RefreshBoneMap(null);
                 yield return null; // let the deferred Destroy() actually take effect
 
                 Assert.AreEqual(0, characterGo.transform.childCount, "RefreshBoneMap must release visuals bound to the previous skeleton.");
@@ -329,20 +438,20 @@ namespace CRPG.Tests.PlayMode
             public void RefreshBoneMapPicksUpTheNewSkeletonsBones()
             {
                 characterGo = new GameObject("CharacterRoot");
-                var equipment = characterGo.AddComponent<CharacterVisualEquipment>();
+                var equipment = characterGo.AddComponent<EquipmentVisualBinder>();
 
                 var boneA = new GameObject("Hips");
                 boneA.transform.SetParent(characterGo.transform);
                 var boneATransform = boneA.transform; // captured before destruction, below
-                equipment.RefreshBoneMap();
-                var mapAfterA = (System.Collections.Generic.Dictionary<string, Transform>)GetPrivateField(equipment, "bonesByName");
+                equipment.RefreshBoneMap(null);
+                var mapAfterA = (Dictionary<string, Transform>)GetPrivateField(equipment, "transformsByName");
                 Assert.AreSame(boneATransform, mapAfterA["Hips"]);
 
                 UnityEngine.Object.DestroyImmediate(boneA);
                 var boneB = new GameObject("Hips"); // a different Transform instance, same bone name
                 boneB.transform.SetParent(characterGo.transform);
-                equipment.RefreshBoneMap();
-                var mapAfterB = (System.Collections.Generic.Dictionary<string, Transform>)GetPrivateField(equipment, "bonesByName");
+                equipment.RefreshBoneMap(null);
+                var mapAfterB = (Dictionary<string, Transform>)GetPrivateField(equipment, "transformsByName");
 
                 Assert.AreSame(boneB.transform, mapAfterB["Hips"]);
                 Assert.AreNotSame(boneATransform, mapAfterB["Hips"], "The bone map must not still point at the previous (now-destroyed) skeleton's Transform.");

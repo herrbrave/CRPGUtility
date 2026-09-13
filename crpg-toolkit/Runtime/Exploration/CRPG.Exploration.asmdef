@@ -1,7 +1,7 @@
 {
     "name": "CRPG.Exploration",
     "rootNamespace": "CRPG.Exploration",
-    "references": ["CRPG.Core", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Interaction"],
+    "references": ["CRPG.Core", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Interaction", "CRPG.Gameplay", "CRPG.Camera"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

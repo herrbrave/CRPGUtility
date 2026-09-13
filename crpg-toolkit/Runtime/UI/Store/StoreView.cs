@@ -1,3 +1,4 @@
+using System;
 using CRPG.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -19,6 +20,10 @@ namespace CRPG.UI
         private VisualElement buyContainer;
         private VisualElement sellContainer;
 
+        /// <summary>Fired once the player leaves the store. No consumer needed this before Task 3.4's
+        /// conversation store hand-off -- StoreView previously had no way to close at all.</summary>
+        public event Action Closed;
+
         public void Initialize(StorePresenter storePresenter)
         {
             presenter = storePresenter;
@@ -26,6 +31,13 @@ namespace CRPG.UI
             BuildLayout();
             Refresh();
         }
+
+        // Task 3.1: registers with the shared pointer-capture provider (CRPG.UI.Input) so a world click
+        // landing on this panel's own UI Toolkit elements is correctly suppressed. GetComponent directly, not
+        // the `document` field -- OnEnable can run before an external Initialize() call sets it.
+        private void OnEnable() => UIToolkitPointerCapture.Register(GetComponent<UIDocument>());
+
+        private void OnDisable() => UIToolkitPointerCapture.Unregister(GetComponent<UIDocument>());
 
         private void BuildLayout()
         {
@@ -55,7 +67,17 @@ namespace CRPG.UI
 
             sellContainer = new VisualElement();
             columns.Add(sellContainer);
+
+            var leaveButton = new Button(Leave) { text = "Leave" };
+            leaveButton.style.marginTop = 24;
+            leaveButton.style.width = 160;
+            leaveButton.style.height = 32;
+            root.Add(leaveButton);
         }
+
+        /// <summary>Leaves the store, firing Closed -- the Leave button's own handler, also callable directly
+        /// (e.g. by a conversation controller resuming dialogue, or a future hotkey/interaction-cancel path).</summary>
+        public void Leave() => Closed?.Invoke();
 
         // Rebuilds buyContainer/sellContainer as brand-new VisualElements each refresh, rather than Clear()-ing
         // and re-populating the same ones, because the row *count* changes here (every purchase/sale adds or

@@ -1,7 +1,7 @@
 {
     "name": "CRPG.Tests.EditMode",
     "rootNamespace": "CRPG.Tests.EditMode",
-    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Camera", "CRPG.Exploration", "CRPG.Inventory", "CRPG.Abilities", "CRPG.Combat", "CRPG.UI", "CRPG.Dialogue", "CRPG.Quests", "CRPG.Saving", "CRPG.AI", "CRPG.Gameplay", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Camera", "CRPG.Exploration", "CRPG.Inventory", "CRPG.Abilities", "CRPG.Combat", "CRPG.UI", "CRPG.Dialogue", "CRPG.Quests", "CRPG.Saving", "CRPG.AI", "CRPG.Gameplay", "CRPG.Presentation", "CRPG.Editor", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -24,4 +24,5 @@ MonoBehaviour:
     value: 
   equippedFeatureId:
     value: 
-  visualPrefab: {fileID: 919132149155446097, guid: 4adf77b166cbb434f9f7e22f2300dca6, type: 3}
+  equipmentVisualProfileId:
+    value: visual-slot-clothing-feet

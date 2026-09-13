@@ -94,7 +94,7 @@ namespace CRPG.Tests.EditMode
 
             var trueEnd = DialogueTestFactory.CreateEnd("true-end");
             var falseEnd = DialogueTestFactory.CreateEnd("false-end");
-            var branch = DialogueTestFactory.CreateBranch("start", "met-grimjaw", BranchConditionType.HasOccurred, 0, "true-end", "false-end");
+            var branch = DialogueTestFactory.CreateBranch("start", "met-grimjaw", TimelineConditionType.HasOccurred, 0, "true-end", "false-end");
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", branch, trueEnd, falseEnd);
 
             var runner = new DialogueRunner(dialogue, CreateContext());
@@ -110,7 +110,7 @@ namespace CRPG.Tests.EditMode
 
             var trueEnd = DialogueTestFactory.CreateEnd("true-end");
             var falseEnd = DialogueTestFactory.CreateEnd("false-end");
-            var branch = DialogueTestFactory.CreateBranch("start", "guild-reputation", BranchConditionType.SumAtLeast, 5, "true-end", "false-end");
+            var branch = DialogueTestFactory.CreateBranch("start", "guild-reputation", TimelineConditionType.SumAtLeast, 5, "true-end", "false-end");
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", branch, trueEnd, falseEnd);
 
             var runner = new DialogueRunner(dialogue, CreateContext());
@@ -127,7 +127,7 @@ namespace CRPG.Tests.EditMode
             var trueEnd = DialogueTestFactory.CreateEnd("true-end");
             var falseEnd = DialogueTestFactory.CreateEnd("false-end");
             var branch = DialogueTestFactory.CreateBranch(
-                "start", "betrayal", BranchConditionType.OccurredBefore, 0, "true-end", "false-end", secondTimelineKey: "coronation");
+                "start", "betrayal", TimelineConditionType.OccurredBefore, 0, "true-end", "false-end", secondTimelineKey: "coronation");
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", branch, trueEnd, falseEnd);
 
             var runner = new DialogueRunner(dialogue, CreateContext());
@@ -293,7 +293,7 @@ namespace CRPG.Tests.EditMode
             var endB = DialogueTestFactory.CreateEnd("end-b");
             var openOption = DialogueTestFactory.CreateOption("Leave", "end-a");
             var gatedOption = DialogueTestFactory.CreateConditionalOption(
-                "Mention the letter", "end-b", "read-letter", BranchConditionType.HasOccurred, 0);
+                "Mention the letter", "end-b", "read-letter", TimelineConditionType.HasOccurred, 0);
             var choice = DialogueTestFactory.CreateChoice("start", openOption, gatedOption);
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", choice, endA, endB);
             var runner = new DialogueRunner(dialogue, CreateContext());
@@ -312,7 +312,7 @@ namespace CRPG.Tests.EditMode
         {
             var endA = DialogueTestFactory.CreateEnd("end-a");
             var gatedOption = DialogueTestFactory.CreateConditionalOption(
-                "Mention the letter", "end-a", "read-letter", BranchConditionType.HasOccurred, 0);
+                "Mention the letter", "end-a", "read-letter", TimelineConditionType.HasOccurred, 0);
             var choice = DialogueTestFactory.CreateChoice("start", gatedOption);
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", choice, endA);
             var runner = new DialogueRunner(dialogue, CreateContext());
@@ -332,7 +332,7 @@ namespace CRPG.Tests.EditMode
             var runner = new DialogueRunner(dialogue, context);
 
             Assert.IsTrue(runner.IsComplete);
-            Assert.IsTrue(context.StoreOpenRequested);
+            Assert.IsTrue(context.ConsumeStoreOpenRequest());
             Assert.AreSame(shop, context.Store);
         }
 
@@ -400,6 +400,48 @@ namespace CRPG.Tests.EditMode
 
             Assert.IsTrue(runner.IsComplete);
             Assert.IsTrue(timeline.HasOccurred("persuaded-guard"));
+        }
+
+        [Test]
+        public void AnAuthoredActionCycleThrowsInsteadOfHangingForever()
+        {
+            // "a" -> "b" -> "a" via ActionNodes only, with no Line/Choice/Check/End ever reachable.
+            var recordA = DialogueTestFactory.CreateRecordEventAction("a-ran");
+            var recordB = DialogueTestFactory.CreateRecordEventAction("b-ran");
+            var nodeA = DialogueTestFactory.CreateAction("a", recordA, "b");
+            var nodeB = DialogueTestFactory.CreateAction("b", recordB, "a");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-cycle", "a", nodeA, nodeB);
+
+            Assert.Throws<DialogueGraphException>(() => new DialogueRunner(dialogue, CreateContext()));
+        }
+
+        [Test]
+        public void ADanglingNodeReferenceThrowsADiagnosableExceptionInsteadOfKeyNotFoundException()
+        {
+            var line = DialogueTestFactory.CreateLine("start", "Grimjaw", "Halt.", "nonexistent-node");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-dangling", "start", line);
+            var runner = new DialogueRunner(dialogue, CreateContext());
+
+            Assert.Throws<DialogueGraphException>(() => runner.Advance());
+        }
+
+        [Test]
+        public void AMissingStartNodeThrowsADiagnosableException()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-bad-start", "nonexistent-start", end);
+
+            Assert.Throws<DialogueGraphException>(() => new DialogueRunner(dialogue, CreateContext()));
+        }
+
+        [Test]
+        public void ADuplicateNodeIdThrowsADiagnosableExceptionInsteadOfSilentlyOverwriting()
+        {
+            var endA = DialogueTestFactory.CreateEnd("end");
+            var endB = DialogueTestFactory.CreateEnd("end"); // same seed string -> same SerializableGuid
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-dup", "end", endA, endB);
+
+            Assert.Throws<DialogueGraphException>(() => new DialogueRunner(dialogue, CreateContext()));
         }
     }
 }

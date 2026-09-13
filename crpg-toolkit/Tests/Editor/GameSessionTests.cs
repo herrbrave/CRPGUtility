@@ -4,6 +4,7 @@ using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Inventory;
+using CRPG.Presentation.Equipment;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
@@ -382,18 +383,19 @@ namespace CRPG.Tests.EditMode
             var session = new GameSession(new RulesDatabase(), new DiceService(new SeededRandomSource(1)));
             var spawner = new WorldSpawnService(session);
             var definition = CreateSpawnableNpc("npc-with-equipment-view");
-            visualPrefabTemplate.AddComponent<CharacterVisualEquipment>();
+            visualPrefabTemplate.AddComponent<EquipmentVisualBinder>();
 
             var agent = spawner.SpawnNpc(definition, Vector3.zero, Quaternion.identity);
             spawnedInstance = agent.gameObject;
 
-            var visualEquipment = agent.GetComponent<CharacterVisualEquipment>();
+            var visualEquipment = agent.GetComponent<EquipmentVisualBinder>();
             Assert.IsNotNull(visualEquipment);
 
             // Indirect proof Initialize was actually called (its binding fields are private): per Task 1.1's
-            // contract, a bound CharacterVisualEquipment rejects a differently-bound rebind attempt.
+            // contract (Task 2.4: now EquipmentVisualBinder), a bound instance rejects a differently-bound
+            // rebind attempt.
             Assert.Throws<InvalidOperationException>(
-                () => visualEquipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new GameEventBus()));
+                () => visualEquipment.Initialize(RuntimeEntityId.NewId(), new RulesDatabase(), new PartyInventoryState(), new GameEventBus()));
         }
 
         [Test]

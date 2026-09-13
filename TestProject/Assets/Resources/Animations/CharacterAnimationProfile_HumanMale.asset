@@ -18,18 +18,23 @@ MonoBehaviour:
     clip: {fileID: 7994627924475153551, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
     crossfadeDuration: 0.2
     loop: 1
+    referenceSpeed: 0
   - cueId:
       value: anim-moving
     clip: {fileID: -7003542030617561338, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
     crossfadeDuration: 0.2
     loop: 1
+    referenceSpeed: 3.5
   - cueId:
       value: anim-attack-idle
     clip: {fileID: 8324860437086164814, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
     crossfadeDuration: 0.25
     loop: 1
+    referenceSpeed: 0
   - cueId:
       value: anim-attack-melee
     clip: {fileID: -2807887025256620907, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
     crossfadeDuration: 0.1
     loop: 0
+    referenceSpeed: 0
+  stanceLocomotionSets: []

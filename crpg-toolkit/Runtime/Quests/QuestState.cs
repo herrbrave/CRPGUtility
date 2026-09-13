@@ -19,6 +19,11 @@ namespace CRPG.Quests
         public QuestStatus Status { get; set; } = QuestStatus.Inactive;
         public IReadOnlyDictionary<string, QuestObjectiveState> Objectives => objectives;
 
+        /// <summary>Set once, the first time this quest's completion reward step runs -- guards
+        /// QuestService.RefreshProgress against granting Rewards more than once across a reload or a
+        /// repeated refresh (Task 3.4).</summary>
+        public bool RewardClaimed { get; set; }
+
         public void AddObjective(QuestObjectiveState objective) => objectives[objective.ObjectiveId] = objective;
 
         public bool TryGetObjective(string objectiveId, out QuestObjectiveState objective) => objectives.TryGetValue(objectiveId, out objective);

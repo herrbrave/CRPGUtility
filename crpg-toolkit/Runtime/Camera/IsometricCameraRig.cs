@@ -18,6 +18,11 @@ namespace CRPG.Camera
 
         public CameraRigState Rig { get; private set; }
 
+        /// <summary>The settings this rig was built from -- exposed so an input adapter can read
+        /// configuration (e.g. <see cref="CRPGCameraSettings.EnableEdgeScrolling"/>) without needing its own
+        /// separate reference to the same asset.</summary>
+        public CRPGCameraSettings Settings => settings;
+
         private void Awake()
         {
             Rig = new CameraRigState(settings);

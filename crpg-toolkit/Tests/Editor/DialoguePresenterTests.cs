@@ -58,7 +58,7 @@ namespace CRPG.Tests.EditMode
             var endB = DialogueTestFactory.CreateEnd("end-b");
             var openOption = DialogueTestFactory.CreateOption("Leave", "end-a");
             var gatedOption = DialogueTestFactory.CreateConditionalOption(
-                "Mention the letter", "end-b", "read-letter", BranchConditionType.HasOccurred, 0);
+                "Mention the letter", "end-b", "read-letter", TimelineConditionType.HasOccurred, 0);
             var choice = DialogueTestFactory.CreateChoice("start", gatedOption, openOption); // gated option is index 0
             var dialogue = DialogueTestFactory.CreateDialogue("dlg", "start", choice, endA, endB);
             var presenter = new DialoguePresenter(dialogue, CreateContext());

@@ -34,7 +34,7 @@ namespace CRPG.Tests.EditMode
         }
 
         public static ChoiceOption CreateConditionalOption(
-            string text, string nextNodeId, string timelineKey, BranchConditionType conditionType, double threshold, string secondTimelineKey = null)
+            string text, string nextNodeId, string timelineKey, TimelineConditionType conditionType, double threshold, string secondTimelineKey = null)
         {
             var option = CreateOption(text, nextNodeId);
             TestDefinitionFactory.SetPrivateField(option, "hasVisibilityCondition", true);
@@ -54,7 +54,7 @@ namespace CRPG.Tests.EditMode
         }
 
         public static BranchNode CreateBranch(
-            string nodeId, string timelineKey, BranchConditionType conditionType, double threshold,
+            string nodeId, string timelineKey, TimelineConditionType conditionType, double threshold,
             string trueNodeId, string falseNodeId, string secondTimelineKey = null)
         {
             var node = new BranchNode();

@@ -44,6 +44,14 @@ namespace CRPG.Exploration
             commandSource.Move += HandleMove;
         }
 
+        /// <summary>Raised once per member per <see cref="HandleMove"/> call with the truthful outcome of
+        /// that member's move request -- <see cref="FormationResolutionOutcome.Unreachable"/> synthesizes
+        /// <see cref="MoveResult.Invalid"/> (already <see cref="MoveStatus.Invalid"/>'s documented meaning);
+        /// <see cref="FormationResolutionOutcome.Exact"/>/<see cref="FormationResolutionOutcome.Fallback"/>
+        /// forward the real result from <see cref="IMovable.SetDestination"/>. Exists so an unreachable
+        /// formation slot is a reportable outcome, not a silently-discarded one.</summary>
+        public event Action<RuntimeEntityId, MoveResult> MemberMoveOutcome;
+
         public void RegisterMotor(RuntimeEntityId character, IMovable motor) => motors[character] = motor;
 
         public void UnregisterMotor(RuntimeEntityId character) => motors.Remove(character);
@@ -87,8 +95,24 @@ namespace CRPG.Exploration
 
             foreach (var assignment in resolved)
             {
-                if (motors.TryGetValue(assignment.Key, out var motor))
-                    motor.SetDestination(assignment.Value);
+                var character = assignment.Key;
+                var resolution = assignment.Value;
+
+                if (resolution.Outcome == FormationResolutionOutcome.Unreachable)
+                {
+                    // Matches SetDestination's own existing contract for a rejected destination: whatever
+                    // this member was already doing is left untouched, and every OTHER member in this same
+                    // order still gets its own independent SetDestination call below -- one unreachable
+                    // follower never freezes the rest of the group.
+                    MemberMoveOutcome?.Invoke(character, MoveResult.Invalid());
+                    continue;
+                }
+
+                if (motors.TryGetValue(character, out var motor))
+                {
+                    var result = motor.SetDestination(resolution.ResolvedDestination.Value);
+                    MemberMoveOutcome?.Invoke(character, result);
+                }
             }
         }
     }

@@ -15,9 +15,17 @@ namespace CRPG.UI
         private readonly DialogueContext context;
 
         public DialoguePresenter(DialogueDefinition definition, DialogueContext context)
+            : this(new DialogueRunner(definition, context), context)
+        {
+        }
+
+        /// <summary>Wraps an ALREADY-RUNNING DialogueRunner instead of starting a fresh conversation --
+        /// ConversationController uses this to rebuild the View layer around the same runner across a store
+        /// hand-off round-trip (Task 3.4) without restarting the conversation from its StartNodeId.</summary>
+        public DialoguePresenter(DialogueRunner runner, DialogueContext context)
         {
             this.context = context;
-            runner = new DialogueRunner(definition, context);
+            this.runner = runner;
         }
 
         public bool IsComplete => runner.IsComplete;

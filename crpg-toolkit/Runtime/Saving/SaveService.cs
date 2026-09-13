@@ -199,7 +199,7 @@ namespace CRPG.Saving
         {
             foreach (var quest in log.Quests)
             {
-                var entry = new QuestSaveData { QuestId = quest.QuestId.Value, Status = quest.Status };
+                var entry = new QuestSaveData { QuestId = quest.QuestId.Value, Status = quest.Status, RewardClaimed = quest.RewardClaimed };
                 foreach (var pair in quest.Objectives)
                 {
                     entry.Objectives.Add(new QuestObjectiveSaveEntry
@@ -207,6 +207,7 @@ namespace CRPG.Saving
                         ObjectiveId = pair.Key,
                         CurrentCount = pair.Value.CurrentCount,
                         IsComplete = pair.Value.IsComplete,
+                        ActivationCursor = pair.Value.ActivationCursor,
                     });
                 }
 
@@ -218,13 +219,14 @@ namespace CRPG.Saving
         {
             foreach (var entry in data.Quests)
             {
-                var quest = new QuestState(new DefinitionId(entry.QuestId)) { Status = entry.Status };
+                var quest = new QuestState(new DefinitionId(entry.QuestId)) { Status = entry.Status, RewardClaimed = entry.RewardClaimed };
                 foreach (var objective in entry.Objectives)
                 {
                     quest.AddObjective(new QuestObjectiveState(objective.ObjectiveId)
                     {
                         CurrentCount = objective.CurrentCount,
                         IsComplete = objective.IsComplete,
+                        ActivationCursor = objective.ActivationCursor,
                     });
                 }
 

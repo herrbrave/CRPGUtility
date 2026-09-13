@@ -16,13 +16,13 @@ namespace CRPG.Dialogue
         [SerializeField] private bool hasVisibilityCondition;
         [SerializeField] private string timelineKey;
         [SerializeField] private string secondTimelineKey;
-        [SerializeField] private BranchConditionType conditionType;
+        [SerializeField] private TimelineConditionType conditionType;
         [SerializeField] private double threshold;
 
         public string Text => text;
         public SerializableGuid NextNodeId => nextNodeId;
 
         public bool IsVisible(ITimeline timeline) =>
-            !hasVisibilityCondition || TimelineConditionEvaluator.Evaluate(timeline, conditionType, timelineKey, secondTimelineKey, threshold);
+            !hasVisibilityCondition || TimelineCondition.Evaluate(timeline, conditionType, timelineKey, secondTimelineKey, threshold);
     }
 }

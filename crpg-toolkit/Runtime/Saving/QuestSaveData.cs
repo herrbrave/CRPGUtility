@@ -10,6 +10,7 @@ namespace CRPG.Saving
         public string ObjectiveId;
         public int CurrentCount;
         public bool IsComplete;
+        public int ActivationCursor;
     }
 
     [Serializable]
@@ -17,6 +18,7 @@ namespace CRPG.Saving
     {
         public string QuestId;
         public QuestStatus Status;
+        public bool RewardClaimed;
         public List<QuestObjectiveSaveEntry> Objectives = new();
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CRPG.Core;
 using CRPG.Navigation;
 using CRPG.Presentation;
@@ -22,11 +23,26 @@ namespace CRPG.Gameplay
     /// </remarks>
     /// <remarks>
     /// Follows the same binding contract Task 1.1 established for CharacterPlayableAnimator/
-    /// CharacterVisualEquipment: rebinding the identical (entityId, session) tuple is a no-op; binding to a
+    /// EquipmentVisualBinder: rebinding the identical (entityId, session) tuple is a no-op; binding to a
     /// different one while already bound is an error and requires an explicit <see cref="Unbind"/> first.
     /// </remarks>
     public sealed class CharacterAgent : MonoBehaviour
     {
+        // Task 3.1: the pointer-input pipeline's drag-box selection needs to enumerate "every currently live,
+        // selectable character" without a per-frame FindObjectsByType scan (the same "registered adapters, not
+        // a scan" principle the design applies to UI pointer capture). CharacterAgent already exists on every
+        // spawned character and already carries EntityId, so it's the natural self-registering source rather
+        // than a separate marker component -- see SceneSelectableSource, the ISelectableSource this backs.
+        private static readonly HashSet<CharacterAgent> liveAgents = new();
+
+        /// <summary>Every currently enabled CharacterAgent in the scene. A live view -- do not cache the
+        /// returned collection across frames.</summary>
+        public static IReadOnlyCollection<CharacterAgent> AllLive => liveAgents;
+
+        private void OnEnable() => liveAgents.Add(this);
+
+        private void OnDisable() => liveAgents.Remove(this);
+
         public RuntimeEntityId EntityId { get; private set; } = RuntimeEntityId.None;
         public GameSession Session { get; private set; }
 
@@ -38,6 +54,10 @@ namespace CRPG.Gameplay
         /// time. Null if this GameObject has no VisualRoot/CharacterView (a state-only spawn with no
         /// instantiated art). See CharacterView's own remarks for why it never holds a reference back here.</summary>
         public CharacterView View { get; private set; }
+
+        /// <summary>This character's rotation owner, resolved at bind time (Task 3.3: interaction requests
+        /// claim FacingPriority.Interaction through this). Null if this GameObject has none.</summary>
+        public FacingController Facing { get; private set; }
 
         public bool IsBound => Session != null;
 
@@ -57,6 +77,7 @@ namespace CRPG.Gameplay
             Session = session;
             Motor = GetComponent<IMovable>() ?? GetComponentInChildren<IMovable>();
             View = GetComponentInChildren<CharacterView>(true);
+            Facing = GetComponent<FacingController>();
         }
 
         public void Unbind()
@@ -65,6 +86,7 @@ namespace CRPG.Gameplay
             Session = null;
             Motor = null;
             View = null;
+            Facing = null;
         }
 
         private void OnDestroy() => Unbind();

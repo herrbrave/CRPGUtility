@@ -1,0 +1,89 @@
+using System;
+using CRPG.Actors;
+using CRPG.Core;
+using CRPG.Dialogue;
+using CRPG.Inventory;
+using CRPG.Party;
+using CRPG.Rules;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace CRPG.Gameplay.Interactions.Adapters
+{
+    /// <summary>Reference "talk" adapter -- delegates the whole conversation lifecycle (DialogueRunner identity,
+    /// modal input capture, cancellation, and store hand-off) to ConversationController (Task 3.4), which
+    /// replaces what this adapter used to hand-roll inline. Runtime dependencies are public settable properties
+    /// wired by whichever scene composition root builds this fixture, matching the project's "no Manager.Instance"
+    /// convention.</summary>
+    [RequireComponent(typeof(WorldInteractable))]
+    public sealed class TalkInteractionAdapter : MonoBehaviour, IInteractionAdapter
+    {
+        [SerializeField] private DialogueDefinition dialogue;
+        [SerializeField] private PanelSettings panelSettings;
+
+        public PartyState Party { get; set; }
+        public ICharacterRegistry Characters { get; set; }
+        public IRulesDatabase RulesDatabase { get; set; }
+        public ITimeline Timeline { get; set; }
+        public PartyInventoryState Inventory { get; set; }
+        public IDiceService DiceService { get; set; }
+        public StoreInventoryState Store { get; set; }
+        public DefinitionId CurrencyItemId { get; set; }
+
+        public DefinitionId ActionId { get; } = new("interact-talk");
+
+        private bool conversationOpen;
+
+        public bool IsAvailable(RuntimeEntityId performer) => dialogue != null && !conversationOpen;
+
+        public IInteractionExecution BeginExecute(RuntimeEntityId performer, Action<InteractionExecutionResult> onFinished)
+        {
+            conversationOpen = true;
+
+            var context = new DialogueContext(performer, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, store: Store, currencyItemId: CurrencyItemId);
+            var controller = new ConversationController(dialogue, context, panelSettings);
+
+            return new Execution(this, controller, onFinished);
+        }
+
+        private sealed class Execution : IInteractionExecution
+        {
+            private readonly TalkInteractionAdapter owner;
+            private readonly ConversationController controller;
+            private readonly Action<InteractionExecutionResult> onFinished;
+            private bool ended;
+
+            public Execution(TalkInteractionAdapter owner, ConversationController controller, Action<InteractionExecutionResult> onFinished)
+            {
+                this.owner = owner;
+                this.controller = controller;
+                this.onFinished = onFinished;
+                controller.Completed += HandleCompleted;
+            }
+
+            private void HandleCompleted()
+            {
+                if (ended) return;
+                ended = true;
+
+                controller.Completed -= HandleCompleted;
+                owner.conversationOpen = false;
+
+                onFinished(InteractionExecutionResult.Succeeded);
+            }
+
+            public void Cancel()
+            {
+                if (ended) return;
+                ended = true;
+
+                controller.Completed -= HandleCompleted;
+                owner.conversationOpen = false;
+                controller.Cancel();
+
+                // Deliberately does NOT invoke onFinished -- the controller already knows this request is
+                // ending (that's why Cancel was called) and isn't expecting a result from it anymore.
+            }
+        }
+    }
+}

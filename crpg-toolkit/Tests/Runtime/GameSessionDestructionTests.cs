@@ -11,7 +11,7 @@ namespace CRPG.Tests.PlayMode
     /// DestroyImmediate's OnDestroy callback never runs in headless -batchmode EditMode (no active Play
     /// session), even after polling many editor ticks with EditorApplication.QueuePlayerLoopUpdate. A real
     /// Play session (PlayMode tests) delivers it synchronously -- the same constraint Task 1.1's
-    /// CharacterBindingTests already worked within for CharacterPlayableAnimator/CharacterVisualEquipment's
+    /// CharacterBindingTests already worked within for CharacterPlayableAnimator/EquipmentVisualBinder's
     /// own OnDestroy-driven unbind.
     /// </summary>
     public class GameSessionDestructionTests

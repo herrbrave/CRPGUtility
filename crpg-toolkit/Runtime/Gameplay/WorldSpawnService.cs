@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
+using CRPG.Presentation.Animation;
+using CRPG.Presentation.Equipment;
 using UnityEngine;
 
 namespace CRPG.Gameplay
@@ -37,7 +39,7 @@ namespace CRPG.Gameplay
         /// <summary>
         /// Builds and registers this NPC's CharacterState (via <see cref="NpcSpawnService.Spawn"/>, unchanged),
         /// records its faction, grants/equips its starting items, then instantiates its VisualPrefab and binds
-        /// a <see cref="CharacterAgent"/> plus any <see cref="CRPG.Actors.CharacterPlayableAnimator"/>/
+        /// a <see cref="CharacterAgent"/> plus any <see cref="CharacterPlayableAnimator"/>/
         /// <see cref="CharacterVisualEquipment"/> found on it. Follows the state lifetime order design sec.4.2
         /// specifies: allocate entity id -> construct/register state -> establish inventory/faction
         /// associations -> instantiate/bind view.
@@ -89,8 +91,8 @@ namespace CRPG.Gameplay
                 var animator = instance.GetComponentInChildren<CharacterPlayableAnimator>(true);
                 animator?.Initialize(entityId, session.EventBus);
 
-                var visualEquipment = instance.GetComponentInChildren<CharacterVisualEquipment>(true);
-                visualEquipment?.Initialize(entityId, session.RulesDatabase, session.EventBus);
+                var visualEquipment = instance.GetComponentInChildren<EquipmentVisualBinder>(true);
+                visualEquipment?.Initialize(entityId, session.RulesDatabase, session.Inventory, session.EventBus);
 
                 return agent;
             }

@@ -13,7 +13,7 @@ namespace CRPG.Dialogue
     {
         [SerializeField] private string timelineKey;
         [SerializeField] private string secondTimelineKey;
-        [SerializeField] private BranchConditionType conditionType;
+        [SerializeField] private TimelineConditionType conditionType;
         [SerializeField] private double threshold;
         [SerializeField] private SerializableGuid trueNodeId;
         [SerializeField] private SerializableGuid falseNodeId;
@@ -22,6 +22,6 @@ namespace CRPG.Dialogue
         public SerializableGuid FalseNodeId => falseNodeId;
 
         public bool Evaluate(ITimeline timeline) =>
-            TimelineConditionEvaluator.Evaluate(timeline, conditionType, timelineKey, secondTimelineKey, threshold);
+            TimelineCondition.Evaluate(timeline, conditionType, timelineKey, secondTimelineKey, threshold);
     }
 }

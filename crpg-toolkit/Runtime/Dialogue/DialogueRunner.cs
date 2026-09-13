@@ -12,16 +12,27 @@ namespace CRPG.Dialogue
     /// </summary>
     public sealed class DialogueRunner
     {
+        /// <summary>DialogueValidator should catch a malformed auto-settle cycle at author time; this is the
+        /// runtime's own backstop for content that slipped through un-validated -- cuts a hang short with a
+        /// diagnosable exception instead of freezing the game/editor.</summary>
+        private const int MaxAutoSettleSteps = 256;
+
+        private readonly DialogueDefinition definition;
         private readonly DialogueContext context;
         private readonly Dictionary<SerializableGuid, DialogueNode> nodesById;
 
         public DialogueRunner(DialogueDefinition definition, DialogueContext context)
         {
+            this.definition = definition;
             this.context = context;
             nodesById = new Dictionary<SerializableGuid, DialogueNode>();
-            foreach (var node in definition.Nodes) nodesById[node.NodeId] = node;
+            foreach (var node in definition.Nodes)
+            {
+                if (!nodesById.TryAdd(node.NodeId, node))
+                    throw new DialogueGraphException($"Dialogue '{definition.DisplayName}' has more than one node with id '{node.NodeId}'.");
+            }
 
-            CurrentNode = nodesById[definition.StartNodeId];
+            CurrentNode = ResolveNode(definition.StartNodeId, "StartNodeId");
             Settle();
         }
 
@@ -91,27 +102,37 @@ namespace CRPG.Dialogue
 
         private void MoveTo(SerializableGuid nodeId)
         {
-            CurrentNode = nodesById[nodeId];
+            CurrentNode = ResolveNode(nodeId, $"a reference from node '{CurrentNode.NodeId}'");
             Settle();
+        }
+
+        private DialogueNode ResolveNode(SerializableGuid nodeId, string fromField)
+        {
+            if (!nodesById.TryGetValue(nodeId, out var node))
+                throw new DialogueGraphException($"Dialogue '{definition.DisplayName}': {fromField} points to node id '{nodeId}', which doesn't exist.");
+            return node;
         }
 
         private void Settle()
         {
-            while (true)
+            for (var step = 0; step < MaxAutoSettleSteps; step++)
             {
                 switch (CurrentNode)
                 {
                     case BranchNode branch:
-                        CurrentNode = nodesById[branch.Evaluate(context.Timeline) ? branch.TrueNodeId : branch.FalseNodeId];
+                        CurrentNode = ResolveNode(branch.Evaluate(context.Timeline) ? branch.TrueNodeId : branch.FalseNodeId, $"BranchNode '{branch.NodeId}'");
                         continue;
                     case ActionNode action:
                         action.Action?.Execute(context);
-                        CurrentNode = nodesById[action.NextNodeId];
+                        CurrentNode = ResolveNode(action.NextNodeId, $"ActionNode '{action.NodeId}'");
                         continue;
                     default:
                         return;
                 }
             }
+
+            throw new DialogueGraphException(
+                $"Dialogue '{definition.DisplayName}' exceeded {MaxAutoSettleSteps} automatic Branch/Action steps without reaching a Line/Choice/Check/End node -- likely an authored cycle. Last node reached: '{CurrentNode.NodeId}'.");
         }
     }
 }
