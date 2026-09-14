@@ -32,62 +32,89 @@ namespace CRPG.Tests.EditMode
             return ability;
         }
 
+        /// <summary>Every Validate/Execute call now needs real, resolvable targets (the new InvalidTarget
+        /// check) -- this registers one and returns its id, for tests that don't care about the target's own
+        /// state, only that it's a real character.</summary>
+        private static RuntimeEntityId RegisterTarget(CharacterRegistry registry)
+        {
+            var target = new CharacterState(RuntimeEntityId.NewId());
+            registry.Register(target);
+            return target.Id;
+        }
+
         [Test]
-        public void CanUseIsFalseWhenResourceIsInsufficient()
+        public void ValidateRejectsWhenResourceIsInsufficient()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
             var registry = new CharacterRegistry();
             var caster = new CharacterState(RuntimeEntityId.NewId());
             caster.AddResource(new ResourceState(resource.Id, max: 1, current: 0));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.IsFalse(service.CanUse(caster.Id, ability));
+            var result = service.Validate(caster.Id, ability, new[] { target });
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(AbilityRejectionReason.InsufficientResources, result.Reason);
         }
 
         [Test]
-        public void CanUseIsTrueWhenResourceIsAvailable()
+        public void ValidateSucceedsWhenResourceIsAvailable()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
             var registry = new CharacterRegistry();
             var caster = new CharacterState(RuntimeEntityId.NewId());
             caster.AddResource(new ResourceState(resource.Id, max: 1));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.IsTrue(service.CanUse(caster.Id, ability));
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { target }).IsValid);
         }
 
         [Test]
-        public void CanUseIsFalseWhenCharacterIsMakingDeathSaves()
+        public void ValidateRejectsWhenCharacterIsMakingDeathSaves()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
             var registry = new CharacterRegistry();
             var caster = new CharacterState(RuntimeEntityId.NewId()) { DeathSaves = new DeathSaveState() };
             caster.AddResource(new ResourceState(resource.Id, max: 1)); // resource is available -- only DeathSaves should block this
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.IsFalse(service.CanUse(caster.Id, ability));
+            var result = service.Validate(caster.Id, ability, new[] { target });
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(AbilityRejectionReason.Incapacitated, result.Reason);
         }
 
         [Test]
-        public void IsValidTargetSelectionRespectsMinAndMax()
+        public void ValidateRespectsMinAndMaxTargetCount()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
-            var ability = CreateAbility(resource, 0, 1, 2);
-            var service = new AbilityResolutionService(new CharacterRegistry(), new DiceService(new SeededRandomSource(1)));
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1));
+            registry.Register(caster);
+            var targetA = RegisterTarget(registry);
+            var targetB = RegisterTarget(registry);
+            var targetC = RegisterTarget(registry);
 
-            Assert.IsFalse(service.IsValidTargetSelection(ability, Array.Empty<RuntimeEntityId>()));
-            Assert.IsTrue(service.IsValidTargetSelection(ability, new[] { RuntimeEntityId.NewId() }));
-            Assert.IsTrue(service.IsValidTargetSelection(ability, new[] { RuntimeEntityId.NewId(), RuntimeEntityId.NewId() }));
-            Assert.IsFalse(service.IsValidTargetSelection(ability, new[] { RuntimeEntityId.NewId(), RuntimeEntityId.NewId(), RuntimeEntityId.NewId() }));
+            var ability = CreateAbility(resource, 0, 1, 2);
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            Assert.AreEqual(AbilityRejectionReason.InvalidTargetCount, service.Validate(caster.Id, ability, Array.Empty<RuntimeEntityId>()).Reason);
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { targetA }).IsValid);
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { targetA, targetB }).IsValid);
+            Assert.AreEqual(AbilityRejectionReason.InvalidTargetCount, service.Validate(caster.Id, ability, new[] { targetA, targetB, targetC }).Reason);
         }
 
         [Test]
@@ -119,8 +146,9 @@ namespace CRPG.Tests.EditMode
 
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)), eventBus: eventBus);
 
-            service.Execute(caster.Id, ability, new[] { target.Id });
+            var result = service.Execute(caster.Id, ability, new[] { target.Id });
 
+            Assert.IsTrue(result.Succeeded);
             caster.TryGetResource(actionResource.Id, out var actionState);
             Assert.AreEqual(0, actionState.Current);
             Assert.IsTrue(target.HasFeature(feature.Id));
@@ -128,7 +156,7 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
-        public void CanUseIsFalseWhenAConditionPreventsActions()
+        public void ValidateRejectsWhenAConditionPreventsActions()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
             var rulesDatabase = new RulesDatabase();
@@ -141,15 +169,16 @@ namespace CRPG.Tests.EditMode
             caster.AddResource(new ResourceState(resource.Id, max: 1));
             caster.ApplyCondition(new ConditionInstance(stunned.Id, RuntimeEntityId.None, caster.Id));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)), rulesDatabase: rulesDatabase);
 
-            Assert.IsFalse(service.CanUse(caster.Id, ability));
+            Assert.AreEqual(AbilityRejectionReason.Incapacitated, service.Validate(caster.Id, ability, new[] { target }).Reason);
         }
 
         [Test]
-        public void CanUseIgnoresConditionsThatDoNotPreventActions()
+        public void ValidateIgnoresConditionsThatDoNotPreventActions()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
             var rulesDatabase = new RulesDatabase();
@@ -161,47 +190,98 @@ namespace CRPG.Tests.EditMode
             caster.ApplyCondition(new ConditionInstance(prone.Id, RuntimeEntityId.None, caster.Id));
             registry.Register(caster);
             rulesDatabase.Register(prone);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)), rulesDatabase: rulesDatabase);
 
-            Assert.IsTrue(service.CanUse(caster.Id, ability));
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { target }).IsValid);
         }
 
         [Test]
         public void RitualCastSkipsResourceCostsAndRequiresTheRitualTag()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-1", "Spell Slot Level 1");
+            TestDefinitionFactory.SetPrivateField(resource, "spellSlotLevel", 1);
             var registry = new CharacterRegistry();
             var caster = new CharacterState(RuntimeEntityId.NewId());
-            caster.AddResource(new ResourceState(resource.Id, max: 0)); // no slots at all -- a normal cast would fail CanUse
+            caster.AddResource(new ResourceState(resource.Id, max: 0)); // no slots at all -- a normal cast would fail
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             TestDefinitionFactory.SetPrivateField(ability, "tags", AbilityTag.Ritual);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.IsFalse(service.CanUse(caster.Id, ability)); // no slots -- can't cast normally
-            Assert.IsTrue(service.CanUseAsRitual(caster.Id, ability)); // but can as a ritual
-            Assert.DoesNotThrow(() => service.Execute(caster.Id, ability, new[] { RuntimeEntityId.NewId() }, asRitual: true));
+            Assert.AreEqual(AbilityRejectionReason.InsufficientResources, service.Validate(caster.Id, ability, new[] { target }).Reason); // no slots -- can't cast normally
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { target }, asRitual: true).IsValid); // but can as a ritual
+
+            var executeResult = service.Execute(caster.Id, ability, new[] { target }, asRitual: true);
+            Assert.IsTrue(executeResult.Succeeded);
 
             caster.TryGetResource(resource.Id, out var slot);
-            Assert.AreEqual(0, slot.Current); // untouched -- ritual casting spends no resources
+            Assert.AreEqual(0, slot.Current); // untouched -- ritual casting spends no slot
         }
 
         [Test]
-        public void ExecuteThrowsWhenCastingAsRitualWithoutTheRitualTag()
+        public void RitualCastStillSpendsAnUnrelatedActionEconomyCost()
+        {
+            // Task 4.2: "alternate costs retaining action charges" -- a ritual cast skips only the slot-shaped
+            // cost, not every authored cost.
+            var slot = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-1", "Spell Slot Level 1");
+            TestDefinitionFactory.SetPrivateField(slot, "spellSlotLevel", 1);
+            var actionResource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(slot.Id, max: 0));
+            caster.AddResource(new ResourceState(actionResource.Id, max: 1));
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = ScriptableObject.CreateInstance<AbilityDefinition>();
+            TestDefinitionFactory.SetPrivateField(ability, "id", "ability-ritual-with-action-cost");
+            TestDefinitionFactory.SetPrivateField(ability, "tags", AbilityTag.Ritual);
+            object slotCost = new AbilityCost();
+            TestDefinitionFactory.SetPrivateField(slotCost, "resource", slot);
+            TestDefinitionFactory.SetPrivateField(slotCost, "amount", 1);
+            object actionCost = new AbilityCost();
+            TestDefinitionFactory.SetPrivateField(actionCost, "resource", actionResource);
+            TestDefinitionFactory.SetPrivateField(actionCost, "amount", 1);
+            TestDefinitionFactory.SetPrivateField(ability, "costs", new List<AbilityCost> { (AbilityCost)slotCost, (AbilityCost)actionCost });
+            var targeting = new TargetingDefinition();
+            TestDefinitionFactory.SetPrivateField(targeting, "minTargets", 1);
+            TestDefinitionFactory.SetPrivateField(targeting, "maxTargets", 1);
+            TestDefinitionFactory.SetPrivateField(ability, "targeting", targeting);
+            TestDefinitionFactory.SetPrivateField(ability, "effects", new List<AbilityEffect>());
+
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+            var result = service.Execute(caster.Id, ability, new[] { target }, asRitual: true);
+
+            Assert.IsTrue(result.Succeeded);
+            caster.TryGetResource(slot.Id, out var slotState);
+            caster.TryGetResource(actionResource.Id, out var actionState);
+            Assert.AreEqual(0, slotState.Current); // untouched -- no slot spent
+            Assert.AreEqual(0, actionState.Current); // spent -- the action cost is unrelated to the slot
+        }
+
+        [Test]
+        public void ExecuteRejectsCastingAsRitualWithoutTheRitualTag()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-1", "Spell Slot Level 1");
             var registry = new CharacterRegistry();
             var caster = new CharacterState(RuntimeEntityId.NewId());
             caster.AddResource(new ResourceState(resource.Id, max: 1));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1); // no Ritual tag
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.Throws<InvalidOperationException>(() => service.Execute(caster.Id, ability, new[] { RuntimeEntityId.NewId() }, asRitual: true));
+            var result = service.Execute(caster.Id, ability, new[] { target }, asRitual: true);
+
+            Assert.AreEqual(AbilityExecutionOutcome.Rejected, result.Outcome);
+            Assert.AreEqual(AbilityRejectionReason.RitualTagRequired, result.RejectionReason);
         }
 
         [Test]
@@ -212,12 +292,13 @@ namespace CRPG.Tests.EditMode
             var caster = new CharacterState(RuntimeEntityId.NewId());
             caster.AddResource(new ResourceState(resource.Id, max: 1));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             TestDefinitionFactory.SetPrivateField(ability, "tags", AbilityTag.Concentration);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            service.Execute(caster.Id, ability, new[] { RuntimeEntityId.NewId() });
+            service.Execute(caster.Id, ability, new[] { target });
 
             Assert.AreEqual(ability.Id, caster.ConcentratingOnAbilityId);
         }
@@ -230,6 +311,7 @@ namespace CRPG.Tests.EditMode
             var caster = new CharacterState(RuntimeEntityId.NewId()) { ConcentratingOnAbilityId = new DefinitionId("spell-old") };
             caster.AddResource(new ResourceState(resource.Id, max: 2));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(resource, 1, 1, 1);
             TestDefinitionFactory.SetPrivateField(ability, "id", "spell-new");
@@ -241,7 +323,7 @@ namespace CRPG.Tests.EditMode
             eventBus.Subscribe(GameEvent.ConcentrationStarted, ctx => events.Add(ctx.Event));
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)), eventBus: eventBus);
 
-            service.Execute(caster.Id, ability, new[] { RuntimeEntityId.NewId() });
+            service.Execute(caster.Id, ability, new[] { target });
 
             Assert.AreEqual(new DefinitionId("spell-new"), caster.ConcentratingOnAbilityId);
             CollectionAssert.AreEqual(new[] { GameEvent.ConcentrationBroken, GameEvent.ConcentrationStarted }, events);
@@ -260,13 +342,14 @@ namespace CRPG.Tests.EditMode
             caster.AddResource(new ResourceState(baseSlot.Id, max: 1)); // has a 1st-level slot but won't be spent
             caster.AddResource(new ResourceState(higherSlot.Id, max: 1));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(baseSlot, 1, 1, 1); // authored cost names the base 1st-level slot
             TestDefinitionFactory.SetPrivateField(ability, "spellLevel", 1);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.IsTrue(service.CanUseAtSlotLevel(caster.Id, ability, higherSlot));
-            service.Execute(caster.Id, ability, new[] { RuntimeEntityId.NewId() }, upcastWithSlot: higherSlot);
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { target }, upcastWithSlot: higherSlot).IsValid);
+            service.Execute(caster.Id, ability, new[] { target }, upcastWithSlot: higherSlot);
 
             caster.TryGetResource(baseSlot.Id, out var baseState);
             caster.TryGetResource(higherSlot.Id, out var higherState);
@@ -275,7 +358,7 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
-        public void CanUseAtSlotLevelIsFalseWhenTheSlotIsBelowTheSpellsOwnLevel()
+        public void ValidateRejectsUpcastSlotBelowTheSpellsOwnLevel()
         {
             var lowSlot = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-1", "Spell Slot Level 1");
             TestDefinitionFactory.SetPrivateField(lowSlot, "spellSlotLevel", 1);
@@ -284,37 +367,38 @@ namespace CRPG.Tests.EditMode
             var caster = new CharacterState(RuntimeEntityId.NewId());
             caster.AddResource(new ResourceState(lowSlot.Id, max: 1));
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
             var ability = CreateAbility(lowSlot, 1, 1, 1);
             TestDefinitionFactory.SetPrivateField(ability, "spellLevel", 2); // a 2nd-level spell
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.IsFalse(service.CanUseAtSlotLevel(caster.Id, ability, lowSlot));
+            Assert.AreEqual(AbilityRejectionReason.UpcastSlotBelowSpellLevel, service.Validate(caster.Id, ability, new[] { target }, upcastWithSlot: lowSlot).Reason);
         }
 
-        // --- Task 0.2 (Production Foundation): the next two tests are characterization tests, not red
-        // regressions -- they document TODAY's actual (intentionally-to-be-changed) behavior for
-        // Docs/Design/Production-Foundation.md sec.6 / Task 4.2's unified validation and cost-plan work.
-        // Both currently PASS. When 4.2 lands, each assertion is expected to flip (see per-test comments);
-        // update the assertion and rename the test then -- do not delete it silently, since it's the
-        // regression baseline proving 4.2 actually changed this behavior on purpose.
+        // --- Task 4.2: these two used to be characterization tests documenting intentional pre-4.2 gaps.
+        // Both now assert the fixed behavior -- kept in place (not deleted) as the regression proof that 4.2
+        // actually changed this on purpose.
         [Test]
-        public void IsValidTargetSelectionAcceptsDuplicateTargetIds()
+        public void ValidateRejectsDuplicateTargetIds()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
             var ability = CreateAbility(resource, 0, 1, 2);
-            var service = new AbilityResolutionService(new CharacterRegistry(), new DiceService(new SeededRandomSource(1)));
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            registry.Register(caster);
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
             var sameTargetTwice = RuntimeEntityId.NewId();
 
-            // Today IsValidTargetSelection only checks Count against Min/Max -- it never checks distinctness,
-            // so the same target listed twice passes as long as the count itself is in range. Task 4.2 is
-            // expected to reject this (Assert.IsFalse) once duplicate-target validation exists.
-            Assert.IsTrue(service.IsValidTargetSelection(ability, new[] { sameTargetTwice, sameTargetTwice }));
+            var result = service.Validate(caster.Id, ability, new[] { sameTargetTwice, sameTargetTwice });
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(AbilityRejectionReason.DuplicateTarget, result.Reason);
         }
 
         [Test]
-        public void UpcastingBypassesTheAbilitysOtherAuthoredCosts()
+        public void UpcastingNowChargesTheAbilitysOtherAuthoredCostsToo()
         {
             var baseSlot = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-1", "Spell Slot Level 1");
             var higherSlot = TestDefinitionFactory.CreateResourceDefinition("resource-spell-slot-3", "Spell Slot Level 3");
@@ -328,10 +412,8 @@ namespace CRPG.Tests.EditMode
             caster.AddResource(new ResourceState(higherSlot.Id, max: 1));
             caster.AddResource(new ResourceState(materialResource.Id, max: 1)); // this spell's one material component
             registry.Register(caster);
+            var target = RegisterTarget(registry);
 
-            // Built by hand (not via the single-cost CreateAbility helper) since this ability needs two
-            // authored Costs entries: the spell-slot cost every other upcast test already exercises, plus a
-            // second, unrelated material-component cost that upcasting should still charge.
             var ability = ScriptableObject.CreateInstance<AbilityDefinition>();
             TestDefinitionFactory.SetPrivateField(ability, "id", "ability-test-material-spell");
             TestDefinitionFactory.SetPrivateField(ability, "displayName", "Test Material Spell");
@@ -353,22 +435,17 @@ namespace CRPG.Tests.EditMode
 
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            service.Execute(caster.Id, ability, new[] { RuntimeEntityId.NewId() }, upcastWithSlot: higherSlot);
+            var result = service.Execute(caster.Id, ability, new[] { target }, upcastWithSlot: higherSlot);
 
+            Assert.IsTrue(result.Succeeded);
             caster.TryGetResource(higherSlot.Id, out var higherState);
             caster.TryGetResource(materialResource.Id, out var materialState);
-            Assert.AreEqual(0, higherState.Current); // the chosen slot is spent, as UpcastingSpendsTheChosenSlot... already proves
-
-            // Today Execute's upcast branch spends *only* the chosen slot and returns without ever touching
-            // ability.Costs -- so the material component is NOT spent, even though it's a real authored cost
-            // unrelated to which slot the spell was cast from. Task 4.2's AbilityCostPlan is expected to
-            // change this so alternate casting modes "transform a cost plan" rather than skip unrelated costs
-            // outright (Production-Foundation.md sec.6) -- once fixed, this should read Assert.AreEqual(0, ...).
-            Assert.AreEqual(1, materialState.Current, "Documents today's gap: upcasting currently skips unrelated authored costs entirely.");
+            Assert.AreEqual(0, higherState.Current); // the chosen slot is spent
+            Assert.AreEqual(0, materialState.Current); // Task 4.2 fix: the unrelated material cost is now also charged
         }
 
         [Test]
-        public void ExecuteThrowsWhenTargetCountIsInvalid()
+        public void ExecuteRejectsWhenTargetCountIsInvalid()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
             var registry = new CharacterRegistry();
@@ -379,7 +456,209 @@ namespace CRPG.Tests.EditMode
             var ability = CreateAbility(resource, 1, 1, 1);
             var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
 
-            Assert.Throws<InvalidOperationException>(() => service.Execute(caster.Id, ability, Array.Empty<RuntimeEntityId>()));
+            var result = service.Execute(caster.Id, ability, Array.Empty<RuntimeEntityId>());
+
+            Assert.AreEqual(AbilityExecutionOutcome.Rejected, result.Outcome);
+            Assert.AreEqual(AbilityRejectionReason.InvalidTargetCount, result.RejectionReason);
+        }
+
+        // --- Task 4.2: grouped duplicate costs ---
+        [Test]
+        public void ValidateRejectsGroupedDuplicateCostsThatExceedTheCombinedAvailableAmount()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-mana", "Mana");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 3, current: 3)); // 3 available
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = ScriptableObject.CreateInstance<AbilityDefinition>();
+            TestDefinitionFactory.SetPrivateField(ability, "id", "ability-grouped-cost");
+            object costA = new AbilityCost();
+            TestDefinitionFactory.SetPrivateField(costA, "resource", resource);
+            TestDefinitionFactory.SetPrivateField(costA, "amount", 2);
+            object costB = new AbilityCost();
+            TestDefinitionFactory.SetPrivateField(costB, "resource", resource);
+            TestDefinitionFactory.SetPrivateField(costB, "amount", 2);
+            TestDefinitionFactory.SetPrivateField(ability, "costs", new List<AbilityCost> { (AbilityCost)costA, (AbilityCost)costB }); // 2+2=4 combined, only 3 available
+            var targeting = new TargetingDefinition();
+            TestDefinitionFactory.SetPrivateField(targeting, "minTargets", 1);
+            TestDefinitionFactory.SetPrivateField(targeting, "maxTargets", 1);
+            TestDefinitionFactory.SetPrivateField(ability, "targeting", targeting);
+            TestDefinitionFactory.SetPrivateField(ability, "effects", new List<AbilityEffect>());
+
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            var result = service.Validate(caster.Id, ability, new[] { target });
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(AbilityRejectionReason.InsufficientResources, result.Reason);
+            caster.TryGetResource(resource.Id, out var resourceState);
+            Assert.AreEqual(3, resourceState.Current); // Validate never mutates
+        }
+
+        // --- Task 4.2: unavailable grants (known/prepared ability) ---
+        [Test]
+        public void ValidateRejectsAnAbilityTheCasterHasNotLearnedWhenItKnowsOthers()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1));
+            caster.LearnAbility(new DefinitionId("some-other-ability"));
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = CreateAbility(resource, 1, 1, 1); // id "ability-test" -- never learned
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            Assert.AreEqual(AbilityRejectionReason.AbilityNotKnown, service.Validate(caster.Id, ability, new[] { target }).Reason);
+        }
+
+        [Test]
+        public void ValidateDoesNotGateOnKnownAbilitiesWhenTheCasterHasNeverLearnedAnything()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1)); // KnownAbilities left empty -- legacy/uninitialized mode
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = CreateAbility(resource, 1, 1, 1);
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { target }).IsValid);
+        }
+
+        // --- Task 4.2: reject missing required effect services before charging ---
+        [Test]
+        public void ValidateRejectsAnAttackRollEffectWhenAttackBonusRuleIsNotWiredUp()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1));
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = CreateAbility(resource, 1, 1, 1, new AttackRollEffect());
+            // No attackBonusRule/armorClassRule wired -- this ability's only effect can never do anything.
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            var result = service.Validate(caster.Id, ability, new[] { target });
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(AbilityRejectionReason.MissingRequiredEffectService, result.Reason);
+        }
+
+        [Test]
+        public void ExecuteDoesNotChargeWhenARequiredEffectServiceIsMissing()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1));
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = CreateAbility(resource, 1, 1, 1, new AttackRollEffect());
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            var result = service.Execute(caster.Id, ability, new[] { target });
+
+            Assert.AreEqual(AbilityExecutionOutcome.Rejected, result.Outcome);
+            Assert.AreEqual(AbilityRejectionReason.MissingRequiredEffectService, result.RejectionReason);
+            caster.TryGetResource(resource.Id, out var resourceState);
+            Assert.AreEqual(1, resourceState.Current); // untouched -- this is the bug the fix closes
+        }
+
+        // --- Task 4.2: validate-again-at-commit / spend-exactly-once ---
+        [Test]
+        public void ExecuteRejectsWhenStateBecameInvalidAfterAnEarlierValidateCall()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1, current: 1));
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = CreateAbility(resource, 1, 1, 1);
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            Assert.IsTrue(service.Validate(caster.Id, ability, new[] { target }).IsValid); // valid at this point
+
+            caster.TryGetResource(resource.Id, out var resourceState);
+            resourceState.Spend(1); // simulate the resource being spent by something else in between
+
+            var result = service.Execute(caster.Id, ability, new[] { target }); // re-validates internally
+
+            Assert.AreEqual(AbilityExecutionOutcome.Rejected, result.Outcome);
+            Assert.AreEqual(AbilityRejectionReason.InsufficientResources, result.RejectionReason);
+            Assert.AreEqual(0, resourceState.Current); // still exactly 0 from the simulated spend -- Execute spent nothing further
+        }
+
+        // --- Task 4.2: faulted action ---
+        private sealed class ThrowingEffect : AbilityEffect
+        {
+            public override void Apply(AbilityExecutionContext context) => throw new InvalidOperationException("Deliberate test fault.");
+        }
+
+        [Test]
+        public void ExecuteReturnsFaultedAndPublishesAbilityFaultedWhenAnEffectThrows()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1));
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = CreateAbility(resource, 1, 1, 1, new ThrowingEffect());
+
+            var events = new List<GameEvent>();
+            var eventBus = new GameEventBus();
+            eventBus.Subscribe(GameEvent.AbilityStarted, ctx => events.Add(ctx.Event));
+            eventBus.Subscribe(GameEvent.AbilityFaulted, ctx => events.Add(ctx.Event));
+            eventBus.Subscribe(GameEvent.AbilityResolved, ctx => events.Add(ctx.Event));
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)), eventBus: eventBus);
+
+            var result = service.Execute(caster.Id, ability, new[] { target });
+
+            Assert.AreEqual(AbilityExecutionOutcome.Faulted, result.Outcome);
+            Assert.IsFalse(string.IsNullOrEmpty(result.Message));
+            CollectionAssert.AreEqual(new[] { GameEvent.AbilityStarted, GameEvent.AbilityFaulted }, events); // AbilityResolved never fires
+            caster.TryGetResource(resource.Id, out var resourceState);
+            Assert.AreEqual(0, resourceState.Current); // spent -- no rollback on a post-commit fault, by design
+        }
+
+        // --- Task 4.2: no mutation on ordinary rejection ---
+        [TestCase(true)]
+        [TestCase(false)]
+        public void OrdinaryRejectionMutatesNothingWhetherFromValidateOrExecutesOwnRevalidation(bool viaExecute)
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1, current: 0)); // insufficient -- guaranteed rejection
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var ability = CreateAbility(resource, 1, 1, 1);
+            var events = new List<GameEvent>();
+            var eventBus = new GameEventBus();
+            foreach (var e in new[] { GameEvent.AbilityStarted, GameEvent.AbilityResolved, GameEvent.AbilityFaulted })
+                eventBus.Subscribe(e, ctx => events.Add(ctx.Event));
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)), eventBus: eventBus);
+
+            if (viaExecute) service.Execute(caster.Id, ability, new[] { target });
+            else service.Validate(caster.Id, ability, new[] { target });
+
+            caster.TryGetResource(resource.Id, out var resourceState);
+            Assert.AreEqual(0, resourceState.Current);
+            Assert.IsEmpty(events);
         }
     }
 }

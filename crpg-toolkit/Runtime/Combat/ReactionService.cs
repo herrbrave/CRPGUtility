@@ -48,7 +48,7 @@ namespace CRPG.Combat
             foreach (var candidate in candidateReactions)
             {
                 if ((candidate.Tags & AbilityTag.Reaction) == 0) continue;
-                if (abilityResolution.CanUse(opportunity.Reactor, candidate)) eligible.Add(candidate);
+                if (abilityResolution.Validate(opportunity.Reactor, candidate, reactionTargets).IsValid) eligible.Add(candidate);
             }
 
             if (eligible.Count == 0) return false;
@@ -56,8 +56,7 @@ namespace CRPG.Combat
             var chosen = decisionProvider.ChooseReaction(opportunity, eligible);
             if (chosen == null) return false;
 
-            abilityResolution.Execute(opportunity.Reactor, chosen, reactionTargets);
-            return true;
+            return abilityResolution.Execute(opportunity.Reactor, chosen, reactionTargets).Succeeded;
         }
     }
 }

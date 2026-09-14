@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace CRPG.Abilities
 {
@@ -12,5 +13,11 @@ namespace CRPG.Abilities
     public abstract class AbilityEffect
     {
         public abstract void Apply(AbilityExecutionContext context);
+
+        /// <summary>Task 4.2: the effect(s) this one wraps and forwards Apply to, if any -- lets
+        /// AbilityResolutionService's required-effect-service preflight walk a wrapped effect (SequenceEffect,
+        /// ConditionalEffect, AttackRollEffect's onHit) without needing reflection into each wrapper's private
+        /// fields. Empty by default; a wrapper effect overrides it.</summary>
+        public virtual IEnumerable<AbilityEffect> GetChildEffects() => Array.Empty<AbilityEffect>();
     }
 }

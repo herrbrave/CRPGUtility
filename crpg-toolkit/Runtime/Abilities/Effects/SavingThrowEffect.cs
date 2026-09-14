@@ -69,6 +69,12 @@ namespace CRPG.Abilities
             if (succeededTargets.Count > 0 && onSuccess != null) onSuccess.Apply(Narrow(context, succeededTargets));
         }
 
+        public override IEnumerable<AbilityEffect> GetChildEffects()
+        {
+            if (onFailure != null) yield return onFailure;
+            if (onSuccess != null) yield return onSuccess;
+        }
+
         private static AbilityExecutionContext Narrow(AbilityExecutionContext context, IReadOnlyList<RuntimeEntityId> targets) => new(
             context.Source, targets, context.Characters, context.DiceService, context.CombatLog, context.EventBus,
             context.Positions, context.InfluenceMap, context.AttackBonusRule, context.ArmorClassRule, context.CriticalTargets,

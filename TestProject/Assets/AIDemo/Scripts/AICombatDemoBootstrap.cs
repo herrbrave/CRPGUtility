@@ -188,7 +188,11 @@ public sealed class AICombatDemoBootstrap : MonoBehaviour
                 if (decision.Kind == BehaviorKind.Move)
                     movementResolution.MoveToward(current.Id, decision.Targets[0], decision.MovementResourceId, decision.StopDistance);
                 else
-                    abilityResolution.Execute(current.Id, decision.Ability, decision.Targets);
+                {
+                    var executionResult = abilityResolution.Execute(current.Id, decision.Ability, decision.Targets);
+                    if (!executionResult.Succeeded)
+                        Debug.LogWarning($"[AICombatDemoBootstrap] AI ability execution did not succeed ({executionResult.Outcome}): {executionResult.Message}");
+                }
             }
         }
 

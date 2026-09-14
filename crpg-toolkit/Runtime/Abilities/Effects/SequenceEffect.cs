@@ -14,5 +14,7 @@ namespace CRPG.Abilities
         {
             foreach (var effect in effects) effect.Apply(context);
         }
+
+        public override IEnumerable<AbilityEffect> GetChildEffects() => effects;
     }
 }

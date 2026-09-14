@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using CRPG.Actors;
 using UnityEngine;
@@ -37,5 +38,8 @@ namespace CRPG.Abilities
                 context.CriticalTargets, context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels);
             thenEffect.Apply(filteredContext);
         }
+
+        public override IEnumerable<AbilityEffect> GetChildEffects() =>
+            thenEffect != null ? new[] { thenEffect } : Array.Empty<AbilityEffect>();
     }
 }

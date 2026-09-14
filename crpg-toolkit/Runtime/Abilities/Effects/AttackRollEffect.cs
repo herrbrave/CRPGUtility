@@ -77,5 +77,8 @@ namespace CRPG.Abilities
                 onHit.Apply(hitContext);
             }
         }
+
+        public override IEnumerable<AbilityEffect> GetChildEffects() =>
+            onHit != null ? new[] { onHit } : Array.Empty<AbilityEffect>();
     }
 }

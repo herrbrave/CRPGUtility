@@ -3,7 +3,6 @@ using CRPG.Abilities;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Rules;
-using UnityEngine;
 
 namespace CRPG.AI
 {
@@ -63,12 +62,15 @@ namespace CRPG.AI
 
                 if (!rulesDatabase.TryResolve<AbilityDefinition>(behavior.AbilityId, out var ability)) continue;
                 if (ability.Targeting.MaxTargets != 1) continue; // v1 scope: single-target abilities only
-                if (!abilityResolution.CanUse(context.Self, ability)) continue;
 
-                var selfPosition = positions.GetPosition(context.Self);
+                // Task 4.2: range/relation used to be duplicated here (a manual Vector3.Distance check
+                // alongside CanUse) -- now Validate is the single authoritative check for a specific candidate,
+                // closing that duplication. SelectCandidates itself is unrelated: it's TurnContext's own
+                // enemy/ally roster for THIS encounter, not a validation concern Validate could replace (a
+                // per-candidate Validate call still runs against whichever roster this picks from).
                 foreach (var target in SelectCandidates(ability.Targeting.Relation, context))
                 {
-                    if (Vector3.Distance(selfPosition, positions.GetPosition(target)) > ability.Targeting.Range) continue;
+                    if (!abilityResolution.Validate(context.Self, ability, new[] { target }).IsValid) continue;
 
                     var score = ScoreCandidate(behavior, context, target);
                     trace.Add(new UtilityDecisionTraceEntry(behavior.DisplayName, target, score));

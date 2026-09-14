@@ -18,6 +18,8 @@ namespace CRPG.Abilities
         private readonly ISavingThrowRule savingThrowRule;
         private readonly IDamageResistanceRule damageResistanceRule;
         private readonly IRulesDatabase rulesDatabase;
+        private readonly IFactionProvider factionProvider;
+        private readonly ILineOfSightProvider lineOfSightProvider;
 
         public AbilityResolutionService(
             ICharacterRegistry characters,
@@ -30,7 +32,9 @@ namespace CRPG.Abilities
             IArmorClassRule armorClassRule = null,
             ISavingThrowRule savingThrowRule = null,
             IDamageResistanceRule damageResistanceRule = null,
-            IRulesDatabase rulesDatabase = null)
+            IRulesDatabase rulesDatabase = null,
+            IFactionProvider factionProvider = null,
+            ILineOfSightProvider lineOfSightProvider = null)
         {
             this.characters = characters;
             this.diceService = diceService;
@@ -43,45 +47,175 @@ namespace CRPG.Abilities
             this.savingThrowRule = savingThrowRule;
             this.damageResistanceRule = damageResistanceRule;
             this.rulesDatabase = rulesDatabase;
+            this.factionProvider = factionProvider;
+            this.lineOfSightProvider = lineOfSightProvider;
         }
 
-        public bool CanUse(RuntimeEntityId source, AbilityDefinition ability)
+        /// <summary>
+        /// Task 4.2: the single preflight check that replaces CanUse/CanUseAsRitual/CanUseAtSlotLevel/
+        /// IsValidTargetSelection -- safe to call repeatedly/non-destructively (never mutates anything), per
+        /// IAbilityResolutionService's own documented intent that a UI/presentation layer calls this "as often
+        /// as it needs while the player is still choosing." Execute() calls this again internally right before
+        /// committing ("validate again at commit").
+        /// </summary>
+        public AbilityValidationResult Validate(
+            RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
+            bool asRitual = false, ResourceDefinition upcastWithSlot = null)
         {
-            if (!CanAct(source)) return false;
+            if (!CanAct(source)) return AbilityValidationResult.Reject(AbilityRejectionReason.Incapacitated);
 
-            foreach (var cost in ability.Costs)
+            // Legacy/compatibility mode: a character that has never called LearnAbility (e.g. AICombatDemoBootstrap's
+            // demo NPCs, which Task 4.5 -- not 4.2 -- retrofits) is treated as not opted into this gate at all.
+            // A character with at least one known ability is properly restricted to what it knows.
+            if (characters.TryGetCharacter(source, out var gateCharacter)
+                && gateCharacter.KnownAbilities.Count > 0 && !gateCharacter.KnowsAbility(ability.Id))
+                return AbilityValidationResult.Reject(AbilityRejectionReason.AbilityNotKnown);
+
+            if (asRitual)
             {
-                if (!characters.TryGetCharacter(source, out var character)
-                    || !character.TryGetResource(cost.Resource.Id, out var resource) || resource.Current < cost.Amount)
-                    return false;
+                if ((ability.Tags & AbilityTag.Ritual) == 0)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.RitualTagRequired,
+                        $"'{ability.DisplayName}' has no Ritual tag.");
+            }
+            else if (upcastWithSlot != null)
+            {
+                if (upcastWithSlot.SpellSlotLevel < ability.SpellLevel)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.UpcastSlotBelowSpellLevel,
+                        $"'{upcastWithSlot.DisplayName}' is below '{ability.DisplayName}''s own spell level.");
+                if (!characters.TryGetCharacter(source, out var upcastCaster)
+                    || !upcastCaster.TryGetResource(upcastWithSlot.Id, out var slotState) || slotState.Current < 1)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.InsufficientResources,
+                        $"No '{upcastWithSlot.DisplayName}' available.");
             }
 
-            return true;
+            var targetCount = targets?.Count ?? 0;
+            if (targetCount < ability.Targeting.MinTargets || targetCount > ability.Targeting.MaxTargets)
+                return AbilityValidationResult.Reject(AbilityRejectionReason.InvalidTargetCount,
+                    $"'{ability.DisplayName}' requires between {ability.Targeting.MinTargets} and {ability.Targeting.MaxTargets} targets.");
+
+            var seenTargets = new HashSet<RuntimeEntityId>();
+            foreach (var targetId in targets)
+            {
+                if (!seenTargets.Add(targetId))
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.DuplicateTarget, $"Target '{targetId}' was listed more than once.");
+            }
+
+            foreach (var targetId in targets)
+            {
+                if (!characters.TryGetCharacter(targetId, out _))
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.InvalidTarget, $"Target '{targetId}' does not resolve to a live character.");
+            }
+
+            if (factionProvider != null)
+            {
+                foreach (var targetId in targets)
+                {
+                    var rejection = CheckRelation(source, targetId, ability.Targeting.Relation);
+                    if (rejection != null) return rejection;
+                }
+            }
+
+            if (positions != null)
+            {
+                var sourcePosition = positions.GetPosition(source);
+                foreach (var targetId in targets)
+                {
+                    if (UnityEngine.Vector3.Distance(sourcePosition, positions.GetPosition(targetId)) > ability.Targeting.Range)
+                        return AbilityValidationResult.Reject(AbilityRejectionReason.OutOfRange,
+                            $"Target '{targetId}' is beyond '{ability.DisplayName}''s range ({ability.Targeting.Range}).");
+                }
+
+                if (lineOfSightProvider != null && ability.Targeting.RequireLineOfSight)
+                {
+                    foreach (var targetId in targets)
+                    {
+                        if (!lineOfSightProvider.HasLineOfSight(sourcePosition, positions.GetPosition(targetId)))
+                            return AbilityValidationResult.Reject(AbilityRejectionReason.NoLineOfSight,
+                                $"No line of sight to target '{targetId}'.");
+                    }
+                }
+            }
+
+            if (!characters.TryGetCharacter(source, out var costCaster))
+                return AbilityValidationResult.Reject(AbilityRejectionReason.InsufficientResources, "Caster not found.");
+
+            var costPlan = AbilityCostPlan.Build(ability, asRitual, upcastWithSlot);
+            foreach (var entry in costPlan.Entries)
+            {
+                if (!costCaster.TryGetResource(entry.Resource.Id, out var resourceState) || resourceState.Current < entry.Amount)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.InsufficientResources,
+                        $"Not enough '{entry.Resource.DisplayName}' ({entry.Amount} required).");
+            }
+
+            var missingService = FindMissingRequiredEffectService(ability);
+            if (missingService != null)
+                return AbilityValidationResult.Reject(AbilityRejectionReason.MissingRequiredEffectService, missingService);
+
+            return AbilityValidationResult.Ok();
         }
 
-        /// <summary>Whether this ability can be cast as a ritual -- skipping its normal resource costs
-        /// (spending no spell slot, taking no action) in exchange for the extra time a ritual cast takes in
-        /// real SRD5 rules (not itself modeled -- there's no turn/time-of-day system granular enough to enforce
-        /// "10 extra minutes" yet). Still gated by CanAct: an incapacitated/dying caster can't ritual-cast either.</summary>
-        public bool CanUseAsRitual(RuntimeEntityId source, AbilityDefinition ability) =>
-            (ability.Tags & AbilityTag.Ritual) != 0 && CanAct(source);
-
-        /// <summary>Whether this spell can be upcast into the given slot -- the slot must be at or above the
-        /// spell's own SpellLevel (never a lower slot) and the caster must actually have one available.</summary>
-        public bool CanUseAtSlotLevel(RuntimeEntityId source, AbilityDefinition ability, ResourceDefinition slotResource)
+        /// <summary>Task 4.2: builds an ability, applies its effects, and reports the real outcome -- never
+        /// "false success." Re-validates against current state right before committing (Execute can be called
+        /// with a decision made moments earlier, e.g. by AI scoring, so state may have changed since); on
+        /// rejection, nothing is mutated at all -- no resource touched, no event published. Once committed,
+        /// resources are spent exactly once via the same AbilityCostPlan Validate already checked affordability
+        /// against, then effects run inside a try/catch: an unexpected exception becomes a Faulted result and
+        /// an AbilityFaulted event rather than an unhandled exception with no completion signal -- resources
+        /// are NOT rolled back in that case (matches a real tabletop cast not un-happening after a later
+        /// mishap; this is "spend exactly once," not "every effect is atomic").</summary>
+        public AbilityExecutionResult Execute(
+            RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
+            bool asRitual = false, ResourceDefinition upcastWithSlot = null)
         {
-            if (!CanAct(source)) return false;
-            if (slotResource.SpellSlotLevel < ability.SpellLevel) return false;
+            var validation = Validate(source, ability, targets, asRitual, upcastWithSlot);
+            if (!validation.IsValid) return AbilityExecutionResult.FromRejection(validation);
 
-            return characters.TryGetCharacter(source, out var character)
-                && character.TryGetResource(slotResource.Id, out var resource) && resource.Current >= 1;
+            // Validate() already confirmed the caster resolves (both CanAct and the cost-affordability check
+            // require it) -- re-resolving here rather than threading it through is simpler and just as safe.
+            characters.TryGetCharacter(source, out var caster);
+
+            var costPlan = AbilityCostPlan.Build(ability, asRitual, upcastWithSlot);
+            foreach (var entry in costPlan.Entries)
+            {
+                if (caster.TryGetResource(entry.Resource.Id, out var resourceState)) resourceState.Spend(entry.Amount);
+            }
+
+            eventBus?.Publish(new GameEventContext(GameEvent.AbilityStarted, source));
+
+            var upcastLevels = upcastWithSlot != null ? Math.Max(0, upcastWithSlot.SpellSlotLevel - ability.SpellLevel) : 0;
+            var context = new AbilityExecutionContext(
+                source, targets, characters, diceService, combatLog, eventBus, positions, influenceMap,
+                attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
+                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels);
+
+            try
+            {
+                foreach (var effect in ability.Effects) effect.Apply(context);
+            }
+            catch (Exception ex)
+            {
+                eventBus?.Publish(new GameEventContext(GameEvent.AbilityFaulted, source));
+                return AbilityExecutionResult.Fault(ex);
+            }
+
+            // Casting a Concentration-tagged ability always starts (or restarts) concentration on it, ending
+            // whatever the caster was concentrating on before -- SRD5 allows only one at a time. See
+            // CharacterState.ConcentratingOnAbilityId's own remarks on what this deliberately does NOT do.
+            if ((ability.Tags & AbilityTag.Concentration) != 0 && characters.TryGetCharacter(source, out var concentratingCharacter))
+            {
+                if (concentratingCharacter.ConcentratingOnAbilityId.IsValid)
+                    eventBus?.Publish(new GameEventContext(GameEvent.ConcentrationBroken, source, source));
+                concentratingCharacter.ConcentratingOnAbilityId = ability.Id;
+                eventBus?.Publish(new GameEventContext(GameEvent.ConcentrationStarted, source, source));
+            }
+
+            eventBus?.Publish(new GameEventContext(GameEvent.AbilityResolved, source));
+            return AbilityExecutionResult.Ok();
         }
 
-        /// <summary>Shared incapacitation gate for CanUse/CanUseAsRitual: unconscious-and-dying (DeathSaves) or
-        /// any currently-applied condition whose ConditionDefinition.PreventsActions is set (Incapacitated,
-        /// Paralyzed, Petrified, Stunned, Unconscious, ...). Generalizes what used to be a DeathSaves-only
-        /// check into real, data-driven condition content -- ReactionService.ResolveOpportunity calls through
-        /// CanUse too, so a Stunned character correctly can't take opportunity-attack reactions either, for free.</summary>
+        /// <summary>Shared incapacitation gate: unconscious-and-dying (DeathSaves) or any currently-applied
+        /// condition whose ConditionDefinition.PreventsActions is set (Incapacitated, Paralyzed, Petrified,
+        /// Stunned, Unconscious, ...).</summary>
         private bool CanAct(RuntimeEntityId source)
         {
             if (!characters.TryGetCharacter(source, out var character)) return false;
@@ -100,72 +234,68 @@ namespace CRPG.Abilities
             return true;
         }
 
-        public bool IsValidTargetSelection(AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets)
+        /// <summary>Generalizes the exact "same faction = ally, different = enemy" rule
+        /// CombatEncounter.GetEnemiesOf/GetAlliesOf already use. Self/Neutral/Any targeting relations aren't
+        /// faction-restricted at all (there's no "neutral" concept in the underlying two-way faction model, and
+        /// Self/Any aren't relation restrictions by definition) -- only Ally/Enemy are actually enforced.
+        /// Returns null when the relation is satisfied (or not applicable), a rejection otherwise.</summary>
+        private AbilityValidationResult CheckRelation(RuntimeEntityId source, RuntimeEntityId target, TargetRelation relation)
         {
-            var count = targets?.Count ?? 0;
-            return count >= ability.Targeting.MinTargets && count <= ability.Targeting.MaxTargets;
+            if (relation != TargetRelation.Ally && relation != TargetRelation.Enemy) return null;
+
+            if (!factionProvider.TryGetFaction(source, out var sourceFaction) || !factionProvider.TryGetFaction(target, out var targetFaction))
+                return AbilityValidationResult.Reject(AbilityRejectionReason.WrongRelation,
+                    $"Faction could not be resolved for source or target '{target}'.");
+
+            var isAlly = sourceFaction == targetFaction;
+            if (relation == TargetRelation.Ally && !isAlly)
+                return AbilityValidationResult.Reject(AbilityRejectionReason.WrongRelation, $"Target '{target}' is not an ally.");
+            if (relation == TargetRelation.Enemy && isAlly)
+                return AbilityValidationResult.Reject(AbilityRejectionReason.WrongRelation, $"Target '{target}' is not an enemy.");
+
+            return null;
         }
 
-        public void Execute(
-            RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
-            bool asRitual = false, ResourceDefinition upcastWithSlot = null)
+        /// <summary>Task 4.2: the authoritative effect/service compatibility preflight map -- every known
+        /// AbilityEffect type that needs an optional AbilityExecutionContext service gets listed here, so a
+        /// caster is rejected up front rather than charged for an ability whose effects will silently no-op
+        /// (every effect type already gracefully no-ops when its optional service is missing; the bug this
+        /// closes is charging for that no-op, not the no-op itself). A new effect type that depends on a new
+        /// optional service must be added here too, or it silently regresses into charge-and-no-op -- a more
+        /// scalable design (each AbilityEffect declaring its own required services) is a reasonable future
+        /// improvement, not attempted this task for the handful of effect types that exist today.
+        /// DamageEffect's DamageResistanceRule is deliberately NOT listed -- missing resistance data degrades
+        /// to "full unresisted damage," a real (if unintended) outcome, not a "nothing happened" one.</summary>
+        private string FindMissingRequiredEffectService(AbilityDefinition ability)
         {
-            if (asRitual)
+            foreach (var effect in ability.Effects)
             {
-                if (!CanUseAsRitual(source, ability))
-                    throw new InvalidOperationException($"'{ability.DisplayName}' cannot be cast as a ritual by {source} right now.");
-            }
-            else if (upcastWithSlot != null)
-            {
-                if (!CanUseAtSlotLevel(source, ability, upcastWithSlot))
-                    throw new InvalidOperationException($"'{ability.DisplayName}' cannot be cast at {upcastWithSlot.DisplayName} by {source} right now.");
-            }
-            else if (!CanUse(source, ability))
-            {
-                throw new InvalidOperationException($"'{ability.DisplayName}' cannot be used by {source} right now.");
+                var missing = FindMissingRequiredEffectService(effect);
+                if (missing != null) return missing;
             }
 
-            if (!IsValidTargetSelection(ability, targets))
-                throw new InvalidOperationException(
-                    $"'{ability.DisplayName}' requires between {ability.Targeting.MinTargets} and {ability.Targeting.MaxTargets} targets.");
+            return null;
+        }
 
-            eventBus?.Publish(new GameEventContext(GameEvent.AbilityStarted, source));
-
-            // A ritual cast spends no resources at all -- no spell slot, no action -- per SRD5's ritual casting
-            // rule. Upcasting spends exactly the chosen slot instead of the ability's own authored Costs (a
-            // spell's Costs are assumed to name just its base-level slot).
-            if (upcastWithSlot != null)
+        private string FindMissingRequiredEffectService(AbilityEffect effect)
+        {
+            switch (effect)
             {
-                if (characters.TryGetCharacter(source, out var upcastingCharacter) && upcastingCharacter.TryGetResource(upcastWithSlot.Id, out var slot))
-                    slot.Spend(1);
-            }
-            else if (!asRitual && characters.TryGetCharacter(source, out var sourceCharacter))
-            {
-                foreach (var cost in ability.Costs)
-                {
-                    if (sourceCharacter.TryGetResource(cost.Resource.Id, out var resource)) resource.Spend(cost.Amount);
-                }
+                case AttackRollEffect when attackBonusRule == null || armorClassRule == null:
+                    return "An AttackRollEffect requires AttackBonusRule and ArmorClassRule to be wired up.";
+                case SavingThrowEffect when savingThrowRule == null:
+                    return "A SavingThrowEffect requires SavingThrowRule to be wired up.";
+                case CreateInfluenceSourceEffect when positions == null || influenceMap == null:
+                    return "A CreateInfluenceSourceEffect requires Positions and an InfluenceMap to be wired up.";
             }
 
-            var upcastLevels = upcastWithSlot != null ? Math.Max(0, upcastWithSlot.SpellSlotLevel - ability.SpellLevel) : 0;
-            var context = new AbilityExecutionContext(
-                source, targets, characters, diceService, combatLog, eventBus, positions, influenceMap,
-                attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
-                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels);
-            foreach (var effect in ability.Effects) effect.Apply(context);
-
-            // Casting a Concentration-tagged ability always starts (or restarts) concentration on it, ending
-            // whatever the caster was concentrating on before -- SRD5 allows only one at a time. See
-            // CharacterState.ConcentratingOnAbilityId's own remarks on what this deliberately does NOT do.
-            if ((ability.Tags & AbilityTag.Concentration) != 0 && characters.TryGetCharacter(source, out var concentratingCharacter))
+            foreach (var child in effect.GetChildEffects())
             {
-                if (concentratingCharacter.ConcentratingOnAbilityId.IsValid)
-                    eventBus?.Publish(new GameEventContext(GameEvent.ConcentrationBroken, source, source));
-                concentratingCharacter.ConcentratingOnAbilityId = ability.Id;
-                eventBus?.Publish(new GameEventContext(GameEvent.ConcentrationStarted, source, source));
+                var missing = FindMissingRequiredEffectService(child);
+                if (missing != null) return missing;
             }
 
-            eventBus?.Publish(new GameEventContext(GameEvent.AbilityResolved, source));
+            return null;
         }
     }
 }
