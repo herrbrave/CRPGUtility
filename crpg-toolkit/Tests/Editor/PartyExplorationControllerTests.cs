@@ -38,6 +38,12 @@ namespace CRPG.Tests.EditMode
                 length = Vector3.Distance(from, to);
                 return true;
             }
+
+            public bool TryCalculatePath(Vector3 from, Vector3 to, out Vector3[] corners, int areaMask = -1)
+            {
+                corners = new[] { from, to };
+                return true;
+            }
         }
 
         private sealed class FakeMovable : IMovable

@@ -37,6 +37,14 @@ namespace CRPG.Tests.EditMode
                 if (AcceptOnlyNear.HasValue) return Vector3.Distance(to, AcceptOnlyNear.Value) <= AcceptRadius;
                 return true;
             }
+
+            public bool TryCalculatePath(Vector3 from, Vector3 to, out Vector3[] corners, int areaMask = -1)
+            {
+                corners = new[] { from, to };
+                if (PathLengthAlwaysFails) return false;
+                if (AcceptOnlyNear.HasValue) return Vector3.Distance(to, AcceptOnlyNear.Value) <= AcceptRadius;
+                return true;
+            }
         }
 
         private sealed class FakeSelectableSource : ISelectableSource

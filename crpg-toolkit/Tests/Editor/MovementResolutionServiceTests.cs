@@ -237,5 +237,189 @@ namespace CRPG.Tests.EditMode
             selfCharacter.TryGetResource(MovementResourceId, out var movement);
             Assert.AreEqual(0, movement.Current); // 6 - ceil(6) -- moved normally
         }
+
+        // Task 4.3: the small new public primitives CRPG.Gameplay.Actions.MoveActionExecution calls into for
+        // real-navigation multi-segment moves -- MovementResolutionService itself never constructs or knows
+        // about that Gameplay-layer type (see this task's own dependency-direction note).
+
+        [Test]
+        public void GetEffectiveRemainingBudgetReturnsCurrentWhenNoSpeedRule()
+        {
+            selfCharacter.AddResource(new ResourceState(MovementResourceId, max: 6, current: 4));
+
+            Assert.AreEqual(4f, service.GetEffectiveRemainingBudget(self, MovementResourceId));
+        }
+
+        [Test]
+        public void GetEffectiveRemainingBudgetIsCappedBySpeedRule()
+        {
+            selfCharacter.AddResource(new ResourceState(MovementResourceId, max: 10));
+            var speedRule = new FixedMovementSpeedRule(2f);
+            var cappedService = new MovementResolutionService(characters, positions, movementController, combatLog, speedRule: speedRule);
+
+            Assert.AreEqual(2f, cappedService.GetEffectiveRemainingBudget(self, MovementResourceId));
+        }
+
+        [Test]
+        public void GetEffectiveRemainingBudgetIsZeroWhenTheResourceDoesNotExist()
+        {
+            Assert.AreEqual(0f, service.GetEffectiveRemainingBudget(self, new DefinitionId("resource-nonexistent")));
+        }
+
+        [Test]
+        public void SpendMovementDeductsFromTheResource()
+        {
+            selfCharacter.AddResource(new ResourceState(MovementResourceId, max: 6));
+
+            service.SpendMovement(self, MovementResourceId, 2);
+
+            selfCharacter.TryGetResource(MovementResourceId, out var movement);
+            Assert.AreEqual(4, movement.Current);
+        }
+
+        [Test]
+        public void SpendMovementIsANoOpForANonPositiveAmount()
+        {
+            selfCharacter.AddResource(new ResourceState(MovementResourceId, max: 6));
+
+            service.SpendMovement(self, MovementResourceId, 0);
+            service.SpendMovement(self, MovementResourceId, -1);
+
+            selfCharacter.TryGetResource(MovementResourceId, out var movement);
+            Assert.AreEqual(6, movement.Current);
+        }
+
+        [Test]
+        public void FindThreatBoundaryCrossingsFindsEnteringThenLeavingInOrder()
+        {
+            var reactorId = RuntimeEntityId.NewId();
+            positions.Set(reactorId, new Vector3(5f, 0f, 0f)); // default threatRange 1.5
+
+            var crossings = service.FindThreatBoundaryCrossings(new Vector3(0f, 0f, 0f), new Vector3(10f, 0f, 0f), new[] { reactorId });
+
+            Assert.AreEqual(2, crossings.Count);
+            Assert.IsTrue(crossings[0].Entering);
+            Assert.AreEqual(3.5f, crossings[0].DistanceAlongSegment, 0.001f);
+            Assert.IsFalse(crossings[1].Entering);
+            Assert.AreEqual(6.5f, crossings[1].DistanceAlongSegment, 0.001f);
+        }
+
+        [Test]
+        public void FindThreatBoundaryCrossingsIsEmptyWhenTheSegmentNeverTouchesTheThreatCircle()
+        {
+            var reactorId = RuntimeEntityId.NewId();
+            positions.Set(reactorId, new Vector3(50f, 0f, 0f));
+
+            var crossings = service.FindThreatBoundaryCrossings(new Vector3(0f, 0f, 0f), new Vector3(10f, 0f, 0f), new[] { reactorId });
+
+            Assert.AreEqual(0, crossings.Count);
+        }
+
+        [Test]
+        public void FindThreatBoundaryCrossingsFindsOnlyLeavingWhenTheSegmentStartsAlreadyInsideRange()
+        {
+            var reactorId = RuntimeEntityId.NewId();
+            positions.Set(reactorId, new Vector3(5f, 0f, 0f));
+
+            // Starts exactly at the reactor's own position -- well inside its threat circle from the outset.
+            var crossings = service.FindThreatBoundaryCrossings(new Vector3(5f, 0f, 0f), new Vector3(10f, 0f, 0f), new[] { reactorId });
+
+            Assert.AreEqual(1, crossings.Count);
+            Assert.IsFalse(crossings[0].Entering);
+            Assert.AreEqual(1.5f, crossings[0].DistanceAlongSegment, 0.001f);
+        }
+
+        [Test]
+        public void FindThreatBoundaryCrossingsFindsOnlyEnteringWhenTheSegmentEndsInsideRange()
+        {
+            var reactorId = RuntimeEntityId.NewId();
+            positions.Set(reactorId, new Vector3(5f, 0f, 0f));
+
+            var crossings = service.FindThreatBoundaryCrossings(new Vector3(0f, 0f, 0f), new Vector3(5f, 0f, 0f), new[] { reactorId });
+
+            Assert.AreEqual(1, crossings.Count);
+            Assert.IsTrue(crossings[0].Entering);
+            Assert.AreEqual(3.5f, crossings[0].DistanceAlongSegment, 0.001f);
+        }
+
+        [Test]
+        public void ResolveReactionForCrossingNeverTriggersOnAnEnteringCrossing()
+        {
+            var reactionResource = TestDefinitionFactory.CreateResourceDefinition("resource-reaction", "Reaction");
+            var rulesDatabase = new RulesDatabase();
+            var reactorId = RuntimeEntityId.NewId();
+            var reactor = new CharacterState(reactorId);
+            reactor.AddResource(new ResourceState(reactionResource.Id, max: 1));
+            characters.Register(reactor);
+
+            var reactionAbilityResolution = new AbilityResolutionService(characters, new DiceService(new TestRandomSource()));
+            var reactionService = new ReactionService(characters, reactionAbilityResolution, new FirstEligibleReactionProvider(), reactionResource);
+            var movingService = new MovementResolutionService(characters, positions, movementController, combatLog, reactionService, rulesDatabase);
+
+            var triggered = movingService.ResolveReactionForCrossing(self, reactorId, entering: true);
+
+            Assert.IsFalse(triggered);
+            reactor.TryGetResource(reactionResource.Id, out var reactionPool);
+            Assert.AreEqual(1, reactionPool.Current); // untouched
+        }
+
+        [Test]
+        public void ResolveReactionForCrossingTriggersOnALeavingCrossingWithAnEligibleReactor()
+        {
+            var hp = TestDefinitionFactory.CreateResourceDefinition("resource-hp", "Hit Points");
+            var reactionResource = TestDefinitionFactory.CreateResourceDefinition("resource-reaction", "Reaction");
+            var rulesDatabase = new RulesDatabase();
+
+            var damageEffect = new DamageEffect();
+            TestDefinitionFactory.SetPrivateField(damageEffect, "hitPointResource", hp);
+            TestDefinitionFactory.SetPrivateField(damageEffect, "amount", new DiceExpression(1, 2));
+
+            var opportunityAttack = ScriptableObject.CreateInstance<AbilityDefinition>();
+            TestDefinitionFactory.SetPrivateField(opportunityAttack, "id", "ability-opportunity-attack-crossing");
+            TestDefinitionFactory.SetPrivateField(opportunityAttack, "tags", AbilityTag.Reaction);
+            object boxedCost = new AbilityCost();
+            TestDefinitionFactory.SetPrivateField(boxedCost, "resource", reactionResource);
+            TestDefinitionFactory.SetPrivateField(boxedCost, "amount", 1);
+            TestDefinitionFactory.SetPrivateField(opportunityAttack, "costs", new List<AbilityCost> { (AbilityCost)boxedCost });
+            var targeting = new TargetingDefinition();
+            TestDefinitionFactory.SetPrivateField(targeting, "minTargets", 1);
+            TestDefinitionFactory.SetPrivateField(targeting, "maxTargets", 1);
+            TestDefinitionFactory.SetPrivateField(opportunityAttack, "targeting", targeting);
+            TestDefinitionFactory.SetPrivateField(opportunityAttack, "effects", new List<AbilityEffect> { damageEffect });
+            rulesDatabase.Register(opportunityAttack);
+
+            var feature = TestDefinitionFactory.CreateFeatureDefinition("feature-opportunist-crossing", "Opportunist");
+            TestDefinitionFactory.SetPrivateField(feature, "grantedAbilityIds", new List<DefinitionId> { opportunityAttack.Id });
+            rulesDatabase.Register(feature);
+
+            selfCharacter.AddResource(new ResourceState(hp.Id, max: 20));
+
+            var reactorId = RuntimeEntityId.NewId();
+            var reactor = new CharacterState(reactorId);
+            reactor.AddResource(new ResourceState(reactionResource.Id, max: 1));
+            reactor.GrantFeature(feature.Id);
+            characters.Register(reactor);
+
+            var damageRandom = new TestRandomSource();
+            damageRandom.EnqueueResult(2);
+            var reactionAbilityResolution = new AbilityResolutionService(characters, new DiceService(damageRandom));
+            var reactionService = new ReactionService(characters, reactionAbilityResolution, new FirstEligibleReactionProvider(), reactionResource);
+            var movingService = new MovementResolutionService(characters, positions, movementController, combatLog, reactionService, rulesDatabase);
+
+            var triggered = movingService.ResolveReactionForCrossing(self, reactorId, entering: false);
+
+            Assert.IsTrue(triggered);
+            selfCharacter.TryGetResource(hp.Id, out var selfHp);
+            Assert.AreEqual(18, selfHp.Current);
+            reactor.TryGetResource(reactionResource.Id, out var reactionPool);
+            Assert.AreEqual(0, reactionPool.Current);
+        }
+
+        [Test]
+        public void ResolveReactionForCrossingReturnsFalseWithoutReactionSupportWiredUp()
+        {
+            // Base `service` (from SetUp) has no ReactionService/IRulesDatabase.
+            Assert.IsFalse(service.ResolveReactionForCrossing(self, target, entering: false));
+        }
     }
 }

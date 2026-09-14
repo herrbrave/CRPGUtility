@@ -24,6 +24,14 @@ namespace CRPG.Abilities
         /// ResourceDefinition.SpellSlotLevel.</summary>
         [SerializeField] private int spellLevel;
 
+        /// <summary>Task 4.3: real gameplay-timed action phases (Docs/Design/Production-Foundation.md sec.4.4,
+        /// "Prepare -> Commit -> Recover -> Complete"). Both default to 0 -- purely additive, every existing
+        /// asset deserializes as instant/unchanged (0-duration phases collapse to effectively-instant, matching
+        /// today's AbilityResolutionService.Execute()'s own single-call behavior exactly). See
+        /// CRPG.Gameplay.Actions.AbilityActionExecution, the only consumer.</summary>
+        [SerializeField] private float prepareSeconds;
+        [SerializeField] private float recoverSeconds;
+
         public string DisplayName => displayName;
         public string Description => description;
         public AbilityTag Tags => tags;
@@ -31,5 +39,7 @@ namespace CRPG.Abilities
         public TargetingDefinition Targeting => targeting;
         public IReadOnlyList<AbilityEffect> Effects => effects;
         public int SpellLevel => spellLevel;
+        public float PrepareSeconds => prepareSeconds;
+        public float RecoverSeconds => recoverSeconds;
     }
 }

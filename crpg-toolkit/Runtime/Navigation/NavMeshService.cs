@@ -38,5 +38,18 @@ namespace CRPG.Navigation
                 length += Vector3.Distance(corners[i - 1], corners[i]);
             return length;
         }
+
+        public bool TryCalculatePath(Vector3 from, Vector3 to, out Vector3[] corners, int areaMask = NavMesh.AllAreas)
+        {
+            var path = new NavMeshPath();
+            if (NavMesh.CalculatePath(from, to, areaMask, path) && path.status == NavMeshPathStatus.PathComplete)
+            {
+                corners = path.corners;
+                return true;
+            }
+
+            corners = System.Array.Empty<Vector3>();
+            return false;
+        }
     }
 }
