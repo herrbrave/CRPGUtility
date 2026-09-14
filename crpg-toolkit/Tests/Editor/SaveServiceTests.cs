@@ -40,7 +40,7 @@ namespace CRPG.Tests.EditMode
             // fixture every other SaveServiceTests case already shares, not a bespoke one-off setup.
             fighter.Level = 5;
             fighter.SpellcastingStatId = WisId;
-            fighter.ConcentratingOnAbilityId = ConcentrationAbilityId;
+            fighter.SetConcentrationEffect(ConcentrationAbilityId, EffectOwnerId.NewOwner(), new[] { fighterId });
             fighter.LearnAbility(KnownAbilityId);
             fighter.PrepareSpells(new[] { PreparedAbilityId });
             fighter.DeathSaves = new DeathSaveState { Successes = 1, Failures = 2 };
@@ -330,6 +330,67 @@ namespace CRPG.Tests.EditMode
         {
             var restored = RestoreFighter(BuildLiveState());
             Assert.AreEqual(ConcentrationAbilityId, restored.ConcentratingOnAbilityId, "ConcentratingOnAbilityId does not round-trip.");
+        }
+
+        [Test]
+        public void RestoringCapturedCharacterReproducesConcentrationOwnershipData()
+        {
+            var live = BuildLiveState();
+            live.characters.TryGetCharacter(live.fighterId, out var original);
+
+            var restored = RestoreFighter(live);
+
+            Assert.AreEqual(original.ConcentrationEffectOwnerId, restored.ConcentrationEffectOwnerId,
+                "ConcentrationEffectOwnerId does not round-trip -- a later ConcentrationEffectCleanup.Break after reload would have nothing to sweep.");
+            CollectionAssert.AreEqual(original.ConcentrationAffectedTargets, restored.ConcentrationAffectedTargets,
+                "ConcentrationAffectedTargets does not round-trip.");
+        }
+
+        [Test]
+        public void RestoringCapturedConditionReproducesOwnershipAndBoundary()
+        {
+            var restored = RestoreFighter(BuildLiveState());
+            var condition = restored.Conditions.Single(c => c.ConditionId == ProneId);
+
+            // BuildLiveState's Prone instance is ownerless/boundary-None by construction (predates Task 4.4) --
+            // this proves the new fields round-trip as the correct default, not that they're silently dropped.
+            Assert.AreEqual(EffectOwnerId.None, condition.OwnerId);
+            Assert.AreEqual(DurationBoundary.None, condition.Boundary);
+        }
+
+        [Test]
+        public void SaveLoadThenBreakConcentrationRemovesOnlyThatCastsConditionAcrossAReload()
+        {
+            var casterId = RuntimeEntityId.NewId();
+            var targetId = RuntimeEntityId.NewId();
+            var caster = new CharacterState(casterId);
+            var target = new CharacterState(targetId);
+
+            var ownerId = EffectOwnerId.NewOwner();
+            var ownedConditionId = new DefinitionId("condition-slowed");
+            var unrelatedConditionId = new DefinitionId("condition-frightened");
+            target.ApplyCondition(new ConditionInstance(ownedConditionId, casterId, targetId, ownerId: ownerId));
+            target.ApplyCondition(new ConditionInstance(unrelatedConditionId, RuntimeEntityId.NewId(), targetId));
+            caster.SetConcentrationEffect(ConcentrationAbilityId, ownerId, new[] { targetId });
+
+            var characters = new CharacterRegistry();
+            characters.Register(caster);
+            characters.Register(target);
+            var party = new PartyState(new[] { casterId });
+
+            // Real save -> real reload, exactly like a genuine session restart: a fresh CharacterRegistry, not
+            // the live one, and every value reconstructed purely from SaveData.
+            var data = SaveService.Capture(party, characters, new PartyInventoryState(), new Timeline(), new QuestLog(), additionalCharacterIds: new[] { targetId });
+            var restoredCharacters = new CharacterRegistry();
+            SaveService.Restore(data, new PartyState(), restoredCharacters, new PartyInventoryState(), new Timeline(), new QuestLog());
+
+            restoredCharacters.TryGetCharacter(casterId, out var restoredCaster);
+            restoredCharacters.TryGetCharacter(targetId, out var restoredTarget);
+
+            ConcentrationEffectCleanup.Break(casterId, restoredCaster, restoredCharacters, null);
+
+            Assert.IsFalse(restoredTarget.HasCondition(ownedConditionId), "Ownership must survive save/load as a real relationship, not just the flag.");
+            Assert.IsTrue(restoredTarget.HasCondition(unrelatedConditionId), "An unrelated condition on the same target must still survive the sweep.");
         }
 
         [Test]

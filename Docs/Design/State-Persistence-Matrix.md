@@ -13,18 +13,29 @@ Companion to `Docs/Verification/Production-Baseline.md` (Task 0.1). Every field 
 |---|---|---|---|
 | `Stats` (StatBlock) | Persisted | `SaveService.cs:76,103` | |
 | `Resources` (dict) | Persisted | `SaveService.cs:77-78,104-105` | Max + Current both captured |
-| `Conditions` (list) | Persisted | `SaveService.cs:79-90,106-114` | Source/Target/RemainingDuration/StackCount all captured |
+| `Conditions` (list) | Persisted | `SaveService.cs:79-90,106-114` | Source/Target/RemainingDuration/StackCount all captured; Task 4.4 added `OwnerId`/`Boundary` (below) |
 | `Proficiencies` (set) | Persisted | `SaveService.cs:91,115` | |
 | `Features` (list) | Persisted | `SaveService.cs:92,116` | |
-| `Level` | **Missing** | none | Not read anywhere in `CaptureCharacters`/`RestoreCharacters`. A restored character's `Level` reverts to the constructor default (1) regardless of actual level — proficiency bonus, which is level-derived (`ProficiencyBonus.cs`), would silently recompute wrong after load. |
-| `DeathSaves` (nullable) | **Missing** | none | A character mid-death-save sequence loses that state entirely on reload; would appear at 0 successes/failures un-dying on next damage instead of continuing the existing sequence. |
-| `SpellcastingStatId` | **Missing** | none | Reverts to `DefinitionId.None` (non-caster) on reload for any actual caster restored via `RestoreCharacters` — `AttackRollEffect`/`SavingThrowEffect` would resolve spell attacks/DCs against the wrong (default/zero) stat. |
-| `ConcentratingOnAbilityId` | **Missing** | none | A save mid-encounter (once combat saves are supported) would silently drop active concentration with no matching effect cleanup signal. |
-| `CurrentAnimationCueId` | Transient (correctly excluded) | — | Purely a "last requested visual cue" record per its own doc comment; not gameplay-authoritative. Reasonable to leave out, but should be explicitly documented as transient rather than just absent. |
-| `KnownAbilities` (set) | **Missing** | none | A restored character forgets every spell/ability it permanently knows — for a Known-caster this is total spell-list loss, not a cosmetic gap. |
-| `PreparedAbilities` (set) | **Missing** | none | A Prepared-caster's current day's spell selection is lost; would need to re-prepare every reload even though this isn't derivable from anything else persisted. |
+| `Level` | Persisted (since Task 3.5) | `SaveService.cs` | |
+| `DeathSaves` (nullable) | Persisted (since Task 3.5) | `SaveService.cs` | |
+| `SpellcastingStatId` | Persisted (since Task 3.5) | `SaveService.cs` | |
+| `ConcentratingOnAbilityId` | Persisted (since Task 3.5; row corrected here — previously stale) | `SaveService.cs` | |
+| `CurrentAnimationCueId` | Transient (correctly excluded) | — | Purely a "last requested visual cue" record per its own doc comment; not gameplay-authoritative. |
+| `KnownAbilities` (set) | Persisted (since Task 3.5) | `SaveService.cs` | |
+| `PreparedAbilities` (set) | Persisted (since Task 3.5) | `SaveService.cs` | |
 
-**Net: 5 of 12 fields persisted, 6 missing, 1 correctly transient.** This confirms the design doc's Repository-grounded-baseline table entry for `Saving/SaveService.cs` — independently reproduced here, not just cited.
+**Task 4.4 additions (ownership, so cleanup survives a reload as a real relationship, not just a flag):**
+
+| Field | Class | Notes |
+|---|---|---|
+| `ConditionInstance.OwnerId` | Persisted | GUID-backed (`CRPG.Actors.EffectOwnerId`), exactly like `Source`/`Target`'s `RuntimeEntityId` already is — safe to persist, unlike a process-lifetime counter (`ActionToken`/`MoveRequestId`) would be, since it names a relationship ("this condition belongs to that cast") that must still be true after a reload. Empty for a save written before this field existed. |
+| `ConditionInstance.Boundary` | Persisted | Authored intent (`DurationBoundary`), meaningful even outside combat as "how this should tick if a fight starts." |
+| `CharacterState.ConcentrationEffectOwnerId` | Persisted | Round-tripped alongside `ConcentratingOnAbilityId` so `ConcentrationEffectCleanup.Break` can still find and sweep the right conditions after a reload — proven by a dedicated save→load→break test, not just round-trip assertions. |
+| `CharacterState.ConcentrationAffectedTargets` | Persisted | The actual recipients of the current concentration cast's owned conditions. |
+
+This closes the gap the first draft of this task's own plan proposed leaving open (deferring ownership persistence entirely, by analogy with the deliberately-never-persisted RNG call count) — that analogy didn't hold: RNG/`ActionToken`-style tokens only ever answer "is this specific in-flight thing still current," a question that stops mattering the instant a save happens, whereas ownership names a durable relationship. Corrected before implementation, not after.
+
+**Net (pre-Task-4.4 CharacterState fields): 11 of 12 persisted, 1 correctly transient** (all 6 fields this document originally flagged "Missing" were actually closed in Task 3.5; only the `ConcentratingOnAbilityId` row itself had gone stale). This confirms the design doc's Repository-grounded-baseline table entry for `Saving/SaveService.cs` — independently reproduced here, not just cited.
 
 ## PartyState (`Runtime/Party/PartyState.cs`)
 

@@ -67,5 +67,88 @@ namespace CRPG.Tests.EditMode
 
             Assert.IsFalse(character.HasCondition(prone));
         }
+
+        [Test]
+        public void TwoSourcesApplyingTheSameConditionCoexistIndependently()
+        {
+            var character = new CharacterState(RuntimeEntityId.NewId());
+            var poisoned = new DefinitionId("condition-poisoned");
+            var ownerA = EffectOwnerId.NewOwner();
+            var ownerB = EffectOwnerId.NewOwner();
+
+            character.ApplyCondition(new ConditionInstance(poisoned, RuntimeEntityId.NewId(), character.Id, ownerId: ownerA));
+            character.ApplyCondition(new ConditionInstance(poisoned, RuntimeEntityId.NewId(), character.Id, ownerId: ownerB));
+
+            Assert.IsTrue(character.HasCondition(poisoned));
+            Assert.AreEqual(2, character.Conditions.Count);
+        }
+
+        [Test]
+        public void RemoveConditionsWithOwnerLeavesAnUnrelatedSourcesInstanceIntact()
+        {
+            var character = new CharacterState(RuntimeEntityId.NewId());
+            var poisoned = new DefinitionId("condition-poisoned");
+            var ownerA = EffectOwnerId.NewOwner();
+            var ownerB = EffectOwnerId.NewOwner();
+            character.ApplyCondition(new ConditionInstance(poisoned, RuntimeEntityId.NewId(), character.Id, ownerId: ownerA));
+            character.ApplyCondition(new ConditionInstance(poisoned, RuntimeEntityId.NewId(), character.Id, ownerId: ownerB));
+
+            var removed = character.RemoveConditionsWithOwner(ownerA);
+
+            Assert.AreEqual(1, removed.Count);
+            Assert.AreEqual(1, character.Conditions.Count);
+            Assert.AreEqual(ownerB, character.Conditions[0].OwnerId);
+        }
+
+        [Test]
+        public void RemoveConditionsWithOwnerNeverMatchesAnOwnerlessCondition()
+        {
+            var character = new CharacterState(RuntimeEntityId.NewId());
+            character.ApplyCondition(new ConditionInstance(new DefinitionId("condition-prone"), RuntimeEntityId.NewId(), character.Id));
+
+            var removed = character.RemoveConditionsWithOwner(EffectOwnerId.None);
+
+            Assert.AreEqual(0, removed.Count);
+            Assert.AreEqual(1, character.Conditions.Count);
+        }
+
+        [Test]
+        public void RemoveConditionsByPredicateRemovesEveryMatchAndReturnsThem()
+        {
+            var character = new CharacterState(RuntimeEntityId.NewId());
+            var poisoned = new DefinitionId("condition-poisoned");
+            var prone = new DefinitionId("condition-prone");
+            character.ApplyCondition(new ConditionInstance(poisoned, RuntimeEntityId.NewId(), character.Id));
+            character.ApplyCondition(new ConditionInstance(poisoned, RuntimeEntityId.NewId(), character.Id));
+            character.ApplyCondition(new ConditionInstance(prone, RuntimeEntityId.NewId(), character.Id));
+
+            var removed = character.RemoveConditions(c => c.ConditionId == poisoned);
+
+            Assert.AreEqual(2, removed.Count);
+            Assert.AreEqual(1, character.Conditions.Count);
+            Assert.IsTrue(character.HasCondition(prone));
+            Assert.IsFalse(character.HasCondition(poisoned));
+        }
+
+        [Test]
+        public void SetConcentrationEffectAndClearConcentrationStayConsistent()
+        {
+            var character = new CharacterState(RuntimeEntityId.NewId());
+            var abilityId = new DefinitionId("ability-bless");
+            var ownerId = EffectOwnerId.NewOwner();
+            var targetId = RuntimeEntityId.NewId();
+
+            character.SetConcentrationEffect(abilityId, ownerId, new[] { targetId });
+
+            Assert.AreEqual(abilityId, character.ConcentratingOnAbilityId);
+            Assert.AreEqual(ownerId, character.ConcentrationEffectOwnerId);
+            CollectionAssert.AreEqual(new[] { targetId }, character.ConcentrationAffectedTargets);
+
+            character.ClearConcentration();
+
+            Assert.AreEqual(DefinitionId.None, character.ConcentratingOnAbilityId);
+            Assert.AreEqual(EffectOwnerId.None, character.ConcentrationEffectOwnerId);
+            Assert.AreEqual(0, character.ConcentrationAffectedTargets.Count);
+        }
     }
 }

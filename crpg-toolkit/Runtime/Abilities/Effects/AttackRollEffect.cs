@@ -73,7 +73,8 @@ namespace CRPG.Abilities
                 var hitContext = new AbilityExecutionContext(
                     context.Source, hitTargets, context.Characters, context.DiceService, context.CombatLog, context.EventBus,
                     context.Positions, context.InfluenceMap, context.AttackBonusRule, context.ArmorClassRule, criticalTargets,
-                    context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels);
+                    context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels,
+                    context.OwnerId, context.OwnedTargets);
                 onHit.Apply(hitContext);
             }
         }

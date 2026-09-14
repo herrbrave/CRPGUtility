@@ -162,7 +162,19 @@ namespace CRPG.Abilities
         /// against, then effects run inside a try/catch: an unexpected exception becomes a Faulted result and
         /// an AbilityFaulted event rather than an unhandled exception with no completion signal -- resources
         /// are NOT rolled back in that case (matches a real tabletop cast not un-happening after a later
-        /// mishap; this is "spend exactly once," not "every effect is atomic").</summary>
+        /// mishap; this is "spend exactly once," not "every effect is atomic").
+        ///
+        /// Task 4.4: a fresh EffectOwnerId is generated for every cast (not just Concentration-tagged ones), so
+        /// any condition it applies is individually ownership-traceable. For a Concentration-tagged ability, the
+        /// caster's PREVIOUS concentration (if any) is broken via ConcentrationEffectCleanup.Break BEFORE this
+        /// cast's own effects run -- deterministic regardless of whether the new cast goes on to succeed or
+        /// fault. The new concentration record is registered using AbilityExecutionContext.OwnedTargets (who
+        /// ACTUALLY received a condition, not the originally-requested target list) on BOTH the success path and
+        /// the fault path -- registering it even on fault is deliberate: a faulted cast's partially-applied
+        /// conditions must not be left with a valid owner that no character's ConcentrationEffectOwnerId ever
+        /// points to (they'd still be reachable via DispelEffect's independent owner-scan, but not via a later
+        /// concentration-based Break), matching the existing "a fault doesn't un-happen what already happened"
+        /// precedent AbilityFaulted's own doc comment already establishes.</summary>
         public AbilityExecutionResult Execute(
             RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
             bool asRitual = false, ResourceDefinition upcastWithSlot = null)
@@ -182,11 +194,26 @@ namespace CRPG.Abilities
 
             eventBus?.Publish(new GameEventContext(GameEvent.AbilityStarted, source));
 
+            var isConcentration = (ability.Tags & AbilityTag.Concentration) != 0;
+            var ownerId = EffectOwnerId.NewOwner();
+
+            // Break BEFORE the new effects run, unconditionally once we know this cast will replace the old
+            // one -- see the method doc comment for why this ordering (not "after effects succeed") matters.
+            if (isConcentration && caster.ConcentratingOnAbilityId.IsValid)
+                ConcentrationEffectCleanup.Break(source, caster, characters, eventBus, combatLog);
+
             var upcastLevels = upcastWithSlot != null ? Math.Max(0, upcastWithSlot.SpellSlotLevel - ability.SpellLevel) : 0;
             var context = new AbilityExecutionContext(
                 source, targets, characters, diceService, combatLog, eventBus, positions, influenceMap,
                 attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
-                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels);
+                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId);
+
+            void RegisterConcentration()
+            {
+                if (!isConcentration) return;
+                caster.SetConcentrationEffect(ability.Id, ownerId, context.OwnedTargets);
+                eventBus?.Publish(new GameEventContext(GameEvent.ConcentrationStarted, source, source));
+            }
 
             try
             {
@@ -194,21 +221,12 @@ namespace CRPG.Abilities
             }
             catch (Exception ex)
             {
+                RegisterConcentration();
                 eventBus?.Publish(new GameEventContext(GameEvent.AbilityFaulted, source));
                 return AbilityExecutionResult.Fault(ex);
             }
 
-            // Casting a Concentration-tagged ability always starts (or restarts) concentration on it, ending
-            // whatever the caster was concentrating on before -- SRD5 allows only one at a time. See
-            // CharacterState.ConcentratingOnAbilityId's own remarks on what this deliberately does NOT do.
-            if ((ability.Tags & AbilityTag.Concentration) != 0 && characters.TryGetCharacter(source, out var concentratingCharacter))
-            {
-                if (concentratingCharacter.ConcentratingOnAbilityId.IsValid)
-                    eventBus?.Publish(new GameEventContext(GameEvent.ConcentrationBroken, source, source));
-                concentratingCharacter.ConcentratingOnAbilityId = ability.Id;
-                eventBus?.Publish(new GameEventContext(GameEvent.ConcentrationStarted, source, source));
-            }
-
+            RegisterConcentration();
             eventBus?.Publish(new GameEventContext(GameEvent.AbilityResolved, source));
             return AbilityExecutionResult.Ok();
         }

@@ -30,12 +30,14 @@ namespace CRPG.Abilities
             if (eligibleTargets.Count == 0) return;
 
             // Forwards every rule/state field, not just the ones this class originally needed -- a
-            // ConditionalEffect wrapping an AttackRollEffect/SavingThrowEffect/DamageEffect must not silently
-            // drop the rules those need to resolve correctly.
+            // ConditionalEffect wrapping an AttackRollEffect/SavingThrowEffect/DamageEffect/ApplyConditionEffect
+            // must not silently drop the rules (or the ownership tracking) those need to resolve correctly.
+            // OwnedTargets in particular MUST be the SAME instance, not a fresh one -- see its own remarks.
             var filteredContext = new AbilityExecutionContext(
                 context.Source, eligibleTargets, context.Characters, context.DiceService, context.CombatLog,
                 context.EventBus, context.Positions, context.InfluenceMap, context.AttackBonusRule, context.ArmorClassRule,
-                context.CriticalTargets, context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels);
+                context.CriticalTargets, context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels,
+                context.OwnerId, context.OwnedTargets);
             thenEffect.Apply(filteredContext);
         }
 

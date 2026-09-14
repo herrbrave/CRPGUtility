@@ -22,7 +22,9 @@ namespace CRPG.Abilities
             IReadOnlyCollection<RuntimeEntityId> criticalTargets = null,
             ISavingThrowRule savingThrowRule = null,
             IDamageResistanceRule damageResistanceRule = null,
-            int upcastLevels = 0)
+            int upcastLevels = 0,
+            EffectOwnerId ownerId = default,
+            HashSet<RuntimeEntityId> ownedTargets = null)
         {
             Source = source;
             Targets = targets;
@@ -38,6 +40,8 @@ namespace CRPG.Abilities
             SavingThrowRule = savingThrowRule;
             DamageResistanceRule = damageResistanceRule;
             UpcastLevels = upcastLevels;
+            OwnerId = ownerId;
+            OwnedTargets = ownedTargets ?? new HashSet<RuntimeEntityId>();
         }
 
         public RuntimeEntityId Source { get; }
@@ -72,5 +76,19 @@ namespace CRPG.Abilities
         /// a normal cast, or any non-spell ability) -- set by AbilityResolutionService.Execute's upcastWithSlot
         /// parameter. DamageEffect/HealEffect use this to add their authored per-level bonus dice.</summary>
         public int UpcastLevels { get; }
+
+        /// <summary>Task 4.4: which specific cast this context belongs to -- ApplyConditionEffect tags every
+        /// ConditionInstance it creates with this. EffectOwnerId.None for any caller that doesn't pass one
+        /// (matches pre-Task-4.4 behavior: an ownerless condition can only be removed by type, never by
+        /// ownership-scoped cleanup).</summary>
+        public EffectOwnerId OwnerId { get; }
+
+        /// <summary>Task 4.4: the *actual* recipients ApplyConditionEffect has tagged with <see cref="OwnerId"/>
+        /// so far, as opposed to <see cref="Targets"/> (what the ability's target selection originally
+        /// requested) -- a self-effect, an area-expanded target, or a redirected target all still end up here.
+        /// A narrowed context (AttackRollEffect's onHit, ConditionalEffect's thenEffect) MUST be constructed
+        /// with this SAME instance (not a fresh one) so a nested ApplyConditionEffect's recordings are visible
+        /// to whoever reads the outer, top-level context afterward -- see those two classes' own remarks.</summary>
+        public HashSet<RuntimeEntityId> OwnedTargets { get; }
     }
 }

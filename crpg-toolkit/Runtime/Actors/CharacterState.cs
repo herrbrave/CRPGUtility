@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CRPG.Core;
 
@@ -21,6 +22,7 @@ namespace CRPG.Actors
         private readonly List<DefinitionId> features = new();
         private readonly HashSet<DefinitionId> knownAbilities = new();
         private readonly HashSet<DefinitionId> preparedAbilities = new();
+        private readonly List<RuntimeEntityId> concentrationAffectedTargets = new();
 
         public CharacterState(RuntimeEntityId id)
         {
@@ -41,13 +43,51 @@ namespace CRPG.Actors
         /// spell asset -- see AttackRollEffect/SavingThrowEffect.</summary>
         public DefinitionId SpellcastingStatId { get; set; }
 
-        /// <summary>DefinitionId.None means not currently concentrating. Set by AbilityResolutionService when
-        /// an AbilityTag.Concentration ability resolves (overwriting any previous value -- casting a new
-        /// concentration spell always ends the last one); cleared by ConcentrationService on a failed
-        /// Constitution save after taking damage. Note: ending concentration this way does not retroactively
-        /// remove whatever the broken spell's effects already did (e.g. a condition it applied stays applied) --
-        /// only new content built around this flag can decide to clean itself up when it sees concentration end.</summary>
-        public DefinitionId ConcentratingOnAbilityId { get; set; }
+        /// <summary>DefinitionId.None means not currently concentrating. Set via <see cref="SetConcentrationEffect"/>
+        /// when an AbilityTag.Concentration ability resolves (or faults after partially applying effects --
+        /// see AbilityResolutionService.Execute); cleared via <see cref="ClearConcentration"/>, called by
+        /// <see cref="ConcentrationEffectCleanup.Break"/> from both AbilityResolutionService's replacement path
+        /// and ConcentrationService's failed-save/CreatureDied paths. Unlike the pre-Task-4.4 version of this
+        /// field, ending concentration now DOES retroactively remove whatever the broken spell's effects already
+        /// did -- see <see cref="ConcentrationEffectOwnerId"/>/<see cref="ConcentrationAffectedTargets"/> and
+        /// ConcentrationEffectCleanup.Break -- as long as the character was concentrating with a valid owner
+        /// (always true for anything set this session; see that field's own remarks for the one exception).</summary>
+        public DefinitionId ConcentratingOnAbilityId { get; private set; }
+
+        /// <summary>Which specific cast <see cref="ConcentratingOnAbilityId"/> refers to -- lets
+        /// ConcentrationEffectCleanup.Break remove exactly that cast's conditions from
+        /// <see cref="ConcentrationAffectedTargets"/> without touching an unrelated source's condition on the
+        /// same target. <see cref="EffectOwnerId.None"/> only for a character restored from a save written before
+        /// this field existed (the flag round-trips, the owner/targets do not for that one legacy case) -- Break
+        /// still clears the flag correctly then, it just has nothing to sweep.</summary>
+        public EffectOwnerId ConcentrationEffectOwnerId { get; private set; }
+
+        /// <summary>The *actual* recipients of the current concentration cast's owned conditions (from
+        /// AbilityExecutionContext.OwnedTargets, not the ability's originally-requested target list -- a
+        /// self-effect, an expanded-area target, or a redirected target must still be swept correctly).</summary>
+        public IReadOnlyList<RuntimeEntityId> ConcentrationAffectedTargets => concentrationAffectedTargets;
+
+        /// <summary>Starts (or, via the caller's own prior ConcentrationEffectCleanup.Break call, replaces)
+        /// concentration atomically -- the ability id, owner id, and affected-targets snapshot always change
+        /// together, so they can never drift out of sync the way three independently-settable properties could.</summary>
+        public void SetConcentrationEffect(DefinitionId abilityId, EffectOwnerId ownerId, IEnumerable<RuntimeEntityId> affectedTargets)
+        {
+            ConcentratingOnAbilityId = abilityId;
+            ConcentrationEffectOwnerId = ownerId;
+            concentrationAffectedTargets.Clear();
+            concentrationAffectedTargets.AddRange(affectedTargets);
+        }
+
+        /// <summary>Clears the concentration flag/owner/targets together. Does NOT remove any conditions itself --
+        /// that's ConcentrationEffectCleanup.Break's job (it calls this as one step of its own sweep); calling
+        /// this directly is for restore/reset paths that don't want a sweep (e.g. SaveService.RestoreCharacters
+        /// starting from a blank CharacterState).</summary>
+        public void ClearConcentration()
+        {
+            ConcentratingOnAbilityId = DefinitionId.None;
+            ConcentrationEffectOwnerId = EffectOwnerId.None;
+            concentrationAffectedTargets.Clear();
+        }
 
         /// <summary>The last animation cue requested for this character via AnimationOrderService -- e.g. an
         /// attack swing or a combat-ready stance. DefinitionId.None means nothing's been explicitly requested.
@@ -67,6 +107,26 @@ namespace CRPG.Actors
         public void ApplyCondition(ConditionInstance condition) => conditions.Add(condition);
 
         public void RemoveCondition(ConditionInstance condition) => conditions.Remove(condition);
+
+        /// <summary>Removes and returns every currently-applied condition matching <paramref name="predicate"/>
+        /// (a real snapshot list, not a live view -- callers loop over the RETURN VALUE to log/publish events
+        /// without touching this character's live condition list again, which is what keeps a ConditionRemoved
+        /// subscriber that itself mutates conditions from corrupting an in-progress sweep). "Remove every
+        /// stacked instance of this condition TYPE regardless of source" (a cure) and "remove only this specific
+        /// cast's instance(s)" (<see cref="RemoveConditionsWithOwner"/>) are deliberately different operations --
+        /// see CRPG.Abilities.Effects.RemoveConditionEffect vs. ConcentrationEffectCleanup/DispelEffect.</summary>
+        public IReadOnlyList<ConditionInstance> RemoveConditions(Predicate<ConditionInstance> predicate)
+        {
+            var removed = conditions.FindAll(predicate);
+            foreach (var instance in removed) conditions.Remove(instance);
+            return removed;
+        }
+
+        /// <summary>Removes only the condition instance(s) a specific cast/effect application owns -- never
+        /// matches an ownerless condition, even when called with <see cref="EffectOwnerId.None"/> (guarded
+        /// internally so a caller can't accidentally broad-purge by passing an invalid owner).</summary>
+        public IReadOnlyList<ConditionInstance> RemoveConditionsWithOwner(EffectOwnerId ownerId) =>
+            ownerId.IsValid ? RemoveConditions(c => c.OwnerId == ownerId) : Array.Empty<ConditionInstance>();
 
         public bool HasCondition(DefinitionId conditionId)
         {

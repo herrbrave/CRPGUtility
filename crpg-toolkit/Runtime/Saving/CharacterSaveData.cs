@@ -27,6 +27,12 @@ namespace CRPG.Saving
         public bool HasRemainingDuration;
         public int RemainingDuration;
         public int StackCount;
+
+        // Task 4.4: OwnerId is GUID-backed (CRPG.Actors.EffectOwnerId), exactly like Source/Target's
+        // RuntimeEntityId already is -- round-trips safely, unlike a process-lifetime counter would. Empty
+        // string (EffectOwnerId.None) for a save written before this field existed.
+        public string OwnerId;
+        public string Boundary;
     }
 
     /// <summary>Plain, JsonUtility-friendly mirror of one CharacterState. Dictionaries/HashSets are flattened
@@ -53,6 +59,13 @@ namespace CRPG.Saving
         public int DeathSaveFailures;
         public string SpellcastingStatId;
         public string ConcentratingOnAbilityId;
+
+        // Task 4.4: round-tripped alongside ConcentratingOnAbilityId so a later ConcentrationEffectCleanup.Break
+        // can still sweep the right targets after a reload -- see EffectOwnerId's own remarks on why this is
+        // safe to persist (GUID-backed, not a process-lifetime counter).
+        public string ConcentrationEffectOwnerId;
+        public List<string> ConcentrationAffectedTargets = new();
+
         public List<string> KnownAbilities = new();
         public List<string> PreparedAbilities = new();
     }

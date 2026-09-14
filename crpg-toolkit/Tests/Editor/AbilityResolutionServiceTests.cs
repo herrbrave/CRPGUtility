@@ -304,14 +304,24 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
-        public void CastingANewConcentrationAbilityReplacesTheOldOne()
+        public void CastingANewConcentrationAbilityReplacesTheOldOneAndSweepsOnlyItsOwnConditions()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action", RestTrigger.None);
             var registry = new CharacterRegistry();
-            var caster = new CharacterState(RuntimeEntityId.NewId()) { ConcentratingOnAbilityId = new DefinitionId("spell-old") };
+            var caster = new CharacterState(RuntimeEntityId.NewId());
             caster.AddResource(new ResourceState(resource.Id, max: 2));
             registry.Register(caster);
             var target = RegisterTarget(registry);
+            registry.TryGetCharacter(target, out var targetCharacter);
+
+            // Simulate an earlier concentration cast ("spell-old") that owns a condition on `target`, plus an
+            // unrelated condition on that same target from a completely different source.
+            var oldOwnerId = EffectOwnerId.NewOwner();
+            var oldConditionId = new DefinitionId("condition-slowed");
+            var unrelatedConditionId = new DefinitionId("condition-frightened");
+            targetCharacter.ApplyCondition(new ConditionInstance(oldConditionId, caster.Id, target, ownerId: oldOwnerId));
+            targetCharacter.ApplyCondition(new ConditionInstance(unrelatedConditionId, RuntimeEntityId.NewId(), target));
+            caster.SetConcentrationEffect(new DefinitionId("spell-old"), oldOwnerId, new[] { target });
 
             var ability = CreateAbility(resource, 1, 1, 1);
             TestDefinitionFactory.SetPrivateField(ability, "id", "spell-new");
@@ -326,7 +336,68 @@ namespace CRPG.Tests.EditMode
             service.Execute(caster.Id, ability, new[] { target });
 
             Assert.AreEqual(new DefinitionId("spell-new"), caster.ConcentratingOnAbilityId);
+            Assert.IsFalse(targetCharacter.HasCondition(oldConditionId), "The old concentration's owned condition should be swept when replaced.");
+            Assert.IsTrue(targetCharacter.HasCondition(unrelatedConditionId), "An unrelated condition on the same target must survive.");
             CollectionAssert.AreEqual(new[] { GameEvent.ConcentrationBroken, GameEvent.ConcentrationStarted }, events);
+        }
+
+        [Test]
+        public void RejectedConcentrationCastLeavesExistingConcentrationUntouched()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action", RestTrigger.None);
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 0)); // insufficient -- guaranteed rejection
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+
+            var oldOwnerId = EffectOwnerId.NewOwner();
+            caster.SetConcentrationEffect(new DefinitionId("spell-old"), oldOwnerId, new[] { target });
+
+            var ability = CreateAbility(resource, 1, 1, 1);
+            TestDefinitionFactory.SetPrivateField(ability, "id", "spell-new");
+            TestDefinitionFactory.SetPrivateField(ability, "tags", AbilityTag.Concentration);
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            var result = service.Execute(caster.Id, ability, new[] { target });
+
+            Assert.AreEqual(AbilityExecutionOutcome.Rejected, result.Outcome);
+            Assert.AreEqual(new DefinitionId("spell-old"), caster.ConcentratingOnAbilityId);
+            Assert.AreEqual(oldOwnerId, caster.ConcentrationEffectOwnerId);
+        }
+
+        [Test]
+        public void AFaultedConcentrationCastStillRegistersOwnershipOfWhateverPartiallyApplied()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1));
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+            registry.TryGetCharacter(target, out var targetCharacter);
+
+            var appliedConditionId = new DefinitionId("condition-slowed");
+            var appliedCondition = TestDefinitionFactory.CreateConditionDefinition(appliedConditionId.Value, "Slowed");
+            var applyEffect = new ApplyConditionEffect();
+            TestDefinitionFactory.SetPrivateField(applyEffect, "condition", appliedCondition);
+            TestDefinitionFactory.SetPrivateField(applyEffect, "duration", -1);
+
+            var ability = CreateAbility(resource, 1, 1, 1, applyEffect, new ThrowingEffect());
+            TestDefinitionFactory.SetPrivateField(ability, "tags", AbilityTag.Concentration);
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)));
+
+            var result = service.Execute(caster.Id, ability, new[] { target });
+
+            Assert.AreEqual(AbilityExecutionOutcome.Faulted, result.Outcome);
+            Assert.AreEqual(ability.Id, caster.ConcentratingOnAbilityId, "A fault doesn't un-happen what already happened -- the partial cast is still registered.");
+            Assert.IsTrue(targetCharacter.HasCondition(appliedConditionId));
+
+            // The stranded-ownership bug this guards against: without registering on the fault path, the
+            // condition the fault left behind would carry a valid owner that no character's
+            // ConcentrationEffectOwnerId ever points to, making it unreachable via a later concentration Break.
+            ConcentrationEffectCleanup.Break(caster.Id, caster, registry, null);
+            Assert.IsFalse(targetCharacter.HasCondition(appliedConditionId), "The partially-applied condition must still be reachable via a later Break.");
         }
 
         [Test]

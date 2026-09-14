@@ -146,6 +146,8 @@ namespace CRPG.Saving
                         HasRemainingDuration = condition.RemainingDuration.HasValue,
                         RemainingDuration = condition.RemainingDuration ?? 0,
                         StackCount = condition.StackCount,
+                        OwnerId = condition.OwnerId.ToString(),
+                        Boundary = condition.Boundary.ToString(),
                     });
                 }
                 foreach (var proficiencyId in character.Proficiencies) entry.Proficiencies.Add(proficiencyId.Value);
@@ -157,6 +159,8 @@ namespace CRPG.Saving
                 entry.DeathSaveFailures = character.DeathSaves?.Failures ?? 0;
                 entry.SpellcastingStatId = character.SpellcastingStatId.Value;
                 entry.ConcentratingOnAbilityId = character.ConcentratingOnAbilityId.Value;
+                entry.ConcentrationEffectOwnerId = character.ConcentrationEffectOwnerId.ToString();
+                foreach (var targetId in character.ConcentrationAffectedTargets) entry.ConcentrationAffectedTargets.Add(targetId.ToString());
                 foreach (var abilityId in character.KnownAbilities) entry.KnownAbilities.Add(abilityId.Value);
                 foreach (var abilityId in character.PreparedAbilities) entry.PreparedAbilities.Add(abilityId.Value);
 
@@ -179,7 +183,9 @@ namespace CRPG.Saving
                         RuntimeEntityId.FromString(condition.Source),
                         RuntimeEntityId.FromString(condition.Target),
                         condition.HasRemainingDuration ? condition.RemainingDuration : null,
-                        condition.StackCount));
+                        condition.StackCount,
+                        ownerId: EffectOwnerId.FromString(condition.OwnerId),
+                        boundary: string.IsNullOrEmpty(condition.Boundary) ? DurationBoundary.None : Enum.Parse<DurationBoundary>(condition.Boundary)));
                 }
                 foreach (var proficiencyId in entry.Proficiencies) character.GrantProficiency(new DefinitionId(proficiencyId));
                 foreach (var featureId in entry.Features) character.GrantFeature(new DefinitionId(featureId));
@@ -187,7 +193,10 @@ namespace CRPG.Saving
                 character.Level = entry.Level;
                 character.DeathSaves = entry.HasDeathSaves ? new DeathSaveState { Successes = entry.DeathSaveSuccesses, Failures = entry.DeathSaveFailures } : null;
                 character.SpellcastingStatId = new DefinitionId(entry.SpellcastingStatId);
-                character.ConcentratingOnAbilityId = new DefinitionId(entry.ConcentratingOnAbilityId);
+                character.SetConcentrationEffect(
+                    new DefinitionId(entry.ConcentratingOnAbilityId),
+                    EffectOwnerId.FromString(entry.ConcentrationEffectOwnerId),
+                    entry.ConcentrationAffectedTargets.Select(RuntimeEntityId.FromString));
                 foreach (var abilityId in entry.KnownAbilities) character.LearnAbility(new DefinitionId(abilityId));
                 character.PrepareSpells(entry.PreparedAbilities.Select(id => new DefinitionId(id)));
 
