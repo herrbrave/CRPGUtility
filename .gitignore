@@ -57,3 +57,13 @@ TestProject/UserSettings/
 TestProject/.vs/
 TestProject/*.sln
 TestProject/*.csproj
+
+# One-off root-level scratch/debug output from live verification sessions
+/build_result*.txt
+/console_*.txt
+/edit_*.txt
+/pm_*.txt
+/shot*.png
+/shot*_response.txt
+/names.txt
+/statuses.txt
