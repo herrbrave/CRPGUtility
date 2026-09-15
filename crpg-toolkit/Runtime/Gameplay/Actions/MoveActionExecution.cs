@@ -88,7 +88,55 @@ namespace CRPG.Gameplay.Actions
             }
 
             var destination = selfPosition + toTarget.normalized * desiredDistance;
+            PlanRoute(navMeshService, selfPosition, destination, potentialReactors);
+        }
 
+        /// <summary>Task 4.5: the position-based counterpart to the entity-target constructor above -- combat
+        /// click-to-move needs "walk to this exact ground point," which the entity-target overload cannot
+        /// express at all (it always resolves a target's live position, never an arbitrary point). There is no
+        /// "stop short by" concept for a bare point, so this always walks the full distance to
+        /// <paramref name="destination"/>. Never constructed by <see cref="ActionScheduler"/> for a
+        /// melee-closing-distance move -- that keeps using the entity-target overload unchanged.</summary>
+        public MoveActionExecution(
+            RuntimeEntityId source,
+            IMovable motor,
+            MovementResolutionService movementResolution,
+            INavMeshService navMeshService,
+            ICharacterRegistry characters,
+            IPositionProvider positions,
+            DefinitionId movementResourceId,
+            Vector3 destination,
+            IReadOnlyList<RuntimeEntityId> potentialReactors = null)
+            : base(source)
+        {
+            this.motor = motor;
+            this.movementResolution = movementResolution;
+            this.characters = characters;
+            this.positions = positions;
+            this.movementResourceId = movementResourceId;
+
+            Phase = ActionPhase.Preparing;
+
+            var selfPosition = positions.GetPosition(source);
+            var desiredDistance = (destination - selfPosition).magnitude;
+
+            if (desiredDistance <= 0f)
+            {
+                // Already standing on the clicked point -- success, nothing to plan or spend.
+                ArrivedAtDestination = true;
+                Finish(ActionOutcome.Succeeded);
+                return;
+            }
+
+            PlanRoute(navMeshService, selfPosition, destination, potentialReactors);
+        }
+
+        /// <summary>Shared tail for both constructors once each has resolved its own real-world
+        /// <paramref name="destination"/> and confirmed there's real distance to cover. <paramref name="navMeshService"/>
+        /// is a constructor-only collaborator (never stored as a field -- neither constructor needs it again
+        /// after planning), so it's threaded through here explicitly rather than promoted to a field.</summary>
+        private void PlanRoute(INavMeshService navMeshService, Vector3 selfPosition, Vector3 destination, IReadOnlyList<RuntimeEntityId> potentialReactors)
+        {
             if (!navMeshService.TryCalculatePath(selfPosition, destination, out var corners))
             {
                 Finish(ActionOutcome.Rejected);

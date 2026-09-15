@@ -452,6 +452,35 @@ namespace CRPG.Tests.PlayMode
         }
 
         [Test]
+        public void StartMoveToAPositionRejectsANonCurrentTurnCombatantWithoutTouchingAnyCollaborator()
+        {
+            var other = RuntimeEntityId.NewId();
+            characters.Register(new CharacterState(other));
+            var encounterService = CreateEncounterService(new Dictionary<RuntimeEntityId, int> { [caster] = 20, [other] = 5 });
+            var scheduler = new ActionScheduler(abilityResolution, movementResolution, new NavMeshService(), characters, positions, encounterService);
+
+            // motor is deliberately null -- the turn gate must reject before ever touching it.
+            var result = scheduler.StartMove(other, motor: null, movementResourceId: default, destination: Vector3.one);
+
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void StartMoveToAPositionRejectsASecondStartWhileTheCurrentTurnCombatantIsAlreadyMoving()
+        {
+            var encounterService = CreateEncounterService(new Dictionary<RuntimeEntityId, int> { [caster] = 20 });
+            var scheduler = new ActionScheduler(abilityResolution, movementResolution, new NavMeshService(), characters, positions, encounterService);
+            var ability = TacticalTestFactory.CreateAbility(Guid.NewGuid().ToString(), costResource, 1, 1f, 0f); // real Prepare duration -- stays in flight
+
+            var first = scheduler.StartAbility(caster, ability, new[] { target });
+            Assert.IsNotNull(first);
+            Assert.IsTrue(scheduler.IsBusy);
+
+            var second = scheduler.StartMove(caster, motor: null, movementResourceId: default, destination: Vector3.one);
+            Assert.IsNull(second);
+        }
+
+        [Test]
         public void RejectsASecondStartWhileAnActionIsAlreadyInFlight()
         {
             var scheduler = new ActionScheduler(abilityResolution, movementResolution, new NavMeshService(), characters, positions);
@@ -869,6 +898,50 @@ namespace CRPG.Tests.PlayMode
             {
                 Time.timeScale = 1f;
             }
+        }
+
+        [UnityTest]
+        public IEnumerator APositionBasedMoveWalksTheFullDistanceToTheBarePointAndSpendsMovement()
+        {
+            CreateGroundPlane(Vector3.zero, 20f);
+            BakeNavMesh();
+
+            var mover = RegisterMover(new Vector3(-8f, 0f, 0f), movementMax: 100);
+            var destination = new Vector3(8f, 0f, 0f);
+
+            var action = new MoveActionExecution(
+                mover.Id, mover.Motor, movementResolution, new NavMeshService(), characters, positions, MovementResourceId, destination);
+
+            yield return WaitForActionToEnd(action);
+
+            Assert.AreEqual(ActionOutcome.Succeeded, action.Outcome);
+            Assert.IsTrue(action.ArrivedAtDestination);
+            Assert.Less(Vector3.Distance(mover.Motor.transform.position, destination), 0.5f);
+
+            characters.TryGetCharacter(mover.Id, out var moverState);
+            moverState.TryGetResource(MovementResourceId, out var movement);
+            Assert.LessOrEqual(movement.Current, 100 - 16, "16m traveled -- must spend at least that, not stay at the 100 max.");
+            Assert.GreaterOrEqual(movement.Current, 100 - 18, "Must not overspend meaningfully beyond the real distance covered.");
+        }
+
+        [UnityTest]
+        public IEnumerator APositionBasedMoveAlreadyStandingOnThePointSucceedsWithoutSpendingAnything()
+        {
+            CreateGroundPlane(Vector3.zero, 20f);
+            BakeNavMesh();
+
+            var mover = RegisterMover(Vector3.zero, movementMax: 100);
+
+            var action = new MoveActionExecution(
+                mover.Id, mover.Motor, movementResolution, new NavMeshService(), characters, positions, MovementResourceId, Vector3.zero);
+
+            Assert.AreEqual(ActionOutcome.Succeeded, action.Outcome);
+            Assert.IsTrue(action.ArrivedAtDestination);
+
+            characters.TryGetCharacter(mover.Id, out var moverState);
+            moverState.TryGetResource(MovementResourceId, out var movement);
+            Assert.AreEqual(100, movement.Current);
+            yield break;
         }
     }
 }

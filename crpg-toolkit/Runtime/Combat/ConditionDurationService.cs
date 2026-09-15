@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CRPG.Actors;
@@ -9,7 +10,9 @@ namespace CRPG.Combat
     /// Task 4.4: ticks <see cref="ConditionInstance.RemainingDuration"/> down at each condition's authored
     /// <see cref="DurationBoundary"/>. Self-subscribes to TurnStarted/TurnEnded on construction, same precedent
     /// as <see cref="Rules.SRD5.ConcentrationService"/>/<see cref="Rules.SRD5.DeathSaveService"/> -- neither of
-    /// those has a Dispose/unsubscribe method either (a real, pre-existing, wider gap, not introduced here).
+    /// those has a Dispose/unsubscribe method either (a real, pre-existing, wider gap; this class fixes it for
+    /// itself in Task 4.5, once a real caller -- <c>CRPG.Gameplay.Combat.TacticalEncounterController</c> --
+    /// needed to construct a fresh instance per encounter without leaking the previous one's subscriptions).
     /// Only active inside a running <see cref="CombatEncounterService.Encounter"/> -- out-of-combat duration
     /// ticking is out of scope, matching the design's confirmed turn-based-only tactical scope.
     /// </summary>
@@ -28,12 +31,19 @@ namespace CRPG.Combat
     /// correct SRD flavor (only concentration effects end on the caster's death; see ConcentrationService).</item>
     /// </list>
     /// </remarks>
-    public sealed class ConditionDurationService
+    public sealed class ConditionDurationService : IDisposable
     {
         private readonly CombatEncounterService encounterService;
         private readonly ICharacterRegistry characters;
         private readonly IGameEventBus eventBus;
         private readonly ICombatLog combatLog;
+
+        // Stored so Dispose() can unsubscribe the EXACT delegate instances that were subscribed -- a
+        // freshly-allocated lambda with equivalent behavior does not equal the original for IGameEventBus's
+        // delegate-subtraction-based Unsubscribe.
+        private readonly Action<GameEventContext> onTurnStarted;
+        private readonly Action<GameEventContext> onTurnEnded;
+        private bool disposed;
 
         public ConditionDurationService(
             CombatEncounterService encounterService, ICharacterRegistry characters, IGameEventBus eventBus, ICombatLog combatLog = null)
@@ -43,8 +53,22 @@ namespace CRPG.Combat
             this.eventBus = eventBus;
             this.combatLog = combatLog;
 
-            eventBus.Subscribe(GameEvent.TurnStarted, context => Tick(context.Source, isStart: true));
-            eventBus.Subscribe(GameEvent.TurnEnded, context => Tick(context.Source, isStart: false));
+            onTurnStarted = context => Tick(context.Source, isStart: true);
+            onTurnEnded = context => Tick(context.Source, isStart: false);
+            eventBus.Subscribe(GameEvent.TurnStarted, onTurnStarted);
+            eventBus.Subscribe(GameEvent.TurnEnded, onTurnEnded);
+        }
+
+        /// <summary>Unsubscribes from the shared event bus -- idempotent, safe to call more than once. Once
+        /// disposed, this instance permanently stops ticking any duration (a restarted encounter must construct
+        /// a fresh <see cref="ConditionDurationService"/>, never reuse a disposed one).</summary>
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+
+            eventBus.Unsubscribe(GameEvent.TurnStarted, onTurnStarted);
+            eventBus.Unsubscribe(GameEvent.TurnEnded, onTurnEnded);
         }
 
         private void Tick(RuntimeEntityId firingEntity, bool isStart)

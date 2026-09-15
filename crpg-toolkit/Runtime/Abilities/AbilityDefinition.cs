@@ -32,6 +32,14 @@ namespace CRPG.Abilities
         [SerializeField] private float prepareSeconds;
         [SerializeField] private float recoverSeconds;
 
+        /// <summary>Task 4.5: a bare presentation tag (not resolved through <see cref="IRulesDatabase"/>), same
+        /// treatment as <see cref="CRPG.Actors.CharacterAnimationProfile"/>'s own cue ids -- what
+        /// <see cref="CRPG.Gameplay.Actions.IActionPresentationHook.RequestActionCue"/> should ask the
+        /// character's animator to play once this ability commits. Purely additive, defaults to
+        /// <see cref="DefinitionId.None"/> so every existing asset deserializes unchanged; a real hook
+        /// implementation must no-op on None rather than guess a cue from tags.</summary>
+        [SerializeField] private DefinitionId animationCueId;
+
         public string DisplayName => displayName;
         public string Description => description;
         public AbilityTag Tags => tags;
@@ -41,5 +49,6 @@ namespace CRPG.Abilities
         public int SpellLevel => spellLevel;
         public float PrepareSeconds => prepareSeconds;
         public float RecoverSeconds => recoverSeconds;
+        public DefinitionId AnimationCueId => animationCueId;
     }
 }

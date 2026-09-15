@@ -4,6 +4,7 @@
   <Project Path="Unity.RenderPipelines.GPUDriven.Runtime.csproj" />
   <Project Path="CRPG.Actors.csproj" />
   <Project Path="Unity.RenderPipelines.Universal.Runtime.csproj" />
+  <Project Path="CRPG.Gameplay.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Runtime.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Editor.csproj" />
   <Project Path="Unity.Pipeline.IlInterpreter.csproj" />
@@ -25,7 +26,6 @@
   <Project Path="CRPG.Quests.csproj" />
   <Project Path="CRPG.Abilities.csproj" />
   <Project Path="Unity.PathTracing.Runtime.csproj" />
-  <Project Path="CRPG.Gameplay.csproj" />
   <Project Path="Unity.RenderPipelines.Core.Runtime.Shared.csproj" />
   <Project Path="Unity.TextMeshPro.Editor.csproj" />
   <Project Path="Unity.Rider.Editor.csproj" />

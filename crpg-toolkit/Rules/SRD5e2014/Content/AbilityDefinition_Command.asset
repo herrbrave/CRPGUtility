@@ -33,6 +33,11 @@ MonoBehaviour:
     requireVisibleTarget: 1
   effects:
   - rid: 4304780644164829206
+  spellLevel: 0
+  prepareSeconds: 0
+  recoverSeconds: 0
+  animationCueId:
+    value: 
   references:
     version: 2
     RefIds:
@@ -54,3 +59,4 @@ MonoBehaviour:
       data:
         condition: {fileID: 11400000, guid: 703bf817dd98c78448c8a461e03b69fa, type: 2}
         duration: 1
+        boundary: 2

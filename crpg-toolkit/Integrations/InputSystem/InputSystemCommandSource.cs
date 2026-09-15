@@ -50,6 +50,12 @@ namespace CRPG.InputSystem
         /// travel/cross-scene load.</summary>
         public CRPG.Gameplay.Scenes.IWorldTransitionGate TransitionGate { get => Router.TransitionGate; set => Router.TransitionGate = value; }
 
+        /// <summary>Task 4.5: same forwarding shape as <see cref="TransitionGate"/>, for the first real
+        /// <see cref="IPointerTargetingGate"/> consumer -- Router stays private/lazily-constructed, so this is
+        /// the composition root's only way to wire a tactical encounter's <c>AbilityTargetingGate</c> through
+        /// to real click resolution.</summary>
+        public IPointerTargetingGate TargetingGate { get => Router.TargetingGate; set => Router.TargetingGate = value; }
+
         private UnityEngine.Camera ActiveCamera => raycastCamera != null ? raycastCamera : UnityEngine.Camera.main;
 
         private void Awake()

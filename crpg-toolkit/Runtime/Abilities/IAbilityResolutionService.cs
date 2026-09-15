@@ -19,6 +19,13 @@ namespace CRPG.Abilities
             RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
             bool asRitual = false, ResourceDefinition upcastWithSlot = null);
 
+        /// <summary>Task 4.5: the target-independent subset of <see cref="Validate"/> -- whether
+        /// <paramref name="source"/> can even attempt <paramref name="ability"/> right now (not incapacitated,
+        /// knows it if gated, affords its costs, every required effect service is wired), before any real
+        /// target has been chosen. A UI ability bar uses this for a button's enabled state; <see cref="Validate"/>
+        /// is still the sole authority once a real target exists.</summary>
+        AbilityValidationResult CanAttempt(RuntimeEntityId source, AbilityDefinition ability, bool asRitual = false, ResourceDefinition upcastWithSlot = null);
+
         AbilityExecutionResult Execute(
             RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
             bool asRitual = false, ResourceDefinition upcastWithSlot = null);

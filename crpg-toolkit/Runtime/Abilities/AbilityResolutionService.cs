@@ -62,31 +62,8 @@ namespace CRPG.Abilities
             RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
             bool asRitual = false, ResourceDefinition upcastWithSlot = null)
         {
-            if (!CanAct(source)) return AbilityValidationResult.Reject(AbilityRejectionReason.Incapacitated);
-
-            // Legacy/compatibility mode: a character that has never called LearnAbility (e.g. AICombatDemoBootstrap's
-            // demo NPCs, which Task 4.5 -- not 4.2 -- retrofits) is treated as not opted into this gate at all.
-            // A character with at least one known ability is properly restricted to what it knows.
-            if (characters.TryGetCharacter(source, out var gateCharacter)
-                && gateCharacter.KnownAbilities.Count > 0 && !gateCharacter.KnowsAbility(ability.Id))
-                return AbilityValidationResult.Reject(AbilityRejectionReason.AbilityNotKnown);
-
-            if (asRitual)
-            {
-                if ((ability.Tags & AbilityTag.Ritual) == 0)
-                    return AbilityValidationResult.Reject(AbilityRejectionReason.RitualTagRequired,
-                        $"'{ability.DisplayName}' has no Ritual tag.");
-            }
-            else if (upcastWithSlot != null)
-            {
-                if (upcastWithSlot.SpellSlotLevel < ability.SpellLevel)
-                    return AbilityValidationResult.Reject(AbilityRejectionReason.UpcastSlotBelowSpellLevel,
-                        $"'{upcastWithSlot.DisplayName}' is below '{ability.DisplayName}''s own spell level.");
-                if (!characters.TryGetCharacter(source, out var upcastCaster)
-                    || !upcastCaster.TryGetResource(upcastWithSlot.Id, out var slotState) || slotState.Current < 1)
-                    return AbilityValidationResult.Reject(AbilityRejectionReason.InsufficientResources,
-                        $"No '{upcastWithSlot.DisplayName}' available.");
-            }
+            var castingModeRejection = CheckCastingMode(source, ability, asRitual, upcastWithSlot);
+            if (castingModeRejection != null) return castingModeRejection;
 
             var targetCount = targets?.Count ?? 0;
             if (targetCount < ability.Targeting.MinTargets || targetCount > ability.Targeting.MaxTargets)
@@ -136,6 +113,64 @@ namespace CRPG.Abilities
                 }
             }
 
+            var readinessRejection = CheckReadiness(source, ability, asRitual, upcastWithSlot);
+            if (readinessRejection != null) return readinessRejection;
+
+            return AbilityValidationResult.Ok();
+        }
+
+        /// <summary>Task 4.5: the target-INDEPENDENT subset of <see cref="Validate"/> -- can this caster even
+        /// attempt this ability right now (not incapacitated, knows it if the known-abilities gate applies,
+        /// authored casting mode/upcast is legal, can afford its costs, every required effect service is
+        /// wired), before any real target has been chosen. A UI ability bar uses this to decide a button's
+        /// enabled state ahead of targeting; <see cref="Validate"/> (which additionally needs real targets)
+        /// stays the sole authority once a target is actually picked -- this reuses its exact same internal
+        /// checks via <see cref="CheckCastingMode"/>/<see cref="CheckReadiness"/> rather than duplicating any
+        /// of its logic.</summary>
+        public AbilityValidationResult CanAttempt(RuntimeEntityId source, AbilityDefinition ability, bool asRitual = false, ResourceDefinition upcastWithSlot = null)
+        {
+            var castingModeRejection = CheckCastingMode(source, ability, asRitual, upcastWithSlot);
+            if (castingModeRejection != null) return castingModeRejection;
+
+            var readinessRejection = CheckReadiness(source, ability, asRitual, upcastWithSlot);
+            if (readinessRejection != null) return readinessRejection;
+
+            return AbilityValidationResult.Ok();
+        }
+
+        private AbilityValidationResult CheckCastingMode(RuntimeEntityId source, AbilityDefinition ability, bool asRitual, ResourceDefinition upcastWithSlot)
+        {
+            if (!CanAct(source)) return AbilityValidationResult.Reject(AbilityRejectionReason.Incapacitated);
+
+            // Legacy/compatibility mode: a character that has never called LearnAbility (e.g. AICombatDemoBootstrap's
+            // demo NPCs, which Task 4.5 -- not 4.2 -- retrofits) is treated as not opted into this gate at all.
+            // A character with at least one known ability is properly restricted to what it knows.
+            if (characters.TryGetCharacter(source, out var gateCharacter)
+                && gateCharacter.KnownAbilities.Count > 0 && !gateCharacter.KnowsAbility(ability.Id))
+                return AbilityValidationResult.Reject(AbilityRejectionReason.AbilityNotKnown);
+
+            if (asRitual)
+            {
+                if ((ability.Tags & AbilityTag.Ritual) == 0)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.RitualTagRequired,
+                        $"'{ability.DisplayName}' has no Ritual tag.");
+            }
+            else if (upcastWithSlot != null)
+            {
+                if (upcastWithSlot.SpellSlotLevel < ability.SpellLevel)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.UpcastSlotBelowSpellLevel,
+                        $"'{upcastWithSlot.DisplayName}' is below '{ability.DisplayName}''s own spell level.");
+                if (!characters.TryGetCharacter(source, out var upcastCaster)
+                    || !upcastCaster.TryGetResource(upcastWithSlot.Id, out var slotState) || slotState.Current < 1)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.InsufficientResources,
+                        $"No '{upcastWithSlot.DisplayName}' available.");
+            }
+
+            return null;
+        }
+
+        private AbilityValidationResult CheckReadiness(RuntimeEntityId source, AbilityDefinition ability, bool asRitual, ResourceDefinition upcastWithSlot)
+        {
             if (!characters.TryGetCharacter(source, out var costCaster))
                 return AbilityValidationResult.Reject(AbilityRejectionReason.InsufficientResources, "Caster not found.");
 
@@ -151,7 +186,7 @@ namespace CRPG.Abilities
             if (missingService != null)
                 return AbilityValidationResult.Reject(AbilityRejectionReason.MissingRequiredEffectService, missingService);
 
-            return AbilityValidationResult.Ok();
+            return null;
         }
 
         /// <summary>Task 4.2: builds an ability, applies its effects, and reports the real outcome -- never

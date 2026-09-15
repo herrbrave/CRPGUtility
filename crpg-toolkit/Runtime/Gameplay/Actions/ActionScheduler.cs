@@ -5,6 +5,7 @@ using CRPG.Actors;
 using CRPG.Combat;
 using CRPG.Core;
 using CRPG.Navigation;
+using UnityEngine;
 
 namespace CRPG.Gameplay.Actions
 {
@@ -92,6 +93,22 @@ namespace CRPG.Gameplay.Actions
             var execution = new MoveActionExecution(
                 source, motor, movementResolution, navMeshService, characters, positions, movementResourceId,
                 towardTarget, stopDistance, potentialReactors);
+            Adopt(execution);
+            return execution;
+        }
+
+        /// <summary>Task 4.5: the position-based counterpart to <see cref="StartMove(RuntimeEntityId, IMovable, DefinitionId, RuntimeEntityId, float, IReadOnlyList{RuntimeEntityId})"/>
+        /// -- for "walk to this exact ground point" (combat click-to-move), which has no target entity to
+        /// resolve a live position from. Same busy/authorization gating as every other Start* method.</summary>
+        public MoveActionExecution StartMove(
+            RuntimeEntityId source, IMovable motor, DefinitionId movementResourceId, Vector3 destination,
+            IReadOnlyList<RuntimeEntityId> potentialReactors = null)
+        {
+            if (IsBusy || !IsAuthorized(source)) return null;
+
+            var execution = new MoveActionExecution(
+                source, motor, movementResolution, navMeshService, characters, positions, movementResourceId,
+                destination, potentialReactors);
             Adopt(execution);
             return execution;
         }

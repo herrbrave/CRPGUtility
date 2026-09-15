@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f75af1af7aaafb245837038127b18cda, type: 3}
+  m_Name: TacticalSliceContentBundle
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalSliceContentBundle
+  fighterContent: {fileID: 11400000, guid: 587061974fdb72a4ba4e0f3eedf2f0ff, type: 2}
+  definitions:
+  - {fileID: 11400000, guid: f9236f8c0e9cc1542aa6b042d5bb5b9d, type: 2}
+  - {fileID: 11400000, guid: fd9e0a24b65022444a8a8543f4bfb49e, type: 2}
+  - {fileID: 11400000, guid: 1ccb027e62e74c24696ec15300877aa3, type: 2}
+  - {fileID: 11400000, guid: af73a61f06a8ab044b49889db4b735fe, type: 2}
+  movement: {fileID: 11400000, guid: f9236f8c0e9cc1542aa6b042d5bb5b9d, type: 2}
+  meleeStrike: {fileID: 11400000, guid: fd9e0a24b65022444a8a8543f4bfb49e, type: 2}
+  opportunityAttack: {fileID: 11400000, guid: 1ccb027e62e74c24696ec15300877aa3, type: 2}
+  reactiveStrikes: {fileID: 11400000, guid: af73a61f06a8ab044b49889db4b735fe, type: 2}
+  fireBolt: {fileID: 11400000, guid: 83da1a90b21e97a4182c59eaba576210, type: 2}
+  healingWord: {fileID: 11400000, guid: f134c5a9f1f9b7c418483f6aac991086, type: 2}
+  bless: {fileID: 11400000, guid: 9fa4571790ce62c4bb77bde5f5bbcf5e, type: 2}
+  command: {fileID: 11400000, guid: e670fa245c56b534fa2babae7ce71198, type: 2}

@@ -195,5 +195,33 @@ namespace CRPG.Tests.EditMode
             // service.Encounter is still null -- StartCombat was never called.
             Assert.DoesNotThrow(() => eventBus.Publish(new GameEventContext(GameEvent.TurnStarted, RuntimeEntityId.NewId())));
         }
+
+        [Test]
+        public void DisposeStopsAnyFurtherTicking()
+        {
+            var (service, registry, eventBus, a, b) = StartTwoCombatantEncounter();
+            registry.TryGetCharacter(a, out var characterA);
+            var conditionId = new DefinitionId("condition-frightened");
+            characterA.ApplyCondition(new ConditionInstance(conditionId, b, a, remainingDuration: 1, boundary: DurationBoundary.StartOfTargetTurn));
+            var durations = new ConditionDurationService(service, registry, eventBus);
+
+            durations.Dispose();
+
+            service.EndTurn(); // TurnEnded(A), TurnStarted(B)
+            service.EndTurn(); // TurnEnded(B), TurnStarted(A) -- would have expired it if still subscribed
+
+            Assert.IsTrue(characterA.HasCondition(conditionId), "A disposed service must never tick again.");
+        }
+
+        [Test]
+        public void DisposeIsIdempotent()
+        {
+            var (service, registry, eventBus, _, _) = StartTwoCombatantEncounter();
+            var durations = new ConditionDurationService(service, registry, eventBus);
+
+            durations.Dispose();
+
+            Assert.DoesNotThrow(() => durations.Dispose());
+        }
     }
 }

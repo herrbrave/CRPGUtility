@@ -52,5 +52,26 @@ namespace CRPG.Tests.EditMode
                 Assert.DoesNotThrow(() => database.Register(definition), $"Failed to register '{path}'.");
             }
         }
+
+        /// <summary>Task 4.5: the first real content asset authored with a non-None DurationBoundary (Task
+        /// 4.4's own field) -- verifies the real, saved asset on disk, not a hand-built fixture, so this
+        /// regresses loudly if the asset is ever re-authored and the field silently drops again.</summary>
+        [Test]
+        public void CommandsOnFailureConditionCarriesARealNonNoneBoundary()
+        {
+            var command = AssetDatabase.LoadAssetAtPath<CRPG.Abilities.AbilityDefinition>($"{ContentFolder}/AbilityDefinition_Command.asset");
+            Assert.IsNotNull(command, "AbilityDefinition_Command.asset failed to load.");
+
+            var savingThrow = command.Effects[0];
+            var onFailure = savingThrow.GetChildEffects().FirstOrDefault();
+            Assert.IsNotNull(onFailure, "Command's SavingThrowEffect must still have an OnFailure branch.");
+
+            var boundaryField = onFailure.GetType().GetField("boundary", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Assert.IsNotNull(boundaryField, "ApplyConditionEffect.boundary field not found -- did the field get renamed?");
+            var boundary = (CRPG.Actors.DurationBoundary)boundaryField.GetValue(onFailure);
+
+            Assert.AreEqual(CRPG.Actors.DurationBoundary.EndOfTargetTurn, boundary,
+                "Command's own description says the effect lasts through the target's next turn -- must not silently regress to None (never expiring on its own).");
+        }
     }
 }
