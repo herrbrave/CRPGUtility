@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using CRPG.Actors;
 using CRPG.Combat;
 using CRPG.Core;
@@ -115,6 +117,44 @@ namespace CRPG.Tests.EditMode
             service.StartCombat(new[] { (hero.Id, heroes), (goblin.Id, goblins) });
 
             CollectionAssert.AreEqual(new[] { goblin.Id }, service.Encounter.GetEnemiesOf(hero.Id));
+        }
+
+        // --- Task 5.2 gap fix: a ruleset with no rolled initiative at all (e.g. Fate Condensed's elective
+        // turn order) needs a way to start combat without an IInitiativeRule. ---
+
+        [Test]
+        public void StartCombatWithExplicitOrderPreservesTheGivenOrderWithoutRollingAnything()
+        {
+            var actionResource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var first = new CharacterState(RuntimeEntityId.NewId());
+            var second = new CharacterState(RuntimeEntityId.NewId());
+            var third = new CharacterState(RuntimeEntityId.NewId());
+            foreach (var character in new[] { first, second, third })
+            {
+                character.AddResource(new ResourceState(actionResource.Id, max: 1, current: 0));
+                registry.Register(character);
+            }
+
+            // No IInitiativeRule at all -- the whole point of this overload.
+            var service = new CombatEncounterService(registry, initiativeRule: null, new TurnResourceSet(new[] { actionResource }));
+            service.StartCombatWithExplicitOrder(new[] { (second.Id, default(DefinitionId)), (third.Id, default(DefinitionId)), (first.Id, default(DefinitionId)) });
+
+            CollectionAssert.AreEqual(new[] { second.Id, third.Id, first.Id }, service.Encounter.Combatants.Select(c => c.Id).ToList());
+            Assert.AreEqual(second.Id, service.Encounter.CurrentTurn.Id, "The first entry in the given order must be the current turn.");
+        }
+
+        [Test]
+        public void StartCombatWithARolledOverloadAndNoInitiativeRuleThrowsAClearException()
+        {
+            var actionResource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var registry = new CharacterRegistry();
+            var a = new CharacterState(RuntimeEntityId.NewId());
+            registry.Register(a);
+
+            var service = new CombatEncounterService(registry, initiativeRule: null, new TurnResourceSet(new[] { actionResource }));
+
+            Assert.Throws<InvalidOperationException>(() => service.StartCombat(new[] { a.Id }));
         }
     }
 }

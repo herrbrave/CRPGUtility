@@ -49,6 +49,11 @@ namespace CRPG.Gameplay.Combat
         public CombatEncounterService EncounterService { get; }
         public ActionScheduler Scheduler { get; }
 
+        /// <summary>Task 5.2 gap fix: <paramref name="useExplicitTurnOrder"/> drives the encounter through
+        /// <see cref="CombatEncounterService.StartCombatWithExplicitOrder"/> instead of the rolled
+        /// <see cref="CombatEncounterService.StartCombat(IEnumerable{ValueTuple{RuntimeEntityId, DefinitionId}})"/>
+        /// -- for a ruleset with no <see cref="IInitiativeRule"/> at all (<paramref name="combatants"/> is then
+        /// used as the turn order directly, in the order given).</summary>
         public TacticalEncounterController(
             ICharacterRegistry characters,
             IGameEventBus eventBus,
@@ -60,7 +65,8 @@ namespace CRPG.Gameplay.Combat
             WorldSpawnService worldSpawnService,
             IEnumerable<(RuntimeEntityId Id, DefinitionId Faction)> combatants,
             IActionPresentationHook presentationHook = null,
-            ICombatLog combatLog = null)
+            ICombatLog combatLog = null,
+            bool useExplicitTurnOrder = false)
         {
             this.worldSpawnService = worldSpawnService ?? throw new ArgumentNullException(nameof(worldSpawnService));
             this.eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
@@ -72,7 +78,8 @@ namespace CRPG.Gameplay.Combat
             onCreatureDied = OnCreatureDied;
             eventBus.Subscribe(GameEvent.CreatureDied, onCreatureDied);
 
-            EncounterService.StartCombat(combatants);
+            if (useExplicitTurnOrder) EncounterService.StartCombatWithExplicitOrder(combatants);
+            else EncounterService.StartCombat(combatants);
         }
 
         /// <summary>Real death (SRD5's "0 HP, three failed death saves"), never merely

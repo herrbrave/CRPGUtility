@@ -21,6 +21,13 @@ namespace CRPG.Combat
         private readonly IGameEventBus eventBus;
         private readonly ICombatLog combatLog;
 
+        /// <summary>Task 5.2 gap fix: <paramref name="initiativeRule"/> is now optional (default null) --
+        /// fully backward compatible, since every existing caller already supplies one. A null rule only works
+        /// with <see cref="StartCombatWithExplicitOrder"/>; the rolled <see cref="StartCombat(IEnumerable{RuntimeEntityId})"/>
+        /// overloads still require a real rule and throw a clear exception otherwise. Added because a ruleset
+        /// can genuinely have no rolled initiative at all (e.g. Fate Condensed's own default is an elective,
+        /// narrated turn order, not a die roll) -- there was previously no way to start an encounter without
+        /// one.</summary>
         public CombatEncounterService(
             ICharacterRegistry characters,
             IInitiativeRule initiativeRule,
@@ -45,13 +52,43 @@ namespace CRPG.Combat
         /// side" without whoever's driving the encounter tracking that separately.</summary>
         public void StartCombat(IEnumerable<(RuntimeEntityId Id, DefinitionId Faction)> combatants)
         {
+            if (initiativeRule == null)
+                throw new InvalidOperationException(
+                    $"{nameof(StartCombat)} requires a non-null {nameof(IInitiativeRule)} -- use {nameof(StartCombatWithExplicitOrder)} for a ruleset with no rolled initiative.");
+
+            BeginEncounter(combatants, rollInitiative: true);
+        }
+
+        /// <summary>Task 5.2 gap fix: starts combat with the given sequence used as the turn order directly --
+        /// no <see cref="IInitiativeRule"/> call at all, works even when this service was constructed with a
+        /// null one. Assigns each combatant a synthetic, strictly descending initiative value matching its
+        /// position in <paramref name="orderedCombatants"/> so <see cref="CombatEncounter.Start"/>'s own
+        /// highest-first sort reproduces the given order exactly -- <see cref="CombatEncounter"/> itself needed
+        /// no change.</summary>
+        public void StartCombatWithExplicitOrder(IEnumerable<(RuntimeEntityId Id, DefinitionId Faction)> orderedCombatants) =>
+            BeginEncounter(orderedCombatants, rollInitiative: false);
+
+        private void BeginEncounter(IEnumerable<(RuntimeEntityId Id, DefinitionId Faction)> combatants, bool rollInitiative)
+        {
             Encounter = new CombatEncounter();
 
+            var syntheticInitiative = 0;
             foreach (var combatant in combatants)
             {
-                var roll = initiativeRule.RollInitiative(combatant.Id);
-                combatLog?.Log(new RollLogEntry(roll));
-                Encounter.AddCombatant(combatant.Id, (int)roll.Total, combatant.Faction);
+                int initiative;
+                if (rollInitiative)
+                {
+                    var roll = initiativeRule.RollInitiative(combatant.Id);
+                    combatLog?.Log(new RollLogEntry(roll));
+                    initiative = (int)roll.Total;
+                }
+                else
+                {
+                    initiative = int.MaxValue - syntheticInitiative;
+                    syntheticInitiative++;
+                }
+
+                Encounter.AddCombatant(combatant.Id, initiative, combatant.Faction);
             }
 
             Encounter.Start();

@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Consumer.Game",
+    "rootNamespace": "CRPG.Consumer.Game",
+    "references": ["CRPG.Consumer.Fate", "CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Combat", "CRPG.Abilities", "CRPG.Dialogue", "CRPG.Exploration", "CRPG.Navigation", "CRPG.Party", "CRPG.Gameplay", "CRPG.Saving", "CRPG.UI", "CRPG.Inventory", "CRPG.InputSystem"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

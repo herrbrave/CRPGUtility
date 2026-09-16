@@ -107,6 +107,32 @@ namespace CRPG.Tests.PlayMode
             controller.Dispose();
         }
 
+        /// <summary>Task 5.2 gap fix: a ruleset with no IInitiativeRule at all (e.g. Fate Condensed's elective
+        /// turn order) can still drive a TacticalEncounterController, via useExplicitTurnOrder.</summary>
+        [Test]
+        public void UseExplicitTurnOrderDrivesTheControllerWithoutAnyInitiativeRule()
+        {
+            var hero = SpawnCombatant("hero", HeroesFaction);
+            var goblin = SpawnCombatant("goblin", GoblinsFaction);
+
+            var abilityResolution = new AbilityResolutionService(session.Characters, session.DiceService, eventBus: session.EventBus);
+            var positions = new TestPositionProvider();
+            positions.Set(hero, Vector3.zero);
+            positions.Set(goblin, Vector3.zero);
+            var movementResolution = new MovementResolutionService(session.Characters, positions, new NoOpMovementController());
+            var turnResources = new TurnResourceSet(new[] { actionResource });
+            var encounterService = new CombatEncounterService(session.Characters, initiativeRule: null, turnResources, session.EventBus);
+
+            var combatants = new[] { (goblin, GoblinsFaction), (hero, HeroesFaction) };
+            var controller = new TacticalEncounterController(
+                session.Characters, session.EventBus, positions, abilityResolution, movementResolution,
+                new NavMeshService(), encounterService, worldSpawnService, combatants, useExplicitTurnOrder: true);
+
+            Assert.AreEqual(goblin, controller.EncounterService.Encounter.CurrentTurn.Id, "The first entry in the given order must go first.");
+
+            controller.Dispose();
+        }
+
         [Test]
         public void OnlyTheCurrentTurnCombatantCanStartAnActionThroughTheSharedScheduler()
         {

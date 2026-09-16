@@ -17,3 +17,5 @@ Licenses/
 - Final Asset Store licensing arrangement for `CRPG Toolkit Runtime` itself — needs legal review, separate from the OGL content.
 - Confirm package branding/naming doesn't use Wizards' protected product names or logos.
 - Keep `CRPG.Rules.SRD5` content physically separate from `CRPG Toolkit Runtime` licensing so the two can carry different license terms.
+
+**Unrelated to the package itself, noted here only for discoverability:** `ConsumerGame/` (Task 5.2's Gate D consumer project) uses Fate Condensed-derived mechanics under a separate CC-BY 3.0 license -- see `ConsumerGame/Licenses/Fate-Condensed-CC-BY.txt`. This is the consumer project's own licensing concern, not the crpg-toolkit package's.

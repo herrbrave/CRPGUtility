@@ -67,6 +67,7 @@
   <Project Path="Unity.InputSystem.TestFramework.csproj" />
   <Project Path="Unity.ShaderGraph.Utilities.csproj" />
   <Project Path="Unity.Profiling.Core.csproj" />
+  <Project Path="CRPG.Tests.Fixtures.AlternateRuleset.csproj" />
   <Project Path="CRPG.Exploration.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.csproj" />
   <Project Path="Unity.Collections.Tests.CoreCLR.PrivateJobNested.csproj" />

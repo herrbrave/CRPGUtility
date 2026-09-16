@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Consumer.Fate.Editor",
+    "rootNamespace": "CRPG.Consumer.Fate.Editor",
+    "references": ["CRPG.Consumer.Fate", "CRPG.Core", "CRPG.Actors", "CRPG.Abilities"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

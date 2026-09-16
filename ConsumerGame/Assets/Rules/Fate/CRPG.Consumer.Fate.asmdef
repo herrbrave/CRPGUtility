@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Consumer.Fate",
+    "rootNamespace": "CRPG.Consumer.Fate",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Combat", "CRPG.Abilities"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

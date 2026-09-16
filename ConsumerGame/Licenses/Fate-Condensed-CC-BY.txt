@@ -1,0 +1,38 @@
+Fate Condensed Attribution
+==========================
+
+This project (ConsumerGame) uses game mechanics and terminology derived from
+Fate Condensed, published by Evil Hat Productions, LLC, licensed under the
+Creative Commons Attribution 3.0 Unported License
+(https://creativecommons.org/licenses/by/3.0/).
+
+Required attribution, verbatim (fetched directly from
+https://fate-srd.com/official-licensing-fate/cc, not paraphrased):
+
+"This work is based on Fate Condensed (found at https://www.faterpg.com/), a
+product of Evil Hat Productions, LLC, developed, authored, and edited by PK
+Sullivan, Lara Turner, Fred Hicks, Richard Bellingham, Robert Hanz, and
+Sophie Lagacé, and licensed for our use under the Creative Commons
+Attribution 3.0 Unported license."
+
+Scope of what was adapted (for clarity, not part of the required notice):
+- The core 4dF ("Fudge dice") resolution mechanic and the Fail/Tie/Succeed/
+  Succeed-with-Style outcome concept (the last three collapsed to a simple
+  binary outcome in this project's dialogue checks -- see
+  Docs/Verification/Consumer-Game.md for the stated simplifications).
+- The Stress/Taken-Out damage model (modeled here as a single unified
+  Stress track, not Fate's real separate Physical/Mental tracks, and
+  without Consequences).
+- Fate Points as a resource spent to invoke a bonus.
+- The Stunt concept (a situational flat bonus).
+
+This is a deliberately partial, "compact" implementation for a small test
+game, not a claim of full Fate Condensed rules compliance. No Evil Hat
+Productions text, art, or other copyrighted material is reproduced here
+beyond the required attribution line above.
+
+Choosing CC-BY over the OGL 1.0a route (also offered by Evil Hat for Fate
+Condensed) was deliberate: CC-BY only requires this attribution block, per
+Evil Hat's own description of it as "the easiest option to implement and
+understand" for a simple derivative work with no lengthy Open Game
+Content/Product Identity declarations to draft.

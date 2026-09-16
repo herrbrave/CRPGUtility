@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Tests.Fixtures.AlternateRuleset",
+    "rootNamespace": "CRPG.Tests.Fixtures.AlternateRuleset",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Abilities"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

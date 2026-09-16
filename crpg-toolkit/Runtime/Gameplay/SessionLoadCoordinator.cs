@@ -5,6 +5,7 @@ using System.Linq;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay.Scenes;
+using CRPG.Rules;
 using CRPG.Saving;
 using UnityEngine;
 using UnityEngine.AI;
@@ -90,7 +91,37 @@ namespace CRPG.Gameplay
             IDiceService diceService,
             GameSessionHost host,
             WorldSpawnService oldWorldSpawnService,
+            IReadOnlyDictionary<RuntimeEntityId, GameObject> partyMemberVisualPrefabs = null) =>
+            LoadCore(path, null, () => new GameSession(rulesDatabase, diceService), host, oldWorldSpawnService, partyMemberVisualPrefabs);
+
+        /// <summary>Task 5.2 gap fix: the ruleset-aware counterpart to <see cref="Load(string, IRulesDatabase, IDiceService, GameSessionHost, WorldSpawnService, IReadOnlyDictionary{RuntimeEntityId, GameObject})"/>
+        /// -- reconstructs the session through <see cref="RulesetSessionFactory"/> (the same registration path
+        /// <see cref="GameSessionHost.StartSession(IRulesetDefinition, IDiceService, IReadOnlyList{Type})"/>
+        /// uses) instead of the bare <see cref="GameSession"/> constructor, so a session's registered policies
+        /// (a custom <c>ISkillCheckRule</c>, everything) survive a save/load round trip. Rejects a save whose
+        /// non-empty <c>Header.RulesetId</c> doesn't match <paramref name="provider"/>'s own id before touching
+        /// the old session at all.</summary>
+        public LoadResult Load(
+            string path,
+            IRulesetDefinition provider,
+            IDiceService diceService,
+            IReadOnlyList<Type> requiredPolicyTypes,
+            GameSessionHost host,
+            WorldSpawnService oldWorldSpawnService,
             IReadOnlyDictionary<RuntimeEntityId, GameObject> partyMemberVisualPrefabs = null)
+        {
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+            return LoadCore(path, provider.RulesetId, () => RulesetSessionFactory.BuildAndValidate(provider, diceService, requiredPolicyTypes),
+                host, oldWorldSpawnService, partyMemberVisualPrefabs);
+        }
+
+        private LoadResult LoadCore(
+            string path,
+            string expectedRulesetId,
+            Func<GameSession> sessionFactory,
+            GameSessionHost host,
+            WorldSpawnService oldWorldSpawnService,
+            IReadOnlyDictionary<RuntimeEntityId, GameObject> partyMemberVisualPrefabs)
         {
             if (IsLoading) return LoadResult.Fail(LoadOutcome.LoadAlreadyInProgress, "A load is already in progress.");
             if (gate.IsBusy) return LoadResult.Fail(LoadOutcome.WorldTransitionBusy, $"World transition already in progress ({gate.BusyReason}).");
@@ -112,7 +143,12 @@ namespace CRPG.Gameplay
                         $"Save is for scene '{data.Header.ScenePath}'; the active scene is '{currentScenePath}'. Use LoadCoroutine for a cross-scene load.");
                 }
 
-                var build = BuildPhase(data, rulesDatabase, diceService, partyMemberVisualPrefabs, npcScene: null, partyScene: null);
+                var rulesetCheck = CheckRulesetMatches(data, expectedRulesetId);
+                if (rulesetCheck != null) return rulesetCheck;
+
+                if (!TryBuildSession(sessionFactory, out var newSession, out var buildFailure)) return buildFailure;
+
+                var build = BuildPhase(data, newSession, partyMemberVisualPrefabs, npcScene: null, partyScene: null);
                 if (!build.Success) return LoadResult.Fail(build.Outcome, build.Message);
 
                 Commit(host, oldWorldSpawnService, build.Session, build.WorldSpawnService, build.Staged);
@@ -135,6 +171,35 @@ namespace CRPG.Gameplay
             string path,
             IRulesDatabase rulesDatabase,
             IDiceService diceService,
+            GameSessionHost host,
+            WorldSpawnService oldWorldSpawnService,
+            Scene coreScene,
+            IReadOnlyDictionary<RuntimeEntityId, GameObject> partyMemberVisualPrefabs,
+            Action<LoadResult> onFinished) =>
+            LoadCoroutineCore(path, null, () => new GameSession(rulesDatabase, diceService), host, oldWorldSpawnService, coreScene, partyMemberVisualPrefabs, onFinished);
+
+        /// <summary>Task 5.2 gap fix: the ruleset-aware counterpart to <see cref="LoadCoroutine(string, IRulesDatabase, IDiceService, GameSessionHost, WorldSpawnService, Scene, IReadOnlyDictionary{RuntimeEntityId, GameObject}, Action{LoadResult})"/>
+        /// -- see the sibling <c>Load</c> overload's remarks; same fix, cross-scene-capable path.</summary>
+        public IEnumerator LoadCoroutine(
+            string path,
+            IRulesetDefinition provider,
+            IDiceService diceService,
+            IReadOnlyList<Type> requiredPolicyTypes,
+            GameSessionHost host,
+            WorldSpawnService oldWorldSpawnService,
+            Scene coreScene,
+            IReadOnlyDictionary<RuntimeEntityId, GameObject> partyMemberVisualPrefabs,
+            Action<LoadResult> onFinished)
+        {
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+            return LoadCoroutineCore(path, provider.RulesetId, () => RulesetSessionFactory.BuildAndValidate(provider, diceService, requiredPolicyTypes),
+                host, oldWorldSpawnService, coreScene, partyMemberVisualPrefabs, onFinished);
+        }
+
+        private IEnumerator LoadCoroutineCore(
+            string path,
+            string expectedRulesetId,
+            Func<GameSession> sessionFactory,
             GameSessionHost host,
             WorldSpawnService oldWorldSpawnService,
             Scene coreScene,
@@ -165,6 +230,15 @@ namespace CRPG.Gameplay
             }
 
             var data = fileResult.Data;
+
+            var rulesetCheck = CheckRulesetMatches(data, expectedRulesetId);
+            if (rulesetCheck != null)
+            {
+                EndLoading();
+                onFinished(rulesetCheck);
+                yield break;
+            }
+
             var currentScenePath = SceneManager.GetActiveScene().path;
             var crossScene = !string.IsNullOrEmpty(data.Header.ScenePath) && data.Header.ScenePath != currentScenePath;
 
@@ -210,7 +284,15 @@ namespace CRPG.Gameplay
                 npcScene = SceneManager.GetSceneByPath(currentScenePath);
             }
 
-            var build = BuildPhase(data, rulesDatabase, diceService, partyMemberVisualPrefabs, npcScene, partyScene: coreScene);
+            if (!TryBuildSession(sessionFactory, out var newSession, out var buildFailure))
+            {
+                if (crossScene && npcScene.HasValue) SceneManager.UnloadSceneAsync(npcScene.Value);
+                EndLoading();
+                onFinished(buildFailure);
+                yield break;
+            }
+
+            var build = BuildPhase(data, newSession, partyMemberVisualPrefabs, npcScene, partyScene: coreScene);
             if (!build.Success)
             {
                 if (crossScene && npcScene.HasValue) SceneManager.UnloadSceneAsync(npcScene.Value);
@@ -237,6 +319,39 @@ namespace CRPG.Gameplay
             gate.EndBusy();
         }
 
+        /// <summary>Null when the save is compatible; a ready-to-return failure otherwise. A save with no
+        /// recorded RulesetId (older saves, or a loader that never supplied one) is always treated as
+        /// compatible -- matches RulesetId's own "honest placeholder passthrough" doc comment, not a new
+        /// requirement on every save.</summary>
+        private static LoadResult CheckRulesetMatches(SaveData data, string expectedRulesetId)
+        {
+            if (expectedRulesetId == null) return null;
+            if (string.IsNullOrEmpty(data.Header.RulesetId)) return null;
+            if (data.Header.RulesetId == expectedRulesetId) return null;
+
+            return LoadResult.Fail(LoadOutcome.RulesetMismatch,
+                $"Save is for ruleset '{data.Header.RulesetId}'; expected '{expectedRulesetId}'.");
+        }
+
+        /// <summary>Converts a thrown <see cref="RulesetValidationException"/> (a provider that didn't register
+        /// every required policy) into a returned failure -- Load/LoadCoroutine never throw on legitimate
+        /// content problems, matching every other failure path in this class.</summary>
+        private static bool TryBuildSession(Func<GameSession> sessionFactory, out GameSession session, out LoadResult failure)
+        {
+            try
+            {
+                session = sessionFactory();
+                failure = null;
+                return true;
+            }
+            catch (RulesetValidationException ex)
+            {
+                session = null;
+                failure = LoadResult.Fail(LoadOutcome.RulesetValidationFailed, ex.Message);
+                return false;
+            }
+        }
+
         private sealed class BuildResult
         {
             public bool Success;
@@ -254,19 +369,25 @@ namespace CRPG.Gameplay
         /// than trusting Unity's default "goes into the currently active scene" (which, during this phase, is
         /// still the OLD scene) -- null means "don't move it" (Load's own single-scene callers, matching their
         /// pre-Task-3.6 behavior exactly).</summary>
+        /// <summary><paramref name="newSession"/> is already fully constructed (and, for a ruleset-aware load,
+        /// already has every policy registered) by the caller -- this method only validates content against
+        /// its RulesDatabase, restores save data into it, and stages world spawns. Disposes
+        /// <paramref name="newSession"/> itself on a content-validation failure, since (unlike before this
+        /// method took a pre-built session) the session already exists by the time that check runs.</summary>
         private static BuildResult BuildPhase(
             SaveData data,
-            IRulesDatabase rulesDatabase,
-            IDiceService diceService,
+            GameSession newSession,
             IReadOnlyDictionary<RuntimeEntityId, GameObject> partyMemberVisualPrefabs,
             Scene? npcScene,
             Scene? partyScene)
         {
-            var validation = ContentValidator.Validate(data, rulesDatabase);
+            var validation = ContentValidator.Validate(data, newSession.RulesDatabase);
             if (!validation.IsValid)
+            {
+                newSession.Dispose();
                 return new BuildResult { Success = false, Outcome = LoadOutcome.ContentValidationFailed, Message = string.Join("; ", validation.Errors) };
+            }
 
-            var newSession = new GameSession(rulesDatabase, diceService);
             SaveService.Restore(data, newSession.Party, newSession.Characters, newSession.Inventory, (Timeline)newSession.Timeline, newSession.Quests);
 
             var newWorldSpawnService = new WorldSpawnService(newSession);
@@ -290,7 +411,7 @@ namespace CRPG.Gameplay
                     var faction = default(DefinitionId);
                     if (npcDefinitionId.IsValid)
                     {
-                        rulesDatabase.TryResolve<NpcDefinition>(npcDefinitionId, out var npcDefinition);
+                        newSession.RulesDatabase.TryResolve<NpcDefinition>(npcDefinitionId, out var npcDefinition);
                         prefab = npcDefinition?.VisualPrefab;
                         faction = npcDefinition?.Faction ?? default;
                     }

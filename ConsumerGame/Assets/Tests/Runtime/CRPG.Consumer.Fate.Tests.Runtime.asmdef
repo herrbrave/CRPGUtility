@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Consumer.Fate.Tests.Runtime",
+    "rootNamespace": "CRPG.Consumer.Fate.Tests",
+    "references": ["CRPG.Consumer.Fate", "CRPG.Consumer.Game", "CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Combat", "CRPG.Party", "CRPG.Gameplay", "CRPG.Saving", "CRPG.Navigation", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -228,6 +228,68 @@ namespace CRPG.Tests.PlayMode
             Assert.IsTrue(npcAgent == null, "A disabled agent must still be destroyed during teardown.");
         }
 
+        // --- Task 5.2 gap fix: a session started via IRulesetDefinition must keep its registered policies
+        // after a save/load round trip, and a save recorded for a different ruleset must be rejected before
+        // touching the old session. Local fakes mirror GameSessionTests.FakeRulesetProvider's shape (not
+        // visible from this PlayMode assembly). ---
+
+        private interface IFakePolicy
+        {
+        }
+
+        private sealed class FakePolicy : IFakePolicy
+        {
+        }
+
+        private sealed class FakeRulesetProvider : IRulesetDefinition
+        {
+            public FakeRulesetProvider(string rulesetId = "fake-ruleset") => RulesetId = rulesetId;
+            public string RulesetId { get; }
+            public void Register(IRulesetRegistrationBuilder builder) => builder.RegisterPolicy<IFakePolicy>(new FakePolicy());
+        }
+
+        [Test]
+        public void ARulesetAwareRoundTripKeepsTheRegisteredPolicyAfterLoad()
+        {
+            hostGo = new GameObject("RulesetHost");
+            var host = hostGo.AddComponent<GameSessionHost>();
+            var provider = new FakeRulesetProvider();
+            var session = host.StartSession(provider, new DiceService(new SeededRandomSource(1)), new[] { typeof(IFakePolicy) });
+            Assert.IsTrue(session.Policies.TryGet<IFakePolicy>(out _));
+
+            var spawner = new WorldSpawnService(session);
+            var saveResult = new SaveRequestService(session, spawner, new SafePointGate(), rulesetId: provider.RulesetId).RequestSave(savePath);
+            Assert.AreEqual(SaveRequestOutcome.Success, saveResult.Outcome);
+
+            var coordinator = new SessionLoadCoordinator();
+            var result = coordinator.Load(savePath, provider, new DiceService(new SeededRandomSource(2)), new[] { typeof(IFakePolicy) }, host, spawner);
+
+            Assert.AreEqual(LoadOutcome.Success, result.Outcome, result.Message);
+            Assert.IsTrue(result.Session.Policies.TryGet<IFakePolicy>(out _), "The reloaded session must still have the ruleset's policy registered.");
+        }
+
+        [Test]
+        public void ALoadForADifferentRulesetIsRejectedBeforeTouchingTheOldSession()
+        {
+            hostGo = new GameObject("RulesetHost");
+            var host = hostGo.AddComponent<GameSessionHost>();
+            var originalProvider = new FakeRulesetProvider("ruleset-a");
+            var session = host.StartSession(originalProvider, new DiceService(new SeededRandomSource(1)), new[] { typeof(IFakePolicy) });
+            var spawner = new WorldSpawnService(session);
+
+            var saveResult = new SaveRequestService(session, spawner, new SafePointGate(), rulesetId: "ruleset-a").RequestSave(savePath);
+            Assert.AreEqual(SaveRequestOutcome.Success, saveResult.Outcome);
+
+            var originalSession = host.Session;
+            var mismatchedProvider = new FakeRulesetProvider("ruleset-b");
+            var coordinator = new SessionLoadCoordinator();
+            var result = coordinator.Load(savePath, mismatchedProvider, new DiceService(new SeededRandomSource(2)), new[] { typeof(IFakePolicy) }, host, spawner);
+
+            Assert.AreEqual(LoadOutcome.RulesetMismatch, result.Outcome);
+            Assert.AreSame(originalSession, host.Session);
+            Assert.IsFalse(originalSession.IsDisposed);
+        }
+
         [Test]
         public void SaveLoadSaveLoadKeepsADefeatedNpcDefeated()
         {

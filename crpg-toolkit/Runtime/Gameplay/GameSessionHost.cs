@@ -42,25 +42,10 @@ namespace CRPG.Gameplay
         /// hardcodes which policies matter.</summary>
         public GameSession StartSession(IRulesetDefinition provider, IDiceService diceService, IReadOnlyList<Type> requiredPolicyTypes = null)
         {
-            if (provider == null) throw new ArgumentNullException(nameof(provider));
             if (Session is { IsDisposed: false })
                 throw new InvalidOperationException($"{name} already has an active session -- call EndSession() before starting another.");
 
-            var rulesDatabase = new RulesDatabase();
-            var candidate = new GameSession(rulesDatabase, diceService);
-            try
-            {
-                var builder = new RulesetRegistrationBuilder(rulesDatabase, candidate.Characters, diceService, candidate.Policies);
-                provider.Register(builder);
-                candidate.Policies.ValidateRequired(requiredPolicyTypes);
-            }
-            catch
-            {
-                candidate.Dispose();
-                throw;
-            }
-
-            Session = candidate;
+            Session = RulesetSessionFactory.BuildAndValidate(provider, diceService, requiredPolicyTypes);
             return Session;
         }
 
