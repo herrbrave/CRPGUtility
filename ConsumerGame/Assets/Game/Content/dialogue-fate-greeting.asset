@@ -32,7 +32,7 @@ MonoBehaviour:
         nodeId:
           low: -5455974570177356183
           high: -6813164449137157792
-        editorPosition: {x: 0, y: 0}
+        editorPosition: {x: 159, y: 17}
         speakerName: Wanderer
         text: You look steady on your feet. Care to prove it?
         nextNodeId:
@@ -44,7 +44,7 @@ MonoBehaviour:
         nodeId:
           low: -7102839714003835893
           high: -8691959890584398689
-        editorPosition: {x: 0, y: 0}
+        editorPosition: {x: 593, y: 20}
         queryKey: Skill:Will
         difficultyClass: 1
         performer: 0
@@ -60,7 +60,7 @@ MonoBehaviour:
         nodeId:
           low: -254658391196496858
           high: 8538870043679504128
-        editorPosition: {x: 0, y: 0}
+        editorPosition: {x: 1040, y: -206}
         speakerName: Wanderer
         text: Steady indeed. Safe travels.
         nextNodeId:
@@ -72,7 +72,7 @@ MonoBehaviour:
         nodeId:
           low: -5146193088312516034
           high: 2409474258598177181
-        editorPosition: {x: 0, y: 0}
+        editorPosition: {x: 1031, y: 302}
         speakerName: Wanderer
         text: Hah -- you flinched. Still, safe travels.
         nextNodeId:
@@ -84,4 +84,4 @@ MonoBehaviour:
         nodeId:
           low: 3274037854792712831
           high: 6029811905607383809
-        editorPosition: {x: 0, y: 0}
+        editorPosition: {x: 1572, y: 102}

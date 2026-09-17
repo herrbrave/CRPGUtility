@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Tests.Fixtures.BasicCrpgVerification",
+    "rootNamespace": "CRPG.Tests.Fixtures.BasicCrpgVerification",
+    "references": ["CRPG.Core", "CRPG.Actors", "CRPG.Party", "CRPG.Navigation", "CRPG.Inventory", "CRPG.Gameplay", "CRPG.Exploration", "UnityEngine.TestRunner"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

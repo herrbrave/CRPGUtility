@@ -58,6 +58,9 @@ TestProject/.vs/
 TestProject/*.sln
 TestProject/*.csproj
 
+# Throwaway scratch Unity projects (e.g. the Task 5.3 clean-install verification harness)
+/_scratch/
+
 # One-off root-level scratch/debug output from live verification sessions
 /build_result*.txt
 /console_*.txt

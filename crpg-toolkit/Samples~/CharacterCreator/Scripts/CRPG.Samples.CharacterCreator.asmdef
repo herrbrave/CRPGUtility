@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Samples.CharacterCreator",
+    "rootNamespace": "CRPG.Samples.CharacterCreator",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Abilities", "CRPG.UI", "CRPG.Gameplay", "CRPG.Exploration", "CRPG.Party", "CRPG.Navigation", "CRPG.InputSystem"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
