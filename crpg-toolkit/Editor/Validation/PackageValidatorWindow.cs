@@ -9,9 +9,11 @@ namespace CRPG.Editor.Validation
 {
     /// <summary>
     /// Task 5.3: a project asset-validation entrypoint -- deliberately NOT a claim of unifying every validator
-    /// this package has. Runs the two checks that are genuinely bulk-scannable across a whole project:
-    /// <see cref="DialogueValidator"/> (existing, previously had zero production callers) and
-    /// <see cref="RulesetRegistrationValidator"/> (new). <see cref="CharacterRigValidator"/> stays reachable
+    /// this package has. Runs the checks that are genuinely bulk-scannable across a whole project:
+    /// <see cref="DialogueValidator"/> (existing, previously had zero production callers),
+    /// <see cref="RulesetRegistrationValidator"/>, and <see cref="CompatibilityValidator"/> (this project's
+    /// actual Unity/dependency versions against what this package's own package.json declares -- not per-asset,
+    /// runs once). <see cref="CharacterRigValidator"/> stays reachable
     /// only through Character Setup's own Validate button (it validates one in-progress
     /// <c>CharacterSetupSpec</c>, not a saved asset -- there is nothing to bulk-scan). Save-content validation
     /// (<c>CRPG.Saving.ContentValidator</c>) already runs automatically at load time
@@ -31,9 +33,12 @@ namespace CRPG.Editor.Validation
         private void OnGUI()
         {
             EditorGUILayout.HelpBox(
-                "Runs against every DialogueDefinition and every IRulesetDefinition asset in the project:\n" +
+                "Runs against every DialogueDefinition and every IRulesetDefinition asset in the project, plus " +
+                "one project-wide check:\n" +
                 "- Dialogue graphs: duplicate/dangling node ids, unreachable nodes, inescapable auto-cycles.\n" +
-                "- Ruleset providers: does Register() complete without throwing (duplicate ids, construction failures).\n\n" +
+                "- Ruleset providers: does Register() complete without throwing (duplicate ids, construction failures).\n" +
+                "- Compatibility: this project's actual Unity version and dependency package versions against " +
+                "what this package's own package.json declares (see COMPATIBILITY.md).\n\n" +
                 "Does NOT cover character rig/socket validation (use Character Setup's own Validate button) or " +
                 "save-content validation (runs automatically at load time). Capability requirements, outfit " +
                 "compatibility, and scene entry points have no validator at all yet.",
@@ -86,7 +91,9 @@ namespace CRPG.Editor.Validation
                 }
             }
 
-            Debug.Log($"[PackageValidatorWindow] Checked {dialoguesChecked} dialogue asset(s) and {providersChecked} ruleset provider asset(s) -- {results.Count} result(s).");
+            results.AddRange(CompatibilityValidator.Validate());
+
+            Debug.Log($"[PackageValidatorWindow] Checked {dialoguesChecked} dialogue asset(s), {providersChecked} ruleset provider asset(s), and this project's Unity/dependency compatibility -- {results.Count} result(s).");
         }
 
         private void DrawResults()

@@ -106,8 +106,12 @@ namespace CRPG.Combat
 
         public void EndCombat()
         {
-            eventBus?.Publish(new GameEventContext(GameEvent.CombatEnded));
+            // Null Encounter BEFORE publishing -- GameEventBus.Publish invokes subscribers synchronously, and
+            // a CombatEnded handler reading Encounter mid-publish (e.g. TacticalCombatUIBridge refreshing
+            // whose turn it is) must see combat as genuinely over, not a stale non-null Encounter/CurrentTurn
+            // from the instant before this call.
             Encounter = null;
+            eventBus?.Publish(new GameEventContext(GameEvent.CombatEnded));
         }
 
         private void BeginTurn(Combatant combatant)

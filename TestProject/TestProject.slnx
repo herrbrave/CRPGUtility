@@ -48,6 +48,7 @@
   <Project Path="CRPG.Dialogue.csproj" />
   <Project Path="CRPG.Tests.PlayMode.csproj" />
   <Project Path="Unity.AI.Navigation.Updater.csproj" />
+  <Project Path="CRPG.Tests.Fixtures.TacticalEncounterVerification.csproj" />
   <Project Path="CRPG.Rules.csproj" />
   <Project Path="CRPG.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />

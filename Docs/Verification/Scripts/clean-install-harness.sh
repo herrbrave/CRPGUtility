@@ -182,8 +182,9 @@ check_results() {
   fi
   echo "$line"
 
-  local total failed
+  local total passed failed
   total="$(echo "$line" | grep -o 'total="[0-9]*"' | grep -o '[0-9]*')"
+  passed="$(echo "$line" | grep -o 'passed="[0-9]*"' | grep -o '[0-9]*')"
   failed="$(echo "$line" | grep -o 'failed="[0-9]*"' | grep -o '[0-9]*')"
 
   if [ "$failed" != "0" ]; then
@@ -193,6 +194,13 @@ check_results() {
   fi
   if [ "$total" = "0" ]; then
     echo "FAILED: total=\"0\" in $xml -- nothing actually ran (check the test filter/testables wiring)."
+    exit 1
+  fi
+  # A wholly Ignored/Skipped test reports failed="0" and a nonzero total without a single test actually
+  # passing -- exactly the "silently skipped fixture reads as success" gap this whole function exists to
+  # close, so passed="0" must fail loudly too, not just failed!=0/total=0.
+  if [ "$passed" = "0" ]; then
+    echo "FAILED: passed=\"0\" in $xml -- every matched test was skipped/ignored, nothing actually ran to completion."
     exit 1
   fi
 }

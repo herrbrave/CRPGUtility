@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Tests.Fixtures.TacticalEncounterVerification",
+    "rootNamespace": "CRPG.Tests.Fixtures.TacticalEncounterVerification",
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Abilities", "CRPG.Combat", "CRPG.AI", "CRPG.Gameplay", "CRPG.Exploration", "CRPG.Navigation", "CRPG.Party", "Unity.AI.Navigation", "UnityEngine.TestRunner"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

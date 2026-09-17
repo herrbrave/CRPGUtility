@@ -1,0 +1,14 @@
+{
+    "name": "CRPG.Samples.TacticalEncounter.Editor",
+    "rootNamespace": "CRPG.Samples.TacticalEncounter.Editor",
+    "references": ["CRPG.Samples.TacticalEncounter", "CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Abilities", "CRPG.Combat", "CRPG.AI", "CRPG.UI", "CRPG.Gameplay", "CRPG.Navigation", "CRPG.InputSystem", "CRPG.Presentation", "Unity.AI.Navigation"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

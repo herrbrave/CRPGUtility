@@ -8,10 +8,11 @@ namespace CRPG.Tests.EditMode
     /// Task 4.1's "dependency test": proves the generic engine doesn't secretly depend on the SRD5 ruleset --
     /// no assembly except CRPG.Rules.SRD5 itself (and the dev-time CRPG.Editor/CRPG.Tests.EditMode/
     /// CRPG.Tests.PlayMode, which need it for authoring/testing the SRD5 content, Task 4.5 extending this to
-    /// PlayMode once a real end-to-end tactical-encounter test needed to construct real SRD5 services)
-    /// references CRPG.Rules.SRD5. Removing the SRD5 assembly wholesale would therefore leave every shipped
-    /// runtime assembly still compilable. No prior test asserted assembly-reference structure in this repo;
-    /// this is new infrastructure, not an extension of an existing pattern.
+    /// PlayMode once a real end-to-end tactical-encounter test needed to construct real SRD5 services;
+    /// CRPG.Tests.Fixtures.TacticalEncounterVerification for the same reason, Task 5.3) references
+    /// CRPG.Rules.SRD5. Removing the SRD5 assembly wholesale would therefore leave every shipped runtime
+    /// assembly still compilable. No prior test asserted assembly-reference structure in this repo; this is
+    /// new infrastructure, not an extension of an existing pattern.
     /// </summary>
     public class RulesetAssemblyDependencyTests
     {
@@ -25,6 +26,7 @@ namespace CRPG.Tests.EditMode
         private static readonly string[] Whitelist =
         {
             Srd5AssemblyName, "CRPG.Editor", "CRPG.Tests.EditMode", "CRPG.Tests.PlayMode",
+            "CRPG.Tests.Fixtures.TacticalEncounterVerification",
             "Assembly-CSharp", "Assembly-CSharp-Editor",
         };
 
