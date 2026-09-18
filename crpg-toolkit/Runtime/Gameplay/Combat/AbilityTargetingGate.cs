@@ -1,3 +1,4 @@
+using System;
 using CRPG.Abilities;
 using CRPG.Core;
 using CRPG.Gameplay.Actions;
@@ -32,6 +33,14 @@ namespace CRPG.Gameplay.Combat
         }
 
         public bool IsArmed => armedAbility != null;
+
+        /// <summary>Raised whenever a click while armed lands on a target that fails Validate (out of range,
+        /// wrong relation, etc.) -- confirmed a real, previously silent gap: without this, a rejected click
+        /// simply stays armed with zero feedback anywhere, which reads as "the click did nothing" to a player
+        /// (or a tester) with no way to tell a genuine input bug from a merely-too-far target. Never raised for
+        /// an empty-space/non-combatant click (that path cancels targeting outright, not a validation
+        /// rejection) or a successful cast.</summary>
+        public event Action<AbilityDefinition, RuntimeEntityId, AbilityValidationResult> TargetRejected;
 
         /// <summary>Enters targeting mode for <paramref name="ability"/> on behalf of <paramref name="source"/>
         /// (the UI bridge's own job to resolve -- normally whoever currently has the turn). Re-arming while
@@ -68,7 +77,12 @@ namespace CRPG.Gameplay.Combat
             }
 
             var targets = new[] { agent.EntityId };
-            if (!abilityResolution.Validate(source, armedAbility, targets).IsValid) return true; // stay armed -- let the player try a different target
+            var validation = abilityResolution.Validate(source, armedAbility, targets);
+            if (!validation.IsValid)
+            {
+                TargetRejected?.Invoke(armedAbility, agent.EntityId, validation);
+                return true; // stay armed -- let the player try a different target
+            }
 
             scheduler.StartAbility(source, armedAbility, targets);
             Disarm();

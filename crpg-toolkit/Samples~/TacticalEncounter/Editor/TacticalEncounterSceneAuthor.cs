@@ -62,6 +62,8 @@ namespace CRPG.Samples.TacticalEncounter.Editor
             wall.name = "Obstacle";
             wall.transform.position = new Vector3(0f, 1f, 0f);
             wall.transform.localScale = new Vector3(10f, 2f, 1f);
+            var wallMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = new Color(0.3f, 0.3f, 0.3f) };
+            wall.GetComponent<MeshRenderer>().sharedMaterial = wallMaterial;
 
             var light = new GameObject("Directional Light").AddComponent<Light>();
             light.type = LightType.Directional;

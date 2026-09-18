@@ -142,10 +142,58 @@ sharing that session's event bus would risk.
   to both Heroes and Foes (a real consumer with a smarter turn driver could enable the other direction), but
   the live review below only exercises the direction that actually works: a Hero moving out of a Foe's reach.
 
-## Review gate: pending live human review
+## Three more real bugs found by the live human review (the automated fixture couldn't have caught any of these)
 
-Everything automatable is green, re-confirmed against a freshly recreated scratch project. This task is not
-yet considered closed -- needs:
+The whole reason the live review is a separate, required gate rather than a formality: it found three genuine
+defects the four-test automated fixture structurally cannot reach (no player, no rendered UI, no actual mouse
+clicks).
+
+1. **Turn order and combat log showed raw 32-character `RuntimeEntityId` GUIDs instead of names, and the HUD
+   text looked corrupted/overlapping.** Root cause was one bug wearing two symptoms:
+   `TacticalEncounterBootstrap` never passed a display-name lookup into `TurnOrderPresenter`, so it fell back
+   to `combatant.Id.ToString()` -- and that raw id is long enough that it word-wrapped inside the narrow HUD
+   region into what looked like stacked/overlapping fragments, not a legibility issue. Fixed: `CombatLogPanel`
+   now owns the one shared id->name lookup (populated by `Track`), passed into `TurnOrderPresenter`; a
+   `TurnOrderView` label also gained `whiteSpace: NoWrap` defensively (a real, generically-useful engine
+   robustness fix, not sample-local -- any consumer with a longer-than-expected display name would hit the same
+   wrapping). `CombatLogEntry.Summary()`'s own `Source`/`Target` interpolation has the identical raw-id problem;
+   `CombatLogPanel.Describe()` substitutes known ids for names before display rather than patching the engine's
+   generic (and correctly ruleset-agnostic) log formatting. Also fixed in the same pass: the HP list stayed
+   blank until the first attack (`Track()` didn't trigger an initial refresh), and the wall obstacle had no
+   material assigned at all (both real, if smaller, gaps).
+2. **Clicking Melee Strike then a Foe produced zero visible feedback.** `AbilityTargetingGate.TryConsume`
+   computed a real `AbilityValidationResult` (with a specific `AbilityRejectionReason` -- `OutOfRange`,
+   `WrongRelation`, etc.) on every rejected target and then discarded it, silently staying armed. A click that
+   failed validation was indistinguishable from a click that never registered at all -- confirmed live: the
+   Hero/Foe spawn points are 16 units apart, well outside Melee Strike's 2-unit range, so an un-primed attempt
+   (arm the ability, click a distant Foe before walking a Hero adjacent) always failed silently. Fixed with a
+   new `AbilityTargetingGate.TargetRejected` event (a real, small, backward-compatible engine addition -- it
+   already computes the validation result, this just stops discarding it), surfaced by the sample as a combat-
+   log line (e.g. `Melee Strike on Foe 1: OutOfRange -- ...`).
+3. **A real process mistake, not a code bug, worth recording anyway**: re-running only `TacticalEncounterSceneAuthor`
+   to pick up a fix (without re-running the Content/Prefab authors in the same session) failed with
+   "not found" errors even after a full `Library/` rebuild -- the `Packages/com.crpgtoolkit.core/Samples/...`
+   path every `*Author.cs` script reads/writes is not a live redirect into `Samples~/` at all; it's a genuinely
+   separate, ephemeral folder that only has content in it for as long as something wrote there in the current
+   session. Documented in [[project-crpg-unity-verification-setup]] as a correction to the earlier "move
+   generated content into Samples~" finding: **every** authoring script for a sample must be re-run together,
+   every time, in numbered order, whenever anything about that sample changes -- not just the one that
+   logically changed. A `rm -rf` against the scratch project's imported copy, run without first checking
+   whether the user's own Editor had that exact project open, briefly caused `TacticalEncounterBootstrap` to
+   show as "Missing Script" in a live session -- recoverable (nothing but a reproducible imported copy was
+   lost), but confirms `unity status`/`tasklist` must be checked before any delete touching a project folder,
+   not just before batch Unity invocations.
+
+## Review gate: closed
+
+The user completed a full encounter live -- GUI rendering correctly (URP active, no overlapping/GUID text),
+click-to-move, click-to-target-and-attack (after the `TargetRejected` fix made a too-far click legible instead
+of silent), and reported completing the encounter to a real win/loss. `TacticalEncounter` is done. This closes
+Task 5.3 in full -- all three samples (BasicCRPG, CharacterCreator, TacticalEncounter) are built, verified, and
+live-reviewed; the URP dependency and COMPATIBILITY.md/CompatibilityValidator pieces were finished earlier in
+the same session.
+
+The original pre-review checklist (superseded by the above, kept for the record):
 - HUD (turn order, ability bar, combat log/HP panel) renders and updates as turns pass.
 - Click a Hero's Melee Strike, target a Foe through the real click-to-attack flow, confirm visible feedback.
 - End Turn; the Foes faction visibly moves/attacks via the real AI -- confirm it actually attacks once in

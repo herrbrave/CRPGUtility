@@ -152,17 +152,30 @@ namespace CRPG.Samples.TacticalEncounter
             var targetingGate = new AbilityTargetingGate(controller.Scheduler, abilityResolution, ~0);
             inputSource.TargetingGate = targetingGate;
 
-            var turnOrderPresenter = new TurnOrderPresenter(encounterService);
+            // Built before TurnOrderPresenter specifically so its own DisplayNames dictionary (id -> "Hero 1"/
+            // "Foe 1"/...) can be shared with it -- without a real name, both TurnOrderPresenter and
+            // CombatLogEntry.Summary() fall back to a RuntimeEntityId's raw 32-character string, confirmed
+            // live to visually wrap a narrow HUD region into a dense, overlapping-looking block of text.
+            combatLogPanel.Initialize(combatLog, session.Characters, hudRoot.CreateRegion(HudCorner.TopLeft, 260f));
+            for (var i = 0; i < heroes.Count; i++) combatLogPanel.Track(heroes[i], $"Hero {i + 1}", hitPointsResource.Id);
+            for (var i = 0; i < foes.Count; i++) combatLogPanel.Track(foes[i], $"Foe {i + 1}", hitPointsResource.Id);
+
+            // Otherwise a click that fails Validate (out of range, wrong relation, ...) stays armed with zero
+            // feedback anywhere -- confirmed live during review to read as "the click did nothing," with no
+            // way to tell a genuine input bug from simply having clicked a target that isn't in range yet.
+            targetingGate.TargetRejected += (ability, targetId, validation) =>
+            {
+                var name = combatLogPanel.DisplayNames.TryGetValue(targetId, out var resolved) ? resolved : targetId.ToString();
+                combatLogPanel.AddLine($"{ability.DisplayName} on {name}: {validation.Reason} -- {validation.Message}");
+            };
+
+            var turnOrderPresenter = new TurnOrderPresenter(encounterService, combatLogPanel.DisplayNames);
             turnOrderView.Initialize(turnOrderPresenter, hudRoot.CreateRegion(HudCorner.TopRight, 320f), session.EventBus);
 
             var abilityBarPresenter = new AbilityBarPresenter(session.Characters, session.RulesDatabase, abilityResolution);
             abilityBarView.Initialize(abilityBarPresenter, hudRoot.CreateRegion(HudCorner.BottomRight, 420f));
 
             uiBridge = new TacticalCombatUIBridge(controller, targetingGate, abilityBarView, session.EventBus, HeroesFaction);
-
-            combatLogPanel.Initialize(combatLog, session.Characters, hudRoot.CreateRegion(HudCorner.TopLeft, 260f));
-            for (var i = 0; i < heroes.Count; i++) combatLogPanel.Track(heroes[i], $"Hero {i + 1}", hitPointsResource.Id);
-            for (var i = 0; i < foes.Count; i++) combatLogPanel.Track(foes[i], $"Foe {i + 1}", hitPointsResource.Id);
 
             session.EventBus.Subscribe(GameEvent.CombatEnded, _ => OnCombatEnded());
 

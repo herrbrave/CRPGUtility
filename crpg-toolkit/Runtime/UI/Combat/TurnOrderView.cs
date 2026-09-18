@@ -100,6 +100,10 @@ namespace CRPG.UI
 
             var label = new Label(entry.DisplayName);
             label.style.color = Color.white;
+            // A caller with no real display-name lookup falls back to RuntimeEntityId's own 32-character
+            // string (see TurnOrderPresenter.GetTurnOrder) -- confirmed live: without NoWrap, a narrow HUD
+            // region wraps that into a dense wall of short fragments rather than clipping/overflowing legibly.
+            label.style.whiteSpace = WhiteSpace.NoWrap;
             pill.Add(label);
             return pill;
         }

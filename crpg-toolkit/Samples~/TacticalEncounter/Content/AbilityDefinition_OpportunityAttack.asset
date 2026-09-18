@@ -30,7 +30,7 @@ MonoBehaviour:
     requireLineOfEffect: 0
     requireVisibleTarget: 1
   effects:
-  - rid: 4304780826134183938
+  - rid: 4304780850011570176
   spellLevel: 0
   prepareSeconds: 0
   recoverSeconds: 0
@@ -39,14 +39,14 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 4304780826134183938
+    - rid: 4304780850011570176
       type: {class: AttackRollEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
       data:
         governingStatId:
           value: stat-strength
         onHit:
-          rid: 4304780826134183939
-    - rid: 4304780826134183939
+          rid: 4304780850011570177
+    - rid: 4304780850011570177
       type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
       data:
         hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
