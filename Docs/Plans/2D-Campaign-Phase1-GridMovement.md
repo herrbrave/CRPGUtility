@@ -370,7 +370,25 @@ backend (no grid code exists yet). Update all four real `IMovable` test-fake imp
 stay 100% green — this isolates "did seaming break the existing NavMesh game" from "does new grid code work"
 as two separately-verifiable steps.
 
-### Task 1.1: Prove the motor contract first
+### Task 1.1: Prove the motor contract first — DONE (2026-09-19)
+
+**Result: the contract holds, with zero changes to `MoveActionExecution`/`ActionScheduler`/`MovementResolutionService`.**
+`Tests/Runtime/GridMotorContractTests.cs` is an abstract fixture (12 tests) that any grid backend must pass,
+driven through the real `MoveActionExecution` and through raw `IMovable` calls the way `PartyExplorationController`/
+`InteractionController` make them. Its first subclass, `FakeGridMotorContractTests`, uses a deliberately minimal
+test-only grid (small Dijkstra pathfinder, `FakeGridNavService`, `FakeGridMotor`); **Tasks 1.2/1.3 add a second
+subclass over the real `GridPathfindingService`/`GridCharacterMotor` and must pass the identical tests.**
+Proven: N straight cells spend exactly N; 3 diagonal cells spend Ceil(4.2426)=5 cumulatively; an exhausted-budget
+zero-length leg is a success, not an interrupt; a budget clip landing mid-cell is reached exactly; an unplanned
+long `SetDestination` paths around a wall and never enters a blocked cell; arbitrary non-cell-aligned
+destinations arrive exactly; zero-length destinations arrive (never `Invalid`); an unreachable destination is
+`Invalid` and leaves the in-flight request untouched; a new request supersedes the old id; `Stop` cancels and
+retains the id; `Warp` refuses unwalkable cells without moving anything and cancels on success; `timeScale = 0`
+is a true no-op and resumes cleanly. **A negative control** (a motor that overshoots each corner by 0.001) makes
+a 5-cell move spend 6, confirming the exact-arrival-snap requirement is load-bearing rather than theoretical.
+Full PlayMode suite after: 233 passed, 0 failed, 3 skipped (sample-import fixtures).
+
+Original spec for this task, kept for reference:
 
 Minimal fake grid `IMovable` driven directly through **both** `MoveActionExecution` **and** a stand-in for
 `PartyExplorationController`/`InteractionController`-style unplanned long-distance `SetDestination` calls (the
