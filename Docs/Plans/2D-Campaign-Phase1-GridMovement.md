@@ -503,7 +503,91 @@ mover (wait-and-retry) or the pathfinder (soft occupancy costs), not in formatio
 The `HashSet<GridCoordinate>`-threaded claimed-cells fix designed above. Explicitly its own task now, not an
 afterthought discovered during end-to-end testing.
 
-### Task 1.5: Prove the full seam end to end
+### Task 1.5: Prove the full seam end to end — DONE (2026-09-19)
+
+**Result: proven, and it found three real defects that the earlier per-component tests could not see.**
+EditMode 728/728, PlayMode 284 passed / 3 skipped (sample-import fixtures). `MoveActionExecution`, `ActionScheduler`
+and `MovementResolutionService` are still **completely unchanged** across all of Phase 1.
+Proven end to end on the real grid motor + real pathfinder (`GridCharacterMotorContractTests`): a mid-cell threat
+crossing stops the mover at the exact off-centre boundary point, resolves an opportunity attack, and the mover carries
+on to the destination spending exactly the right movement; an opportunity attack that kills the mover ends the move
+`Interrupted`; `ActionScheduler` runs a grid move and refuses a second while busy; a melee closing move stops exactly
+`stopDistance` from the target; a real `PartyExplorationController` click sends three real motors across a wall
+through a 2-cell gap and all three arrive in their own cells; and (`GridSceneTravelTests`, over two real scenes
+`GridTravelTestA/B` — open vs walled) a scene-travel round trip re-points the pathfinder each way with reachability
+and occupancy following it and nothing stale surviving, a failed reposition restores the old grid and the warped
+member's claim, and three members whose formation slots collapse into one cell are still placed in distinct cells.
+**The three defects it found (all fixed, each with a negative control or a regression test):**
+1. **Single-file movement was impossible.** A mover holds its current + next cell and released the old one only on
+   arriving at the next cell's centre, so a follower exactly one cell behind a leader was `Blocked` at once — every
+   party leaving in a column would have stalled. Fixed two ways: a mover now releases the cell behind it the moment it
+   crosses the boundary, and a failed claim first **waits** (`ClaimWaitSeconds`, default 0.5 s scaled time) because
+   the occupant is usually just leaving. Proven in a one-cell-wide corridor (where nothing but waiting can work) with a
+   `ClaimWaitSeconds = 0` negative control.
+2. **A party click across a room stranded teammates.** A line formation puts teammates' destination cells on the same
+   row as the farthest member's straight route; whoever arrived first parked in the way and the mover behind ended
+   `Blocked` — Task 1.4's "accepted limitation" turned out to hit the primary use case. Fixed by re-planning: after the
+   wait, the mover re-routes around every cell others currently occupy (`GridPathfindingService.TryCalculatePathAvoiding`,
+   bounded to 3 re-plans, same request id, never silently changing the destination) and is only `Blocked` when no other
+   route exists or the destination cell itself is the occupied one.
+3. **Stop-short moves were off by up to half a cell.** `MoveActionExecution` walks the *path service's* corners, and the
+   grid service ended every path at the goal cell's centre, so a melee closing move (`stopDistance` 1.5) stopped 1.0 from
+   the target — closer than asked, and an outward error would have left an attacker out of reach while reporting
+   arrival (the review's W4). `TryCalculatePath` now ends at the caller's **exact** `to` when its own cell is walkable
+   (a destination snapped out of a wall still ends at the snapped centre); the corner-safety invariant still holds.
+   The "accepted ~0.7-unit fuzz" recorded above is therefore only true for a destination that was inside a wall.
+Also: `SceneTravelCoordinator` placements now use `ISlotAvoidingNavMeshService` (the same distinct-cells rule as
+formation resolution). New dogfood fixtures: `TestProject/Assets/Scenes/Tests/GridTravelTestA/B.unity`, authored by
+`SceneTravelTestFixtureAuthor.AuthorGridFixtures` (a separate menu item so the committed NavMesh fixtures are never
+regenerated) and registered in `EditorBuildSettings`.
+**Known limits carried out of Phase 1 (deliberate, documented):** (a) a wait of up to `ClaimWaitSeconds` is spent
+before any `Blocked`, including behind a genuinely stationary character; (b) `MoveActionExecution` plans with the
+occupancy-blind path service, so a tactical move through a parked teammate/enemy ends `Interrupted` rather than being
+re-planned (turn-based, rare; if it matters the fix is in tactical path planning, not the motor); (c) two movers meeting
+head-on in a corridor wide enough to pass may choose the same detour side and re-block — bounded by the re-plan cap,
+they end `Blocked` rather than hang; (d) the composition root activates the *initial* location's grid itself via
+`WalkabilityGridProvider.FindInScene` (travel and cross-scene load do it for every later one); (e) the grid itself is
+authored by hand/`Configure` — baking one from a scene's colliders is Phase 3's Task 3.2.
+
+**Final independent review of the whole phase (Opus, 2026-09-19): no blockers, safe to close.** It verified in code
+that the wait/re-plan/claim logic cannot livelock (worst case ~4 x `ClaimWaitSeconds` then a hard `Blocked`), that a
+paused game (`timeScale 0`) cannot time a waiting mover out, that there is no occupancy leak in `ReleaseCellsBehind`,
+that corner-safety survives the exact-endpoint change (including diagonal final hops and boundary points), that no
+caller relied on the last corner being a cell centre, and that the coordinator's swap/restore ordering is right.
+Its findings and what was done:
+- **Fixed — `Stop()`/`SetDestination()` mid diagonal hop could leave a mover holding no cell.** With the exact endpoint,
+  a diagonal final hop can transit an unclaimed corner cell; `ReleaseAllExcept(cell I'm in)` then dropped every claim
+  (and if someone else held that cell, two characters overlapped permanently). New `SettleHeldCells` claims the cell
+  the mover is in, or keeps what it already holds if it cannot. Two tests; both fail against the old behaviour.
+- **Fixed — `SessionLoadCoordinator` never handed the rebuilt `WorldSpawnService` the pathfinder** (every restored motor
+  had `Pathfinding == null`, so movement was dead after any load) **and never activated the loaded location's grid.**
+  It now takes an optional `gridPathfinding`, sets `GridNavigation` on the rebuilt spawn service, and on a *cross-scene*
+  load activates the loaded scene's grid before restoring anything, restoring the previous grid on any failure. Two
+  tests over the real grid scenes (`GridCrossSceneLoadTests`): success, and failure with no provider in the scene.
+- **Not applicable — "a motor re-plan corrupts `MoveActionExecution`'s threat-crossing stops."** `MoveActionExecution`
+  issues one short leg per planned stop, so the motor's whole path is a single hop into the next cell; when that cell is
+  occupied the destination itself is the avoided cell, the re-plan refuses, and the leg ends `Blocked` -> `Interrupted`
+  with no detour. Evidence: `ABlockedLegEndsMoveActionExecutionInterrupted...` uses a 3-wide arena where a detour
+  *would* exist and still ends `Interrupted`. Re-planning only ever detours for long unplanned `SetDestination` calls
+  (exploration, interaction), which have no threat-crossing stops. Recorded here so it isn't re-raised.
+- **Deferred to the tactical-AI work (recorded, not lost):** `TacticalAiTurnDriver` issues one `StartMove` per turn and
+  the path service ignores occupancy, so an AI closing to melee can target a cell an ally holds and lose its turn after a
+  ~0.5 s stall. Fix when that work happens: pre-resolve the destination through `TrySamplePositionAvoiding` in tactical
+  planning, and set `ClaimWaitSeconds = 0` on combat prefabs (it is a serialized field for exactly this).
+- **Notes carried forward:** (1) *Phase 2:* during a claim wait the snapshot is `Moving` with `Velocity == 0` —
+  billboard/rocking-motion code must key off `Velocity`, not `Status`, or it will animate a walk in place.
+  (2) Travel's NPC-spawn-vs-party-placement ordering could in principle let a freshly spawned NPC motor claim a
+  destination cell first (inferred, not observed); cheap guard if it ever shows: re-check placements immediately before
+  warping. (3) Two members assigned each other's current cells (a very short click) end `Blocked` — an unresolvable swap.
+  (4) `GridWalkabilityBlocker` can close a door on a standing character; the pathfinder's start-snapping recovers it, and
+  Phase 3's collider baking should assert it. (5) A grid `Snapshot` with no request and no grid returns `None` where
+  NavMesh returns `Invalid`; harmless for current callers. (6) `LoadCorners`' exact-endpoint fixup is now redundant with
+  the pathfinder's own — dead but harmless.
+
+**Phase 1 is closed.** Final counts: EditMode 728/728, PlayMode 288 passed / 3 skipped (sample-import fixtures).
+`MoveActionExecution`, `ActionScheduler` and `MovementResolutionService` were never modified.
+
+### Task 1.5 — original spec, kept for reference
 
 `MoveActionExecution`/`ActionScheduler`/`MovementResolutionService` — genuinely zero changes to these three
 files (the design above resolves both risks that could have forced changes — W4's stop-distance/cell-snapping

@@ -6,6 +6,7 @@ using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay.Scenes;
 using CRPG.Navigation;
+using CRPG.Navigation.Grid;
 using CRPG.Rules;
 using CRPG.Saving;
 using UnityEngine;
@@ -65,11 +66,17 @@ namespace CRPG.Gameplay
     {
         private readonly SaveFileStore saveFileStore;
         private readonly WorldTransitionGate gate;
+        private readonly GridPathfindingService gridPathfinding;
 
-        public SessionLoadCoordinator(SaveFileStore saveFileStore = null, WorldTransitionGate gate = null)
+        /// <param name="gridPathfinding">Optional grid-movement backend. When set, the rebuilt
+        /// <see cref="WorldSpawnService"/> hands it to every restored grid motor, and a CROSS-SCENE load activates the
+        /// loaded location's grid (via its <see cref="WalkabilityGridProvider"/>) before anything is restored --
+        /// restoring the previous grid if the load then fails. Leave null for NavMesh games.</param>
+        public SessionLoadCoordinator(SaveFileStore saveFileStore = null, WorldTransitionGate gate = null, GridPathfindingService gridPathfinding = null)
         {
             this.saveFileStore = saveFileStore ?? new SaveFileStore();
             this.gate = gate ?? new WorldTransitionGate();
+            this.gridPathfinding = gridPathfinding;
         }
 
         private bool isLoading;
@@ -148,7 +155,7 @@ namespace CRPG.Gameplay
 
                 if (!TryBuildSession(sessionFactory, out var newSession, out var buildFailure)) return buildFailure;
 
-                var build = BuildPhase(data, newSession, partyMemberVisualPrefabs, npcScene: null, partyScene: null);
+                var build = BuildPhase(data, newSession, partyMemberVisualPrefabs, npcScene: null, partyScene: null, gridNavigation: gridPathfinding);
                 if (!build.Success) return LoadResult.Fail(build.Outcome, build.Message);
 
                 Commit(host, oldWorldSpawnService, build.Session, build.WorldSpawnService, build.Staged);
@@ -284,17 +291,53 @@ namespace CRPG.Gameplay
                 npcScene = SceneManager.GetSceneByPath(currentScenePath);
             }
 
+            // Grid backend: point the (persistent) pathfinder at the LOADED location's grid before anything is
+            // restored against it. Undone below if the load then fails, leaving the old location's grid in place.
+            WalkabilityGrid previousGrid = null;
+            var gridSwapped = false;
+            if (gridPathfinding != null && crossScene && npcScene.HasValue)
+            {
+                var provider = WalkabilityGridProvider.FindInScene(npcScene.Value);
+                WalkabilityGrid newGrid = null;
+                string gridProblem = provider == null ? $"Scene '{data.Header.ScenePath}' has no WalkabilityGridProvider." : null;
+                if (provider != null)
+                {
+                    try
+                    {
+                        newGrid = provider.Grid;
+                    }
+                    catch (Exception ex)
+                    {
+                        gridProblem = $"Scene '{data.Header.ScenePath}' has invalid grid data: {ex.Message}";
+                    }
+                }
+
+                if (gridProblem != null)
+                {
+                    SceneManager.UnloadSceneAsync(npcScene.Value);
+                    EndLoading();
+                    onFinished(LoadResult.Fail(LoadOutcome.SceneLoadFailed, gridProblem));
+                    yield break;
+                }
+
+                previousGrid = gridPathfinding.ActiveGrid;
+                gridPathfinding.SetActiveGrid(newGrid);
+                gridSwapped = true;
+            }
+
             if (!TryBuildSession(sessionFactory, out var newSession, out var buildFailure))
             {
+                if (gridSwapped) gridPathfinding.SetActiveGrid(previousGrid);
                 if (crossScene && npcScene.HasValue) SceneManager.UnloadSceneAsync(npcScene.Value);
                 EndLoading();
                 onFinished(buildFailure);
                 yield break;
             }
 
-            var build = BuildPhase(data, newSession, partyMemberVisualPrefabs, npcScene, partyScene: coreScene);
+            var build = BuildPhase(data, newSession, partyMemberVisualPrefabs, npcScene, partyScene: coreScene, gridNavigation: gridPathfinding);
             if (!build.Success)
             {
+                if (gridSwapped) gridPathfinding.SetActiveGrid(previousGrid);
                 if (crossScene && npcScene.HasValue) SceneManager.UnloadSceneAsync(npcScene.Value);
                 EndLoading();
                 onFinished(LoadResult.Fail(build.Outcome, build.Message));
@@ -379,7 +422,8 @@ namespace CRPG.Gameplay
             GameSession newSession,
             IReadOnlyDictionary<RuntimeEntityId, GameObject> partyMemberVisualPrefabs,
             Scene? npcScene,
-            Scene? partyScene)
+            Scene? partyScene,
+            GridPathfindingService gridNavigation)
         {
             var validation = ContentValidator.Validate(data, newSession.RulesDatabase);
             if (!validation.IsValid)
@@ -390,7 +434,7 @@ namespace CRPG.Gameplay
 
             SaveService.Restore(data, newSession.Party, newSession.Characters, newSession.Inventory, (Timeline)newSession.Timeline, newSession.Quests);
 
-            var newWorldSpawnService = new WorldSpawnService(newSession);
+            var newWorldSpawnService = new WorldSpawnService(newSession) { GridNavigation = gridNavigation };
             var staged = new List<GameObject>();
             try
             {

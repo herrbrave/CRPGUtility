@@ -101,5 +101,15 @@ namespace CRPG.Navigation.Grid
         }
 
         public bool IsOccupied(GridCoordinate cell, out RuntimeEntityId occupant) => occupants.TryGetValue(cell, out occupant);
+
+        /// <summary>Adds every cell currently held by anyone other than <paramref name="except"/> to
+        /// <paramref name="into"/> -- what a mover re-planning around its neighbours treats as temporarily blocked.</summary>
+        public void CollectOccupiedCells(RuntimeEntityId except, ISet<GridCoordinate> into)
+        {
+            foreach (var entry in occupants)
+            {
+                if (entry.Value != except) into.Add(entry.Key);
+            }
+        }
     }
 }

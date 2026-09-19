@@ -44,9 +44,9 @@ namespace CRPG.Tests.PlayMode
         protected abstract GameObject CreateMover(Arena arena, Vector3 start, float speed);
 
         private readonly List<GameObject> spawned = new();
-        private CharacterRegistry characters;
-        private TestPositionProvider positions;
-        private MovementResolutionService movementResolution;
+        private protected CharacterRegistry characters;
+        private protected TestPositionProvider positions;
+        private protected MovementResolutionService movementResolution;
 
         [SetUp]
         public void SetUp()

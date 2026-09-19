@@ -110,33 +110,50 @@ namespace CRPG.Navigation.Grid
         /// <summary>Corner list for a complete path. <c>corners[0]</c> is always the caller's exact
         /// <paramref name="from"/> (projected onto the grid's ground height), never a snapped cell centre --
         /// matching NavMesh's own <c>path.corners[0]</c> and keeping the first leg's threat-crossing maths anchored
-        /// where the mover really stands. The rest are cell centres ending at the destination cell's centre, so
-        /// every consecutive pair is (from -> an adjacent cell centre) or (two adjacent cell centres). If
-        /// <c>from</c> and <c>to</c> land in the same cell this is <c>[from, thatCentre]</c>, or just
-        /// <c>[from]</c> when the mover is already on the centre. Failure (unreachable, or an endpoint farther
-        /// than the snap distance from any walkable cell) reports false, never a partial path.</summary>
-        public bool TryCalculatePath(Vector3 from, Vector3 to, out Vector3[] corners, int areaMask = NavMesh.AllAreas)
+        /// where the mover really stands. The middle corners are cell centres, and the LAST corner is
+        /// <paramref name="to"/> itself when its own cell is walkable (so a stop-short-of-target or exact-range move
+        /// ends exactly where it was asked to, with no cell-snapping error), or the snapped walkable cell's centre
+        /// when <paramref name="to"/> was inside a wall. Every consecutive pair is therefore (from -> an adjacent
+        /// cell centre), (two adjacent cell centres), or (a cell centre -> a point in the adjacent goal cell), all of
+        /// which stay clear of wall corners. If <c>from</c> and <c>to</c> land in the same cell this is
+        /// <c>[from, to]</c>, or just <c>[from]</c> when the mover is already there. Failure (unreachable, or an
+        /// endpoint farther than the snap distance from any walkable cell) reports false, never a partial path.</summary>
+        public bool TryCalculatePath(Vector3 from, Vector3 to, out Vector3[] corners, int areaMask = NavMesh.AllAreas) =>
+            TryBuildPath(from, to, null, out corners);
+
+        /// <summary>Like <see cref="TryCalculatePath"/>, but treats every cell in <paramref name="avoid"/> as
+        /// temporarily impassable -- used by a mover re-planning around characters currently standing in its way.
+        /// Fails if the destination itself is an avoided cell (it is not silently moved), or no route exists.</summary>
+        public bool TryCalculatePathAvoiding(Vector3 from, Vector3 to, out Vector3[] corners, ISet<GridCoordinate> avoid) =>
+            TryBuildPath(from, to, avoid, out corners);
+
+        private bool TryBuildPath(Vector3 from, Vector3 to, ISet<GridCoordinate> avoid, out Vector3[] corners)
         {
             corners = null;
             if (grid == null) return false;
+            if (avoid != null && avoid.Contains(grid.ToGrid(to))) return false;
             if (!TryFindNearestWalkable(from, endpointSnapDistance, out var startCell)) return false;
             if (!TryFindNearestWalkable(to, endpointSnapDistance, out var goalCell)) return false;
-            if (!TryFindCellPath(startCell, goalCell, out var cells)) return false;
+            if (avoid != null && avoid.Contains(goalCell)) return false;
+            if (!TryFindCellPath(startCell, goalCell, avoid, out var cells)) return false;
 
             var flatFrom = new Vector3(from.x, grid.GroundY, from.z);
+            var finalPoint = grid.ToGrid(to) == goalCell
+                ? new Vector3(to.x, grid.GroundY, to.z)
+                : grid.ToWorld(goalCell);
             var result = new List<Vector3>(cells.Count + 2) { flatFrom };
 
             if (cells.Count == 1)
             {
-                var centre = grid.ToWorld(goalCell);
-                if (Vector3.Distance(flatFrom, centre) > SameCellCentreEpsilon) result.Add(centre);
+                if (Vector3.Distance(flatFrom, finalPoint) > SameCellCentreEpsilon) result.Add(finalPoint);
             }
             else
             {
                 // A start that had to be snapped (the mover stands in a now-blocked cell) walks to the nearest
                 // walkable centre first, so the leg never cuts across the blocked cell's neighbours.
                 if (startCell != grid.ToGrid(from)) result.Add(grid.ToWorld(startCell));
-                for (var i = 1; i < cells.Count; i++) result.Add(grid.ToWorld(cells[i]));
+                for (var i = 1; i < cells.Count - 1; i++) result.Add(grid.ToWorld(cells[i]));
+                result.Add(finalPoint);
             }
 
             corners = result.ToArray();
@@ -178,7 +195,7 @@ namespace CRPG.Navigation.Grid
             return found;
         }
 
-        private bool TryFindCellPath(GridCoordinate start, GridCoordinate goal, out List<GridCoordinate> cells)
+        private bool TryFindCellPath(GridCoordinate start, GridCoordinate goal, ISet<GridCoordinate> avoid, out List<GridCoordinate> cells)
         {
             if (start == goal)
             {
@@ -219,10 +236,10 @@ namespace CRPG.Navigation.Grid
                 foreach (var (dx, dz) in GridCoordinate.NeighbourOffsets)
                 {
                     var next = new GridCoordinate(current.X + dx, current.Z + dz);
-                    if (!grid.IsWalkable(next)) continue;
+                    if (!Passable(next, avoid)) continue;
 
                     var diagonal = dx != 0 && dz != 0;
-                    if (diagonal && (!grid.IsWalkable(new GridCoordinate(current.X + dx, current.Z)) || !grid.IsWalkable(new GridCoordinate(current.X, current.Z + dz)))) continue;
+                    if (diagonal && (!Passable(new GridCoordinate(current.X + dx, current.Z), avoid) || !Passable(new GridCoordinate(current.X, current.Z + dz), avoid))) continue;
 
                     var nextIndex = grid.IndexOf(next);
                     if (closedStamp[nextIndex] == stamp) continue;
@@ -248,6 +265,9 @@ namespace CRPG.Navigation.Grid
             cells.Reverse();
             return true;
         }
+
+        private bool Passable(GridCoordinate cell, ISet<GridCoordinate> avoid) =>
+            grid.IsWalkable(cell) && (avoid == null || !avoid.Contains(cell));
 
         // Octile distance: admissible and consistent for 8-connected movement with sqrt(2) diagonals.
         private float Heuristic(GridCoordinate a, GridCoordinate b)

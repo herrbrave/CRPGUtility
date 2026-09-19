@@ -159,14 +159,23 @@ namespace CRPG.Gameplay.Scenes
             // Keep the SAMPLED point, not the raw slot: warping to a raw slot that is merely near the mesh
             // makes NavMeshAgent silently relocate the character to the mesh next frame, so travel would
             // report success while several nearby slots collapse onto the same edge point.
+            // Where characters can't share a spot (a grid backend) each slot must also land on a spot no earlier slot
+            // took, or the second Warp into the same cell is refused and the whole travel rolls back.
+            var slotAvoiding = navMeshService as ISlotAvoidingNavMeshService;
+            var takenPlacements = new List<Vector3>();
             var placements = new Vector3[positions.Count];
             for (var i = 0; i < positions.Count; i++)
             {
-                if (!navMeshService.TrySamplePosition(positions[i], out placements[i], placementSampleMaxDistance))
+                var placed = slotAvoiding != null && takenPlacements.Count > 0
+                    ? slotAvoiding.TrySamplePositionAvoiding(positions[i], out placements[i], placementSampleMaxDistance, takenPlacements)
+                    : navMeshService.TrySamplePosition(positions[i], out placements[i], placementSampleMaxDistance);
+                if (!placed)
                 {
                     Fail(SceneTravelOutcome.PlacementValidationFailed, $"Destination slot {i} for '{destinationId}' is not on a valid walkable surface.", onFinished, targetScene);
                     yield break;
                 }
+
+                takenPlacements.Add(placements[i]);
             }
 
             if (content != null)

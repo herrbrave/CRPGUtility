@@ -93,6 +93,22 @@ namespace CRPG.Tests
         }
 
         [Test]
+        public void CollectOccupiedCellsGathersEveryoneElsesCellsAndNotTheCallers()
+        {
+            var grid = new WalkabilityGrid(Vector3.zero, 1f, 6, 6);
+            var me = RuntimeEntityId.NewId();
+            var other = RuntimeEntityId.NewId();
+            grid.TryOccupy(C(1, 1), me);
+            grid.TryOccupy(C(2, 2), other);
+            grid.TryOccupy(C(3, 3), other);
+
+            var collected = new HashSet<GridCoordinate>();
+            grid.CollectOccupiedCells(me, collected);
+
+            CollectionAssert.AreEquivalent(new[] { C(2, 2), C(3, 3) }, collected);
+        }
+
+        [Test]
         public void OccupancyOutsideTheGridIsRefusedAndDoesNotAffectWalkability()
         {
             var grid = new WalkabilityGrid(Vector3.zero, 1f, 4, 4);
@@ -189,12 +205,45 @@ namespace CRPG.Tests
             var service = ServiceFor(grid);
             var centre = grid.ToWorld(C(2, 2));
 
-            Assert.IsTrue(service.TryCalculatePath(centre + new Vector3(0.3f, 0f, 0.1f), centre + new Vector3(-0.2f, 0f, 0.2f), out var offCentre));
+            var target = centre + new Vector3(-0.2f, 0f, 0.2f);
+            Assert.IsTrue(service.TryCalculatePath(centre + new Vector3(0.3f, 0f, 0.1f), target, out var offCentre));
             Assert.AreEqual(2, offCentre.Length);
-            Assert.AreEqual(centre, offCentre[1]);
+            Assert.AreEqual(target, offCentre[1], "The move ends exactly where it was asked to, not at the cell centre.");
 
             Assert.IsTrue(service.TryCalculatePath(centre, centre, out var onCentre));
             Assert.AreEqual(1, onCentre.Length);
+        }
+
+        [Test]
+        public void AWalkableDestinationIsTheExactLastCornerNotItsCellCentre()
+        {
+            // Stop-short and exact-range moves (melee closing distance) depend on ending where they were asked to.
+            var grid = MakeGrid(12, 4);
+            var service = ServiceFor(grid);
+            var to = grid.ToWorld(C(8, 1)) + new Vector3(0.37f, 99f, -0.29f); // inside cell (8,1), at the wrong height
+
+            Assert.IsTrue(service.TryCalculatePath(grid.ToWorld(C(1, 1)), to, out var corners));
+
+            var last = corners[corners.Length - 1];
+            Assert.AreEqual(to.x, last.x);
+            Assert.AreEqual(to.z, last.z);
+            Assert.AreEqual(grid.GroundY, last.y);
+            Assert.AreEqual(grid.ToWorld(C(7, 1)), corners[corners.Length - 2], "Everything before the last corner is still a cell centre.");
+            AssertCornersAreSafe(grid, corners);
+        }
+
+        [Test]
+        public void ADestinationThatHadToBeSnappedOutOfAWallEndsAtTheSnappedCellCentre()
+        {
+            var grid = MakeGrid(8, 8, (5, 3));
+            var service = ServiceFor(grid);
+
+            Assert.IsTrue(service.TryCalculatePath(grid.ToWorld(C(1, 3)), grid.ToWorld(C(5, 3)), out var corners));
+
+            var last = corners[corners.Length - 1];
+            Assert.IsTrue(grid.IsWalkableWorld(last));
+            var lastCell = grid.ToGrid(last);
+            Assert.AreEqual(grid.ToWorld(lastCell), last, "A snapped destination is a cell centre, never a point inside the wall.");
         }
 
         [Test]
@@ -406,6 +455,63 @@ namespace CRPG.Tests
             Assert.IsTrue(service.TryCalculatePath(grid.ToWorld(C(0, 0)), grid.ToWorld(C(6, 0)), out var corners),
                 "Characters are dynamic; the mover enforces occupancy at move time, not the pathfinder.");
             Assert.AreEqual(7, corners.Length);
+        }
+
+        [Test]
+        public void PathAvoidingRoutesAroundTheAvoidedCells()
+        {
+            var grid = MakeGrid(9, 3);
+            var service = ServiceFor(grid);
+            var avoid = new HashSet<GridCoordinate> { C(4, 0), C(4, 1) };
+
+            Assert.IsTrue(service.TryCalculatePathAvoiding(grid.ToWorld(C(1, 1)), grid.ToWorld(C(7, 1)), out var corners, avoid));
+
+            AssertCornersAreSafe(grid, corners);
+            Assert.IsFalse(corners.Any(c => avoid.Contains(grid.ToGrid(c))), "No corner may sit in an avoided cell.");
+            Assert.IsTrue(corners.Any(c => grid.ToGrid(c) == C(4, 2)), "The only way past x = 4 is through the free row.");
+        }
+
+        [Test]
+        public void PathAvoidingFailsWhenTheAvoidedCellsSealTheOnlyRoute()
+        {
+            var grid = MakeGrid(9, 1);
+            var service = ServiceFor(grid);
+
+            Assert.IsFalse(service.TryCalculatePathAvoiding(grid.ToWorld(C(0, 0)), grid.ToWorld(C(8, 0)), out _, new HashSet<GridCoordinate> { C(4, 0) }));
+            Assert.IsTrue(service.TryCalculatePath(grid.ToWorld(C(0, 0)), grid.ToWorld(C(8, 0)), out _), "The plain query still ignores occupancy.");
+        }
+
+        [Test]
+        public void PathAvoidingNeverSilentlyMovesAnAvoidedDestination()
+        {
+            var grid = MakeGrid(9, 3);
+            var service = ServiceFor(grid);
+
+            Assert.IsFalse(service.TryCalculatePathAvoiding(grid.ToWorld(C(1, 1)), grid.ToWorld(C(7, 1)), out _, new HashSet<GridCoordinate> { C(7, 1) }));
+        }
+
+        [Test]
+        public void PathAvoidingWithNothingAvoidedMatchesThePlainPath()
+        {
+            var grid = MakeGrid(12, 6, (5, 0), (5, 1), (5, 2), (5, 3));
+            var service = ServiceFor(grid);
+
+            Assert.IsTrue(service.TryCalculatePath(grid.ToWorld(C(1, 1)), grid.ToWorld(C(9, 1)), out var plain));
+            Assert.IsTrue(service.TryCalculatePathAvoiding(grid.ToWorld(C(1, 1)), grid.ToWorld(C(9, 1)), out var avoiding, new HashSet<GridCoordinate>()));
+
+            CollectionAssert.AreEqual(plain, avoiding);
+        }
+
+        [Test]
+        public void AnAvoidedCellCountsAsABlockedCornerForDiagonalSteps()
+        {
+            var grid = MakeGrid(4, 4);
+            var service = ServiceFor(grid);
+            var avoid = new HashSet<GridCoordinate> { C(1, 2) }; // (1,1)->(2,2) would squeeze past it
+
+            Assert.IsTrue(service.TryCalculatePathAvoiding(grid.ToWorld(C(1, 1)), grid.ToWorld(C(2, 2)), out var corners, avoid));
+
+            Assert.Greater(corners.Length, 2, "The direct diagonal must not be taken past an avoided cell.");
         }
 
         [Test]

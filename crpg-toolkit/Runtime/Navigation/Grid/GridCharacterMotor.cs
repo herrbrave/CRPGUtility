@@ -16,16 +16,23 @@ namespace CRPG.Navigation.Grid
     /// works around simply cannot happen here). Movement is driven by scaled <c>Time.deltaTime</c> only, so
     /// <c>Time.timeScale = 0</c> is a true pause.</para>
     /// <para>Occupancy: a mover holds the cell it stands in, plus the next cell while travelling into it (it
-    /// claims a corner's cell BEFORE starting toward it). If the claim fails the mover stops where it is and
-    /// reports <see cref="MoveStatus.Blocked"/> -- the same vocabulary as an unreachable NavMesh leg. Claims live
-    /// on the active <see cref="WalkabilityGrid"/>, so they are scoped to one location and re-made
-    /// automatically when the grid is swapped by scene travel. Released on disable/destroy.</para>
+    /// claims a corner's cell BEFORE starting toward it) and lets go of the cell behind it the moment it crosses
+    /// the boundary. A failed claim first WAITS (<see cref="ClaimWaitSeconds"/>, scaled time): the occupant is often
+    /// just a mover in the middle of leaving that cell -- a party walking in single file has every follower one
+    /// cell behind the next -- and head-on movers must still resolve rather than hang. Only after the wait does it
+    /// re-plan around whoever is standing in the way (bounded), and only if no other route exists stop where it is
+    /// and report <see cref="MoveStatus.Blocked"/> -- the same vocabulary as an unreachable NavMesh leg. Claims live on
+    /// the active <see cref="WalkabilityGrid"/>, so they are scoped to one location and re-made automatically when the grid is swapped by scene travel. Released on disable/destroy.</para>
     /// </summary>
     public sealed class GridCharacterMotor : MonoBehaviour, IMovable
     {
         private const float SameSpotEpsilon = 1e-4f;
+        private const int MaxReplans = 3;
 
         [SerializeField] private float speed = 4f;
+
+        [Tooltip("How long (scaled seconds) to wait for an occupied next cell to free up before giving up as Blocked.")]
+        [SerializeField] private float claimWaitSeconds = 0.5f;
 
         private readonly Queue<Vector3> corners = new();
         private readonly List<GridCoordinate> heldCells = new();
@@ -34,6 +41,10 @@ namespace CRPG.Navigation.Grid
         private bool cancelled;
         private bool blocked;
         private bool segmentClaimed;
+        private float claimWaited;
+        private Vector3 finalDestination;
+        private int replans;
+        private readonly HashSet<GridCoordinate> avoidedCells = new(); // scratch for TryReplanAroundOccupants
         private Vector3 velocity;
         private RuntimeEntityId occupantId = RuntimeEntityId.None;
 
@@ -42,6 +53,14 @@ namespace CRPG.Navigation.Grid
         {
             get => speed;
             set => speed = value;
+        }
+
+        /// <summary>How long to wait for an occupied next cell to free up before reporting
+        /// <see cref="MoveStatus.Blocked"/>. 0 blocks immediately.</summary>
+        public float ClaimWaitSeconds
+        {
+            get => claimWaitSeconds;
+            set => claimWaitSeconds = value;
         }
 
         /// <summary>The pathfinder (and, through it, the active per-location grid). Supplied by the composition
@@ -65,10 +84,24 @@ namespace CRPG.Navigation.Grid
             if (!Pathfinding.TryCalculatePath(transform.position, destination, out var path)) return MoveResult.Invalid();
 
             EnsureHeld(grid);
-            ReleaseAllExcept(grid.ToGrid(transform.position));
+            SettleHeldCells(grid);
 
-            // Drop the leading "from". The final corner becomes the exact requested point -- unless the request
-            // was snapped (it was inside a wall), in which case the snapped cell centre stands.
+            LoadCorners(grid, path, destination);
+            finalDestination = destination;
+            replans = 0;
+            segmentClaimed = false;
+            claimWaited = 0f;
+            currentId = MoveRequestId.NewId();
+            cancelled = false;
+            blocked = false;
+            return new MoveResult(MoveStatus.Pending, currentId);
+        }
+
+        /// <summary>Replaces the queued corners with <paramref name="path"/> minus its leading "from". The final
+        /// corner becomes the exact requested point -- unless the request was snapped (it was inside a wall), in
+        /// which case the snapped cell centre stands.</summary>
+        private void LoadCorners(WalkabilityGrid grid, Vector3[] path, Vector3 destination)
+        {
             var planned = new List<Vector3>(path.Length);
             for (var i = 1; i < path.Length; i++) planned.Add(path[i]);
 
@@ -88,11 +121,24 @@ namespace CRPG.Navigation.Grid
 
             corners.Clear();
             foreach (var corner in planned) corners.Enqueue(corner);
+        }
+
+        /// <summary>After the wait for an occupied cell runs out: route around everyone currently standing in the
+        /// way, toward the request's original destination. Bounded, and refuses (so the caller reports Blocked) when
+        /// there is no other way -- including when the destination cell itself is the one occupied.</summary>
+        private bool TryReplanAroundOccupants(WalkabilityGrid grid)
+        {
+            if (replans >= MaxReplans) return false;
+
+            avoidedCells.Clear();
+            grid.CollectOccupiedCells(OccupantId, avoidedCells);
+            if (!Pathfinding.TryCalculatePathAvoiding(transform.position, finalDestination, out var path, avoidedCells)) return false;
+
+            LoadCorners(grid, path, finalDestination);
+            replans++;
             segmentClaimed = false;
-            currentId = MoveRequestId.NewId();
-            cancelled = false;
-            blocked = false;
-            return new MoveResult(MoveStatus.Pending, currentId);
+            claimWaited = 0f;
+            return true;
         }
 
         public void Stop()
@@ -100,10 +146,11 @@ namespace CRPG.Navigation.Grid
             corners.Clear();
             velocity = Vector3.zero;
             segmentClaimed = false;
+            claimWaited = 0f;
             if (currentId.IsValid) cancelled = true;
 
             var grid = ActiveGrid;
-            if (grid != null && heldGrid == grid) ReleaseAllExcept(grid.ToGrid(transform.position));
+            if (grid != null) SettleHeldCells(grid);
         }
 
         /// <summary>Refuses (leaving the mover, its claims and its request completely untouched) unless
@@ -128,6 +175,7 @@ namespace CRPG.Navigation.Grid
             corners.Clear();
             velocity = Vector3.zero;
             segmentClaimed = false;
+            claimWaited = 0f;
             blocked = false;
             if (currentId.IsValid) cancelled = true;
             return true;
@@ -181,16 +229,25 @@ namespace CRPG.Navigation.Grid
                     {
                         if (!grid.TryOccupy(targetCell, OccupantId))
                         {
-                            // Someone is standing there: stop where we are, holding only what we already held.
-                            corners.Clear();
-                            blocked = true;
+                            // Someone is in that cell -- often a mover mid-way out of it. Wait (idle, velocity zero)
+                            // for it to free up. Only after ClaimWaitSeconds: try a route around whoever is standing
+                            // in the way, and only if there is none give up -- stop where we are, holding only what
+                            // we already held.
+                            claimWaited += Time.deltaTime;
                             velocity = Vector3.zero;
+                            if (claimWaited >= claimWaitSeconds && !TryReplanAroundOccupants(grid))
+                            {
+                                corners.Clear();
+                                blocked = true;
+                            }
+
                             return;
                         }
 
                         heldCells.Add(targetCell);
                     }
 
+                    claimWaited = 0f;
                     segmentClaimed = true;
                 }
 
@@ -212,6 +269,7 @@ namespace CRPG.Navigation.Grid
 
                 transform.position += direction * budget;
                 velocity = direction * speed;
+                ReleaseCellsBehind(grid, grid.ToGrid(target));
                 break;
             }
         }
@@ -243,6 +301,39 @@ namespace CRPG.Navigation.Grid
 
             heldCells.Clear();
             heldGrid = null;
+        }
+
+        /// <summary>Lets go of every held cell that is neither the one we are physically in nor the one we are
+        /// heading into -- so a follower can enter the cell we have just crossed out of.</summary>
+        private void ReleaseCellsBehind(WalkabilityGrid grid, GridCoordinate heading)
+        {
+            if (heldGrid != grid) return;
+
+            var here = grid.ToGrid(transform.position);
+            for (var i = heldCells.Count - 1; i >= 0; i--)
+            {
+                if (heldCells[i] == here || heldCells[i] == heading) continue;
+                heldGrid.Release(heldCells[i], OccupantId);
+                heldCells.RemoveAt(i);
+            }
+        }
+
+        /// <summary>Narrows what we hold down to the cell we are physically standing in. A diagonal hop to an
+        /// off-centre point can transit a corner cell we never claimed; if that is where a Stop/new request finds us,
+        /// claim it -- and if someone else holds it, keep what we already hold rather than dropping every claim and
+        /// standing in a cell nobody reserved for us.</summary>
+        private void SettleHeldCells(WalkabilityGrid grid)
+        {
+            if (heldGrid != grid) return;
+
+            var here = grid.ToGrid(transform.position);
+            if (!heldCells.Contains(here))
+            {
+                if (!grid.TryOccupy(here, OccupantId)) return;
+                heldCells.Add(here);
+            }
+
+            ReleaseAllExcept(here);
         }
 
         private void ReleaseAllExcept(GridCoordinate keep)

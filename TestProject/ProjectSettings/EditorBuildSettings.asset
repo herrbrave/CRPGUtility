@@ -23,4 +23,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TacticalSlice.unity
     guid: c157032703905c641a117b21757d577d
+  - enabled: 1
+    path: Assets/Scenes/Tests/GridTravelTestA.unity
+    guid: 217169997f405cf46b0764c4b2dc1fbc
+  - enabled: 1
+    path: Assets/Scenes/Tests/GridTravelTestB.unity
+    guid: fb8ae2c38d4d87f46be492426014eb45
   m_configObjects: {}

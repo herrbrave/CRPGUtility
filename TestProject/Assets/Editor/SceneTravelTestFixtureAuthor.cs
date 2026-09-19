@@ -29,6 +29,61 @@ public static class SceneTravelTestFixtureAuthor
         Debug.Log($"[SceneTravelTestFixtureAuthor] Authored {SceneAPath} and {SceneBPath}.");
     }
 
+    // 2D campaign Task 1.5: two more content-free scenes for the GRID movement backend. Each carries a
+    // WalkabilityGridProvider (16x8 cells) and a SceneTravelDestination. A is fully open; B is split by a solid wall
+    // down x = 8, so "can I path from the left half to the right half" differs between the two -- exactly what a
+    // scene-travel round trip must prove is re-pointed with no stale state. Separate from Author() so the committed
+    // NavMesh fixtures above are never regenerated.
+    private const string GridSceneAPath = "Assets/Scenes/Tests/GridTravelTestA.unity";
+    private const string GridSceneBPath = "Assets/Scenes/Tests/GridTravelTestB.unity";
+
+    [MenuItem("CRPG Toolkit/Scenes/Author Grid Travel Test Fixtures")]
+    public static void AuthorGridFixtures()
+    {
+        AuthorGridScene(GridSceneAPath, new Vector3(0f, 0f, 5000f), "grid-dest-a", solidWallAtX8: false);
+        AuthorGridScene(GridSceneBPath, new Vector3(2000f, 0f, 5000f), "grid-dest-b", solidWallAtX8: true);
+        EnsureInBuildSettings(GridSceneAPath);
+        EnsureInBuildSettings(GridSceneBPath);
+        AssetDatabase.SaveAssets();
+        Debug.Log($"[SceneTravelTestFixtureAuthor] Authored {GridSceneAPath} and {GridSceneBPath}.");
+    }
+
+    private static void AuthorGridScene(string path, Vector3 origin, string destinationId, bool solidWallAtX8)
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        var blocked = new System.Collections.Generic.List<CRPG.Navigation.Grid.GridCoordinate>();
+        if (solidWallAtX8)
+        {
+            for (var z = 0; z < 8; z++) blocked.Add(new CRPG.Navigation.Grid.GridCoordinate(8, z));
+        }
+
+        var providerGo = new GameObject("WalkabilityGridProvider");
+        var provider = providerGo.AddComponent<CRPG.Navigation.Grid.WalkabilityGridProvider>();
+        provider.Configure(origin, 1f, 16, 8, blocked);
+        EditorUtility.SetDirty(provider);
+
+        var destinationGo = new GameObject($"SceneTravelDestination_{destinationId}");
+        destinationGo.transform.position = origin + new Vector3(3.5f, 0f, 3.5f); // cell (3,3), left of the wall
+        destinationGo.transform.rotation = Quaternion.identity;
+        var destination = destinationGo.AddComponent<SceneTravelDestination>();
+        var serialized = new SerializedObject(destination);
+        serialized.FindProperty("destinationId").stringValue = destinationId;
+        serialized.ApplyModifiedProperties();
+
+        EnsureFolder("Assets/Scenes/Tests");
+        EditorSceneManager.SaveScene(scene, path);
+    }
+
+    private static void EnsureInBuildSettings(string path)
+    {
+        var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+        if (scenes.Exists(s => s.path == path)) return;
+
+        scenes.Add(new EditorBuildSettingsScene(path, true));
+        EditorBuildSettings.scenes = scenes.ToArray();
+    }
+
     private static void AuthorScene(string path, Vector3 origin, string destinationId)
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
