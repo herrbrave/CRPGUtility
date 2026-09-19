@@ -18,7 +18,7 @@ namespace CRPG.Navigation.Grid
     /// time. <c>areaMask</c> is accepted for interface compatibility and ignored (no terrain-cost tiers here),
     /// and Y is ignored entirely (a grid is a ground-plane structure).</para>
     /// </summary>
-    public sealed class GridPathfindingService : INavMeshService
+    public sealed class GridPathfindingService : ISlotAvoidingNavMeshService
     {
         private const float Sqrt2 = 1.41421356f;
         private const float SameCellCentreEpsilon = 1e-4f;
@@ -33,6 +33,7 @@ namespace CRPG.Navigation.Grid
         private int[] parent;
         private int stamp;
         private readonly MinHeap open = new();
+        private readonly HashSet<GridCoordinate> avoidedCells = new(); // scratch for TrySamplePositionAvoiding
 
         /// <param name="endpointSnapDistance">How far (world units, measured to a cell's centre) a path's start or
         /// end may be from the nearest walkable cell and still be snapped onto it, like NavMesh's own implicit
@@ -68,6 +69,27 @@ namespace CRPG.Navigation.Grid
         {
             sampledPosition = point;
             if (grid == null || !TryFindNearestWalkable(point, maxDistance, out var cell)) return false;
+
+            sampledPosition = grid.ToWorld(cell);
+            return true;
+        }
+
+        /// <summary>Like <see cref="TrySamplePosition"/>, but never returns a cell containing any of
+        /// <paramref name="claimed"/> (two positions in the same cell are the same spot). Used by party formation
+        /// resolution so several formation slots that fall within one cell resolve to distinct neighbouring cells
+        /// instead of all snapping to the same one.</summary>
+        public bool TrySamplePositionAvoiding(Vector3 point, out Vector3 sampledPosition, float maxDistance, IReadOnlyCollection<Vector3> claimed, int areaMask = NavMesh.AllAreas)
+        {
+            sampledPosition = point;
+            if (grid == null) return false;
+
+            avoidedCells.Clear();
+            if (claimed != null)
+            {
+                foreach (var position in claimed) avoidedCells.Add(grid.ToGrid(position));
+            }
+
+            if (!TryFindNearestWalkable(point, maxDistance, out var cell, avoidedCells)) return false;
 
             sampledPosition = grid.ToWorld(cell);
             return true;
@@ -121,10 +143,10 @@ namespace CRPG.Navigation.Grid
             return true;
         }
 
-        private bool TryFindNearestWalkable(Vector3 point, float maxDistance, out GridCoordinate cell)
+        private bool TryFindNearestWalkable(Vector3 point, float maxDistance, out GridCoordinate cell, HashSet<GridCoordinate> exclude = null)
         {
             var here = grid.ToGrid(point);
-            if (grid.IsWalkable(here))
+            if (grid.IsWalkable(here) && (exclude == null || !exclude.Contains(here)))
             {
                 cell = here;
                 return true;
@@ -141,7 +163,7 @@ namespace CRPG.Navigation.Grid
                 for (var dx = -reach; dx <= reach; dx++)
                 {
                     var candidate = new GridCoordinate(here.X + dx, here.Z + dz);
-                    if (!grid.IsWalkable(candidate)) continue;
+                    if (!grid.IsWalkable(candidate) || (exclude != null && exclude.Contains(candidate))) continue;
 
                     var centre = grid.ToWorld(candidate);
                     var distance = Mathf.Sqrt((centre.x - point.x) * (centre.x - point.x) + (centre.z - point.z) * (centre.z - point.z));

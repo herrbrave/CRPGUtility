@@ -454,7 +454,51 @@ Implementation choices beyond the spec above:
 As designed above, including `WorldSpawnService`'s bind-time wiring and `SceneTravelCoordinator`'s
 `SetActiveGrid` hookup.
 
-### Task 1.4: `PartyMovementService`'s formation-slot fix
+### Task 1.4: `PartyMovementService`'s formation-slot fix — DONE (2026-09-19)
+
+**Result:** several formation slots landing in one cell now resolve to distinct free neighbouring cells instead of
+collapsing. EditMode 718/718, PlayMode 271 passed / 3 skipped (existing NavMesh party-navigation tests unchanged).
+**Deviation from the design above (deliberate):** the design threaded a `HashSet<GridCoordinate>` through
+`ResolveOneMember`, which would have made `CRPG.Exploration` know what a grid cell is. Instead:
+- NEW optional capability `ISlotAvoidingNavMeshService : INavMeshService` (`Runtime/Navigation/`) with
+  `TrySamplePositionAvoiding(point, out sampled, maxDistance, IReadOnlyCollection<Vector3> claimed)`. A backend
+  where characters can't share a spot implements it and decides what "same spot" means; `GridPathfindingService`
+  does (same cell). A NavMesh service doesn't, so its behaviour is byte-for-byte unchanged.
+- `PartyMovementService` keeps a list of claimed positions: every character standing still **outside** the order
+  (unselected party members, NPCs — read from the same single `GetSelectables()` call) plus each destination handed
+  out earlier in the order. When the backend supports it and anything is claimed, a slot that would snap onto a
+  claimed spot is displaced to the nearest free one; that is reported as `Fallback` (not `Exact`). If nothing nearby
+  is free, that attempt fails and the existing retry (compress toward the group's destination) tries the next.
+- Tests: 6 for the sampler (`GridPathfindingServiceTests`), 5 for the resolver (`PartyMovementServiceGridTests`,
+  including a control proving all four slots collapse onto one cell without the capability), and one PlayMode
+  test running the real `PartyExplorationController` over four real grid motors.
+**Decision record: reservations were evaluated and deferred (2026-09-19).** The alternative — a per-cell
+*reservation* (a mover reserves its destination cell for the duration of a move; other paths may route through it
+but no one else may choose it as a destination) — was put head to head with this design by an independent Opus
+review, which chose slot avoidance. Reasons, so the option isn't silently re-litigated: (1) reservations only fix the
+reported bug if they exist at the moment destinations are *chosen*, so the resolver would have to reserve as it
+goes — that is this design's claimed list promoted to global state, not a replacement for it; (2) a reservation
+leak is invisible and permanent (nothing stands on the cell, yet it can never be targeted), whereas an occupancy
+leak self-heals (`GridCharacterMotor.EnsureHeld`, holder-checked release); B would need nine release paths (arrive,
+`Stop`, supersede, `Warp`, disable/destroy, death mid-reaction, both `SetActiveGrid` swaps, load-restore);
+(3) `MoveActionExecution` issues one `SetDestination` per leg/threat-crossing stop, so a motor-level reservation
+would churn every waypoint, and reserving only the true endpoint would make `CRPG.Gameplay` know about grid
+reservations; (4) it does nothing for the mid-route `Blocked` limitation below. The two are complementary: if
+playtesting shows cross-order conflicts (an order a frame apart, or a click on a cell another mover is already
+walking to) hurting, reservations can be layered on by having `PartyMovementService` publish its claimed list to
+the grid, with no rework of this design.
+**Hardening from that review (all applied):** members are resolved in `order.Members` order (claim order decides
+who keeps an exact slot, so it must be deterministic — not `Dictionary` order); a member found `Unreachable` claims
+its own current position since it is staying put; in-order members' current cells are deliberately *not*
+pre-seeded (a party stepping forward would otherwise displace everyone off cells their teammates are vacating);
+the `as ISlotAvoidingNavMeshService` cast is hoisted to a field; the grid sampler reuses a scratch set. Two new
+resolver tests cover the first two rules; the PlayMode test now also asserts the four handed-out destinations are
+four distinct cells (via a recording motor wrapper). Final counts: EditMode 720/720, PlayMode 271 passed / 3 skipped.
+**Known, accepted limitation (same class as the occupancy-blocked-interaction note below):** pathfinding ignores
+occupancy, so a member walking to its cell can be `Blocked` mid-route by a teammate who arrived at a cell on its
+path first. Destinations are guaranteed distinct; routes are not guaranteed conflict-free. The PlayMode test
+therefore asserts acceptance, not simultaneous arrival. If a playtest shows this hurting, the fix belongs in the
+mover (wait-and-retry) or the pathfinder (soft occupancy costs), not in formation resolution.
 
 The `HashSet<GridCoordinate>`-threaded claimed-cells fix designed above. Explicitly its own task now, not an
 afterthought discovered during end-to-end testing.

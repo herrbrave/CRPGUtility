@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using CRPG.Actors;
 using CRPG.Core;
+using CRPG.Exploration;
+using CRPG.Party;
 using CRPG.Gameplay;
 using CRPG.Gameplay.Actions;
 using CRPG.Gameplay.Interactions;
@@ -260,6 +262,89 @@ namespace CRPG.Tests.PlayMode
                 Object.DestroyImmediate(anchor);
                 Object.DestroyImmediate(providerGo);
             }
+        }
+
+        private sealed class FakeCommandSource : IPlayerCommandSource
+        {
+            public event System.Action<SelectCommand> Select;
+            public event System.Action<MoveCommand> Move;
+            public event System.Action<InteractCommand> Interact;
+            public event System.Action Cancel;
+
+            public void RaiseMove(MoveCommand command) => Move?.Invoke(command);
+        }
+
+        private sealed class TransformSelectableSource : ISelectableSource
+        {
+            private readonly List<(RuntimeEntityId id, Transform transform)> entries = new();
+            public void Add(RuntimeEntityId id, Transform transform) => entries.Add((id, transform));
+
+            public IEnumerable<SelectableEntity> GetSelectables() =>
+                entries.Select(e => new SelectableEntity(e.id, e.transform.position));
+        }
+
+        /// <summary>Forwards to a real motor and remembers where each member was told to go.</summary>
+        private sealed class RecordingMotor : IMovable
+        {
+            private readonly IMovable inner;
+            public Vector3? LastDestination { get; private set; }
+            public RecordingMotor(IMovable inner) => this.inner = inner;
+
+            public MoveResult SetDestination(Vector3 destination)
+            {
+                LastDestination = destination;
+                return inner.SetDestination(destination);
+            }
+
+            public void Stop() => inner.Stop();
+            public bool Warp(Vector3 position) => inner.Warp(position);
+            public MotionSnapshot Snapshot => inner.Snapshot;
+        }
+
+        [UnityTest]
+        public IEnumerator ARealPartyMoveOrderGivesEveryGridMotorItsOwnDistinctCellEvenWhenTheFormationSlotsCollapse()
+        {
+            // End to end through the real PartyExplorationController and PartyMovementService, with a formation
+            // spacing (0.1) far smaller than a cell so every slot lands in one cell. Asserts distinct, accepted
+            // destinations -- not simultaneous arrival: pathfinding deliberately ignores occupancy, so whether a
+            // teammate is briefly in the way on the route (a Blocked mid-walk) is the accepted, documented
+            // limitation, not what this test is about.
+            var arena = CreateArena(20, 20, Enumerable.Empty<(int, int)>());
+            var selectables = new TransformSelectableSource();
+            var movers = new List<Mover>();
+            for (var i = 0; i < 4; i++)
+            {
+                var mover = RegisterMover(arena, arena.Center(1 + i, 1), movementMax: 100);
+                movers.Add(mover);
+                selectables.Add(mover.Id, mover.Transform);
+            }
+
+            yield return null; // every mover claims the cell it starts in
+
+            var party = new PartyState(movers.Select(m => m.Id));
+            var source = new FakeCommandSource();
+            var controller = new PartyExplorationController(
+                party, new PartyMovementService(service, selectables), new LineFormationSolver(), source, formationSpacing: 0.1f);
+            var recorders = new Dictionary<RuntimeEntityId, RecordingMotor>();
+            foreach (var mover in movers)
+            {
+                recorders[mover.Id] = new RecordingMotor(mover.Motor);
+                controller.RegisterMotor(mover.Id, recorders[mover.Id]);
+            }
+
+            var outcomes = new Dictionary<RuntimeEntityId, MoveResult>();
+            controller.MemberMoveOutcome += (id, result) => outcomes[id] = result;
+
+            source.RaiseMove(new MoveCommand(arena.Center(12, 10), Vector3.forward));
+
+            Assert.AreEqual(4, outcomes.Count);
+            foreach (var mover in movers)
+                Assert.AreNotEqual(MoveStatus.Invalid, outcomes[mover.Id].Status, "Every member must be given a real, reachable, free destination.");
+
+            var destinationCells = movers.Select(m => grid.ToGrid(recorders[m.Id].LastDestination.Value)).ToList();
+            Assert.AreEqual(4, destinationCells.Distinct().Count(), $"Each member needs its own cell, got: {string.Join(", ", destinationCells)}");
+
+            controller.Dispose();
         }
 
         [Test]

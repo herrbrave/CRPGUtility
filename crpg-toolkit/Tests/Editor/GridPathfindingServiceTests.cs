@@ -409,6 +409,79 @@ namespace CRPG.Tests
         }
 
         [Test]
+        public void AvoidingSkipsAClaimedCellAndReturnsTheNearestFreeWalkableOne()
+        {
+            var grid = MakeGrid(8, 8);
+            var service = ServiceFor(grid);
+            var claimed = new List<Vector3> { grid.ToWorld(C(3, 3)) };
+
+            Assert.IsTrue(service.TrySamplePositionAvoiding(grid.ToWorld(C(3, 3)), out var sampled, 5f, claimed));
+
+            Assert.AreNotEqual(C(3, 3), grid.ToGrid(sampled), "The claimed cell must not be handed out.");
+            Assert.IsTrue(grid.IsWalkableWorld(sampled));
+            Assert.AreEqual(1f, Vector3.Distance(sampled, grid.ToWorld(C(3, 3))), 1e-3f, "The nearest free cell is an orthogonal neighbour.");
+        }
+
+        [Test]
+        public void AvoidingWithNothingClaimedMatchesPlainSampling()
+        {
+            var grid = MakeGrid(8, 8, (4, 4));
+            var service = ServiceFor(grid);
+            var point = grid.ToWorld(C(4, 4)) + new Vector3(0.2f, 0f, 0.1f);
+
+            Assert.IsTrue(service.TrySamplePosition(point, out var plain, 3f));
+            Assert.IsTrue(service.TrySamplePositionAvoiding(point, out var avoiding, 3f, new List<Vector3>()));
+
+            Assert.AreEqual(plain, avoiding);
+        }
+
+        [Test]
+        public void AvoidingIgnoresClaimedPositionsOutsideTheGridAndCountsTwoInOneCellOnce()
+        {
+            var grid = MakeGrid(8, 8);
+            var service = ServiceFor(grid);
+            var inCell = grid.ToWorld(C(2, 2));
+            var claimed = new List<Vector3> { new Vector3(9999f, 2f, 9999f), inCell, inCell + new Vector3(0.3f, 0f, -0.2f) };
+
+            Assert.IsTrue(service.TrySamplePositionAvoiding(inCell, out var sampled, 5f, claimed));
+
+            Assert.AreNotEqual(C(2, 2), grid.ToGrid(sampled));
+        }
+
+        [Test]
+        public void AvoidingFailsWhenEveryCellWithinRangeIsClaimedBlockedOrOutOfBounds()
+        {
+            var grid = MakeGrid(3, 1);
+            var service = ServiceFor(grid);
+            var claimed = new List<Vector3> { grid.ToWorld(C(0, 0)), grid.ToWorld(C(1, 0)), grid.ToWorld(C(2, 0)) };
+            var point = grid.ToWorld(C(1, 0));
+
+            Assert.IsFalse(service.TrySamplePositionAvoiding(point, out var sampled, 5f, claimed));
+            Assert.AreEqual(point, sampled);
+        }
+
+        [Test]
+        public void AvoidingRespectsMaxDistance()
+        {
+            var grid = MakeGrid(8, 8);
+            var service = ServiceFor(grid);
+            var claimed = new List<Vector3> { grid.ToWorld(C(3, 3)) };
+
+            Assert.IsFalse(service.TrySamplePositionAvoiding(grid.ToWorld(C(3, 3)), out _, 0.5f, claimed), "Free neighbours are 1 unit away.");
+            Assert.IsTrue(service.TrySamplePositionAvoiding(grid.ToWorld(C(3, 3)), out _, 1.1f, claimed));
+        }
+
+        [Test]
+        public void AvoidingFailsClosedWithNoActiveGrid()
+        {
+            var service = new GridPathfindingService();
+            var point = new Vector3(1f, 2f, 3f);
+
+            Assert.IsFalse(service.TrySamplePositionAvoiding(point, out var sampled, 5f, new List<Vector3>()));
+            Assert.AreEqual(point, sampled);
+        }
+
+        [Test]
         public void RepeatedAndInterleavedQueriesAreIndependent()
         {
             var grid = MakeGrid(20, 20, Enumerable.Range(0, 15).Select(z => (10, z)).ToArray());
