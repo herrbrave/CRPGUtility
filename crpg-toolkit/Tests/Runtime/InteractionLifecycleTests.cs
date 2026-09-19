@@ -70,6 +70,13 @@ namespace CRPG.Tests.PlayMode
 
             public void Stop() => StatusToReport = MoveStatus.Cancelled; // RequestId retained, matching IMovable's real contract
 
+            public bool Warp(Vector3 position)
+            {
+                transform.position = position;
+                StatusToReport = MoveStatus.Cancelled;
+                return true;
+            }
+
             /// <summary>Simulates an external order (e.g. a fresh player move) taking over -- a genuinely new id.</summary>
             public void SimulateExternalOrder()
             {

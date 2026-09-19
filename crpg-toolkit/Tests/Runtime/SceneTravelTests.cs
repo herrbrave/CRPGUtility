@@ -5,6 +5,7 @@ using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Gameplay.Scenes;
+using CRPG.Navigation;
 using CRPG.Party;
 using NUnit.Framework;
 using UnityEngine;
@@ -63,7 +64,7 @@ namespace CRPG.Tests.PlayMode
             party.AddMember(characterId);
 
             var go = Track(new GameObject("PartyMember"));
-            if (withNavMeshAgent) go.AddComponent<NavMeshAgent>();
+            if (withNavMeshAgent) go.AddComponent<NavMeshCharacterMotor>(); // RequireComponent adds the NavMeshAgent; Warp now goes through IMovable
             var agent = go.AddComponent<CharacterAgent>();
             agent.Bind(characterId, session);
 
@@ -191,14 +192,14 @@ namespace CRPG.Tests.PlayMode
             session.Characters.Register(new CharacterState(okId));
             party.AddMember(okId);
             var okGo = Track(new GameObject("Member-OK"));
-            okGo.AddComponent<NavMeshAgent>();
+            okGo.AddComponent<NavMeshCharacterMotor>();
             var okAgent = okGo.AddComponent<CharacterAgent>();
             okAgent.Bind(okId, session);
             var okStart = okAgent.transform.position;
 
             var brokenId = RuntimeEntityId.NewId();
             session.Characters.Register(new CharacterState(brokenId));
-            party.AddMember(brokenId); // no NavMeshAgent -- Warp must fail for this one
+            party.AddMember(brokenId); // no motor -- Warp must fail for this one
             var brokenGo = Track(new GameObject("Member-Broken"));
             var brokenAgent = brokenGo.AddComponent<CharacterAgent>();
             brokenAgent.Bind(brokenId, session);
@@ -218,6 +219,90 @@ namespace CRPG.Tests.PlayMode
             Assert.IsFalse(SceneManager.GetSceneByPath(SceneBPath).isLoaded);
             // Same NavMeshAgent auto-snap tolerance as above.
             Assert.Less(Vector3.Distance(okStart, okAgent.transform.position), 0.5f);
+            Assert.IsFalse(gate.IsBusy);
+        }
+
+        /// <summary>Simulates raw NavMeshAgent.Warp's failure mode: it writes the transform and THEN reports
+        /// failure, leaving the mover stranded at the requested point.</summary>
+        private sealed class StrandingMovable : MonoBehaviour, IMovable
+        {
+            public MoveResult SetDestination(Vector3 destination) => MoveResult.Invalid();
+            public void Stop() { }
+            public MotionSnapshot Snapshot => MotionSnapshot.None;
+
+            public bool Warp(Vector3 position)
+            {
+                transform.position = position;
+                return transform.position.x < 0f; // only "succeeds" for a point nothing in these tests ever asks for
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator ASlotNearButOffTheMeshEdgeIsWarpedOntoTheMeshRightAwayNotLeftForTheNextFrameToFix()
+        {
+            var (session, worldSpawnService, party, _, agent) = BuildOneMemberParty();
+            yield return LoadAndActivate(SceneAPath);
+
+            var gate = new WorldTransitionGate();
+            // B's ground is a 40x40 plane centered on (2000,0,0): this slot is ~2 units past the baked edge --
+            // inside the coordinator's 5-unit placement validation, beyond the motor's own 1-unit snap
+            // tolerance. Warping to the raw slot used to "succeed" and then snap the character to the mesh a
+            // frame later (collapsing neighbouring slots onto one edge point); it must land on the mesh at once.
+            var solver = new FixedPointFormationSolver(new Vector3(2021.5f, 0f, 0f));
+            var coordinator = new SceneTravelCoordinator(session, worldSpawnService, party, gate, formationSolver: solver);
+
+            SceneTravelResult result = null;
+            yield return coordinator.TravelCoroutine(SceneBPath, "dest-b", r => result = r);
+
+            Assert.IsTrue(result.Success, result.Message);
+            var immediately = agent.transform.position;
+            Assert.IsTrue(NavMesh.SamplePosition(immediately, out _, 0.3f, NavMesh.AllAreas), "The member must already be standing on the mesh.");
+            Assert.Less(immediately.x, 2020f);
+
+            yield return null;
+            yield return null;
+            Assert.Less(Vector3.Distance(immediately, agent.transform.position), 0.05f, "The position must be stable, not corrected a frame later.");
+        }
+
+        [UnityTest]
+        public IEnumerator RollbackAlsoRestoresTheMemberWhoseFailedWarpAlreadyMovedIt()
+        {
+            var session = new GameSession(new RulesDatabase(), new DiceService(new SeededRandomSource(1)));
+            var worldSpawnService = new WorldSpawnService(session);
+            var party = new PartyState();
+
+            var okId = RuntimeEntityId.NewId();
+            session.Characters.Register(new CharacterState(okId));
+            party.AddMember(okId);
+            var okGo = Track(new GameObject("Member-OK"));
+            okGo.AddComponent<NavMeshCharacterMotor>();
+            var okAgent = okGo.AddComponent<CharacterAgent>();
+            okAgent.Bind(okId, session);
+            var okStart = okAgent.transform.position;
+
+            var strandedId = RuntimeEntityId.NewId();
+            session.Characters.Register(new CharacterState(strandedId));
+            party.AddMember(strandedId);
+            var strandedGo = Track(new GameObject("Member-Stranding"));
+            strandedGo.transform.position = new Vector3(3f, 0f, 3f);
+            strandedGo.AddComponent<StrandingMovable>(); // added before Bind so CharacterAgent.Motor resolves it
+            var strandedAgent = strandedGo.AddComponent<CharacterAgent>();
+            strandedAgent.Bind(strandedId, session);
+            var strandedStart = strandedAgent.transform.position;
+
+            yield return LoadAndActivate(SceneAPath);
+
+            var gate = new WorldTransitionGate();
+            var solver = new FixedPointFormationSolver(new Vector3(2000f, 0f, 0f));
+            var coordinator = new SceneTravelCoordinator(session, worldSpawnService, party, gate, formationSolver: solver);
+
+            SceneTravelResult result = null;
+            yield return coordinator.TravelCoroutine(SceneBPath, "dest-b", r => result = r);
+
+            Assert.AreEqual(SceneTravelOutcome.PartyRepositionFailed, result.Outcome);
+            Assert.Less(Vector3.Distance(okStart, okAgent.transform.position), 0.5f);
+            Assert.Less(Vector3.Distance(strandedStart, strandedAgent.transform.position), 0.01f,
+                "The member whose warp failed AFTER moving it must be rolled back too, not left stranded at the destination.");
             Assert.IsFalse(gate.IsBusy);
         }
 

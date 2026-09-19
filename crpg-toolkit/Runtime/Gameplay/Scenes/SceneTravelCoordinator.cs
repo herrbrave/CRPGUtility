@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using CRPG.Camera;
 using CRPG.Core;
+using CRPG.Navigation;
 using CRPG.Party;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 namespace CRPG.Gameplay.Scenes
@@ -14,9 +14,10 @@ namespace CRPG.Gameplay.Scenes
     /// <summary>
     /// Task 3.6: in-fiction travel between locations. A persistent Core scene (GameSessionHost, party
     /// CharacterAgents, camera, input, UI) is never unloaded; only a location scene (geometry/NavMesh/NPCs/
-    /// interactables) loads/unloads additively. Party members reposition via a direct NavMeshAgent.Warp (same
-    /// primitive/precedent as TeleportInteractionAdapter -- IMovable has no Warp today and this task doesn't
-    /// add one) -- they are never moved between scenes and never destroyed/rebuilt. The SAME GameSession/
+    /// interactables) loads/unloads additively. Party members reposition via <see cref="IMovable.Warp"/> (same
+    /// primitive as TeleportInteractionAdapter) and destination slots are validated through
+    /// <see cref="INavMeshService"/>, so the movement backend is swappable -- they are never moved between
+    /// scenes and never destroyed/rebuilt. The SAME GameSession/
     /// WorldSpawnService instance persists across the whole trip (only a cross-scene SAVE LOAD, see
     /// SessionLoadCoordinator, constructs a fresh one).
     /// <para>
@@ -38,6 +39,7 @@ namespace CRPG.Gameplay.Scenes
         private readonly IFormationSolver formationSolver;
         private readonly float formationSpacing;
         private readonly float placementSampleMaxDistance;
+        private readonly INavMeshService navMeshService;
 
         public SceneTravelCoordinator(
             GameSession session,
@@ -47,8 +49,10 @@ namespace CRPG.Gameplay.Scenes
             CameraRigState cameraRig = null,
             IFormationSolver formationSolver = null,
             float formationSpacing = 2f,
-            float placementSampleMaxDistance = 5f)
+            float placementSampleMaxDistance = 5f,
+            INavMeshService navMeshService = null)
         {
+            this.navMeshService = navMeshService ?? new NavMeshService();
             this.session = session ?? throw new ArgumentNullException(nameof(session));
             this.worldSpawnService = worldSpawnService ?? throw new ArgumentNullException(nameof(worldSpawnService));
             this.party = party ?? throw new ArgumentNullException(nameof(party));
@@ -88,14 +92,12 @@ namespace CRPG.Gameplay.Scenes
             }
 
             yield return loadOp;
-            // One extra frame before touching NavMesh queries against the freshly (additively) loaded scene --
-            // empirically confirmed necessary: NavMesh.SamplePosition can already succeed the same frame the
-            // load completes, but NavMeshAgent.Warp onto that same freshly-loaded surface can still fail right
-            // then, even at an otherwise-valid on-mesh position. The scene's own NavMeshSurface re-adds its
-            // baked NavMeshData on OnEnable, which runs as part of the load itself -- but the warp path appears
-            // to need one more player-loop tick before it reliably recognizes that data (the same general class
-            // of "just did X, needs a frame to settle" gotcha already on file for Physics.Raycast against a
-            // freshly added Collider).
+            // One defensive settle frame before touching NavMesh queries or scene objects in the freshly
+            // (additively) loaded scene. An earlier version of this comment claimed NavMeshAgent.Warp needs a
+            // tick to recognize newly added NavMeshData; a later in-process investigation could not reproduce
+            // that (same-frame BuildNavMesh/AddData + Warp both succeed), so the original failure's real cause
+            // (likely the loaded scene's own OnEnable hooks not having run yet when this coroutine resumed) is
+            // unconfirmed. Kept because it is harmless and the original symptom was real.
             yield return null;
 
             var targetScene = SceneManager.GetSceneByPath(targetScenePath);
@@ -116,11 +118,16 @@ namespace CRPG.Gameplay.Scenes
 
             var members = party.Members;
             var positions = formationSolver.Solve(destination.Anchor.position, destination.Anchor.forward, members.Count, formationSpacing);
+
+            // Keep the SAMPLED point, not the raw slot: warping to a raw slot that is merely near the mesh
+            // makes NavMeshAgent silently relocate the character to the mesh next frame, so travel would
+            // report success while several nearby slots collapse onto the same edge point.
+            var placements = new Vector3[positions.Count];
             for (var i = 0; i < positions.Count; i++)
             {
-                if (!NavMesh.SamplePosition(positions[i], out _, placementSampleMaxDistance, NavMesh.AllAreas))
+                if (!navMeshService.TrySamplePosition(positions[i], out placements[i], placementSampleMaxDistance))
                 {
-                    Fail(SceneTravelOutcome.PlacementValidationFailed, $"Destination slot {i} for '{destinationId}' is not on a valid NavMesh.", onFinished, targetScene);
+                    Fail(SceneTravelOutcome.PlacementValidationFailed, $"Destination slot {i} for '{destinationId}' is not on a valid walkable surface.", onFinished, targetScene);
                     yield break;
                 }
             }
@@ -149,28 +156,31 @@ namespace CRPG.Gameplay.Scenes
                 ? Quaternion.LookRotation(destination.Anchor.forward)
                 : Quaternion.identity;
 
-            var warped = new List<CharacterAgent>();
+            // Every member a warp was ATTEMPTED for, including the one that fails: a backend's failed Warp may
+            // still have moved that mover (raw NavMeshAgent.Warp does), so rollback must not assume the failing
+            // member stayed put.
+            var attempted = new List<CharacterAgent>();
             var repositionFailed = false;
             for (var i = 0; i < members.Count; i++)
             {
                 var agent = FindAgent(members[i]);
-                var navAgent = agent != null ? agent.GetComponent<NavMeshAgent>() : null;
-                if (navAgent == null || !navAgent.Warp(positions[i]))
+                var motor = agent != null ? agent.Motor : null;
+                if (agent != null) attempted.Add(agent);
+                if (motor == null || !motor.Warp(placements[i]))
                 {
                     repositionFailed = true;
                     break;
                 }
 
                 agent.transform.rotation = facing;
-                warped.Add(agent);
             }
 
             if (repositionFailed)
             {
-                foreach (var agent in warped)
+                foreach (var agent in attempted)
                 {
                     if (!originalTransforms.TryGetValue(agent.EntityId, out var original)) continue;
-                    agent.GetComponent<NavMeshAgent>()?.Warp(original.position);
+                    agent.Motor?.Warp(original.position);
                     agent.transform.rotation = original.rotation;
                 }
 

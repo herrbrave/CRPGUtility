@@ -1,19 +1,28 @@
 using System;
 using CRPG.Core;
+using CRPG.Navigation;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace CRPG.Gameplay.Interactions.Adapters
 {
-    /// <summary>Reference "use/door" adapter. Toggles a real carving NavMeshObstacle sized across a doorway
-    /// gap, not a bare Collider -- a Collider toggle alone doesn't prove NavMesh traversability actually
-    /// changed, which is the whole point of this fixture (see UseDoorInteractionAdapterTests).</summary>
+    /// <summary>Reference "use/door" adapter. Toggles passability through an <see cref="IWalkabilityBlocker"/>:
+    /// any blocker component on this GameObject (e.g. a grid backend's), else the serialized carving
+    /// NavMeshObstacle sized across a doorway gap -- not a bare Collider, since a Collider toggle alone doesn't
+    /// prove NavMesh traversability actually changed, which is the whole point of this fixture (see
+    /// UseDoorInteractionAdapterTests).</summary>
     [RequireComponent(typeof(WorldInteractable))]
     public sealed class UseDoorInteractionAdapter : MonoBehaviour, IInteractionAdapter
     {
         [SerializeField] private NavMeshObstacle obstacle;
         [SerializeField] private GameObject openVisual;
         [SerializeField] private GameObject closedVisual;
+
+        private IWalkabilityBlocker blocker;
+
+        private IWalkabilityBlocker Blocker =>
+            blocker ??= GetComponent<IWalkabilityBlocker>()
+                        ?? (obstacle != null ? new NavMeshObstacleWalkabilityBlocker(obstacle) : null);
 
         public DefinitionId ActionId { get; } = new("interact-use-door");
 
@@ -26,7 +35,7 @@ namespace CRPG.Gameplay.Interactions.Adapters
         {
             IsOpen = !IsOpen;
 
-            if (obstacle != null) obstacle.enabled = !IsOpen; // disabled = not carving = passable
+            Blocker?.SetBlocking(!IsOpen); // not blocking = passable
             if (openVisual != null) openVisual.SetActive(IsOpen);
             if (closedVisual != null) closedVisual.SetActive(!IsOpen);
 

@@ -51,6 +51,39 @@ namespace CRPG.Tests.PlayMode
             return wall;
         }
 
+        private sealed class FakeBlocker : MonoBehaviour, IWalkabilityBlocker
+        {
+            public bool IsBlocking { get; private set; } = true;
+            public int SetBlockingCalls { get; private set; }
+
+            public void SetBlocking(bool blocking)
+            {
+                IsBlocking = blocking;
+                SetBlockingCalls++;
+            }
+        }
+
+        [Test]
+        public void TheAdapterTogglesWhateverBlockerComponentSitsOnTheDoorNotJustANavMeshObstacle()
+        {
+            var doorGo = Track(new GameObject("Door"));
+            doorGo.SetActive(false);
+            var blocker = doorGo.AddComponent<FakeBlocker>();
+            var adapter = doorGo.AddComponent<UseDoorInteractionAdapter>(); // no NavMeshObstacle assigned at all
+            var anchorGo = Track(new GameObject("DoorAnchor"));
+            doorGo.GetComponent<WorldInteractable>().Configure(anchorGo.transform, 1.5f);
+            doorGo.SetActive(true);
+
+            adapter.BeginExecute(RuntimeEntityId.NewId(), _ => { });
+            Assert.IsTrue(adapter.IsOpen);
+            Assert.IsFalse(blocker.IsBlocking, "Opening the door must unblock.");
+
+            adapter.BeginExecute(RuntimeEntityId.NewId(), _ => { });
+            Assert.IsFalse(adapter.IsOpen);
+            Assert.IsTrue(blocker.IsBlocking, "Closing the door must block again.");
+            Assert.AreEqual(2, blocker.SetBlockingCalls);
+        }
+
         [UnityTest]
         public IEnumerator ClosingTheDoorBlocksThePathAndOpeningItRestoresPath()
         {

@@ -57,6 +57,7 @@ namespace CRPG.Tests.EditMode
             }
 
             public void Stop() => LastDestination = null;
+            public bool Warp(Vector3 position) => true;
             public MotionSnapshot Snapshot => MotionSnapshot.None;
         }
 

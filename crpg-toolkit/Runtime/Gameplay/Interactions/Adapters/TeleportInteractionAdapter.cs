@@ -2,16 +2,13 @@ using System;
 using System.Linq;
 using CRPG.Core;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace CRPG.Gameplay.Interactions.Adapters
 {
     /// <summary>Reference same-scene teleport adapter -- deliberately named for what it actually does, not
-    /// "scene travel": NavMeshAgent.Warp is instant relocation within the current scene, exactly the
-    /// distinction TeleportTriggerZone's own comment already draws. Real scene-travel needs a transition
-    /// boundary the toolkit doesn't have yet and is not attempted here. Mirrors TeleportTriggerZone's own
-    /// precedent for reaching past IMovable to NavMeshAgent.Warp directly -- no better abstraction exists yet
-    /// for an instant relocation either.</summary>
+    /// "scene travel": <see cref="CRPG.Navigation.IMovable.Warp"/> is instant relocation within the current
+    /// scene, exactly the distinction TeleportTriggerZone's own comment already draws. Cross-scene travel is
+    /// TravelInteractionAdapter's job.</summary>
     [RequireComponent(typeof(WorldInteractable))]
     public sealed class TeleportInteractionAdapter : MonoBehaviour, IInteractionAdapter
     {
@@ -36,8 +33,7 @@ namespace CRPG.Gameplay.Interactions.Adapters
                 return null;
             }
 
-            var navAgent = agent.GetComponent<NavMeshAgent>();
-            var succeeded = navAgent != null && navAgent.Warp(destination.position);
+            var succeeded = agent.Motor != null && agent.Motor.Warp(destination.position);
 
             if (succeeded) Teleported?.Invoke(performer);
             onFinished(succeeded ? InteractionExecutionResult.Succeeded : InteractionExecutionResult.Failed);

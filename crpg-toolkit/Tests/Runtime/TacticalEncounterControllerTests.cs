@@ -557,6 +557,7 @@ namespace CRPG.Tests.PlayMode
             }
 
             public void Stop() { }
+            public bool Warp(Vector3 position) => true;
             public MotionSnapshot Snapshot => MotionSnapshot.None;
         }
 

@@ -5,10 +5,10 @@ using System.Linq;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay.Scenes;
+using CRPG.Navigation;
 using CRPG.Rules;
 using CRPG.Saving;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 namespace CRPG.Gameplay
@@ -471,8 +471,8 @@ namespace CRPG.Gameplay
             foreach (var instance in staged)
             {
                 instance.SetActive(true);
-                var navAgent = instance.GetComponentInChildren<NavMeshAgent>(true);
-                navAgent?.Warp(instance.transform.position);
+                var motor = instance.GetComponent<IMovable>() ?? instance.GetComponentInChildren<IMovable>(true);
+                motor?.Warp(instance.transform.position);
             }
         }
 

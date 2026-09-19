@@ -130,6 +130,108 @@ namespace CRPG.Tests.PlayMode
             yield break;
         }
 
+        // The Warp tests below use a unique far-away origin with TRACKED geometry: this class's older plane/
+        // wall helpers never track what they spawn, so geometry from earlier tests leaks into later bakes
+        // (a leaked wall once made a probe point unwalkable and would let an "off-mesh" assertion pass by
+        // accident). The mesh edge is located by raycast rather than assumed from the plane's size.
+        private static readonly Vector3 WarpOrigin = new(6000f, 0f, 6000f);
+
+        private void BuildWarpArena()
+        {
+            Track(CreateGroundPlane(WarpOrigin, 5f));
+            BakeNavMesh();
+        }
+
+        private static float MeshEdgeXAlongPositiveXFrom(Vector3 from)
+        {
+            Assert.IsTrue(NavMesh.Raycast(from, from + new Vector3(20f, 0f, 0f), out var hit, NavMesh.AllAreas), "Expected the ray to hit the mesh edge.");
+            return hit.position.x;
+        }
+
+        [UnityTest]
+        public IEnumerator WarpToAnOnMeshPointRepositionsAndCancelsTheInFlightRequest()
+        {
+            BuildWarpArena();
+
+            var motor = CreateMotorAt(WarpOrigin + new Vector3(-2f, 0f, -2f));
+            var inFlight = motor.SetDestination(WarpOrigin + new Vector3(2f, 0f, 2f));
+            Assert.IsTrue(inFlight.RequestId.IsValid);
+
+            var target = WarpOrigin + new Vector3(0f, 0f, 1f);
+            Assert.IsTrue(motor.Warp(target));
+
+            Assert.Less(Vector3.Distance(motor.transform.position, target), 0.5f);
+            Assert.AreEqual(MoveStatus.Cancelled, motor.Snapshot.Status);
+            Assert.AreEqual(inFlight.RequestId, motor.Snapshot.RequestId); // RequestId retained, matching Stop()'s contract
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator WarpToAnOffMeshPointIsRefusedWithoutMovingTheAgentOrLosingItsRequest()
+        {
+            BuildWarpArena();
+
+            var motor = CreateMotorAt(WarpOrigin);
+            var agent = motor.GetComponent<NavMeshAgent>();
+            var inFlight = motor.SetDestination(WarpOrigin + new Vector3(2f, 0f, 2f));
+            var positionBefore = motor.transform.position;
+
+            // Raw NavMeshAgent.Warp would move the transform here, strand the agent off-mesh, and destroy its
+            // path -- Warp must refuse before ever touching the agent.
+            Assert.IsFalse(motor.Warp(WarpOrigin + new Vector3(500f, 0f, 500f)));
+
+            Assert.AreEqual(positionBefore, motor.transform.position);
+            Assert.IsTrue(agent.isOnNavMesh);
+            Assert.AreNotEqual(MoveStatus.Cancelled, motor.Snapshot.Status, "A refused Warp must not cancel the request in flight.");
+            Assert.AreEqual(inFlight.RequestId, motor.Snapshot.RequestId);
+
+            // ...and the untouched in-flight move still completes.
+            MoveStatus? terminal = null;
+            yield return WaitForTerminalStatus(motor, status => terminal = status);
+            Assert.AreEqual(MoveStatus.Arrived, terminal);
+        }
+
+        [UnityTest]
+        public IEnumerator WarpToAPointNearTheMeshSnapsOntoTheMeshImmediatelyNotOnTheNextFrame()
+        {
+            BuildWarpArena();
+
+            var motor = CreateMotorAt(WarpOrigin);
+            var edgeX = MeshEdgeXAlongPositiveXFrom(WarpOrigin);
+            var nearButOffMesh = new Vector3(edgeX + 0.5f, 0f, WarpOrigin.z); // past the baked edge, within warpSampleMaxDistance
+
+            Assert.IsTrue(motor.Warp(nearButOffMesh), $"meshEdgeX={edgeX}");
+
+            // Raw NavMeshAgent.Warp would leave the transform at the raw point for this frame and only snap it
+            // to the mesh on the next Update, letting several nearby slots silently collapse onto one edge point.
+            var immediately = motor.transform.position;
+            Assert.Less(immediately.x, edgeX + 0.25f, "Warp must land on the sampled mesh point right away.");
+            yield return null;
+            yield return null;
+            Assert.Less(Vector3.Distance(immediately, motor.transform.position), 0.05f, "The position must be stable, not corrected later.");
+        }
+
+        [UnityTest]
+        public IEnumerator WarpBeyondTheSampleToleranceIsRefusedForASmallRadiusAgentInsteadOfStrandingIt()
+        {
+            BuildWarpArena();
+
+            var motor = CreateMotorAt(WarpOrigin);
+            var agent = motor.GetComponent<NavMeshAgent>();
+            // Raw Warp's tolerance is ~20x radius, so a small-radius agent accepts points far enough away to
+            // fail (and strand) even though a 5-unit SamplePosition validation would pass them.
+            agent.radius = 0.15f;
+            var edgeX = MeshEdgeXAlongPositiveXFrom(WarpOrigin);
+            var positionBefore = motor.transform.position;
+
+            Assert.IsFalse(motor.Warp(new Vector3(edgeX + 3f, 0f, WarpOrigin.z)));
+
+            Assert.AreEqual(positionBefore, motor.transform.position);
+            Assert.IsTrue(agent.isOnNavMesh, "A refused Warp must leave the agent on the mesh, still able to move.");
+            Assert.AreEqual(MoveStatus.Pending, motor.SetDestination(WarpOrigin + new Vector3(1f, 0f, 1f)).Status);
+            yield break;
+        }
+
         [UnityTest]
         public IEnumerator SetDestinationRoutesAroundARealObstacleAndArrives()
         {

@@ -10,6 +10,9 @@ namespace CRPG.Navigation
     {
         [SerializeField] private float arrivalThreshold = 0.1f;
 
+        [Tooltip("Max distance from the NavMesh at which Warp will still snap the character onto it; farther is refused.")]
+        [SerializeField] private float warpSampleMaxDistance = 1f;
+
         private NavMeshAgent agent;
         private MoveRequestId currentRequestId = MoveRequestId.None;
         private bool currentRequestCancelled;
@@ -34,6 +37,31 @@ namespace CRPG.Navigation
             if (agent == null) return;
             agent.ResetPath();
             if (currentRequestId.IsValid) currentRequestCancelled = true;
+        }
+
+        public bool Warp(Vector3 position)
+        {
+            if (agent == null || !agent.isActiveAndEnabled) return false;
+
+            // Refuse WITHOUT touching the agent. Raw NavMeshAgent.Warp writes transform.position even when it
+            // fails (stranding the agent off-mesh and destroying its path), and it accepts points up to ~20x
+            // agent.radius away from the mesh, then silently relocates the character on the next frame. Sampling
+            // first makes a refusal free (an in-flight request is untouched) and makes "true" mean the
+            // character is really standing on the mesh.
+            if (!NavMesh.SamplePosition(position, out var hit, warpSampleMaxDistance, agent.areaMask)) return false;
+
+            var previous = transform.position;
+            if (!agent.Warp(hit.position))
+            {
+                // Defensive: should not happen after a successful sample. Undo Warp's unconditional transform
+                // write and try to re-place the agent where it was.
+                transform.position = previous;
+                agent.Warp(previous);
+                return false;
+            }
+
+            if (currentRequestId.IsValid) currentRequestCancelled = true;
+            return true;
         }
 
         public MotionSnapshot Snapshot
