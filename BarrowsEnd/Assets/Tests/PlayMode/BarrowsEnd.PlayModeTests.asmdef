@@ -1,0 +1,8 @@
+{
+  "name": "BarrowsEnd.PlayModeTests",
+  "rootNamespace": "BarrowsEnd.Tests",
+  "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "includePlatforms": [],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "autoReferenced": false
+}

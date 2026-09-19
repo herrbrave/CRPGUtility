@@ -194,6 +194,14 @@ resolution order-dependent and silently wrong.
 
 ### Task 0.1: Asset inventory close-out — RESOLVED
 
+- **CORRECTION (2026-09-19, found while designing Phase 2 — this bullet's conclusion was wrong).** The modular pixel
+  kit is **`Roguelike characters (450 assets)`**, not the `Character pack` described below. Its own preview sheet
+  shows a body tile, armor tiles, hair, shield and weapon as separate **16x16, same-canvas** tiles that stack into
+  one character — same pixel scale as the world tiles, front-facing, CC0. The `Character pack (425 assets)` is a
+  disassembled smooth-vector cut-out puppet (separate head/neck/hands/arms/legs pieces of varying sizes, per its
+  `Instruction.png`) that would clash with 16px pixel tiles and needs per-part placement. Phase 2 is designed
+  around the Roguelike characters kit; see `Docs/Plans/2D-Campaign-Phase2-SpritePresentation.md`. Original (now
+  superseded) finding, kept for the record:
 - Character customization: **layered/modular, confirmed feasible.** Kenney's `Character pack (425 assets)` is
   genuinely modular (`PNG/[Skin]/Face|Hair|Pants|Shirts|Shoes/...`, plus a `Completes` folder for pre-assembled
   references) — a real source for Task 2.5's layer compositor. It's a different, front-facing art style from
