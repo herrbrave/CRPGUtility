@@ -4,6 +4,7 @@ using System.Linq;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
+using CRPG.Navigation.Grid;
 using CRPG.Presentation.Animation;
 using CRPG.Presentation.Equipment;
 using CRPG.Saving;
@@ -54,6 +55,11 @@ namespace CRPG.Gameplay
             this.session = session ?? throw new ArgumentNullException(nameof(session));
             equipmentService = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
         }
+
+        /// <summary>Optional grid-movement backend. When set, every spawned character whose prefab carries a
+        /// <see cref="GridCharacterMotor"/> gets this pathfinder and its own entity id as its occupancy identity
+        /// at bind time (composition-root injection, not a static lookup). Leave null for NavMesh characters.</summary>
+        public GridPathfindingService GridNavigation { get; set; }
 
         /// <summary>The faction tag this spawn's NpcDefinition authored, if any. Deliberately not
         /// Combat.Combatant.Faction (that's a per-encounter concept -- CRPG.Combat.CombatEncounter.AddCombatant
@@ -238,6 +244,15 @@ namespace CRPG.Gameplay
             {
                 instance = UnityEngine.Object.Instantiate(visualPrefab, position, rotation);
                 if (startInactive) instance.SetActive(false); // see BindRestoredView's remarks -- staged, not yet live
+
+                if (GridNavigation != null)
+                {
+                    foreach (var gridMotor in instance.GetComponentsInChildren<GridCharacterMotor>(true))
+                    {
+                        gridMotor.Pathfinding = GridNavigation;
+                        gridMotor.OccupantId = entityId;
+                    }
+                }
 
                 var agent = instance.GetComponent<CharacterAgent>();
                 if (agent == null) agent = instance.AddComponent<CharacterAgent>();

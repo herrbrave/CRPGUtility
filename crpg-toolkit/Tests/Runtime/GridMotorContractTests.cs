@@ -116,7 +116,7 @@ namespace CRPG.Tests.PlayMode
             Assert.Fail($"Action never completed within {maxSimulatedSeconds} simulated seconds (phase: {action.Phase}).");
         }
 
-        private static IEnumerator WaitForTerminalStatus(IMovable motor, Action<MoveStatus> onTerminal, float maxSimulatedSeconds = 30f)
+        protected static IEnumerator WaitForTerminalStatus(IMovable motor, Action<MoveStatus> onTerminal, float maxSimulatedSeconds = 30f)
         {
             var elapsed = 0f;
             while (elapsed < maxSimulatedSeconds)

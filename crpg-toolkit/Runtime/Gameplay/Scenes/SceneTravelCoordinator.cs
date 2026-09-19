@@ -5,6 +5,7 @@ using System.Linq;
 using CRPG.Camera;
 using CRPG.Core;
 using CRPG.Navigation;
+using CRPG.Navigation.Grid;
 using CRPG.Party;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -40,6 +41,12 @@ namespace CRPG.Gameplay.Scenes
         private readonly float formationSpacing;
         private readonly float placementSampleMaxDistance;
         private readonly INavMeshService navMeshService;
+        private readonly GridPathfindingService gridPathfinding;
+
+        // Set only while a travel has re-pointed the grid pathfinder at the target scene's grid, so any failure
+        // afterwards can put the previous scene's grid back. Travel is serialized by the gate, so one slot is enough.
+        private WalkabilityGrid gridToRestore;
+        private bool gridSwapped;
 
         public SceneTravelCoordinator(
             GameSession session,
@@ -50,9 +57,12 @@ namespace CRPG.Gameplay.Scenes
             IFormationSolver formationSolver = null,
             float formationSpacing = 2f,
             float placementSampleMaxDistance = 5f,
-            INavMeshService navMeshService = null)
+            INavMeshService navMeshService = null,
+            GridPathfindingService gridPathfinding = null)
         {
-            this.navMeshService = navMeshService ?? new NavMeshService();
+            this.gridPathfinding = gridPathfinding;
+            // With a grid backend, the grid pathfinder IS the placement-validation service unless told otherwise.
+            this.navMeshService = navMeshService ?? (INavMeshService)gridPathfinding ?? new NavMeshService();
             this.session = session ?? throw new ArgumentNullException(nameof(session));
             this.worldSpawnService = worldSpawnService ?? throw new ArgumentNullException(nameof(worldSpawnService));
             this.party = party ?? throw new ArgumentNullException(nameof(party));
@@ -112,6 +122,33 @@ namespace CRPG.Gameplay.Scenes
             {
                 Fail(SceneTravelOutcome.DestinationNotFound, $"No SceneTravelDestination '{destinationId}' found in '{targetScenePath}'.", onFinished, targetScene);
                 yield break;
+            }
+
+            // Grid backend: point the (persistent, Core-scene) pathfinder at THIS location's grid before anything
+            // validates a placement against it. Undone by RestoreGrid on any later failure.
+            if (gridPathfinding != null)
+            {
+                var provider = WalkabilityGridProvider.FindInScene(targetScene);
+                if (provider == null)
+                {
+                    Fail(SceneTravelOutcome.PlacementValidationFailed, $"Scene '{targetScenePath}' has no WalkabilityGridProvider, so its destination slots cannot be validated.", onFinished, targetScene);
+                    yield break;
+                }
+
+                WalkabilityGrid newGrid;
+                try
+                {
+                    newGrid = provider.Grid;
+                }
+                catch (Exception ex)
+                {
+                    Fail(SceneTravelOutcome.PlacementValidationFailed, $"Scene '{targetScenePath}' has invalid grid data: {ex.Message}", onFinished, targetScene);
+                    yield break;
+                }
+
+                gridToRestore = gridPathfinding.ActiveGrid;
+                gridPathfinding.SetActiveGrid(newGrid);
+                gridSwapped = true;
             }
 
             var content = FindLocationContent(targetScene);
@@ -177,6 +214,7 @@ namespace CRPG.Gameplay.Scenes
 
             if (repositionFailed)
             {
+                RestoreGrid(); // before the rollback warps, so they validate/claim against the grid they return to
                 foreach (var agent in attempted)
                 {
                     if (!originalTransforms.TryGetValue(agent.EntityId, out var original)) continue;
@@ -196,8 +234,19 @@ namespace CRPG.Gameplay.Scenes
             if (cameraRig != null && content != null) cameraRig.SetBounds(content.CameraBoundsXZ);
             SceneManager.UnloadSceneAsync(oldScene);
 
+            gridSwapped = false; // committed: the new grid stays active
+            gridToRestore = null;
             gate.EndBusy();
             onFinished(SceneTravelResult.Ok());
+        }
+
+        private void RestoreGrid()
+        {
+            if (!gridSwapped) return;
+
+            gridPathfinding.SetActiveGrid(gridToRestore);
+            gridToRestore = null;
+            gridSwapped = false;
         }
 
         /// <summary>Unloads targetScene (if it was ever loaded), clears the gate, and reports failure -- the
@@ -205,6 +254,7 @@ namespace CRPG.Gameplay.Scenes
         /// never touched by any of these branches.</summary>
         private void Fail(SceneTravelOutcome outcome, string message, Action<SceneTravelResult> onFinished, Scene targetScene)
         {
+            RestoreGrid();
             if (targetScene.IsValid()) SceneManager.UnloadSceneAsync(targetScene);
             gate.EndBusy();
             onFinished(SceneTravelResult.Fail(outcome, message));

@@ -421,7 +421,35 @@ Original spec for this task, kept for reference:
 
 As designed above, with `SetActiveGrid` re-pointing and the corner-cutting/same-cell/`corners[0]==from` tests.
 
-### Task 1.3: `GridCharacterMotor` + `WalkabilityGridProvider` + per-scene rebinding
+### Task 1.3: `GridCharacterMotor` + `WalkabilityGridProvider` + per-scene rebinding — DONE (2026-09-19)
+
+Shipped in `Runtime/Navigation/Grid/`: `GridCharacterMotor`, `WalkabilityGridProvider`, `GridWalkabilityBlocker`;
+plus wiring in `WorldSpawnService` (`GridNavigation` property) and `SceneTravelCoordinator` (optional trailing
+`gridPathfinding` parameter). `GridCharacterMotorContractTests` runs the **entire Task 1.1 contract (12 tests)
+against the real motor + real pathfinder**, plus 8 motor-specific tests (occupancy, grid swap, door seam,
+snapshot velocity, spawn wiring), 3 provider tests, and a coordinator failure-path test. Full suite after:
+EditMode 707/707, PlayMode 270 passed / 3 skipped (sample-import fixtures).
+Implementation choices beyond the spec above:
+- **`Warp` is strict, no snapping**: refuses (motor, claims and request untouched) unless the target is a walkable,
+  unoccupied cell of the active grid. A grid has nothing "near but off" to snap to; callers (scene travel) already
+  pass sampled cell centres. A teleport marker authored inside a wall now fails cleanly instead of stranding.
+- **Occupant identity**: the motor lives in `CRPG.Navigation` and can't see `CharacterAgent`, so it takes a
+  settable `OccupantId` that `WorldSpawnService` fills with the entity id at bind time (a unique id is generated if
+  nothing sets one). `Pathfinding` is injected the same way — no static lookups.
+- **Occupancy model**: a mover holds the cell it stands in, plus the next cell from the moment it starts toward it
+  (it claims a corner's cell *before* moving; a failed claim = stop where it is, report `Blocked`); the old cell is
+  released on arrival at the corner (conservative: it holds both while crossing). Claims are released on
+  disable/destroy and re-made lazily when a grid is swapped or the mover re-enables.
+- **`SceneTravelCoordinator`**: with a `gridPathfinding`, it activates the target scene's grid (via
+  `WalkabilityGridProvider.FindInScene`) *before* validating placements, uses the pathfinder as the placement
+  validator by default, restores the previous grid on any later failure (before the rollback warps run), and fails
+  with `PlacementValidationFailed` if the scene has no provider or invalid grid data.
+- **`GridWalkabilityBlocker`** (the grid door/portcullis) landed here rather than later; verified end to end through
+  the real `UseDoorInteractionAdapter`. It pushes its initial state on first enable and never resets on re-enable.
+- **Deferred to Task 1.5**: a full scene-travel round trip with real providers in the fixture scenes (only the
+  failure path is exercised so far), and activating the *initial* location's grid (composition-root job via
+  `FindInScene`). `SessionLoadCoordinator`'s cross-scene load does not activate a grid yet.
+- **Still pending in Task 1.4**: `PartyMovementService`'s formation-slot collision fix.
 
 As designed above, including `WorldSpawnService`'s bind-time wiring and `SceneTravelCoordinator`'s
 `SetActiveGrid` hookup.

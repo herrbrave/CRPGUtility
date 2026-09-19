@@ -6,6 +6,7 @@ using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Gameplay.Scenes;
 using CRPG.Navigation;
+using CRPG.Navigation.Grid;
 using CRPG.Party;
 using NUnit.Framework;
 using UnityEngine;
@@ -303,6 +304,33 @@ namespace CRPG.Tests.PlayMode
             Assert.Less(Vector3.Distance(okStart, okAgent.transform.position), 0.5f);
             Assert.Less(Vector3.Distance(strandedStart, strandedAgent.transform.position), 0.01f,
                 "The member whose warp failed AFTER moving it must be rolled back too, not left stranded at the destination.");
+            Assert.IsFalse(gate.IsBusy);
+        }
+
+        [UnityTest]
+        public IEnumerator TravellingIntoASceneWithNoGridProviderFailsCleanlyAndLeavesTheActiveGridUntouched()
+        {
+            var (session, worldSpawnService, party, _, agent) = BuildOneMemberParty();
+            var startPosition = agent.transform.position;
+            yield return LoadAndActivate(SceneAPath);
+
+            var pathfinding = new GridPathfindingService();
+            var currentGrid = new WalkabilityGrid(Vector3.zero, 1f, 4, 4);
+            pathfinding.SetActiveGrid(currentGrid);
+            var gate = new WorldTransitionGate();
+            var coordinator = new SceneTravelCoordinator(session, worldSpawnService, party, gate, gridPathfinding: pathfinding);
+
+            SceneTravelResult result = null;
+            yield return coordinator.TravelCoroutine(SceneBPath, "dest-b", r => result = r);
+
+            // The fixture scenes carry no WalkabilityGridProvider, so a grid-backed coordinator cannot validate
+            // placements there and must refuse -- without disturbing the grid the current location is using.
+            Assert.AreEqual(SceneTravelOutcome.PlacementValidationFailed, result.Outcome);
+            StringAssert.Contains("WalkabilityGridProvider", result.Message);
+            Assert.AreSame(currentGrid, pathfinding.ActiveGrid);
+            Assert.IsTrue(SceneManager.GetSceneByPath(SceneAPath).isLoaded);
+            Assert.IsFalse(SceneManager.GetSceneByPath(SceneBPath).isLoaded);
+            Assert.Less(Vector3.Distance(startPosition, agent.transform.position), 0.5f);
             Assert.IsFalse(gate.IsBusy);
         }
 
