@@ -552,8 +552,9 @@ namespace CRPG.Tests.PlayMode
     /// corner); a positive value simulates a sloppy "stop close enough" motor for the negative control.</summary>
     internal sealed class FakeGridMotor : MonoBehaviour, IMovable
     {
-        public FakeGrid Grid;
-        public FakeGridNavService Nav;
+        public INavMeshService Nav;
+        public Func<Vector3, bool> IsWalkable;
+        public float GroundY;
         public float Speed = 20f;
         public float ArrivalOvershoot;
 
@@ -568,7 +569,7 @@ namespace CRPG.Tests.PlayMode
 
             // Drop the leading "from", and make the final corner the exact requested point (not its cell centre).
             var planned = path.Skip(1).ToList();
-            var exact = new Vector3(destination.x, Grid.Origin.y, destination.z);
+            var exact = new Vector3(destination.x, GroundY, destination.z);
             if (planned.Count > 0) planned[planned.Count - 1] = exact;
             else planned.Add(exact);
 
@@ -588,9 +589,9 @@ namespace CRPG.Tests.PlayMode
 
         public bool Warp(Vector3 position)
         {
-            if (!Grid.IsWalkableWorld(position)) return false;
+            if (!IsWalkable(position)) return false;
 
-            transform.position = new Vector3(position.x, Grid.Origin.y, position.z);
+            transform.position = new Vector3(position.x, GroundY, position.z);
             corners.Clear();
             velocity = Vector3.zero;
             if (currentId.IsValid) cancelled = true;
@@ -602,7 +603,7 @@ namespace CRPG.Tests.PlayMode
             get
             {
                 if (!currentId.IsValid) return MotionSnapshot.None;
-                var onGrid = Grid.IsWalkableWorld(transform.position);
+                var onGrid = IsWalkable(transform.position);
                 if (cancelled) return new MotionSnapshot(Vector3.zero, Vector3.zero, onGrid, 0f, MoveStatus.Cancelled, currentId);
                 if (corners.Count == 0) return new MotionSnapshot(Vector3.zero, Vector3.zero, onGrid, 0f, MoveStatus.Arrived, currentId);
                 return new MotionSnapshot(velocity, velocity, onGrid, RemainingDistance(), MoveStatus.Moving, currentId);
@@ -654,12 +655,9 @@ namespace CRPG.Tests.PlayMode
 
     public class FakeGridMotorContractTests : GridMotorContractTests
     {
-        private FakeGrid lastGrid;
-
         protected override Arena CreateArena(int width, int depth, IEnumerable<(int x, int z)> blocked)
         {
             var grid = new FakeGrid(ArenaOrigin, width, depth, blocked);
-            lastGrid = grid;
             return new Arena
             {
                 Nav = new FakeGridNavService(grid),
@@ -673,8 +671,9 @@ namespace CRPG.Tests.PlayMode
             var go = new GameObject("FakeGridMover");
             go.transform.position = start;
             var motor = go.AddComponent<FakeGridMotor>();
-            motor.Grid = lastGrid;
-            motor.Nav = (FakeGridNavService)arena.Nav;
+            motor.Nav = arena.Nav;
+            motor.IsWalkable = arena.IsWalkable;
+            motor.GroundY = ArenaOrigin.y;
             motor.Speed = speed;
             return go;
         }
@@ -695,6 +694,39 @@ namespace CRPG.Tests.PlayMode
 
             Assert.AreEqual(ActionOutcome.Succeeded, action.Outcome);
             Assert.AreEqual(6, MovementSpent(mover, 10), "5 cells with a 0.001 overshoot per corner must spend 6 (the failure mode the exact-snap contract prevents).");
+        }
+    }
+
+    /// <summary>Task 1.2: the identical contract, but the pathfinder is the REAL <c>GridPathfindingService</c> over a
+    /// real <c>WalkabilityGrid</c>. The motor is still the test-only fake (the real <c>GridCharacterMotor</c> is
+    /// Task 1.3, which adds a third subclass), so this proves the production pathfinder satisfies everything
+    /// <c>MoveActionExecution</c> and the raw <c>IMovable</c> callers need from an <c>INavMeshService</c>.</summary>
+    public class RealGridPathfinderContractTests : GridMotorContractTests
+    {
+        protected override Arena CreateArena(int width, int depth, IEnumerable<(int x, int z)> blocked)
+        {
+            var grid = new CRPG.Navigation.Grid.WalkabilityGrid(
+                ArenaOrigin, 1f, width, depth, blocked.Select(b => new CRPG.Navigation.Grid.GridCoordinate(b.x, b.z)));
+            var service = new CRPG.Navigation.Grid.GridPathfindingService();
+            service.SetActiveGrid(grid);
+            return new Arena
+            {
+                Nav = service,
+                IsWalkable = grid.IsWalkableWorld,
+                Center = (x, z) => grid.ToWorld(new CRPG.Navigation.Grid.GridCoordinate(x, z)),
+            };
+        }
+
+        protected override GameObject CreateMover(Arena arena, Vector3 start, float speed)
+        {
+            var go = new GameObject("FakeMotorOverRealPathfinder");
+            go.transform.position = start;
+            var motor = go.AddComponent<FakeGridMotor>();
+            motor.Nav = arena.Nav;
+            motor.IsWalkable = arena.IsWalkable;
+            motor.GroundY = ArenaOrigin.y;
+            motor.Speed = speed;
+            return go;
         }
     }
 }

@@ -397,7 +397,27 @@ real multi-cell pathing (not just a pre-planned short leg), zero-length-destinat
 supersession, the pause guarantee, and exact-arrival-snap (no float drift) before investing in the real
 pathfinder/motor.
 
-### Task 1.2: `GridPathfindingService` + `WalkabilityGrid` (including occupancy)
+### Task 1.2: `GridPathfindingService` + `WalkabilityGrid` (including occupancy) — DONE (2026-09-19)
+
+Shipped in `Runtime/Navigation/Grid/` (`GridCoordinate`, `WalkabilityGrid`, `GridPathfindingService`), 28 EditMode
+tests (`Tests/Editor/GridPathfindingServiceTests.cs`), and a third contract subclass
+(`RealGridPathfinderContractTests`) that runs the identical 12 Task 1.1 contract tests with the real pathfinder
+behind the test motor — all passing. A mutation check (disabling the corner-cutting rule) was caught by 5 tests.
+Full suite after: EditMode 707/707, PlayMode 245 passed / 3 skipped (sample-import fixtures).
+Implementation choices beyond the spec above, worth knowing when Task 1.3 builds on this:
+- **Endpoint snapping is bounded**: `GridPathfindingService(endpointSnapDistance = 2f)` — a path's start or end more
+  than that many world units (to a cell centre) from any walkable cell fails rather than snapping across the map.
+- **A start standing inside a now-blocked cell** (a door closed on the mover) yields `[from, nearestWalkableCentre,
+  ...]`, so the first hop leaves the wall instead of cutting across its neighbours. Only that first hop is exempt
+  from the "adjacent cells" corner invariant.
+- **`TrySamplePosition` measures to cell centres on the ground plane (Y ignored)** and returns the centre; a point
+  already on a walkable cell always samples to its centre regardless of `maxDistance`.
+- **Occupancy** (`TryOccupy`/`Release`/`IsOccupied`) is implemented on `WalkabilityGrid` as designed and is ignored
+  by pathfinding; releases are holder-checked. Nothing calls it yet — `GridCharacterMotor` (Task 1.3) is its first
+  consumer. `SetBlocked` is the door seam's mutation point.
+- Search scratch is stamped and reused per grid, so repeated queries allocate only the result.
+
+Original spec for this task, kept for reference:
 
 As designed above, with `SetActiveGrid` re-pointing and the corner-cutting/same-cell/`corners[0]==from` tests.
 
