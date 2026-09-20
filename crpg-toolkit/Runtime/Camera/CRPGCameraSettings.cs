@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CRPG.Camera
@@ -22,6 +23,16 @@ namespace CRPG.Camera
         [SerializeField] private float followSmoothingSpeed = 8f;
         [SerializeField] private float edgeScrollMarginPixels = 20f;
 
+        [Header("Orthographic pixel-art mode (2D campaign). Off by default: every field below is ignored unless Orthographic is on.")]
+        [Tooltip("Drive an orthographic camera by integer pixel scale instead of by distance. Yaw should stay locked (rotationSpeed and snapRotationDegrees 0) so sprite sorting holds.")]
+        [SerializeField] private bool orthographic;
+        [SerializeField] private int pixelsPerUnit = 16;
+        [Tooltip("The integer zoom steps, ascending: one source pixel is this many screen pixels.")]
+        [SerializeField] private int[] zoomScales = { 2, 3, 4, 5, 6 };
+        [SerializeField] private int defaultScale = 3;
+        [Tooltip("Round the position handed to the camera to whole screen pixels so sprites never shimmer while the smoothed follow moves.")]
+        [SerializeField] private bool pixelSnapFocus = true;
+
         public float PanSpeed => panSpeed;
         public float RotationSpeed => rotationSpeed;
         public float ZoomSpeed => zoomSpeed;
@@ -36,5 +47,10 @@ namespace CRPG.Camera
         public bool FollowSelection => followSelection;
         public float FollowSmoothingSpeed => followSmoothingSpeed;
         public float EdgeScrollMarginPixels => edgeScrollMarginPixels;
+        public bool Orthographic => orthographic;
+        public int PixelsPerUnit => Mathf.Max(1, pixelsPerUnit);
+        public IReadOnlyList<int> ZoomScales => zoomScales;
+        public int DefaultScale => defaultScale;
+        public bool PixelSnapFocus => pixelSnapFocus;
     }
 }

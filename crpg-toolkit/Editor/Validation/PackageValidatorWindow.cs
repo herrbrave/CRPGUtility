@@ -115,6 +115,13 @@ namespace CRPG.Editor.Validation
                 }
             }
 
+            foreach (var guid in AssetDatabase.FindAssets("t:CRPGCameraSettings"))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var cameraSettings = AssetDatabase.LoadAssetAtPath<CRPG.Camera.CRPGCameraSettings>(path);
+                if (cameraSettings != null) results.AddRange(CameraSettingsValidator.Validate(cameraSettings, path));
+            }
+
             var catalogs = new List<(SpriteLayerCatalog catalog, string assetPath)>();
             foreach (var guid in AssetDatabase.FindAssets("t:SpriteLayerCatalog"))
             {

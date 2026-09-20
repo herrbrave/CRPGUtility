@@ -19,6 +19,10 @@ namespace BarrowsEnd.Tests
         private const string Sheet = "Assets/Art/Source/roguelikeSheet_transparent.png";
         private const string CharSheet = "Assets/Art/Source/roguelikeChar_transparent.png";
 
+        // Built far away on X (Z stays small: the sorting contract only distinguishes |Z| <= 256) so scenes left loaded by earlier tests, which occupy
+        // the same small coordinates, can never render into these captures.
+        private const float Ox = 5000f;
+
         private GameObject root;
         private Camera cam;
         private RenderTexture rt;
@@ -65,6 +69,7 @@ namespace BarrowsEnd.Tests
         private void MakeRoot(bool swizzle = true)
         {
             root = new GameObject("TilemapSpike");
+            root.transform.position = new Vector3(Ox, 0f, 0f);
             var grid = root.AddComponent<Grid>();
             grid.cellSize = new Vector3(1f, 1f, 1f);
             if (swizzle) grid.cellSwizzle = GridLayout.CellSwizzle.XZY;
@@ -81,7 +86,7 @@ namespace BarrowsEnd.Tests
             rt = new RenderTexture(height * 16 / 9, height, 24);
             cam.targetTexture = rt;
             cam.orthographicSize = height / (2f * 16f * scale);
-            camGo.transform.SetPositionAndRotation(new Vector3(6f, 20f, 5f), Quaternion.Euler(90f, 0f, 0f));
+            camGo.transform.SetPositionAndRotation(new Vector3(Ox + 6f, 20f, 5f), Quaternion.Euler(90f, 0f, 0f));
         }
 
         private Color32 PixelAt(Vector3 world)
@@ -135,7 +140,7 @@ namespace BarrowsEnd.Tests
             // Where the tile centre really is in the world (this is the answer to "what does XZY swizzle do to cell coordinates").
             var centre = ground.GetCellCenterWorld(new Vector3Int(3, 2, 0));
             Debug.Log($"[Spike] cell (3,2) centre in world = {centre}; tilemap.orientation={ground.orientation}, swizzle={ground.layoutGrid.cellSwizzle}");
-            Assert.AreEqual(3.5f, centre.x, 0.01f);
+            Assert.AreEqual(Ox + 3.5f, centre.x, 0.01f);
             Assert.AreEqual(2.5f, centre.z, 0.01f, "cell y maps to world Z with XZY swizzle");
 
             Assert.IsTrue(IsGreenish(PixelAt(centre)), "grass shows under the camera at the cell centre (the tilemap renders on XZ, facing up)");
@@ -186,8 +191,8 @@ namespace BarrowsEnd.Tests
 
             // Two characters (sprite + depth sorter): one in front of the tree (lower Z), one behind it (higher Z).
             var body = Load(CharSheet, "roguelikeChar_transparent", 0, 0);
-            var front = MakeSortedSprite("Front", body, new Vector3(4.5f, 0.02f, 3.5f));
-            var behind = MakeSortedSprite("Behind", body, new Vector3(4.5f, 0.02f, 5.5f));
+            var front = MakeSortedSprite("Front", body, new Vector3(Ox + 4.5f, 0.02f, 3.5f));
+            var behind = MakeSortedSprite("Behind", body, new Vector3(Ox + 4.5f, 0.02f, 5.5f));
             for (var i = 0; i < 4; i++) yield return null;
 
             var treeOrder = props.GetComponent<TilemapRenderer>().sortingOrder;
@@ -214,7 +219,7 @@ namespace BarrowsEnd.Tests
             // FINDING: the tile copies the template's ACTIVE state, so a template inactive in the scene yields inactive instances. A real prefab ASSET is
             // active, so this stand-in is active too, parked far outside the view and destroyed once the instances exist.
             var template = new GameObject("TreeTemplate");
-            template.transform.position = new Vector3(900f, 0f, 900f);
+            template.transform.position = new Vector3(Ox + 900f, 0f, 100f);
             var sr = template.AddComponent<SpriteRenderer>();
             sr.sprite = Load(Sheet, "roguelikeSheet_transparent", 13, 9);
             sr.sortingLayerName = SpriteSortingContract.WorldLayer;
@@ -226,8 +231,8 @@ namespace BarrowsEnd.Tests
             props.SetTile(new Vector3Int(8, 4, 0), tree);
 
             var body = Load(CharSheet, "roguelikeChar_transparent", 0, 0);
-            var front = MakeSortedSprite("Front", body, new Vector3(4.5f, 0.02f, 3.5f));
-            var behind = MakeSortedSprite("Behind", body, new Vector3(4.5f, 0.02f, 5.5f));
+            var front = MakeSortedSprite("Front", body, new Vector3(Ox + 4.5f, 0.02f, 3.5f));
+            var behind = MakeSortedSprite("Behind", body, new Vector3(Ox + 4.5f, 0.02f, 5.5f));
             for (var i = 0; i < 4; i++) yield return null;
 
             Object.Destroy(template);
@@ -235,7 +240,7 @@ namespace BarrowsEnd.Tests
             var instance = props.GetInstantiatedObject(new Vector3Int(4, 4, 0));
             Assert.IsNotNull(instance, "the Tilemap instantiated the prop object for the painted cell in Play mode");
             Debug.Log($"[Spike] instance at {instance.transform.position}, euler {instance.transform.eulerAngles}, active {instance.activeSelf}");
-            Assert.AreEqual(4.5f, instance.transform.position.x, 0.01f);
+            Assert.AreEqual(Ox + 4.5f, instance.transform.position.x, 0.01f);
             Assert.AreEqual(4.5f, instance.transform.position.z, 0.01f, "at the cell centre on the XZ plane");
 
             var treeRenderer = instance.GetComponent<SpriteRenderer>();

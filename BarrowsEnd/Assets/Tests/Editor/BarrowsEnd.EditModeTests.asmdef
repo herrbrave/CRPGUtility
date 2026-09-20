@@ -18,7 +18,11 @@
     "CRPG.Rules.SRD5",
     "CRPG.Saving",
     "BarrowsEnd.Gate",
-    "BarrowsEnd.Gate.Editor"
+    "BarrowsEnd.Gate.Editor",
+    "CRPG.Camera",
+    "CRPG.Exploration",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime"
   ],
   "includePlatforms": [
     "Editor"

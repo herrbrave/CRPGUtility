@@ -1,7 +1,7 @@
 {
     "name": "CRPG.Editor",
     "rootNamespace": "CRPG.Editor",
-    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Party", "CRPG.Abilities", "CRPG.Combat", "CRPG.Inventory", "CRPG.Dialogue", "CRPG.Quests", "CRPG.UI", "CRPG.Presentation", "CRPG.Navigation", "CRPG.Gameplay", "Unity.InputSystem"],
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Rules.SRD5", "CRPG.Actors", "CRPG.Party", "CRPG.Abilities", "CRPG.Combat", "CRPG.Inventory", "CRPG.Dialogue", "CRPG.Quests", "CRPG.UI", "CRPG.Presentation", "CRPG.Navigation", "CRPG.Gameplay", "CRPG.Camera", "Unity.InputSystem"],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

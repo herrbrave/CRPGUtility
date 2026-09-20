@@ -18,7 +18,9 @@
     "CRPG.Abilities",
     "CRPG.Rules",
     "CRPG.Quests",
-    "CRPG.Combat"
+    "CRPG.Combat",
+    "CRPG.Camera",
+    "CRPG.Exploration"
   ],
   "includePlatforms": [],
   "defineConstraints": [

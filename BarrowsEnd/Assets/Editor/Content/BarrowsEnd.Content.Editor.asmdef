@@ -15,7 +15,10 @@
     "CRPG.Inventory",
     "CRPG.Abilities",
     "CRPG.Rules.SRD5",
-    "CRPG.Rules"
+    "CRPG.Rules",
+    "CRPG.Camera",
+    "CRPG.Exploration",
+    "CRPG.Party"
   ],
   "includePlatforms": [
     "Editor"

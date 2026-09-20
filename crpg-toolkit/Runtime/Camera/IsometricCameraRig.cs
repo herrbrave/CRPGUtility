@@ -32,9 +32,29 @@ namespace CRPG.Camera
 
         private void LateUpdate() => Apply();
 
+        private UnityEngine.Camera cachedCamera;
+
+        // Orthographic pixel-art mode: hand the rig the viewport being rendered (the render target's height when one is set, else the screen), then
+        // make the camera's orthographicSize match the integer scale. The camera stays at its fixed distance (Zoom): scale, not distance, is the zoom.
+        private void ApplyOrthographic()
+        {
+            if (cachedCamera == null) cachedCamera = cameraTransform.GetComponent<UnityEngine.Camera>();
+            if (cachedCamera == null) return;
+
+            var height = cachedCamera.targetTexture != null ? cachedCamera.targetTexture.height : cachedCamera.pixelHeight;
+            var width = cachedCamera.targetTexture != null ? cachedCamera.targetTexture.width : cachedCamera.pixelWidth;
+            if (height > 0) Rig.SetViewport(height, (float)width / height);
+
+            cachedCamera.orthographic = true;
+            var size = Rig.OrthographicSize;
+            if (size > 0f) cachedCamera.orthographicSize = size;
+        }
+
         private void Apply()
         {
-            transform.position = Rig.FocusPoint;
+            if (settings.Orthographic) ApplyOrthographic();
+
+            transform.position = settings.Orthographic ? Rig.PresentationFocus : Rig.FocusPoint;
             yawPivot.localRotation = Quaternion.Euler(0f, Rig.Yaw, 0f);
             pitchPivot.localRotation = Quaternion.Euler(Rig.Pitch, 0f, 0f);
             cameraTransform.localPosition = Vector3.back * Rig.Zoom;
