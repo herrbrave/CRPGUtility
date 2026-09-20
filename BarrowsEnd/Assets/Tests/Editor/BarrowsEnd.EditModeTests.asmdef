@@ -16,7 +16,9 @@
     "CRPG.Inventory",
     "CRPG.Abilities",
     "CRPG.Rules.SRD5",
-    "CRPG.Saving"
+    "CRPG.Saving",
+    "BarrowsEnd.Gate",
+    "BarrowsEnd.Gate.Editor"
   ],
   "includePlatforms": [
     "Editor"

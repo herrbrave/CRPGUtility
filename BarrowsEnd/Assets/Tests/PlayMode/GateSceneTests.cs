@@ -225,6 +225,58 @@ namespace BarrowsEnd.Tests
         }
 
         [UnityTest]
+        public IEnumerator ACharacterSouthOfTheWallDrawsAboveItAndOneNorthOfItDrawsBelow()
+        {
+            yield return Seconds(0.05f);
+            var agent = Agent(Member(0));
+            var wall = GameObject.Find("Wall 5").GetComponent<SpriteRenderer>();
+            var renderers = Compositor(agent).Renderers;
+
+            agent.Motor.Warp(CellCentre(5, GateLayout.WallRow - 1));
+            yield return Seconds(0.1f);
+            Assert.Greater(renderers.Min(r => r.sortingOrder), wall.sortingOrder, "south of the wall (lower Z) is in front of it");
+
+            agent.Motor.Warp(CellCentre(5, GateLayout.WallRow + 2));
+            yield return Seconds(0.1f);
+            Assert.Less(renderers.Max(r => r.sortingOrder), wall.sortingOrder, "north of the wall (higher Z) is behind it");
+        }
+
+        [UnityTest]
+        public IEnumerator TwoMembersSortAgainstEachOtherByZ()
+        {
+            yield return Seconds(0.05f);
+            var a = Agent(Member(0));
+            var b = Agent(Member(1));
+            a.Motor.Warp(CellCentre(5, 5));
+            b.Motor.Warp(CellCentre(5, 7));
+            yield return Seconds(0.1f);
+            Assert.Greater(Compositor(a).Renderers.Min(r => r.sortingOrder), Compositor(b).Renderers.Max(r => r.sortingOrder), "lower Z draws in front");
+        }
+
+        [UnityTest]
+        public IEnumerator TenSimulatedSecondsOfEverythingLogsNoErrorsOrExceptions()
+        {
+            yield return Seconds(0.05f);
+            Click(CellCentre(10, 5));
+            Services.ToggleEquip(Member(1), "item-iron-helm");
+            Services.PlayAttack(Member(1));
+            Services.Damage(Member(2), "ability-debug-hit");
+            yield return Seconds(2f);
+            Services.ToggleDoor(gate.DoorObject.transform);
+            Services.RollDeathSave(Member(2));
+            Services.HealAndStand(Member(2));
+            Camera.main.GetComponent<GateCamera>().ZoomIn();
+            Camera.main.GetComponent<GateCamera>().ZoomOut();
+            Assert.IsTrue(gate.QuickSave());
+            yield return Seconds(2f);
+            Assert.IsTrue(gate.QuickLoad());
+            Click(Agent(Member(3)).transform.position);
+            Services.Damage(Member(3), "ability-debug-smash");
+            yield return Seconds(6f);
+            LogAssert.NoUnexpectedReceived();
+        }
+
+        [UnityTest]
         public IEnumerator QuickSaveThenLoadRestoresAppearanceGearPositionAndDownedStateAndRewiresEverything()
         {
             yield return Seconds(0.05f);
