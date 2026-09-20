@@ -6,9 +6,14 @@
     "CRPG.Presentation",
     "Unity.2D.Sprite.Editor",
     "Unity.RenderPipelines.Universal.Runtime",
-    "Unity.RenderPipelines.Core.Runtime"
+    "Unity.RenderPipelines.Core.Runtime",
+    "CRPG.Editor",
+    "CRPG.Gameplay",
+    "CRPG.Navigation"
   ],
-  "includePlatforms": [ "Editor" ],
+  "includePlatforms": [
+    "Editor"
+  ],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
   "overrideReferences": false,

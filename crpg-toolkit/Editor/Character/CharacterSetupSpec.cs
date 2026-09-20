@@ -2,10 +2,25 @@ using System.Collections.Generic;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Presentation;
+using CRPG.Presentation.Sprites;
 using UnityEngine;
 
 namespace CRPG.Editor.Character
 {
+    /// <summary>How a wrapper's character moves: Unity NavMesh (default), or the 2D campaign's tile grid.</summary>
+    public enum MovementBackend
+    {
+        NavMesh,
+        Grid,
+    }
+
+    /// <summary>How a wrapper's character is drawn: a skinned humanoid Model (default), or a layered billboard sprite card.</summary>
+    public enum PresentationKind
+    {
+        Humanoid,
+        Sprite,
+    }
+
     /// <summary>
     /// Task 2.5 (Production Foundation): the plain-data shape CharacterSetupWindow's fields,
     /// CharacterRigValidator's checks, and CharacterWrapperBuilder's prefab construction all share --
@@ -15,6 +30,9 @@ namespace CRPG.Editor.Character
     /// </summary>
     public sealed class CharacterSetupSpec
     {
+        public MovementBackend Movement = MovementBackend.NavMesh;
+        public PresentationKind Presentation = PresentationKind.Humanoid;
+
         public GameObject ModelPrefab;
         public CharacterRigDefinition RigDefinition;
         public CharacterAnimationProfile AnimationProfile;
@@ -42,5 +60,20 @@ namespace CRPG.Editor.Character
         public float AgentAcceleration = 8f;
         public float AgentAngularSpeed = 360f;
         public float AgentStoppingDistance = 0.1f;
+
+        // Grid movement / top-down collider (used when Movement is Grid OR Presentation is Sprite). The collider is a box
+        // GridCellSize * GridColliderFill wide: at 0.7 its diagonal is 0.99, so a Y-rotation can never reach the next cell.
+        public float GridCellSize = 1f;
+        public float GridColliderFill = 0.7f;
+        public float GridColliderHeight = 1f;
+        public float GridSpeed = 4f;
+
+        // Sprite presentation.
+        public string SpriteSortingLayer = SpriteSortingContract.WorldLayer;
+        public float SpriteCardHeight = 0.02f;
+        public List<DefinitionId> SpriteLayerSlots = SpriteLayerCompositor.DefaultSlots();
+
+        /// <summary>True when the wrapper uses the top-down box collider rather than the humanoid capsule.</summary>
+        public bool UsesTopDownCollider => Movement == MovementBackend.Grid || Presentation == PresentationKind.Sprite;
     }
 }

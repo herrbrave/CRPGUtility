@@ -53,14 +53,71 @@ namespace CRPG.Editor.Validation
         {
             var results = new List<ValidationResult>();
 
-            ValidateModel(spec, results);
-            ValidateAnimationProfile(spec, results);
-            ValidateRigFamily(spec, results);
-            ValidateSockets(spec, results);
-            ValidateCapsule(spec, results);
-            ValidateAgent(spec, results);
+            if (spec.Presentation == PresentationKind.Sprite)
+            {
+                // No model, clips, rig or sockets on a sprite card.
+                ValidateSprite(spec, results);
+            }
+            else
+            {
+                ValidateModel(spec, results);
+                ValidateAnimationProfile(spec, results);
+                ValidateRigFamily(spec, results);
+                ValidateSockets(spec, results);
+            }
+
+            if (spec.UsesTopDownCollider) ValidateTopDown(spec, results);
+            else ValidateCapsule(spec, results);
+
+            if (spec.Movement == MovementBackend.NavMesh) ValidateAgent(spec, results);
+            else if (spec.GridSpeed <= 0f)
+                results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.GridSpeed), "Grid speed must be positive.", "Set GridSpeed above 0 (world units per second)."));
 
             return results;
+        }
+
+        private static void ValidateTopDown(CharacterSetupSpec spec, List<ValidationResult> results)
+        {
+            if (spec.GridCellSize <= 0f)
+                results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.GridCellSize), "Grid cell size must be positive.", "Set GridCellSize to the tile size in world units (1 for the 16px campaign)."));
+            if (spec.GridColliderFill <= 0f || spec.GridColliderFill > 1f)
+                results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.GridColliderFill), "Collider fill must be in (0, 1].", "Use about 0.7: a box of that fraction of the cell cannot reach the neighbouring cell when it rotates."));
+            if (spec.GridColliderHeight <= 0f)
+                results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.GridColliderHeight), "Collider height must be positive.", "Set GridColliderHeight above 0."));
+        }
+
+        private static void ValidateSprite(CharacterSetupSpec spec, List<ValidationResult> results)
+        {
+            var slots = spec.SpriteLayerSlots;
+            if (slots == null || slots.Count == 0)
+            {
+                results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.SpriteLayerSlots), "No sprite layer slots.", "Keep the default set (SpriteLayerCompositor.DefaultSlots()) or list at least one slot."));
+            }
+            else
+            {
+                var seen = new HashSet<DefinitionId>();
+                foreach (var slot in slots)
+                {
+                    if (!slot.IsValid) results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.SpriteLayerSlots), "A sprite layer slot has no id.", "Remove the empty entry."));
+                    else if (!seen.Add(slot)) results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.SpriteLayerSlots), $"Duplicate sprite layer slot '{slot.Value}'.", "List each slot once."));
+                }
+
+                if (slots.Count > CRPG.Presentation.Sprites.SpriteSortingContract.MaxSlotsPerObject)
+                    results.Add(new ValidationResult(ValidationSeverity.Error, "(none)", nameof(spec.SpriteLayerSlots),
+                        $"{slots.Count} slots exceeds the maximum of {CRPG.Presentation.Sprites.SpriteSortingContract.MaxSlotsPerObject}.", "Remove slots; each character has a fixed band of draw orders."));
+            }
+
+            // A warning, not an error: the package ships no sorting layers, so a fresh project would fail hard; the compositor itself
+            // falls back to Default with a warning.
+            if (!SpriteCardBuilder.SortingLayerExists(spec.SpriteSortingLayer))
+                results.Add(new ValidationResult(ValidationSeverity.Warning, "(none)", nameof(spec.SpriteSortingLayer),
+                    $"Sorting layer '{spec.SpriteSortingLayer}' does not exist in this project.", "Add it under Project Settings > Tags and Layers > Sorting Layers, or the sprites draw on Default."));
+
+            if (spec.SpriteCardHeight < 0f)
+                results.Add(new ValidationResult(ValidationSeverity.Warning, "(none)", nameof(spec.SpriteCardHeight), "A negative card height puts the sprite below the floor.", "Use a small positive lift such as 0.02."));
+
+            if (spec.ModelPrefab != null)
+                results.Add(new ValidationResult(ValidationSeverity.Warning, AssetDatabase.GetAssetPath(spec.ModelPrefab), nameof(spec.ModelPrefab), "A Model prefab is ignored for a Sprite presentation (the card is generated).", "Clear it, or switch the presentation to Humanoid."));
         }
 
         private static void ValidateModel(CharacterSetupSpec spec, List<ValidationResult> results)

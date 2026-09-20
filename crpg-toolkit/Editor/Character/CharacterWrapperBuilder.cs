@@ -3,9 +3,11 @@ using System.IO;
 using System.Reflection;
 using CRPG.Gameplay;
 using CRPG.Navigation;
+using CRPG.Navigation.Grid;
 using CRPG.Presentation;
 using CRPG.Presentation.Animation;
 using CRPG.Presentation.Equipment;
+using CRPG.Presentation.Sprites;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -38,6 +40,7 @@ namespace CRPG.Editor.Character
             if (string.IsNullOrEmpty(prefabPath)) throw new ArgumentException("prefabPath must not be empty.", nameof(prefabPath));
 
             var existingAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (existingAsset != null) RefuseConflictingUpdate(existingAsset, spec, prefabPath);
             return existingAsset != null ? UpdateExisting(spec, prefabPath) : CreateNew(spec, prefabPath);
         }
 
@@ -86,10 +89,23 @@ namespace CRPG.Editor.Character
             // confirmed empirically (a live MissingComponentException) while writing this correction pass, not
             // assumed. An explicit `== null` check uses Unity's own overloaded equality operator instead, which
             // handles this correctly; that's the idiomatic get-or-add pattern in Unity C#.
-            var capsule = GetOrAddComponent<CapsuleCollider>(root);
-            capsule.height = spec.CapsuleHeight;
-            capsule.radius = spec.CapsuleRadius;
-            capsule.center = new Vector3(0f, spec.CapsuleCenterY, 0f);
+            if (spec.UsesTopDownCollider)
+            {
+                // 2D campaign: a top-down character's click target and footprint is ONE grid cell, not the humanoid capsule
+                // (r = 0.3 would project a 0.6-unit disc into a 1-unit cell). The builder owns this BoxCollider the way it owns
+                // the capsule on humanoid wrappers: an existing one is patched, never duplicated.
+                var box = GetOrAddComponent<BoxCollider>(root);
+                var footprint = spec.GridCellSize * spec.GridColliderFill;
+                box.size = new Vector3(footprint, spec.GridColliderHeight, footprint);
+                box.center = new Vector3(0f, spec.GridColliderHeight * 0.5f, 0f);
+            }
+            else
+            {
+                var capsule = GetOrAddComponent<CapsuleCollider>(root);
+                capsule.height = spec.CapsuleHeight;
+                capsule.radius = spec.CapsuleRadius;
+                capsule.center = new Vector3(0f, spec.CapsuleCenterY, 0f);
+            }
 
             // A NavMeshAgent moves the transform directly and adds no Rigidbody of its own, so without a
             // kinematic/no-gravity one this character would never raise OnTriggerEnter/Exit for any
@@ -99,23 +115,68 @@ namespace CRPG.Editor.Character
             rigidbody.isKinematic = true;
             rigidbody.useGravity = false;
 
-            var agent = GetOrAddComponent<NavMeshAgent>(root);
-            agent.radius = spec.AgentRadius;
-            agent.height = spec.AgentHeight;
-            agent.speed = spec.AgentSpeed;
-            agent.acceleration = spec.AgentAcceleration;
-            agent.angularSpeed = spec.AgentAngularSpeed;
-            agent.stoppingDistance = spec.AgentStoppingDistance;
+            if (spec.Movement == MovementBackend.Grid)
+            {
+                var gridMotor = GetOrAddComponent<GridCharacterMotor>(root);
+                gridMotor.Speed = spec.GridSpeed;
+            }
+            else
+            {
+                var agent = GetOrAddComponent<NavMeshAgent>(root);
+                agent.radius = spec.AgentRadius;
+                agent.height = spec.AgentHeight;
+                agent.speed = spec.AgentSpeed;
+                agent.acceleration = spec.AgentAcceleration;
+                agent.angularSpeed = spec.AgentAngularSpeed;
+                agent.stoppingDistance = spec.AgentStoppingDistance;
 
-            GetOrAddComponent<NavMeshCharacterMotor>(root);
+                GetOrAddComponent<NavMeshCharacterMotor>(root);
+            }
+
             GetOrAddComponent<FacingController>(root);
             GetOrAddComponent<CharacterAgent>(root);
-            GetOrAddComponent<EquipmentVisualBinder>(root);
 
-            var animator = GetOrAddComponent<CharacterPlayableAnimator>(root);
-            SetField(animator, "profile", spec.AnimationProfile);
-            SetField(animator, "idleCueId", spec.IdleCueId);
-            SetField(animator, "movingCueId", spec.MovingCueId);
+            if (spec.Presentation == PresentationKind.Sprite)
+            {
+                // On CharacterRoot, not inside the swappable Model: they re-resolve the compositor when a model swap destroys it,
+                // which only works if they survive the swap.
+                GetOrAddComponent<SpriteEquipmentBinder>(root);
+                GetOrAddComponent<SpriteAppearanceBinder>(root);
+            }
+            else
+            {
+                GetOrAddComponent<EquipmentVisualBinder>(root);
+
+                var animator = GetOrAddComponent<CharacterPlayableAnimator>(root);
+                SetField(animator, "profile", spec.AnimationProfile);
+                SetField(animator, "idleCueId", spec.IdleCueId);
+                SetField(animator, "movingCueId", spec.MovingCueId);
+            }
+        }
+
+        /// <summary>The builder never removes anything, so an update whose spec disagrees with what the existing wrapper already
+        /// carries would leave two movers (or two presentation pipelines, or two collider kinds) on one character. It is
+        /// refused up front, from the existing ASSET (no preview scene is opened, nothing is edited), so the file is untouched.</summary>
+        private static void RefuseConflictingUpdate(GameObject existing, CharacterSetupSpec spec, string prefabPath)
+        {
+            string Has<T>() where T : Component => existing.GetComponentInChildren<T>(true) != null ? typeof(T).Name : null;
+
+            var conflicts = new System.Collections.Generic.List<string>();
+            if (spec.Movement == MovementBackend.Grid) { conflicts.Add(Has<NavMeshAgent>()); conflicts.Add(Has<NavMeshCharacterMotor>()); }
+            else conflicts.Add(Has<GridCharacterMotor>());
+
+            if (spec.Presentation == PresentationKind.Sprite) { conflicts.Add(Has<CharacterPlayableAnimator>()); conflicts.Add(Has<EquipmentVisualBinder>()); }
+            else { conflicts.Add(Has<SpriteEquipmentBinder>()); conflicts.Add(Has<SpriteAppearanceBinder>()); }
+
+            if (spec.UsesTopDownCollider && existing.GetComponent<CapsuleCollider>() != null) conflicts.Add(nameof(CapsuleCollider));
+
+            conflicts.RemoveAll(string.IsNullOrEmpty);
+            if (conflicts.Count == 0) return;
+
+            throw new InvalidOperationException(
+                $"'{prefabPath}' already has {string.Join(", ", conflicts)}, which conflicts with this spec " +
+                $"({spec.Movement} movement, {spec.Presentation} presentation). The builder never removes components, so updating would leave two movers, " +
+                "two presentation pipelines or two collider kinds on one character -- create a new wrapper instead.");
         }
 
         private static T GetOrAddComponent<T>(GameObject go) where T : Component
@@ -144,16 +205,31 @@ namespace CRPG.Editor.Character
             var existingModelTransform = visualRoot.transform.Find("Model");
             if (existingModelTransform != null) UnityEngine.Object.DestroyImmediate(existingModelTransform.gameObject);
 
-            if (spec.ModelPrefab != null)
+            GameObject modelInstance = null;
+            if (spec.Presentation == PresentationKind.Sprite)
+            {
+                // The generated card. Its 0.02 world-Y lift lives on VisualRoot (CharacterView.SetModel resets a swapped-in
+                // Model's local transform to zero, so a lift on the card itself would be lost on the first swap).
+                modelInstance = SpriteCardBuilder.Build(spec);
+                visualRoot.transform.localPosition = new Vector3(0f, spec.SpriteCardHeight, 0f);
+            }
+            else if (spec.ModelPrefab != null)
             {
                 // CharacterView.Awake() runs the instant it's added to (or already present on) this
                 // already-active GameObject and auto-binds whatever child it finds -- Model must already be
                 // parented first. Its transient Awake-time RefreshBoneMap call may use rigDefinition's OLD
                 // (pre-update) value if CharacterView already existed; harmless, since SetField below
                 // overwrites it with the correct value before this GameObject is ever saved.
-                var modelInstance = (GameObject)PrefabUtility.InstantiatePrefab(spec.ModelPrefab);
+                modelInstance = (GameObject)PrefabUtility.InstantiatePrefab(spec.ModelPrefab);
                 modelInstance.name = "Model";
+            }
+
+            if (modelInstance != null)
+            {
                 modelInstance.transform.SetParent(visualRoot.transform, false);
+                // CharacterView binds GetChild(0): consumer children under VisualRoot are preserved, so the Model must go FIRST
+                // (SetParent appends last).
+                modelInstance.transform.SetSiblingIndex(0);
             }
 
             var view = visualRoot.GetComponent<CharacterView>();

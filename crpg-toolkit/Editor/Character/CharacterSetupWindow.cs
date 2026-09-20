@@ -138,7 +138,18 @@ namespace CRPG.Editor.Character
                 return;
             }
 
-            var prefab = CharacterWrapperBuilder.BuildOrUpdate(spec, prefabPath);
+            GameObject prefab;
+            try
+            {
+                prefab = CharacterWrapperBuilder.BuildOrUpdate(spec, prefabPath);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // The builder refuses an update that would leave two movers/presentation pipelines/collider kinds on one wrapper.
+                EditorUtility.DisplayDialog("Cannot Update This Wrapper", ex.Message, "OK");
+                return;
+            }
+
             EditorGUIUtility.PingObject(prefab);
             Debug.Log($"[CharacterSetupWindow] {(isUpdate ? "Updated" : "Created")} wrapper at '{prefabPath}'.");
         }
@@ -170,8 +181,19 @@ namespace CRPG.Editor.Character
                 return;
             }
 
-            const string previewPath = "Assets/CharacterLab/_PreviewWrapper.prefab";
-            var previewPrefab = CharacterWrapperBuilder.BuildOrUpdate(spec, previewPath);
+            // Kind-specific path: previewing one movement/presentation kind must never be refused because an earlier preview of
+            // another kind occupies the same asset.
+            var previewPath = $"Assets/CharacterLab/_PreviewWrapper_{spec.Movement}_{spec.Presentation}.prefab";
+            GameObject previewPrefab;
+            try
+            {
+                previewPrefab = CharacterWrapperBuilder.BuildOrUpdate(spec, previewPath);
+            }
+            catch (InvalidOperationException ex)
+            {
+                EditorUtility.DisplayDialog("Cannot Preview This Configuration", ex.Message, "OK");
+                return;
+            }
             harness.SpawnCharacter(previewPrefab);
 
             EditorSceneManager.MarkSceneDirty(scene);

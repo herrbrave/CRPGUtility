@@ -75,6 +75,7 @@ namespace CRPG.Presentation
 
             var instance = Instantiate(modelPrefab, transform);
             instance.name = "Model";
+            instance.transform.SetSiblingIndex(0); // TryBindInitialModel binds GetChild(0); the old Model's Destroy is deferred, and other children may exist
             instance.transform.localPosition = Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
             BindModel(instance);
@@ -85,7 +86,10 @@ namespace CRPG.Presentation
             Model = model;
             Animator = model.GetComponentInChildren<Animator>(true);
 
+            // A Model with no Animator (a sprite card, a static prop) must not leave the PREVIOUS Model's animation graph bound:
+            // swapping a Model that had an Animator for one that does not used to strand the old binding.
             if (Animator != null) playableAnimator?.BindPresentation(Animator, motionSource);
+            else playableAnimator?.UnbindPresentation();
             visualEquipment?.RefreshBoneMap(rigDefinition);
         }
     }
