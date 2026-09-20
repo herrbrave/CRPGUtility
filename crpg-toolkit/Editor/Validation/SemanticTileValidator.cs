@@ -43,6 +43,9 @@ namespace CRPG.Editor.Validation
                     if (prefab.GetComponentInChildren<StaticSpriteSorter>(true) == null)
                         results.Add(new ValidationResult(ValidationSeverity.Warning, assetPath, "gameObject",
                             $"The prefab '{prefab.name}' has no StaticSpriteSorter, so its instances will not depth-sort against characters.", "Add a StaticSpriteSorter to the prefab."));
+                    if (tile.Semantic == TileSemantic.Door && prefab.GetComponentInChildren<CRPG.Gameplay.Interactions.Adapters.TileDoor>(true) == null)
+                        results.Add(new ValidationResult(ValidationSeverity.Warning, assetPath, "gameObject",
+                            $"The prefab '{prefab.name}' has no TileDoor, so this door will not block its cell or be usable.", "Use a door prefab with the TileDoor component."));
                     if ((tile.flags & UnityEngine.Tilemaps.TileFlags.InstantiateGameObjectRuntimeOnly) == 0)
                         results.Add(new ValidationResult(ValidationSeverity.Warning, assetPath, "flags",
                             "The prefab is also instantiated while painting in the editor (InstantiateGameObjectRuntimeOnly is off), which draws each painted sprite twice.", "Turn InstantiateGameObjectRuntimeOnly on (SemanticTile.Configure does)."));

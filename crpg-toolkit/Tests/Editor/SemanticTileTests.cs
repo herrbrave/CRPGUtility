@@ -141,7 +141,9 @@ namespace CRPG.Tests.EditMode
         {
             foreach (var semantic in new[] { TileSemantic.Ground, TileSemantic.Blocked, TileSemantic.Wall, TileSemantic.Prop, TileSemantic.Decor, TileSemantic.Door })
             {
-                var tile = NewTile(semantic, Prefab());
+                var prefab = Prefab();
+                if (semantic == TileSemantic.Door) prefab.AddComponent<CRPG.Gameplay.Interactions.Adapters.TileDoor>();
+                var tile = NewTile(semantic, prefab);
                 Assert.IsEmpty(SemanticTileValidator.Validate(tile, "x").Select(r => r.Message).ToList(), semantic.ToString());
             }
 
@@ -179,6 +181,22 @@ namespace CRPG.Tests.EditMode
             var results = SemanticTileValidator.Validate(noSorter, "x");
             Assert.IsTrue(results.Any(r => r.Severity == ValidationSeverity.Warning && r.Message.Contains("StaticSpriteSorter")));
             Assert.IsFalse(results.Any(r => r.Severity == ValidationSeverity.Error));
+        }
+
+        [Test]
+        public void ADoorTileWhosePrefabHasNoTileDoorGetsAWarningAndOneWithItIsClean()
+        {
+            var plainPrefab = Prefab();
+            var noDoor = NewTile(TileSemantic.Door, plainPrefab);
+            Assert.IsTrue(SemanticTileValidator.Validate(noDoor, "x").Any(r => r.Severity == ValidationSeverity.Warning && r.Message.Contains("TileDoor")));
+
+            var doorPrefab = Prefab();
+            doorPrefab.AddComponent<CRPG.Gameplay.Interactions.Adapters.TileDoor>();
+            var withDoor = NewTile(TileSemantic.Door, doorPrefab);
+            Assert.IsEmpty(SemanticTileValidator.Validate(withDoor, "x").Select(r => r.Message).ToList());
+
+            var prop = NewTile(TileSemantic.Prop, plainPrefab);
+            Assert.IsFalse(SemanticTileValidator.Validate(prop, "x").Any(r => r.Message.Contains("TileDoor")), "only doors need it");
         }
 
         [Test]

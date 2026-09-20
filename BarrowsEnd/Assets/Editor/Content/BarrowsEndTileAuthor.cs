@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CRPG.Gameplay.Interactions;
+using CRPG.Gameplay.Interactions.Adapters;
+using CRPG.Navigation.Grid;
 using CRPG.Navigation.Grid.Tilemaps;
 using CRPG.Presentation.Sprites;
 using UnityEditor;
@@ -21,6 +24,7 @@ namespace BarrowsEnd.Editor
     {
         public const string OutputDir = "Assets/Content/Tiles";
         public const string PrefabPath = OutputDir + "/SortedTileObject.prefab";
+        public const string DoorPrefabPath = OutputDir + "/DoorTileObject.prefab";
         public const string PaletteDir = OutputDir + "/Palettes";
 
         public static string TileFolder(string key) => $"{OutputDir}/{char.ToUpperInvariant(key[0])}{key.Substring(1)}";
@@ -50,6 +54,7 @@ namespace BarrowsEnd.Editor
             AssetDatabase.Refresh();
 
             var prefab = EnsureObjectPrefab();
+            var doorPrefab = EnsureDoorPrefab();
             var tilesBySheet = new Dictionary<string, List<(int col, int row, SemanticTile tile)>>();
 
             AssetDatabase.StartAssetEditing();
@@ -73,7 +78,7 @@ namespace BarrowsEnd.Editor
                         var isNew = tile == null;
                         if (isNew) tile = ScriptableObject.CreateInstance<SemanticTile>();
 
-                        tile.Configure(semantic, sprite, prefab);
+                        tile.Configure(semantic, sprite, semantic == TileSemantic.Door ? doorPrefab : prefab);
                         if (isNew) { AssetDatabase.CreateAsset(tile, path); result.Created++; }
                         else { EditorUtility.SetDirty(tile); result.Updated++; }
 
@@ -128,6 +133,48 @@ namespace BarrowsEnd.Editor
             var prefab = PrefabUtility.SaveAsPrefabAsset(go, PrefabPath);
             Object.DestroyImmediate(go);
             return prefab;
+        }
+
+        /// <summary>The Door tile's prefab: door logic on the root (collider, blocker, interactable with an anchor child, use-door adapter, TileDoor) and a Visual
+        /// child that the adapter hides while the door is open. TileDoor finds the grid and cell at runtime, so the prefab needs no scene references.</summary>
+        private static GameObject EnsureDoorPrefab()
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(DoorPrefabPath);
+            if (existing != null) return existing;
+
+            var root = new GameObject("DoorTileObject");
+            var visual = new GameObject("Visual");
+            visual.transform.SetParent(root.transform, false);
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sortingLayerName = SpriteSortingContract.WorldLayer;
+            visual.AddComponent<StaticSpriteSorter>();
+            var anchor = new GameObject("Anchor").transform;
+            anchor.SetParent(root.transform, false);
+
+            var box = root.AddComponent<BoxCollider>(); // what the click router hits to find the interactable
+            box.size = new Vector3(0.9f, 1f, 0.9f);
+            box.center = new Vector3(0f, 0.5f, 0f);
+            var blocker = root.AddComponent<GridWalkabilityBlocker>();
+            var interactable = root.AddComponent<WorldInteractable>();
+            interactable.Configure(anchor, 1.5f);
+            var adapter = root.AddComponent<UseDoorInteractionAdapter>();
+            var door = root.AddComponent<TileDoor>();
+
+            SetObject(adapter, "closedVisual", visual);
+            SetObject(door, "blocker", blocker);
+            SetObject(door, "anchor", anchor);
+            SetObject(door, "interactable", interactable);
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, DoorPrefabPath);
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        private static void SetObject(Object target, string field, Object value)
+        {
+            var so = new SerializedObject(target);
+            so.FindProperty(field).objectReferenceValue = value;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void BuildPalette(string key, List<(int col, int row, SemanticTile tile)> tiles)

@@ -157,6 +157,37 @@ namespace CRPG.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator ASixtyByFortyMapOfPropsInstantiatesQuicklyAndEveryStaticSorterSwitchesItselfOff()
+        {
+            var template = NewObjectTemplate();
+            var prop = NewTile(TileSemantic.Prop, template, NewSprite("tree"));
+            var props = NewTilemap("Props");
+            const int width = 60, depth = 40;
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            for (var x = 0; x < width; x++)
+            for (var z = 0; z < depth; z++)
+                props.SetTile(new Vector3Int(x, z, 0), prop);
+
+            var last = new Vector3Int(width - 1, depth - 1, 0);
+            var frames = 0;
+            while (props.GetInstantiatedObject(last) == null && frames < 600) { frames++; yield return null; }
+            clock.Stop();
+            Object.Destroy(template);
+            Debug.Log($"[Perf] {width * depth} prop objects instantiated in {clock.ElapsedMilliseconds} ms over {frames} frames");
+
+            Assert.IsNotNull(props.GetInstantiatedObject(last), "all 2400 props were instantiated");
+            Assert.Less(clock.ElapsedMilliseconds, 8000, "a large map must not take seconds to bring up its props");
+
+            yield return null;
+            yield return null;
+            var stillRunning = 0;
+            for (var x = 0; x < width; x++)
+            for (var z = 0; z < depth; z++)
+                if (props.GetInstantiatedObject(new Vector3Int(x, z, 0)).GetComponent<StaticSpriteSorter>().enabled) stillRunning++;
+            Assert.AreEqual(0, stillRunning, "no per-frame sorter cost once the props have sorted");
+        }
+
+        [UnityTest]
         public IEnumerator EverySortedSemanticGetsAnObjectAndEveryFlatOneDoesNot()
         {
             var template = NewObjectTemplate();

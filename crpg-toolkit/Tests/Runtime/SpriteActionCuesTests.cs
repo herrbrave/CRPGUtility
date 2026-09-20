@@ -185,7 +185,7 @@ namespace CRPG.Tests.PlayMode
         [UnityTest]
         public IEnumerator HitFlashesRedThenReturnsToNormal()
         {
-            var rig = Spawn(settings: s => { FastSettings(s); s.hitSeconds = 0.2f; });
+            var rig = Spawn(settings: s => { FastSettings(s); s.hitSeconds = 1f; }); // long enough that two slow frames (each capped at 0.1 s) cannot end the flash early
             yield return Frames(2);
             var normal = rig.Compositor.Renderers[BodyIndex].color;
 
@@ -195,7 +195,7 @@ namespace CRPG.Tests.PlayMode
             Assert.Less(flash.g, normal.g - 0.1f, "reddened");
             Assert.AreEqual(normal.r, flash.r, 0.05f);
 
-            yield return Seconds(0.4f);
+            yield return Seconds(1.3f);
             yield return Frames(2);
             Assert.AreEqual(normal, rig.Compositor.Renderers[BodyIndex].color, "and back to normal");
         }

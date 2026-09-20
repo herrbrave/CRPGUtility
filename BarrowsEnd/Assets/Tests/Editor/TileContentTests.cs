@@ -145,7 +145,7 @@ namespace BarrowsEnd.Tests
             Assert.IsNotNull(prefab.GetComponent<StaticSpriteSorter>());
             Assert.AreEqual(SpriteSortingContract.WorldLayer, prefab.GetComponent<SpriteRenderer>().sortingLayerName);
 
-            foreach (var (key, col, row) in new[] { ("town", 13, 9), ("town", 23, 17), ("town", 32, 1), ("town", 16, 7), ("cave", 1, 0) })
+            foreach (var (key, col, row) in new[] { ("town", 13, 9), ("town", 23, 17), ("town", 16, 7), ("cave", 1, 0) })
             {
                 var tile = Load(T(key, col, row));
                 Assert.IsTrue(tile.IsSortedObject);
@@ -159,6 +159,34 @@ namespace BarrowsEnd.Tests
                 Assert.IsFalse(tile.IsSortedObject);
                 Assert.IsNull(tile.gameObject, $"a flat tile carries no prefab ({key}_{col}_{row})");
             }
+        }
+
+        [Test]
+        public void DoorTilesShareTheDoorPrefabThatCarriesTheDoorLogic()
+        {
+            var doorPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndTileAuthor.DoorPrefabPath);
+            Assert.IsNotNull(doorPrefab);
+            Assert.IsNotNull(doorPrefab.GetComponent<CRPG.Gameplay.Interactions.Adapters.TileDoor>());
+            Assert.IsNotNull(doorPrefab.GetComponent<CRPG.Gameplay.Interactions.Adapters.UseDoorInteractionAdapter>());
+            Assert.IsNotNull(doorPrefab.GetComponent<CRPG.Navigation.Grid.GridWalkabilityBlocker>());
+            Assert.IsNotNull(doorPrefab.GetComponent<CRPG.Gameplay.Interactions.WorldInteractable>());
+            Assert.IsNotNull(doorPrefab.GetComponent<BoxCollider>(), "the router hits a collider to find the interactable");
+            Assert.IsNotNull(doorPrefab.GetComponentInChildren<StaticSpriteSorter>(true));
+
+            var wiring = new SerializedObject(doorPrefab.GetComponent<CRPG.Gameplay.Interactions.Adapters.TileDoor>());
+            Assert.IsNotNull(wiring.FindProperty("blocker").objectReferenceValue);
+            Assert.IsNotNull(wiring.FindProperty("anchor").objectReferenceValue);
+            Assert.IsNotNull(wiring.FindProperty("interactable").objectReferenceValue);
+
+            var doors = 0;
+            foreach (var guid in AssetDatabase.FindAssets("t:SemanticTile", new[] { BarrowsEndTileAuthor.OutputDir }))
+            {
+                var tile = Load(AssetDatabase.GUIDToAssetPath(guid));
+                if (tile.Semantic == TileSemantic.Door) { doors++; Assert.AreSame(doorPrefab, tile.gameObject, tile.name); }
+                else if (tile.IsSortedObject) Assert.AreNotSame(doorPrefab, tile.gameObject, tile.name);
+            }
+
+            Assert.Greater(doors, 20);
         }
 
         [Test]
