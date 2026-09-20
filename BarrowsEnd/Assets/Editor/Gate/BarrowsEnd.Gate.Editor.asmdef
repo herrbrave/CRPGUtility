@@ -1,0 +1,29 @@
+{
+  "name": "BarrowsEnd.Gate.Editor",
+  "rootNamespace": "BarrowsEnd.Editor",
+  "references": [
+    "BarrowsEnd.Gate",
+    "BarrowsEnd.Content",
+    "BarrowsEnd.Content.Editor",
+    "CRPG.Core",
+    "CRPG.Actors",
+    "CRPG.Gameplay",
+    "CRPG.Navigation",
+    "CRPG.Presentation",
+    "CRPG.InputSystem",
+    "CRPG.UI",
+    "Unity.InputSystem",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

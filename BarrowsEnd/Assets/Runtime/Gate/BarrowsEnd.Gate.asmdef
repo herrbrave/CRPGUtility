@@ -1,0 +1,32 @@
+{
+  "name": "BarrowsEnd.Gate",
+  "rootNamespace": "BarrowsEnd.Gate",
+  "references": [
+    "BarrowsEnd.Content",
+    "CRPG.Core",
+    "CRPG.Actors",
+    "CRPG.Inventory",
+    "CRPG.Abilities",
+    "CRPG.Rules",
+    "CRPG.Rules.SRD5",
+    "CRPG.Combat",
+    "CRPG.Gameplay",
+    "CRPG.Exploration",
+    "CRPG.Navigation",
+    "CRPG.Party",
+    "CRPG.Saving",
+    "CRPG.Presentation",
+    "CRPG.UI",
+    "CRPG.InputSystem",
+    "CRPG.Quests"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

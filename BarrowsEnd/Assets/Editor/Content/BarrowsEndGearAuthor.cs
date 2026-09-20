@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using CRPG.Abilities;
+using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
 using CRPG.Presentation.Equipment;
@@ -23,6 +24,10 @@ namespace BarrowsEnd.Editor
     /// </summary>
     public static class BarrowsEndGearAuthor
     {
+        public const string NpcDir = "Assets/Content/Npcs";
+        public const string SkeletonNpcId = "npc-skeleton";
+        public const string SkeletonBodyOptionId = "body-be-0-0";
+        public const string SkeletonFaction = "faction-undead";
         public const string GearDir = "Assets/Content/Gear";
         public const string AbilityDir = "Assets/Content/Abilities";
         public const string RulesetPath = "Assets/Content/Ruleset/BarrowsEndRuleset.asset";
@@ -81,6 +86,7 @@ namespace BarrowsEnd.Editor
         {
             Directory.CreateDirectory(GearDir);
             Directory.CreateDirectory(AbilityDir);
+            Directory.CreateDirectory(NpcDir);
             Directory.CreateDirectory(Path.GetDirectoryName(RulesetPath));
             AssetDatabase.Refresh();
 
@@ -152,6 +158,21 @@ namespace BarrowsEnd.Editor
                 Save(ability);
                 content.Add(ability);
             }
+
+            var skeleton = LoadOrCreate<NpcDefinition>($"{NpcDir}/{SkeletonNpcId}.asset");
+            var grant = (object)new ResourceGrant();
+            SetField(grant, "resource", hitPoints);
+            SetField(grant, "maxAmount", 13);
+            SetField(skeleton, "id", SkeletonNpcId);
+            SetField(skeleton, "displayName", "Skeleton");
+            SetField(skeleton, "faction", new DefinitionId(SkeletonFaction));
+            SetField(skeleton, "level", 1);
+            SetField(skeleton, "resources", new List<ResourceGrant> { (ResourceGrant)grant });
+            SetField(skeleton, "visualPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCharacterAuthor.SpriteCharacterPath)
+                                               ?? throw new InvalidOperationException($"{BarrowsEndCharacterAuthor.SpriteCharacterPath} is missing -- run the character author first."));
+            SetField(skeleton, "appearance", new List<AppearanceEntry> { new(new DefinitionId("layer-body"), new DefinitionId(SkeletonBodyOptionId)) });
+            Save(skeleton);
+            content.Add(skeleton);
 
             var srd5 = AssetDatabase.LoadAssetAtPath<SRD5RulesetProvider>(Srd5ProviderPath)
                        ?? throw new InvalidOperationException($"{Srd5ProviderPath} is missing.");

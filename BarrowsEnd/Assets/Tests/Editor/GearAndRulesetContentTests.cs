@@ -61,8 +61,8 @@ namespace BarrowsEnd.Tests
         {
             var provider = Load<BarrowsEndRulesetProvider>(BarrowsEndGearAuthor.RulesetPath);
             Assert.IsNotNull(provider.Srd5);
-            // 7 catalogs + head slot + (profile + item) per gear + the debug abilities
-            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + BarrowsEndGearAuthor.DebugAbilities.Length;
+            // 7 catalogs + head slot + (profile + item) per gear + the debug abilities + the skeleton NPC
+            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + BarrowsEndGearAuthor.DebugAbilities.Length + 1;
             Assert.AreEqual(expected, provider.ExtraContent.Count);
             Assert.AreEqual(provider.ExtraContent.Count, provider.ExtraContent.Select(c => c.Id.Value).Distinct().Count(), "no duplicate ids");
             Assert.IsTrue(session.RulesDatabase.TryResolve<ResourceDefinition>(HitPoints, out _), "SRD5 content is still there");
@@ -85,6 +85,22 @@ namespace BarrowsEnd.Tests
                 Assert.AreEqual(gear.LayerSlot, profile.SpriteLayers[0].layerSlot.Value);
                 Assert.IsNotNull(profile.SpriteLayers[0].sprite, $"{gear.ItemId} paints a sprite");
             }
+        }
+
+        [Test]
+        public void TheSkeletonNpcResolvesWithHitPointsAFactionAndTheSkeletonBody()
+        {
+            Assert.IsTrue(session.RulesDatabase.TryResolve<NpcDefinition>(new DefinitionId(BarrowsEndGearAuthor.SkeletonNpcId), out var npc));
+            Assert.AreEqual(BarrowsEndGearAuthor.SkeletonFaction, npc.Faction.Value);
+            Assert.IsNotNull(npc.VisualPrefab, "the sprite character prefab");
+            Assert.AreEqual(1, npc.Resources.Count);
+            Assert.AreEqual(HitPoints, npc.Resources[0].Resource.Id);
+            Assert.AreEqual(13, npc.Resources[0].MaxAmount);
+            Assert.AreEqual(1, npc.Appearance.Count);
+            Assert.AreEqual(BarrowsEndGearAuthor.SkeletonBodyOptionId, npc.Appearance[0].option.Value);
+
+            var bodies = Load<SpriteLayerCatalog>(BarrowsEndCatalogAuthor.CatalogPath(BarrowsEndCatalogAuthor.Specs.First(s => s.ShortName == "body")));
+            Assert.IsTrue(bodies.Options.Any(o => o.optionId.Value == BarrowsEndGearAuthor.SkeletonBodyOptionId), "the option exists in the body catalog");
         }
 
         [Test]

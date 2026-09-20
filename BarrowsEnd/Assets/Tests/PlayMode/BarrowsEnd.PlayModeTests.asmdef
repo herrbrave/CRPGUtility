@@ -1,8 +1,28 @@
 {
   "name": "BarrowsEnd.PlayModeTests",
   "rootNamespace": "BarrowsEnd.Tests",
-  "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "references": [
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "BarrowsEnd.Gate",
+    "BarrowsEnd.Content",
+    "CRPG.Core",
+    "CRPG.Actors",
+    "CRPG.Gameplay",
+    "CRPG.Navigation",
+    "CRPG.Presentation",
+    "CRPG.InputSystem",
+    "CRPG.Party",
+    "CRPG.Inventory",
+    "CRPG.Saving",
+    "CRPG.Abilities",
+    "CRPG.Rules",
+    "CRPG.Quests",
+    "CRPG.Combat"
+  ],
   "includePlatforms": [],
-  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
   "autoReferenced": false
 }
