@@ -122,6 +122,13 @@ namespace CRPG.Editor.Validation
                 if (cameraSettings != null) results.AddRange(CameraSettingsValidator.Validate(cameraSettings, path));
             }
 
+            foreach (var guid in AssetDatabase.FindAssets("t:SemanticTile"))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var tile = AssetDatabase.LoadAssetAtPath<CRPG.Navigation.Grid.Tilemaps.SemanticTile>(path);
+                if (tile != null) results.AddRange(SemanticTileValidator.Validate(tile, path));
+            }
+
             var catalogs = new List<(SpriteLayerCatalog catalog, string assetPath)>();
             foreach (var guid in AssetDatabase.FindAssets("t:SpriteLayerCatalog"))
             {

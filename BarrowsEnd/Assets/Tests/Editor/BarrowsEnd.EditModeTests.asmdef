@@ -22,7 +22,8 @@
     "CRPG.Camera",
     "CRPG.Exploration",
     "Unity.RenderPipelines.Universal.Runtime",
-    "Unity.RenderPipelines.Core.Runtime"
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.2D.Tilemap.Editor"
   ],
   "includePlatforms": [
     "Editor"

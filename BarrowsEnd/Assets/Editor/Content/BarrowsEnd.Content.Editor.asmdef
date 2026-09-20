@@ -18,7 +18,8 @@
     "CRPG.Rules",
     "CRPG.Camera",
     "CRPG.Exploration",
-    "CRPG.Party"
+    "CRPG.Party",
+    "Unity.2D.Tilemap.Editor"
   ],
   "includePlatforms": [
     "Editor"
