@@ -64,6 +64,7 @@ namespace CRPG.Presentation.Equipment
         // that arrives synchronously right after (the normal replacement case) reclaims or truly discards the
         // pending entry depending on whether the new visual actually succeeds. LateUpdate flushes anything
         // still pending at the end of the frame -- a genuine unequip with no replacement.
+        private readonly HashSet<DefinitionId> warnedSpriteProfiles = new();
         private readonly Dictionary<DefinitionId, GameObject> pendingRemovalVisuals = new();
         private readonly Dictionary<DefinitionId, EquipmentVisualProfile> pendingRemovalProfiles = new();
 
@@ -112,6 +113,7 @@ namespace CRPG.Presentation.Equipment
             rigDefinition = null;
             transformsByPath = null;
             transformsByName = null;
+            warnedSpriteProfiles.Clear();
 
             DestroyAllVisuals();
         }
@@ -266,8 +268,13 @@ namespace CRPG.Presentation.Equipment
             if (itemDef.EquipmentVisualProfileId.IsValid)
                 rulesDatabase.TryResolve(itemDef.EquipmentVisualProfileId, out profile);
 
-            if (profile == null || profile.Kind == EquipmentVisualKind.None)
+            if (profile == null || profile.Kind == EquipmentVisualKind.None || profile.Kind == EquipmentVisualKind.Sprite)
             {
+                // A Sprite profile is not a 3D visual: treat it like "no 3D visual" (whatever this binder showed in the
+                // slot is gone), and say so ONCE per profile -- it means a 3D character was given sprite gear.
+                if (profile != null && profile.Kind == EquipmentVisualKind.Sprite && warnedSpriteProfiles.Add(profile.Id))
+                    Debug.LogWarning($"[EquipmentVisualBinder] '{profile.name}' is a Sprite profile; sprite characters use SpriteEquipmentBinder. " +
+                                     "It draws nothing on a 3D character.");
                 DiscardPendingRemoval(slot); // no replacement content -- whatever was pending really is gone
                 RemoveVisual(slot);
                 return;

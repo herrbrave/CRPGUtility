@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CRPG.Actors;
 using CRPG.Dialogue;
+using CRPG.Presentation.Equipment;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,10 +34,13 @@ namespace CRPG.Editor.Validation
         private void OnGUI()
         {
             EditorGUILayout.HelpBox(
-                "Runs against every DialogueDefinition and every IRulesetDefinition asset in the project, plus " +
+                "Runs against every DialogueDefinition, every IRulesetDefinition asset and every EquipmentVisualProfile " +
+                "in the project, plus " +
                 "one project-wide check:\n" +
                 "- Dialogue graphs: duplicate/dangling node ids, unreachable nodes, inescapable auto-cycles.\n" +
                 "- Ruleset providers: does Register() complete without throwing (duplicate ids, construction failures).\n" +
+                "- Equipment visual profiles (sprite side): unknown/duplicate/empty layer slots, missing sprites, a layer " +
+                "both painted and hidden, transparent tints, and fields authored for the wrong kind.\n" +
                 "- Compatibility: this project's actual Unity version and dependency package versions against " +
                 "what this package's own package.json declares (see COMPATIBILITY.md).\n\n" +
                 "Does NOT cover character rig/socket validation (use Character Setup's own Validate button) or " +
@@ -91,9 +95,27 @@ namespace CRPG.Editor.Validation
                 }
             }
 
+            var spriteProfilesChecked = 0;
+            foreach (var guid in AssetDatabase.FindAssets("t:EquipmentVisualProfile"))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                try
+                {
+                    var profile = AssetDatabase.LoadAssetAtPath<EquipmentVisualProfile>(path);
+                    if (profile == null) continue;
+                    spriteProfilesChecked++;
+                    results.AddRange(SpriteEquipmentProfileValidator.Validate(profile, path));
+                }
+                catch (System.Exception ex)
+                {
+                    results.Add(new ValidationResult(ValidationSeverity.Error, path, "Load",
+                        $"Could not validate this equipment visual profile: {ex.Message}", "Inspect the asset directly in the Inspector."));
+                }
+            }
+
             results.AddRange(CompatibilityValidator.Validate());
 
-            Debug.Log($"[PackageValidatorWindow] Checked {dialoguesChecked} dialogue asset(s), {providersChecked} ruleset provider asset(s), and this project's Unity/dependency compatibility -- {results.Count} result(s).");
+            Debug.Log($"[PackageValidatorWindow] Checked {dialoguesChecked} dialogue asset(s), {providersChecked} ruleset provider asset(s), {spriteProfilesChecked} equipment visual profile(s) (sprite fields), and this project's Unity/dependency compatibility -- {results.Count} result(s).");
         }
 
         private void DrawResults()

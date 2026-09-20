@@ -265,6 +265,9 @@ namespace CRPG.Gameplay
                 var visualEquipment = instance.GetComponentInChildren<EquipmentVisualBinder>(true);
                 visualEquipment?.Initialize(entityId, session.RulesDatabase, session.Inventory, session.EventBus);
 
+                var spriteEquipment = instance.GetComponentInChildren<SpriteEquipmentBinder>(true);
+                spriteEquipment?.Initialize(entityId, session.RulesDatabase, session.Inventory, session.EventBus);
+
                 if (faction.IsValid) factionsByCharacter[entityId] = faction;
 
                 return agent;

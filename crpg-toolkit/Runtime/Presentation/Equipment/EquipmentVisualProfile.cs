@@ -20,6 +20,33 @@ namespace CRPG.Presentation.Equipment
         /// <see cref="RigBindingMap"/> -- a modular outfit piece that must deform with the body underneath
         /// it.</summary>
         Skinned,
+
+        /// <summary>2D campaign: paints one or more layers of a layered sprite character (a sword paints the weapon
+        /// layer, a helmet the helmet layer and hides the hair layer) through <see cref="SpriteEquipmentBinder"/>.
+        /// Appended so the serialized values of the three kinds above never change.</summary>
+        Sprite,
+    }
+
+    /// <summary>One layer a Sprite-kind profile paints.</summary>
+    [System.Serializable]
+    public sealed class SpriteLayerEntry
+    {
+        [Tooltip("The layer slot this sprite paints, e.g. layer-weapon or layer-clothes (see SpriteLayerCompositor's slot list).")]
+        public DefinitionId layerSlot;
+
+        public Sprite sprite;
+
+        [Tooltip("Multiplied with the sprite. Keep alpha above 0 or the layer is invisible.")]
+        public Color tint = Color.white;
+
+        public SpriteLayerEntry() { }
+
+        public SpriteLayerEntry(DefinitionId layerSlot, Sprite sprite, Color tint)
+        {
+            this.layerSlot = layerSlot;
+            this.sprite = sprite;
+            this.tint = tint;
+        }
     }
 
     /// <summary>
@@ -55,6 +82,12 @@ namespace CRPG.Presentation.Equipment
         // The bone map, not the item profile, is what's genuinely rig-specific.
         [SerializeField] private RigBindingMap boneMap;
 
+        // Sprite attachment (2D campaign). Distinct from the 3D hiddenBodyRegions on purpose: these name LAYER slots.
+        [SerializeField] private List<SpriteLayerEntry> spriteLayers = new();
+        [Tooltip("Higher wins when two worn items paint the same layer. Convention: body 0, clothes 10, armor 20, helmet 30. Equal priorities fall back to the smaller inventory-slot id, which is deterministic but arbitrary.")]
+        [SerializeField] private int spritePriority;
+        [SerializeField] private List<DefinitionId> hiddenLayerSlots = new();
+
         public EquipmentVisualKind Kind => kind;
         public GameObject VisualPrefab => visualPrefab;
 
@@ -73,5 +106,13 @@ namespace CRPG.Presentation.Equipment
         public Vector3 LocalScale => localScale;
 
         public RigBindingMap BoneMap => boneMap;
+
+        /// <summary>Layers painted by a Sprite-kind profile.</summary>
+        public IReadOnlyList<SpriteLayerEntry> SpriteLayers => spriteLayers;
+
+        public int SpritePriority => spritePriority;
+
+        /// <summary>Layer slots hidden (whatever paints them) while this item is worn, e.g. a helmet hiding hair.</summary>
+        public IReadOnlyList<DefinitionId> HiddenLayerSlots => hiddenLayerSlots;
     }
 }
