@@ -9,7 +9,13 @@
     "Unity.RenderPipelines.Core.Runtime",
     "CRPG.Editor",
     "CRPG.Gameplay",
-    "CRPG.Navigation"
+    "CRPG.Navigation",
+    "BarrowsEnd.Content",
+    "CRPG.Actors",
+    "CRPG.Inventory",
+    "CRPG.Abilities",
+    "CRPG.Rules.SRD5",
+    "CRPG.Rules"
   ],
   "includePlatforms": [
     "Editor"

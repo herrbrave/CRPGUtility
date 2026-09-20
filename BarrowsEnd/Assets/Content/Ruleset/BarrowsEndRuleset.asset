@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56ad83909522cdb4191e28a3aa853d7c, type: 3}
+  m_Name: BarrowsEndRuleset
+  m_EditorClassIdentifier: BarrowsEnd.Content::BarrowsEnd.BarrowsEndRulesetProvider
+  srd5: {fileID: 11400000, guid: 4a3a30d081bfe9244b2dac5a2e2e907d, type: 2}
+  extraContent:
+  - {fileID: 11400000, guid: 27c55189ba3ab2646a7a28e9bb5ed814, type: 2}
+  - {fileID: 11400000, guid: 9f42f450085bb5e40810a08edcca3562, type: 2}
+  - {fileID: 11400000, guid: 637147d566358a54c821c39ecf329f3e, type: 2}
+  - {fileID: 11400000, guid: c505a3e91da5dac4193b9e67b23011a2, type: 2}
+  - {fileID: 11400000, guid: ff8461fcf53a8194794227262156d95b, type: 2}
+  - {fileID: 11400000, guid: 5111a7baffaad844b9eefa5661383776, type: 2}
+  - {fileID: 11400000, guid: be3affb0000155c49853e74296fe2bed, type: 2}
+  - {fileID: 11400000, guid: 4b4b17fe6b929424e8443ad31d004c8f, type: 2}
+  - {fileID: 11400000, guid: d08d7abce69d68a44ba3213f2e437aed, type: 2}
+  - {fileID: 11400000, guid: 4447a10a2e632d0498d70e6746b0705f, type: 2}
+  - {fileID: 11400000, guid: bfc5f6e718ab0b248859659ae4fd3291, type: 2}
+  - {fileID: 11400000, guid: 59ca3b06f6edba646a0e981ce8a6459c, type: 2}
+  - {fileID: 11400000, guid: 27d2f59f04ef0bb4896d1a72fc5aedb1, type: 2}
+  - {fileID: 11400000, guid: 3d2ff399d8118804999f099c317e5fab, type: 2}
+  - {fileID: 11400000, guid: 7a3103f3c627568429b20915b41e55ab, type: 2}
+  - {fileID: 11400000, guid: e6edc73be73eb4c4bbf1919a456c235e, type: 2}
+  - {fileID: 11400000, guid: 1647177b2abf2534c8e4cee793b33148, type: 2}
+  - {fileID: 11400000, guid: e24f8ec2fa81dd54f921599bab44e62b, type: 2}

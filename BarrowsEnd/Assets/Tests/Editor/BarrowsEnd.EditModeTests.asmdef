@@ -10,7 +10,13 @@
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
     "CRPG.Gameplay",
-    "CRPG.Navigation"
+    "CRPG.Navigation",
+    "BarrowsEnd.Content",
+    "CRPG.Actors",
+    "CRPG.Inventory",
+    "CRPG.Abilities",
+    "CRPG.Rules.SRD5",
+    "CRPG.Saving"
   ],
   "includePlatforms": [
     "Editor"
