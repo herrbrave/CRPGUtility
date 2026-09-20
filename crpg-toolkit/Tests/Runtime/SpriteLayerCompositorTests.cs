@@ -283,6 +283,39 @@ namespace CRPG.Tests.PlayMode
         public IEnumerator MoreThanTheSlotCapDisablesTheCompositorWithOneError() =>
             ExpectDisabledFor(Enumerable.Range(0, SpriteSortingContract.MaxSlotsPerObject + 1).Select(i => new DefinitionId("s" + i)).ToList());
 
+        [UnityTest]
+        public IEnumerator TintMultiplierIsAppliedToEveryLayerAndRestoredOnWhite()
+        {
+            var compositor = NewCompositor();
+            compositor.State.SetAppearance(Body, new SpriteOption(NewSprite("body"), Color.white));
+            compositor.State.SetAppearance(Hair, new SpriteOption(NewSprite("hair"), new Color(0.5f, 1f, 1f, 1f)));
+            yield return null;
+            Assert.AreEqual(Color.white, compositor.TintMultiplier);
+            var slots = SpriteLayerCompositor.DefaultSlots();
+            SpriteRenderer Of(DefinitionId slot) => compositor.Renderers[slots.IndexOf(slot)];
+            Assert.AreEqual(Color.white, Of(Body).color);
+
+            var multiplier = new Color(1f, 0.5f, 0.25f, 0.5f);
+            compositor.TintMultiplier = multiplier;
+            Assert.AreEqual(multiplier, Of(Body).color, "applied immediately");
+            Assert.AreEqual(new Color(0.5f, 0.5f, 0.25f, 0.5f), Of(Hair).color, "multiplied into each layer's own tint");
+
+            compositor.State.SetAppearance(Body, new SpriteOption(NewSprite("body2"), Color.white));
+            yield return null; // a later Apply keeps the multiplier
+            Assert.AreEqual(multiplier, Of(Body).color);
+
+            compositor.TintMultiplier = Color.white;
+            Assert.AreEqual(Color.white, Of(Body).color);
+            Assert.AreEqual(new Color(0.5f, 1f, 1f, 1f), Of(Hair).color);
+        }
+
+        [Test]
+        public void LayersRootFallsBackToTheCompositorTransform()
+        {
+            var compositor = NewCompositor();
+            Assert.AreSame(compositor.transform, compositor.LayersRoot);
+        }
+
         [Test]
         public void StateIsUsableBeforeAwakeOnAnInactiveObject()
         {

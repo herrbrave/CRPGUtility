@@ -20,6 +20,9 @@ namespace BarrowsEnd.Editor
         {
             Movement = MovementBackend.Grid,
             Presentation = PresentationKind.Sprite,
+            // The campaign plays SRD5, whose hit-point resource is "resource-hp": the sprite combat cues use it to know when a downed character is
+            // genuinely back on its feet. (The toolkit leaves this empty so its engine code stays ruleset-agnostic.)
+            SpriteHitPointResourceId = new CRPG.Core.DefinitionId("resource-hp"),
         };
 
         [MenuItem("Barrows End/Content/Author Base Sprite Character")]

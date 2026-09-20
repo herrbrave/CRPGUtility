@@ -35,6 +35,7 @@ namespace CRPG.Presentation.Sprites
         private int appliedVersion = -1;
         private int sortingBase;
         private bool warnedLayer;
+        private Color tintMultiplier = Color.white;
 
         public static List<DefinitionId> DefaultSlots()
         {
@@ -58,6 +59,23 @@ namespace CRPG.Presentation.Sprites
 
         public IReadOnlyList<SpriteRenderer> Renderers => rendererView;
         public int AppliedVersion => appliedVersion;
+
+        /// <summary>The transform the per-slot renderers hang under: <c>layersRoot</c> if one was assigned, else this component's own.</summary>
+        public Transform LayersRoot => layersRoot != null ? layersRoot : transform;
+
+        /// <summary>A colour multiplied into every layer's tint (default white = no change). Combat cues use it for the hit flash and the
+        /// death fade. Setting it re-applies the colours immediately (Apply is otherwise gated on the state version). A multiplier cannot
+        /// brighten a sprite, so a "flash" is a tint (e.g. red), not white.</summary>
+        public Color TintMultiplier
+        {
+            get => tintMultiplier;
+            set
+            {
+                if (tintMultiplier == value) return;
+                tintMultiplier = value;
+                ApplyTints();
+            }
+        }
 
         public string SortingLayerName
         {
@@ -159,12 +177,19 @@ namespace CRPG.Presentation.Sprites
                 var layer = layers[i];
                 var sr = renderers[i];
                 sr.sprite = layer.Sprite;
-                sr.color = layer.Tint;
+                sr.color = layer.Tint * tintMultiplier;
                 sr.enabled = layer.Visible;
             }
 
             appliedVersion = State.Version;
             ApplySorting();
+        }
+
+        private void ApplyTints()
+        {
+            if (renderers == null || appliedVersion < 0) return;
+            var layers = State.Layers;
+            for (var i = 0; i < renderers.Length; i++) renderers[i].color = layers[i].Tint * tintMultiplier;
         }
 
         private void ApplySorting()

@@ -73,6 +73,10 @@ namespace CRPG.Editor.Character
         public float SpriteCardHeight = 0.02f;
         public List<DefinitionId> SpriteLayerSlots = SpriteLayerCompositor.DefaultSlots();
 
+        /// <summary>The ruleset's hit-point resource id for the sprite combat cues (SRD5: resource-hp). Deliberately empty by default so the toolkit
+        /// stays ruleset-agnostic; the campaign supplies it. Empty means a downed character never recovers visually.</summary>
+        public DefinitionId SpriteHitPointResourceId;
+
         /// <summary>True when the wrapper uses the top-down box collider rather than the humanoid capsule.</summary>
         public bool UsesTopDownCollider => Movement == MovementBackend.Grid || Presentation == PresentationKind.Sprite;
     }

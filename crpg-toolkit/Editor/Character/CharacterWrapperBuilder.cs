@@ -142,6 +142,9 @@ namespace CRPG.Editor.Character
                 // which only works if they survive the swap.
                 GetOrAddComponent<SpriteEquipmentBinder>(root);
                 GetOrAddComponent<SpriteAppearanceBinder>(root);
+
+                var cues = GetOrAddComponent<SpriteActionCues>(root);
+                cues.HitPointResourceId = spec.SpriteHitPointResourceId;
             }
             else
             {
@@ -166,7 +169,7 @@ namespace CRPG.Editor.Character
             else conflicts.Add(Has<GridCharacterMotor>());
 
             if (spec.Presentation == PresentationKind.Sprite) { conflicts.Add(Has<CharacterPlayableAnimator>()); conflicts.Add(Has<EquipmentVisualBinder>()); }
-            else { conflicts.Add(Has<SpriteEquipmentBinder>()); conflicts.Add(Has<SpriteAppearanceBinder>()); }
+            else { conflicts.Add(Has<SpriteEquipmentBinder>()); conflicts.Add(Has<SpriteAppearanceBinder>()); conflicts.Add(Has<SpriteActionCues>()); }
 
             if (spec.UsesTopDownCollider && existing.GetComponent<CapsuleCollider>() != null) conflicts.Add(nameof(CapsuleCollider));
 

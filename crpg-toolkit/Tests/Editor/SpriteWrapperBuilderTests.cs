@@ -82,6 +82,21 @@ namespace CRPG.Tests.EditMode
             Assert.IsNotNull(root.GetComponent<CharacterAgent>());
             Assert.IsNotNull(root.GetComponent<SpriteEquipmentBinder>(), "the binders live on CharacterRoot, so they survive a Model swap");
             Assert.IsNotNull(root.GetComponent<SpriteAppearanceBinder>());
+            Assert.IsNotNull(root.GetComponent<SpriteActionCues>(), "combat cues live on CharacterRoot too");
+        }
+
+        [Test]
+        public void GridSpriteCarriesTheSpecsHitPointIdOnItsCues()
+        {
+            var spec = GridSprite();
+            spec.SpriteHitPointResourceId = new DefinitionId("resource-hp");
+            var root = CharacterWrapperBuilder.BuildOrUpdate(spec, Path("CuesHp"));
+            Assert.AreEqual(new DefinitionId("resource-hp"), root.GetComponent<SpriteActionCues>().HitPointResourceId);
+
+            spec.SpriteHitPointResourceId = new DefinitionId("resource-vigor");
+            root = CharacterWrapperBuilder.BuildOrUpdate(spec, Path("CuesHp"));
+            Assert.AreEqual(new DefinitionId("resource-vigor"), root.GetComponent<SpriteActionCues>().HitPointResourceId, "an update re-applies it");
+            Assert.AreEqual(1, root.GetComponents<SpriteActionCues>().Length);
         }
 
         [Test]
@@ -353,6 +368,20 @@ namespace CRPG.Tests.EditMode
             var path = Path("SpriteToHumanoid");
             CharacterWrapperBuilder.BuildOrUpdate(Spec(MovementBackend.NavMesh, PresentationKind.Sprite), path);
             AssertRefused(path, Spec(MovementBackend.NavMesh, PresentationKind.Humanoid), "SpriteEquipmentBinder");
+        }
+
+        [Test]
+        public void AHumanoidSpecOnASpriteWrapperIsRefusedForItsCuesToo()
+        {
+            var path = Path("SpriteCuesToHumanoid");
+            CharacterWrapperBuilder.BuildOrUpdate(Spec(MovementBackend.NavMesh, PresentationKind.Sprite), path);
+            var editable = PrefabUtility.LoadPrefabContents(path);
+            Object.DestroyImmediate(editable.GetComponent<SpriteEquipmentBinder>());
+            Object.DestroyImmediate(editable.GetComponent<SpriteAppearanceBinder>());
+            PrefabUtility.SaveAsPrefabAsset(editable, path);
+            PrefabUtility.UnloadPrefabContents(editable);
+
+            AssertRefused(path, Spec(MovementBackend.NavMesh, PresentationKind.Humanoid), "SpriteActionCues");
         }
 
         [Test]

@@ -4,6 +4,7 @@ using System.Linq;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
+using CRPG.Navigation;
 using CRPG.Navigation.Grid;
 using CRPG.Presentation.Animation;
 using CRPG.Presentation.Equipment;
@@ -272,6 +273,9 @@ namespace CRPG.Gameplay
                 var spriteAppearance = instance.GetComponentInChildren<SpriteAppearanceBinder>(true);
                 spriteAppearance?.Initialize(entityId, session.Characters, session.RulesDatabase);
 
+                var spriteCues = instance.GetComponentInChildren<SpriteActionCues>(true);
+                spriteCues?.Initialize(entityId, session.EventBus, session.Characters);
+
                 if (faction.IsValid) factionsByCharacter[entityId] = faction;
 
                 return agent;
@@ -299,9 +303,28 @@ namespace CRPG.Gameplay
 
                 if (agentsByCharacter.TryGetValue(characterId, out var agent))
                 {
-                    agent.gameObject.SetActive(false);
-                    agent.Unbind();
-                    DestroyGameObject(agent.gameObject);
+                    // KNOWN LIMITATIONS of the deferred-defeat path (2D campaign Task 2.6) -- keep in mind if odd corpse/cleanup behaviour appears:
+                    //  * This runs synchronously INSIDE the CreatureDied publish (TacticalEncounterController's handler), so without an
+                    //    IDefeatPresentation the view is gone before any death cue could render. With one, the GameObject stays ALIVE
+                    //    after this method returns and is destroyed later, from the presentation's own callback.
+                    //  * There is NO timeout: a presentation that never calls onFinished leaves an inert GameObject in the scene forever.
+                    //  * The corpse is no longer in agentsByCharacter, so a session swap (which destroys owned agents directly) does not
+                    //    see it; it finishes and destroys itself. A scene unload destroys it regardless.
+                    //  * "Inert" means: colliders off (not clickable/targetable), the IMovable mover disabled (its grid cell is freed at
+                    //    once, although the corpse is still visible for a moment), the CharacterAgent component disabled (out of
+                    //    CharacterAgent.AllLive). Anything else that scans the scene for GameObjects (a custom selectable source, ...) can
+                    //    still see it until it is destroyed.
+                    //  * If BeginDefeat throws we fall back to the original immediate destroy.
+                    //  * Gameplay bookkeeping (tombstone, faction, agent unbind) is identical on both paths.
+                    var view = agent.gameObject;
+                    var defeatPresentation = view.GetComponentInChildren<IDefeatPresentation>(true);
+                    if (defeatPresentation == null || !TryDeferDestroy(view, agent, defeatPresentation))
+                    {
+                        view.SetActive(false);
+                        agent.Unbind();
+                        DestroyGameObject(view);
+                    }
+
                     agentsByCharacter.Remove(characterId);
                 }
 
@@ -309,6 +332,36 @@ namespace CRPG.Gameplay
                 pair.Value.Defeated = true;
                 factionsByCharacter.Remove(characterId);
                 return;
+            }
+        }
+
+        /// <summary>Makes the view inert (no colliders, no mover, out of CharacterAgent.AllLive), lets <paramref name="presentation"/> play,
+        /// and destroys the GameObject when it reports back. Returns false, having destroyed nothing, if anything throws -- the caller then
+        /// falls back to the immediate destroy.</summary>
+        private static bool TryDeferDestroy(GameObject view, CharacterAgent agent, IDefeatPresentation presentation)
+        {
+            try
+            {
+                agent.Unbind();
+                foreach (var collider in view.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
+                foreach (var behaviour in view.GetComponentsInChildren<MonoBehaviour>(true))
+                    if (behaviour is IMovable) behaviour.enabled = false; // GridCharacterMotor.OnDisable releases its cell
+                foreach (var navAgent in view.GetComponentsInChildren<UnityEngine.AI.NavMeshAgent>(true)) navAgent.enabled = false;
+                agent.enabled = false;
+
+                var finished = false;
+                presentation.BeginDefeat(() =>
+                {
+                    if (finished) return;
+                    finished = true;
+                    if (view != null) DestroyGameObject(view);
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                return false;
             }
         }
 
