@@ -96,7 +96,7 @@ namespace CRPG.Saving
         public SaveFileStore(ISaveFileIO io = null, IReadOnlyList<ISaveMigration> migrations = null)
         {
             this.io = io ?? new SystemFileIO();
-            this.migrations = migrations ?? new ISaveMigration[] { new V1ToV2Migration() };
+            this.migrations = migrations ?? new ISaveMigration[] { new V1ToV2Migration(), new V2ToV3Migration() };
         }
 
         /// <summary>Writes to path + ".tmp" first, then atomically replaces path via ISaveFileIO.Replace

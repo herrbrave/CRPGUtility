@@ -93,7 +93,8 @@ namespace CRPG.Tests.PlayMode
             yield return Seconds(0.6f);
             Assert.IsTrue(driver.Motion.IsMoving);
             Assert.Greater(driver.Motion.Amplitude, 0.9f);
-            Assert.AreEqual(Quaternion.Euler(0f, 0f, driver.Motion.TiltDegrees), pivot.localRotation, "the pivot shows the state's tilt about the card normal");
+            // Quaternion.Equals is exact component equality and the Transform stores a normalized copy, so compare by angle.
+            Assert.Less(Quaternion.Angle(Quaternion.Euler(0f, 0f, driver.Motion.TiltDegrees), pivot.localRotation), 0.01f, "the pivot shows the state's tilt about the card normal");
 
             motor.Current = MotionSnapshot.None;
             yield return Seconds(1.5f);

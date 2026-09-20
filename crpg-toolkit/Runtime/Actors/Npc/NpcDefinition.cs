@@ -37,6 +37,7 @@ namespace CRPG.Actors
         [SerializeField] private DefinitionId spellcastingStatId;
         [SerializeField] private List<DefinitionId> startingItemIds = new();
         [SerializeField] private GameObject visualPrefab;
+        [SerializeField] private List<AppearanceEntry> appearance = new();
 
         public string DisplayName => displayName;
         public string Description => description;
@@ -64,5 +65,25 @@ namespace CRPG.Actors
 
         public IReadOnlyList<DefinitionId> StartingItemIds => startingItemIds;
         public GameObject VisualPrefab => visualPrefab;
+
+        /// <summary>2D campaign: how this NPC looks (layer slot -> option id), copied onto its CharacterState at spawn.
+        /// Empty for a non-sprite NPC.</summary>
+        public IReadOnlyList<AppearanceEntry> Appearance => appearance;
+    }
+
+    /// <summary>One authored appearance choice: which option a layer slot shows.</summary>
+    [System.Serializable]
+    public sealed class AppearanceEntry
+    {
+        public DefinitionId layerSlot;
+        public DefinitionId option;
+
+        public AppearanceEntry() { }
+
+        public AppearanceEntry(DefinitionId layerSlot, DefinitionId option)
+        {
+            this.layerSlot = layerSlot;
+            this.option = option;
+        }
     }
 }

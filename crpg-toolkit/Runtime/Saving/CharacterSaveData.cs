@@ -68,5 +68,16 @@ namespace CRPG.Saving
 
         public List<string> KnownAbilities = new();
         public List<string> PreparedAbilities = new();
+
+        // 2D campaign Task 2.4 (format v3): layer slot -> option id. Absent from v2 saves, where the initializer
+        // correctly leaves it empty.
+        public List<AppearanceSaveEntry> Appearance = new();
+    }
+
+    [Serializable]
+    public sealed class AppearanceSaveEntry
+    {
+        public string Slot;
+        public string Option;
     }
 }

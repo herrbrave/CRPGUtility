@@ -1,0 +1,619 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c75226708033e93478d609028c9a7780, type: 3}
+  m_Name: catalog-clothes
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Sprites.SpriteLayerCatalog
+  id: catalog-clothes
+  layerSlot:
+    value: layer-clothes
+  displayName: Clothes
+  options:
+  - optionId:
+      value: clothes-kenney-6-0
+    displayName: clothes-kenney-6-0
+    sprite: {fileID: 1704506857, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-0
+    displayName: clothes-kenney-7-0
+    sprite: {fileID: -410243680, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-0
+    displayName: clothes-kenney-8-0
+    sprite: {fileID: 579637219, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-0
+    displayName: clothes-kenney-9-0
+    sprite: {fileID: 1235987837, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-0
+    displayName: clothes-kenney-10-0
+    sprite: {fileID: 889357044, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-0
+    displayName: clothes-kenney-11-0
+    sprite: {fileID: 731843700, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-0
+    displayName: clothes-kenney-12-0
+    sprite: {fileID: 1328145176, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-0
+    displayName: clothes-kenney-13-0
+    sprite: {fileID: 117513306, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-0
+    displayName: clothes-kenney-14-0
+    sprite: {fileID: -439465489, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-0
+    displayName: clothes-kenney-15-0
+    sprite: {fileID: 61681509, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-0
+    displayName: clothes-kenney-16-0
+    sprite: {fileID: -1545492920, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-0
+    displayName: clothes-kenney-17-0
+    sprite: {fileID: 1726775923, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-1
+    displayName: clothes-kenney-6-1
+    sprite: {fileID: -1873895651, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-1
+    displayName: clothes-kenney-7-1
+    sprite: {fileID: -1885279422, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-1
+    displayName: clothes-kenney-8-1
+    sprite: {fileID: 1816319658, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-1
+    displayName: clothes-kenney-9-1
+    sprite: {fileID: -105699216, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-1
+    displayName: clothes-kenney-10-1
+    sprite: {fileID: -119214409, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-1
+    displayName: clothes-kenney-11-1
+    sprite: {fileID: 1006480002, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-1
+    displayName: clothes-kenney-12-1
+    sprite: {fileID: 1943655404, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-1
+    displayName: clothes-kenney-13-1
+    sprite: {fileID: 864926811, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-1
+    displayName: clothes-kenney-14-1
+    sprite: {fileID: -1557928264, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-1
+    displayName: clothes-kenney-15-1
+    sprite: {fileID: 1591494969, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-1
+    displayName: clothes-kenney-16-1
+    sprite: {fileID: -1631934554, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-1
+    displayName: clothes-kenney-17-1
+    sprite: {fileID: -1705798410, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-2
+    displayName: clothes-kenney-6-2
+    sprite: {fileID: -564271762, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-2
+    displayName: clothes-kenney-7-2
+    sprite: {fileID: -1902798966, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-2
+    displayName: clothes-kenney-8-2
+    sprite: {fileID: -594181992, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-2
+    displayName: clothes-kenney-9-2
+    sprite: {fileID: -808838856, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-2
+    displayName: clothes-kenney-10-2
+    sprite: {fileID: 908997003, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-2
+    displayName: clothes-kenney-11-2
+    sprite: {fileID: 1099959810, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-2
+    displayName: clothes-kenney-12-2
+    sprite: {fileID: 776182818, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-2
+    displayName: clothes-kenney-13-2
+    sprite: {fileID: -1077918816, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-2
+    displayName: clothes-kenney-14-2
+    sprite: {fileID: 385783935, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-2
+    displayName: clothes-kenney-15-2
+    sprite: {fileID: 1646312857, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-2
+    displayName: clothes-kenney-16-2
+    sprite: {fileID: -1646428675, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-2
+    displayName: clothes-kenney-17-2
+    sprite: {fileID: 700007685, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-3
+    displayName: clothes-kenney-6-3
+    sprite: {fileID: 25562106, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-3
+    displayName: clothes-kenney-7-3
+    sprite: {fileID: -5182040, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-3
+    displayName: clothes-kenney-8-3
+    sprite: {fileID: 883753378, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-3
+    displayName: clothes-kenney-9-3
+    sprite: {fileID: 164686292, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-3
+    displayName: clothes-kenney-10-3
+    sprite: {fileID: -1349585934, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-3
+    displayName: clothes-kenney-11-3
+    sprite: {fileID: -239032555, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-3
+    displayName: clothes-kenney-12-3
+    sprite: {fileID: 1446379510, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-3
+    displayName: clothes-kenney-13-3
+    sprite: {fileID: -1339442884, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-3
+    displayName: clothes-kenney-14-3
+    sprite: {fileID: 778889085, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-3
+    displayName: clothes-kenney-15-3
+    sprite: {fileID: 1348362990, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-3
+    displayName: clothes-kenney-16-3
+    sprite: {fileID: -23751189, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-3
+    displayName: clothes-kenney-17-3
+    sprite: {fileID: -893083934, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-4
+    displayName: clothes-kenney-6-4
+    sprite: {fileID: -1653135733, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-4
+    displayName: clothes-kenney-7-4
+    sprite: {fileID: 945584335, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-4
+    displayName: clothes-kenney-8-4
+    sprite: {fileID: 230727987, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-4
+    displayName: clothes-kenney-9-4
+    sprite: {fileID: 1244360009, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-4
+    displayName: clothes-kenney-10-4
+    sprite: {fileID: -1237406222, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-4
+    displayName: clothes-kenney-11-4
+    sprite: {fileID: 1809384175, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-4
+    displayName: clothes-kenney-12-4
+    sprite: {fileID: -382704675, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-4
+    displayName: clothes-kenney-13-4
+    sprite: {fileID: 1944252397, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-4
+    displayName: clothes-kenney-14-4
+    sprite: {fileID: -1346773000, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-4
+    displayName: clothes-kenney-15-4
+    sprite: {fileID: 318731624, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-4
+    displayName: clothes-kenney-16-4
+    sprite: {fileID: -862162925, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-4
+    displayName: clothes-kenney-17-4
+    sprite: {fileID: -2029440442, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-5
+    displayName: clothes-kenney-6-5
+    sprite: {fileID: -1709716490, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-5
+    displayName: clothes-kenney-7-5
+    sprite: {fileID: -362009796, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-5
+    displayName: clothes-kenney-8-5
+    sprite: {fileID: -2065455201, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-5
+    displayName: clothes-kenney-9-5
+    sprite: {fileID: 1688621817, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-5
+    displayName: clothes-kenney-10-5
+    sprite: {fileID: 438179065, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-5
+    displayName: clothes-kenney-11-5
+    sprite: {fileID: 35426616, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-5
+    displayName: clothes-kenney-12-5
+    sprite: {fileID: -1805211205, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-5
+    displayName: clothes-kenney-13-5
+    sprite: {fileID: -1926066108, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-5
+    displayName: clothes-kenney-14-5
+    sprite: {fileID: 1230678922, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-5
+    displayName: clothes-kenney-15-5
+    sprite: {fileID: 1171958808, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-5
+    displayName: clothes-kenney-16-5
+    sprite: {fileID: 697158252, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-5
+    displayName: clothes-kenney-17-5
+    sprite: {fileID: 1055479614, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-6
+    displayName: clothes-kenney-6-6
+    sprite: {fileID: 230242925, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-6
+    displayName: clothes-kenney-7-6
+    sprite: {fileID: 1788110184, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-6
+    displayName: clothes-kenney-8-6
+    sprite: {fileID: -1561603659, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-6
+    displayName: clothes-kenney-9-6
+    sprite: {fileID: 1043153504, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-6
+    displayName: clothes-kenney-10-6
+    sprite: {fileID: 1218951055, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-6
+    displayName: clothes-kenney-11-6
+    sprite: {fileID: 1546418348, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-6
+    displayName: clothes-kenney-12-6
+    sprite: {fileID: 1187847680, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-6
+    displayName: clothes-kenney-13-6
+    sprite: {fileID: 1110172387, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-6
+    displayName: clothes-kenney-14-6
+    sprite: {fileID: 473117983, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-6
+    displayName: clothes-kenney-15-6
+    sprite: {fileID: 184718921, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-6
+    displayName: clothes-kenney-16-6
+    sprite: {fileID: 55070135, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-6
+    displayName: clothes-kenney-17-6
+    sprite: {fileID: -476319803, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-7
+    displayName: clothes-kenney-6-7
+    sprite: {fileID: -1507342493, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-7
+    displayName: clothes-kenney-7-7
+    sprite: {fileID: -1295657444, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-7
+    displayName: clothes-kenney-8-7
+    sprite: {fileID: -1424831177, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-7
+    displayName: clothes-kenney-9-7
+    sprite: {fileID: -555919987, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-7
+    displayName: clothes-kenney-10-7
+    sprite: {fileID: 488800027, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-7
+    displayName: clothes-kenney-11-7
+    sprite: {fileID: 1580267685, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-7
+    displayName: clothes-kenney-12-7
+    sprite: {fileID: -942452130, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-7
+    displayName: clothes-kenney-13-7
+    sprite: {fileID: -118338539, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-7
+    displayName: clothes-kenney-14-7
+    sprite: {fileID: -920681794, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-7
+    displayName: clothes-kenney-15-7
+    sprite: {fileID: -274399496, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-7
+    displayName: clothes-kenney-16-7
+    sprite: {fileID: -235760380, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-7
+    displayName: clothes-kenney-17-7
+    sprite: {fileID: 368836662, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-8
+    displayName: clothes-kenney-6-8
+    sprite: {fileID: 507645154, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-8
+    displayName: clothes-kenney-7-8
+    sprite: {fileID: 1975665294, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-8
+    displayName: clothes-kenney-8-8
+    sprite: {fileID: 546713625, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-8
+    displayName: clothes-kenney-9-8
+    sprite: {fileID: 209345302, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-8
+    displayName: clothes-kenney-10-8
+    sprite: {fileID: -319248223, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-8
+    displayName: clothes-kenney-11-8
+    sprite: {fileID: 2045458676, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-8
+    displayName: clothes-kenney-12-8
+    sprite: {fileID: -1019625252, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-8
+    displayName: clothes-kenney-13-8
+    sprite: {fileID: 592658587, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-8
+    displayName: clothes-kenney-14-8
+    sprite: {fileID: -1201911221, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-8
+    displayName: clothes-kenney-15-8
+    sprite: {fileID: -1084139823, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-8
+    displayName: clothes-kenney-16-8
+    sprite: {fileID: 2140563405, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-8
+    displayName: clothes-kenney-17-8
+    sprite: {fileID: 1125596, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-6-9
+    displayName: clothes-kenney-6-9
+    sprite: {fileID: -1523012033, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-7-9
+    displayName: clothes-kenney-7-9
+    sprite: {fileID: 1395734912, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-8-9
+    displayName: clothes-kenney-8-9
+    sprite: {fileID: -1594643029, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-9-9
+    displayName: clothes-kenney-9-9
+    sprite: {fileID: -1257477652, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-10-9
+    displayName: clothes-kenney-10-9
+    sprite: {fileID: -1040247802, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-11-9
+    displayName: clothes-kenney-11-9
+    sprite: {fileID: 1974201065, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-12-9
+    displayName: clothes-kenney-12-9
+    sprite: {fileID: 1090001897, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-13-9
+    displayName: clothes-kenney-13-9
+    sprite: {fileID: -793079230, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-14-9
+    displayName: clothes-kenney-14-9
+    sprite: {fileID: 856176211, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-15-9
+    displayName: clothes-kenney-15-9
+    sprite: {fileID: 1176217046, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-16-9
+    displayName: clothes-kenney-16-9
+    sprite: {fileID: 610644679, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-kenney-17-9
+    displayName: clothes-kenney-17-9
+    sprite: {fileID: 379064332, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

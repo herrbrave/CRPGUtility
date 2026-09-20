@@ -17,6 +17,7 @@ namespace CRPG.Actors
     public sealed class CharacterState
     {
         private readonly Dictionary<DefinitionId, ResourceState> resources = new();
+        private readonly Dictionary<DefinitionId, DefinitionId> appearance = new();
         private readonly List<ConditionInstance> conditions = new();
         private readonly HashSet<DefinitionId> proficiencies = new();
         private readonly List<DefinitionId> features = new();
@@ -95,6 +96,23 @@ namespace CRPG.Actors
         /// concern driven by movement speed, never routed through CharacterState. Purely a data record of the
         /// last request; whatever visual layer is watching AnimationCueChanged decides what to actually play.</summary>
         public DefinitionId CurrentAnimationCueId { get; set; }
+
+        /// <summary>2D campaign: how this character LOOKS -- layer slot id -> option id (e.g. layer-hair -> hair-kenney-19-0),
+        /// resolved to sprites by a SpriteLayerCatalog at the view. Unlike <see cref="CurrentAnimationCueId"/> it is durable
+        /// (saved). Set it before the character's view is bound, or refresh the view's appearance binder afterwards.</summary>
+        public IReadOnlyDictionary<DefinitionId, DefinitionId> Appearance => appearance;
+
+        /// <summary>Sets one appearance entry. An invalid slot or option is ignored (no throw, like the other mutators);
+        /// use <see cref="ClearAppearance"/> to remove an entry.</summary>
+        public void SetAppearance(DefinitionId slot, DefinitionId option)
+        {
+            if (!slot.IsValid || !option.IsValid) return;
+            appearance[slot] = option;
+        }
+
+        public void ClearAppearance(DefinitionId slot) => appearance.Remove(slot);
+
+        public void ClearAllAppearance() => appearance.Clear();
 
         public IReadOnlyDictionary<DefinitionId, ResourceState> Resources => resources;
         public IReadOnlyList<ConditionInstance> Conditions => conditions;

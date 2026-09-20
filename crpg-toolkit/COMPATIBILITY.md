@@ -59,10 +59,12 @@ Two genuinely different things can need migrating, and this package treats them 
 1. **Save data** (a player's actual save file) has a real, built migration system today:
    `CRPG.Saving.ISaveMigration` + `SaveMigrationRunner`, driven by `SaveHeader.FormatVersion`.
    `SaveFileStore.Load` refuses to load a save that can't be walked all the way to
-   `SaveService.CurrentFormatVersion` via a registered migration chain (`NoMigrationPath`), rather than loading
+   `SaveData.CurrentFormatVersion` via a registered migration chain (`NoMigrationPath`), rather than loading
    a partially-migrated or stale-format save silently. If you change `SaveData`'s shape, add a migration and a
-   test proving the old-format-in, new-format-out round trip -- see `Tests/Editor` for the existing
-   version-0-to-1 synthetic example.
+   test proving the old-format-in, new-format-out round trip -- see `Tests/Editor` for the shipped
+   v1-to-v2 and v2-to-v3 migrations. Format history: v2 added the world/store/loot sections and per-character
+   fields; **v3 adds per-character `Appearance` (layer slot -> option id) for the 2D sprite presentation** - a save
+   written by a newer package version is refused (`UnsupportedNewerVersion`) rather than loaded lossily.
 2. **Package API** (your own code calling into this package's classes) has no automated migration tooling, and
    isn't expected to until `1.0`. Pre-1.0, the only "migration path" is: read `CHANGELOG.md`'s entry for the
    version you're upgrading past, and update your own call sites by hand. This is a deliberate, stated scope

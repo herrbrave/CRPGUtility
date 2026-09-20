@@ -38,6 +38,7 @@ namespace CRPG.Actors
             var character = new CharacterState(id) { Level = plan.Level };
 
             foreach (var (statId, score) in plan.AbilityScores.AllScores) character.Stats.SetScore(statId, score);
+            foreach (var pair in plan.Appearance) character.SetAppearance(pair.Key, pair.Value);
 
             if (plan.Class != null)
             {

@@ -1,0 +1,199 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c75226708033e93478d609028c9a7780, type: 3}
+  m_Name: catalog-helmet
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Sprites.SpriteLayerCatalog
+  id: catalog-helmet
+  layerSlot:
+    value: layer-helmet
+  displayName: Helmet
+  options:
+  - optionId:
+      value: helmet-kenney-28-0
+    displayName: helmet-kenney-28-0
+    sprite: {fileID: 1516938393, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-0
+    displayName: helmet-kenney-29-0
+    sprite: {fileID: 1920060644, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-0
+    displayName: helmet-kenney-30-0
+    sprite: {fileID: -1300971057, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-0
+    displayName: helmet-kenney-31-0
+    sprite: {fileID: -516282688, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-1
+    displayName: helmet-kenney-28-1
+    sprite: {fileID: -570588023, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-1
+    displayName: helmet-kenney-29-1
+    sprite: {fileID: -1934788829, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-1
+    displayName: helmet-kenney-30-1
+    sprite: {fileID: 488903784, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-1
+    displayName: helmet-kenney-31-1
+    sprite: {fileID: -554609945, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-2
+    displayName: helmet-kenney-28-2
+    sprite: {fileID: 1323131740, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-2
+    displayName: helmet-kenney-29-2
+    sprite: {fileID: 625447295, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-2
+    displayName: helmet-kenney-30-2
+    sprite: {fileID: 335733940, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-2
+    displayName: helmet-kenney-31-2
+    sprite: {fileID: 544409416, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-3
+    displayName: helmet-kenney-28-3
+    sprite: {fileID: -1392259807, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-3
+    displayName: helmet-kenney-29-3
+    sprite: {fileID: -945869688, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-3
+    displayName: helmet-kenney-30-3
+    sprite: {fileID: -1421606650, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-3
+    displayName: helmet-kenney-31-3
+    sprite: {fileID: 208667562, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-4
+    displayName: helmet-kenney-28-4
+    sprite: {fileID: -1085591984, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-4
+    displayName: helmet-kenney-29-4
+    sprite: {fileID: -234697289, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-4
+    displayName: helmet-kenney-30-4
+    sprite: {fileID: 969190266, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-4
+    displayName: helmet-kenney-31-4
+    sprite: {fileID: -2003517817, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-5
+    displayName: helmet-kenney-28-5
+    sprite: {fileID: 738020150, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-5
+    displayName: helmet-kenney-29-5
+    sprite: {fileID: -669172731, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-5
+    displayName: helmet-kenney-30-5
+    sprite: {fileID: 9779459, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-5
+    displayName: helmet-kenney-31-5
+    sprite: {fileID: -2042257783, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-6
+    displayName: helmet-kenney-28-6
+    sprite: {fileID: 1365450505, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-6
+    displayName: helmet-kenney-29-6
+    sprite: {fileID: 434777061, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-6
+    displayName: helmet-kenney-30-6
+    sprite: {fileID: 894609419, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-6
+    displayName: helmet-kenney-31-6
+    sprite: {fileID: 949748041, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-7
+    displayName: helmet-kenney-28-7
+    sprite: {fileID: 830098526, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-7
+    displayName: helmet-kenney-29-7
+    sprite: {fileID: -233739748, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-7
+    displayName: helmet-kenney-30-7
+    sprite: {fileID: -59854563, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-7
+    displayName: helmet-kenney-31-7
+    sprite: {fileID: -1031686014, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-28-8
+    displayName: helmet-kenney-28-8
+    sprite: {fileID: 1088657498, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-29-8
+    displayName: helmet-kenney-29-8
+    sprite: {fileID: -1884350261, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-30-8
+    displayName: helmet-kenney-30-8
+    sprite: {fileID: 108238291, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: helmet-kenney-31-8
+    displayName: helmet-kenney-31-8
+    sprite: {fileID: -605817149, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

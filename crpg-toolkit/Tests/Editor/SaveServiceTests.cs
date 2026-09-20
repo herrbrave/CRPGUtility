@@ -268,7 +268,7 @@ namespace CRPG.Tests.EditMode
             Assert.AreEqual("Assets/Scenes/InteractionLab.unity", data.Header.ScenePath);
             Assert.AreEqual("srd5-2014", data.Header.RulesetId);
             Assert.AreEqual("content-v1", data.Header.ContentCompatibilityId);
-            Assert.AreEqual(2, data.Header.FormatVersion);
+            Assert.AreEqual(SaveData.CurrentFormatVersion, data.Header.FormatVersion);
         }
 
         [Test]

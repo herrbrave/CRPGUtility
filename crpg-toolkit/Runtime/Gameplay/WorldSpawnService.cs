@@ -7,6 +7,7 @@ using CRPG.Inventory;
 using CRPG.Navigation.Grid;
 using CRPG.Presentation.Animation;
 using CRPG.Presentation.Equipment;
+using CRPG.Presentation.Sprites;
 using CRPG.Saving;
 using UnityEngine;
 
@@ -267,6 +268,9 @@ namespace CRPG.Gameplay
 
                 var spriteEquipment = instance.GetComponentInChildren<SpriteEquipmentBinder>(true);
                 spriteEquipment?.Initialize(entityId, session.RulesDatabase, session.Inventory, session.EventBus);
+
+                var spriteAppearance = instance.GetComponentInChildren<SpriteAppearanceBinder>(true);
+                spriteAppearance?.Initialize(entityId, session.Characters, session.RulesDatabase);
 
                 if (faction.IsValid) factionsByCharacter[entityId] = faction;
 

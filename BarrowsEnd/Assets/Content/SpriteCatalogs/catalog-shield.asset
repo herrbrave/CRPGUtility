@@ -1,0 +1,319 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c75226708033e93478d609028c9a7780, type: 3}
+  m_Name: catalog-shield
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Sprites.SpriteLayerCatalog
+  id: catalog-shield
+  layerSlot:
+    value: layer-shield
+  displayName: Shield
+  options:
+  - optionId:
+      value: shield-kenney-33-0
+    displayName: shield-kenney-33-0
+    sprite: {fileID: 993814586, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-0
+    displayName: shield-kenney-34-0
+    sprite: {fileID: 6703219, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-35-0
+    displayName: shield-kenney-35-0
+    sprite: {fileID: 1551375069, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-36-0
+    displayName: shield-kenney-36-0
+    sprite: {fileID: -824825434, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-0
+    displayName: shield-kenney-37-0
+    sprite: {fileID: 1664576419, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-0
+    displayName: shield-kenney-38-0
+    sprite: {fileID: -303898327, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-39-0
+    displayName: shield-kenney-39-0
+    sprite: {fileID: -588860644, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-40-0
+    displayName: shield-kenney-40-0
+    sprite: {fileID: 397688363, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-1
+    displayName: shield-kenney-33-1
+    sprite: {fileID: 392869048, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-1
+    displayName: shield-kenney-34-1
+    sprite: {fileID: -1823842538, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-35-1
+    displayName: shield-kenney-35-1
+    sprite: {fileID: 976456565, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-36-1
+    displayName: shield-kenney-36-1
+    sprite: {fileID: -112161161, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-1
+    displayName: shield-kenney-37-1
+    sprite: {fileID: -1539609026, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-1
+    displayName: shield-kenney-38-1
+    sprite: {fileID: -149869181, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-39-1
+    displayName: shield-kenney-39-1
+    sprite: {fileID: 973678682, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-40-1
+    displayName: shield-kenney-40-1
+    sprite: {fileID: -1647979037, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-2
+    displayName: shield-kenney-33-2
+    sprite: {fileID: 19688238, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-2
+    displayName: shield-kenney-34-2
+    sprite: {fileID: -778732931, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-2
+    displayName: shield-kenney-37-2
+    sprite: {fileID: -1494185689, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-2
+    displayName: shield-kenney-38-2
+    sprite: {fileID: -1894863364, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-3
+    displayName: shield-kenney-33-3
+    sprite: {fileID: 1978354790, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-3
+    displayName: shield-kenney-34-3
+    sprite: {fileID: 592524296, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-35-3
+    displayName: shield-kenney-35-3
+    sprite: {fileID: -765899144, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-36-3
+    displayName: shield-kenney-36-3
+    sprite: {fileID: 1767418924, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-3
+    displayName: shield-kenney-37-3
+    sprite: {fileID: 958851331, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-3
+    displayName: shield-kenney-38-3
+    sprite: {fileID: 1334747096, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-39-3
+    displayName: shield-kenney-39-3
+    sprite: {fileID: 63342254, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-40-3
+    displayName: shield-kenney-40-3
+    sprite: {fileID: -843913315, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-4
+    displayName: shield-kenney-33-4
+    sprite: {fileID: -710303574, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-4
+    displayName: shield-kenney-34-4
+    sprite: {fileID: 345933608, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-35-4
+    displayName: shield-kenney-35-4
+    sprite: {fileID: -971010165, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-36-4
+    displayName: shield-kenney-36-4
+    sprite: {fileID: -1245884970, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-4
+    displayName: shield-kenney-37-4
+    sprite: {fileID: 845055350, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-4
+    displayName: shield-kenney-38-4
+    sprite: {fileID: 429108286, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-39-4
+    displayName: shield-kenney-39-4
+    sprite: {fileID: -1022428489, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-40-4
+    displayName: shield-kenney-40-4
+    sprite: {fileID: 908712242, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-5
+    displayName: shield-kenney-33-5
+    sprite: {fileID: -1510028978, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-5
+    displayName: shield-kenney-34-5
+    sprite: {fileID: 1311778311, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-5
+    displayName: shield-kenney-37-5
+    sprite: {fileID: -20115508, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-5
+    displayName: shield-kenney-38-5
+    sprite: {fileID: -2142050771, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-6
+    displayName: shield-kenney-33-6
+    sprite: {fileID: 189766285, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-6
+    displayName: shield-kenney-34-6
+    sprite: {fileID: 1242264883, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-35-6
+    displayName: shield-kenney-35-6
+    sprite: {fileID: 804272930, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-36-6
+    displayName: shield-kenney-36-6
+    sprite: {fileID: -443198280, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-6
+    displayName: shield-kenney-37-6
+    sprite: {fileID: -750987622, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-6
+    displayName: shield-kenney-38-6
+    sprite: {fileID: 210527928, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-39-6
+    displayName: shield-kenney-39-6
+    sprite: {fileID: 729531206, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-40-6
+    displayName: shield-kenney-40-6
+    sprite: {fileID: -2033518711, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-7
+    displayName: shield-kenney-33-7
+    sprite: {fileID: -1624270606, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-7
+    displayName: shield-kenney-34-7
+    sprite: {fileID: -166043926, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-35-7
+    displayName: shield-kenney-35-7
+    sprite: {fileID: 1260822421, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-36-7
+    displayName: shield-kenney-36-7
+    sprite: {fileID: 1723126380, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-7
+    displayName: shield-kenney-37-7
+    sprite: {fileID: 1681590972, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-7
+    displayName: shield-kenney-38-7
+    sprite: {fileID: 467156438, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-39-7
+    displayName: shield-kenney-39-7
+    sprite: {fileID: 1461118288, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-40-7
+    displayName: shield-kenney-40-7
+    sprite: {fileID: 545989380, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-33-8
+    displayName: shield-kenney-33-8
+    sprite: {fileID: -2030997161, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-34-8
+    displayName: shield-kenney-34-8
+    sprite: {fileID: 1503061424, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-37-8
+    displayName: shield-kenney-37-8
+    sprite: {fileID: -994580303, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: shield-kenney-38-8
+    displayName: shield-kenney-38-8
+    sprite: {fileID: -581712304, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

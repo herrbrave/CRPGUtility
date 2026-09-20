@@ -26,6 +26,8 @@ namespace CRPG.Actors
             foreach (var proficiencyId in definition.Proficiencies) character.GrantProficiency(proficiencyId);
             foreach (var grant in definition.Resources) character.AddResource(new ResourceState(grant.Resource.Id, grant.MaxAmount));
             foreach (var abilityId in definition.AbilityIds) character.LearnAbility(abilityId);
+            foreach (var entry in definition.Appearance)
+                if (entry != null) character.SetAppearance(entry.layerSlot, entry.option);
 
             foreach (var featureId in definition.FeatureIds.Distinct())
             {

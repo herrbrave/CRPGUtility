@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c75226708033e93478d609028c9a7780, type: 3}
+  m_Name: catalog-feet
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Sprites.SpriteLayerCatalog
+  id: catalog-feet
+  layerSlot:
+    value: layer-feet
+  displayName: Feet
+  options:
+  - optionId:
+      value: feet-kenney-3-0
+    displayName: feet-kenney-3-0
+    sprite: {fileID: -471183132, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-0
+    displayName: feet-kenney-4-0
+    sprite: {fileID: 1040627610, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-1
+    displayName: feet-kenney-3-1
+    sprite: {fileID: -685136491, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-1
+    displayName: feet-kenney-4-1
+    sprite: {fileID: -119005995, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-2
+    displayName: feet-kenney-3-2
+    sprite: {fileID: 1876047204, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-2
+    displayName: feet-kenney-4-2
+    sprite: {fileID: -572234781, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-3
+    displayName: feet-kenney-3-3
+    sprite: {fileID: 1793600876, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-3
+    displayName: feet-kenney-4-3
+    sprite: {fileID: -420537509, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-4
+    displayName: feet-kenney-3-4
+    sprite: {fileID: -317736449, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-4
+    displayName: feet-kenney-4-4
+    sprite: {fileID: 2084674426, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-5
+    displayName: feet-kenney-3-5
+    sprite: {fileID: 1387048704, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-5
+    displayName: feet-kenney-4-5
+    sprite: {fileID: -1446389603, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-6
+    displayName: feet-kenney-3-6
+    sprite: {fileID: -1955280846, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-6
+    displayName: feet-kenney-4-6
+    sprite: {fileID: -1955629192, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-7
+    displayName: feet-kenney-3-7
+    sprite: {fileID: -747497572, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-7
+    displayName: feet-kenney-4-7
+    sprite: {fileID: -752988393, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-8
+    displayName: feet-kenney-3-8
+    sprite: {fileID: 265334661, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-8
+    displayName: feet-kenney-4-8
+    sprite: {fileID: -819939780, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-3-9
+    displayName: feet-kenney-3-9
+    sprite: {fileID: 1252069767, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: feet-kenney-4-9
+    displayName: feet-kenney-4-9
+    sprite: {fileID: -1030443916, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

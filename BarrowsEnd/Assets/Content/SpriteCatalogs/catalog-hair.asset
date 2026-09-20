@@ -1,0 +1,419 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c75226708033e93478d609028c9a7780, type: 3}
+  m_Name: catalog-hair
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Sprites.SpriteLayerCatalog
+  id: catalog-hair
+  layerSlot:
+    value: layer-hair
+  displayName: Hair
+  options:
+  - optionId:
+      value: hair-kenney-19-0
+    displayName: hair-kenney-19-0
+    sprite: {fileID: -1780401364, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-0
+    displayName: hair-kenney-20-0
+    sprite: {fileID: 783194043, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-0
+    displayName: hair-kenney-21-0
+    sprite: {fileID: -234660494, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-0
+    displayName: hair-kenney-22-0
+    sprite: {fileID: -845584363, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-0
+    displayName: hair-kenney-23-0
+    sprite: {fileID: 1621685627, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-0
+    displayName: hair-kenney-24-0
+    sprite: {fileID: 1506331939, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-0
+    displayName: hair-kenney-25-0
+    sprite: {fileID: -1866609753, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-0
+    displayName: hair-kenney-26-0
+    sprite: {fileID: 1111209816, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-1
+    displayName: hair-kenney-19-1
+    sprite: {fileID: -1973691467, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-1
+    displayName: hair-kenney-20-1
+    sprite: {fileID: 1599873712, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-1
+    displayName: hair-kenney-21-1
+    sprite: {fileID: 1273866319, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-1
+    displayName: hair-kenney-22-1
+    sprite: {fileID: 1393715163, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-1
+    displayName: hair-kenney-23-1
+    sprite: {fileID: -1170551007, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-1
+    displayName: hair-kenney-24-1
+    sprite: {fileID: -1591289998, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-1
+    displayName: hair-kenney-25-1
+    sprite: {fileID: 934141735, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-1
+    displayName: hair-kenney-26-1
+    sprite: {fileID: 997677163, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-2
+    displayName: hair-kenney-19-2
+    sprite: {fileID: -1495423029, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-2
+    displayName: hair-kenney-20-2
+    sprite: {fileID: 1648367226, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-2
+    displayName: hair-kenney-21-2
+    sprite: {fileID: -896797469, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-2
+    displayName: hair-kenney-22-2
+    sprite: {fileID: 1594531045, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-2
+    displayName: hair-kenney-23-2
+    sprite: {fileID: 2117131110, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-2
+    displayName: hair-kenney-24-2
+    sprite: {fileID: 28243013, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-2
+    displayName: hair-kenney-25-2
+    sprite: {fileID: 1587714331, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-2
+    displayName: hair-kenney-26-2
+    sprite: {fileID: -2120241069, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-3
+    displayName: hair-kenney-19-3
+    sprite: {fileID: 1727412706, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-3
+    displayName: hair-kenney-20-3
+    sprite: {fileID: -1264373088, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-3
+    displayName: hair-kenney-21-3
+    sprite: {fileID: 429324424, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-3
+    displayName: hair-kenney-22-3
+    sprite: {fileID: -1207225482, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-3
+    displayName: hair-kenney-23-3
+    sprite: {fileID: 1600782415, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-3
+    displayName: hair-kenney-24-3
+    sprite: {fileID: 893640154, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-3
+    displayName: hair-kenney-25-3
+    sprite: {fileID: -1124444496, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-3
+    displayName: hair-kenney-26-3
+    sprite: {fileID: -525547773, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-4
+    displayName: hair-kenney-19-4
+    sprite: {fileID: 1775857162, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-4
+    displayName: hair-kenney-20-4
+    sprite: {fileID: -510775919, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-4
+    displayName: hair-kenney-21-4
+    sprite: {fileID: -522174781, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-4
+    displayName: hair-kenney-22-4
+    sprite: {fileID: -2145896505, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-4
+    displayName: hair-kenney-23-4
+    sprite: {fileID: 905810833, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-4
+    displayName: hair-kenney-24-4
+    sprite: {fileID: -316429995, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-4
+    displayName: hair-kenney-25-4
+    sprite: {fileID: -1143534904, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-4
+    displayName: hair-kenney-26-4
+    sprite: {fileID: 1087135258, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-5
+    displayName: hair-kenney-19-5
+    sprite: {fileID: -1141314344, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-5
+    displayName: hair-kenney-20-5
+    sprite: {fileID: -2114557429, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-5
+    displayName: hair-kenney-21-5
+    sprite: {fileID: 1194549084, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-5
+    displayName: hair-kenney-22-5
+    sprite: {fileID: -2028206655, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-5
+    displayName: hair-kenney-23-5
+    sprite: {fileID: -16660756, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-5
+    displayName: hair-kenney-24-5
+    sprite: {fileID: 1761868007, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-5
+    displayName: hair-kenney-25-5
+    sprite: {fileID: 218401956, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-5
+    displayName: hair-kenney-26-5
+    sprite: {fileID: 2101794846, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-6
+    displayName: hair-kenney-19-6
+    sprite: {fileID: 556706286, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-6
+    displayName: hair-kenney-20-6
+    sprite: {fileID: -1683283612, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-6
+    displayName: hair-kenney-21-6
+    sprite: {fileID: -1072325524, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-6
+    displayName: hair-kenney-22-6
+    sprite: {fileID: -794501358, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-6
+    displayName: hair-kenney-23-6
+    sprite: {fileID: 132808765, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-6
+    displayName: hair-kenney-24-6
+    sprite: {fileID: 431784259, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-6
+    displayName: hair-kenney-25-6
+    sprite: {fileID: -1823376734, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-6
+    displayName: hair-kenney-26-6
+    sprite: {fileID: -186845089, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-7
+    displayName: hair-kenney-19-7
+    sprite: {fileID: 1218892227, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-7
+    displayName: hair-kenney-20-7
+    sprite: {fileID: 1456270056, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-7
+    displayName: hair-kenney-21-7
+    sprite: {fileID: 1194944291, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-7
+    displayName: hair-kenney-22-7
+    sprite: {fileID: 1997488438, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-23-7
+    displayName: hair-kenney-23-7
+    sprite: {fileID: -1644932585, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-24-7
+    displayName: hair-kenney-24-7
+    sprite: {fileID: -1419974893, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-25-7
+    displayName: hair-kenney-25-7
+    sprite: {fileID: 476033973, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-26-7
+    displayName: hair-kenney-26-7
+    sprite: {fileID: -1913360767, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-8
+    displayName: hair-kenney-19-8
+    sprite: {fileID: 1738886035, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-8
+    displayName: hair-kenney-20-8
+    sprite: {fileID: -1697280904, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-8
+    displayName: hair-kenney-21-8
+    sprite: {fileID: 1495559220, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-8
+    displayName: hair-kenney-22-8
+    sprite: {fileID: -555399128, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-9
+    displayName: hair-kenney-19-9
+    sprite: {fileID: -1509917229, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-9
+    displayName: hair-kenney-20-9
+    sprite: {fileID: 1174019759, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-9
+    displayName: hair-kenney-21-9
+    sprite: {fileID: -490021083, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-9
+    displayName: hair-kenney-22-9
+    sprite: {fileID: 1295934554, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-10
+    displayName: hair-kenney-19-10
+    sprite: {fileID: -1142562823, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-10
+    displayName: hair-kenney-20-10
+    sprite: {fileID: -1119691207, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-10
+    displayName: hair-kenney-21-10
+    sprite: {fileID: -1234893692, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-10
+    displayName: hair-kenney-22-10
+    sprite: {fileID: -466952730, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-19-11
+    displayName: hair-kenney-19-11
+    sprite: {fileID: -624063035, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-20-11
+    displayName: hair-kenney-20-11
+    sprite: {fileID: -1275838497, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-21-11
+    displayName: hair-kenney-21-11
+    sprite: {fileID: 389123666, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: hair-kenney-22-11
+    displayName: hair-kenney-22-11
+    sprite: {fileID: 631176727, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

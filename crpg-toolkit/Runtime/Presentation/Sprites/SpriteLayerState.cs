@@ -175,6 +175,53 @@ namespace CRPG.Presentation.Sprites
             if (changed) version++;
         }
 
+        /// <summary>Makes the appearance layer EXACTLY <paramref name="slotToOption"/>: slots absent from the map are cleared, each
+        /// pair is resolved through <paramref name="source"/>, and an option that does not resolve leaves its slot empty and is
+        /// reported (never thrown). An unknown slot is reported and skipped; a null map clears every slot; a null source treats
+        /// every option as unknown (one report). <see cref="Version"/> bumps only if the resulting appearance differs, so
+        /// re-applying an identical map is free. Equipment is untouched.</summary>
+        public void ApplyAppearance(IReadOnlyDictionary<DefinitionId, DefinitionId> slotToOption, ISpriteOptionSource source)
+        {
+            var sprites = new Sprite[slots.Length];
+            var tints = new Color[slots.Length];
+
+            if (slotToOption != null && slotToOption.Count > 0)
+            {
+                if (source == null) Report?.Invoke("No appearance source available; every appearance option is treated as unknown.");
+
+                foreach (var pair in slotToOption)
+                {
+                    if (!slotIndex.TryGetValue(pair.Key, out var i))
+                    {
+                        Report?.Invoke($"Unknown layer slot '{pair.Key.Value}' in the appearance; ignored.");
+                        continue;
+                    }
+
+                    if (source == null) continue;
+                    if (!source.TryGetOption(pair.Key, pair.Value, out var option) || option.Sprite == null)
+                    {
+                        Report?.Invoke($"Appearance option '{pair.Value.Value}' for slot '{pair.Key.Value}' is unknown; the layer is left empty.");
+                        continue;
+                    }
+
+                    sprites[i] = option.Sprite;
+                    tints[i] = option.Tint;
+                }
+            }
+
+            var changed = false;
+            for (var i = 0; i < slots.Length; i++)
+            {
+                if (sprites[i] == null && appearanceSprites[i] == null) continue;
+                if (sprites[i] == appearanceSprites[i] && ColorsEqual(tints[i], appearanceTints[i])) continue;
+                appearanceSprites[i] = sprites[i];
+                appearanceTints[i] = tints[i];
+                changed = true;
+            }
+
+            if (changed) version++;
+        }
+
         /// <summary>Sets what the item worn in inventory slot <paramref name="key"/> paints and hides, replacing that key's
         /// previous set atomically. Either list may be null or empty (a hides-only or paints-only set is legal).</summary>
         public void SetEquipment(DefinitionId key, int priority, IReadOnlyList<LayerPaint> paints, IReadOnlyList<DefinitionId> hiddenSlots)

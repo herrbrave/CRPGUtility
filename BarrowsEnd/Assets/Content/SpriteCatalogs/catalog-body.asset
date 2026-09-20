@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c75226708033e93478d609028c9a7780, type: 3}
+  m_Name: catalog-body
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Sprites.SpriteLayerCatalog
+  id: catalog-body
+  layerSlot:
+    value: layer-body
+  displayName: Body
+  options:
+  - optionId:
+      value: body-kenney-0-0
+    displayName: body-kenney-0-0
+    sprite: {fileID: -1082222893, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-kenney-1-0
+    displayName: body-kenney-1-0
+    sprite: {fileID: -1008233845, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-kenney-0-1
+    displayName: body-kenney-0-1
+    sprite: {fileID: 1585219803, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-kenney-1-1
+    displayName: body-kenney-1-1
+    sprite: {fileID: -991222674, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-kenney-0-2
+    displayName: body-kenney-0-2
+    sprite: {fileID: 382106122, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-kenney-1-2
+    displayName: body-kenney-1-2
+    sprite: {fileID: 367881506, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-kenney-0-3
+    displayName: body-kenney-0-3
+    sprite: {fileID: -2132949095, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-kenney-1-3
+    displayName: body-kenney-1-3
+    sprite: {fileID: 114668658, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-be-0-0
+    displayName: body-be-0-0
+    sprite: {fileID: -1507355906, guid: d3a910677cf6ef64fa7fc80c38612b4a, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: body-be-1-0
+    displayName: body-be-1-0
+    sprite: {fileID: 1068302011, guid: d3a910677cf6ef64fa7fc80c38612b4a, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

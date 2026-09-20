@@ -3,6 +3,7 @@ using System.Linq;
 using CRPG.Actors;
 using CRPG.Dialogue;
 using CRPG.Presentation.Equipment;
+using CRPG.Presentation.Sprites;
 using UnityEditor;
 using UnityEngine;
 
@@ -41,6 +42,7 @@ namespace CRPG.Editor.Validation
                 "- Ruleset providers: does Register() complete without throwing (duplicate ids, construction failures).\n" +
                 "- Equipment visual profiles (sprite side): unknown/duplicate/empty layer slots, missing sprites, a layer " +
                 "both painted and hidden, transparent tints, and fields authored for the wrong kind.\n" +
+                "- Sprite layer catalogs: missing layer slot, options with no id or sprite, duplicate option ids, and two catalogs on one slot.\n" +
                 "- Compatibility: this project's actual Unity version and dependency package versions against " +
                 "what this package's own package.json declares (see COMPATIBILITY.md).\n\n" +
                 "Does NOT cover character rig/socket validation (use Character Setup's own Validate button) or " +
@@ -112,6 +114,26 @@ namespace CRPG.Editor.Validation
                         $"Could not validate this equipment visual profile: {ex.Message}", "Inspect the asset directly in the Inspector."));
                 }
             }
+
+            var catalogs = new List<(SpriteLayerCatalog catalog, string assetPath)>();
+            foreach (var guid in AssetDatabase.FindAssets("t:SpriteLayerCatalog"))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                try
+                {
+                    var catalog = AssetDatabase.LoadAssetAtPath<SpriteLayerCatalog>(path);
+                    if (catalog == null) continue;
+                    catalogs.Add((catalog, path));
+                    results.AddRange(SpriteLayerCatalogValidator.Validate(catalog, path));
+                }
+                catch (System.Exception ex)
+                {
+                    results.Add(new ValidationResult(ValidationSeverity.Error, path, "Load",
+                        $"Could not validate this sprite catalog: {ex.Message}", "Inspect the asset directly in the Inspector."));
+                }
+            }
+
+            results.AddRange(SpriteLayerCatalogValidator.ValidateSet(catalogs));
 
             results.AddRange(CompatibilityValidator.Validate());
 

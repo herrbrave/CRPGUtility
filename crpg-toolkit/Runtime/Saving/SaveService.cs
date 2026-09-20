@@ -163,6 +163,8 @@ namespace CRPG.Saving
                 foreach (var targetId in character.ConcentrationAffectedTargets) entry.ConcentrationAffectedTargets.Add(targetId.ToString());
                 foreach (var abilityId in character.KnownAbilities) entry.KnownAbilities.Add(abilityId.Value);
                 foreach (var abilityId in character.PreparedAbilities) entry.PreparedAbilities.Add(abilityId.Value);
+                foreach (var pair in character.Appearance.OrderBy(p => p.Key.Value, StringComparer.Ordinal))
+                    entry.Appearance.Add(new AppearanceSaveEntry { Slot = pair.Key.Value, Option = pair.Value.Value });
 
                 data.Characters.Add(entry);
             }
@@ -199,6 +201,11 @@ namespace CRPG.Saving
                     entry.ConcentrationAffectedTargets.Select(RuntimeEntityId.FromString));
                 foreach (var abilityId in entry.KnownAbilities) character.LearnAbility(new DefinitionId(abilityId));
                 character.PrepareSpells(entry.PreparedAbilities.Select(id => new DefinitionId(id)));
+                foreach (var appearance in entry.Appearance)
+                {
+                    if (appearance == null || string.IsNullOrEmpty(appearance.Slot) || string.IsNullOrEmpty(appearance.Option)) continue;
+                    character.SetAppearance(new DefinitionId(appearance.Slot), new DefinitionId(appearance.Option));
+                }
 
                 characters.Register(character);
             }

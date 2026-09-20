@@ -14,8 +14,9 @@ namespace CRPG.Saving
     public sealed class SaveData
     {
         // Task 3.5: bumped 1 -> 2, a real schema change (six new CharacterSaveData fields plus header/world/
-        // store/loot sections). See Migrations/V1ToV2Migration.cs.
-        public const int CurrentFormatVersion = 2;
+        // store/loot sections). See Migrations/V1ToV2Migration.cs. 2 -> 3 (2D campaign Task 2.4): appearance on
+        // CharacterSaveData -- see Migrations/V2ToV3Migration.cs.
+        public const int CurrentFormatVersion = 3;
 
         public SaveHeader Header = new();
         public PartySaveData Party = new();

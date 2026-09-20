@@ -67,6 +67,16 @@ namespace BarrowsEnd.Editor
             importer.SetTextureSettings(settings);
             importer.SaveAndReimport();
 
+            // Reuse the spriteID of every sprite name that already exists: Unity derives each sub-asset's internalID (the fileID stored
+            // in every serialized Sprite reference -- catalogs, equipment profiles, prefabs, scenes) from it, so regenerating ids on
+            // a re-slice would silently turn every stored reference into "Missing (Sprite)".
+            var factory = new SpriteDataProviderFactories();
+            factory.Init();
+            var provider = factory.GetSpriteEditorDataProviderFromObject(importer);
+            provider.InitSpriteEditorDataProvider();
+            var existingIds = new Dictionary<string, GUID>();
+            foreach (var existing in provider.GetSpriteRects()) existingIds[existing.name] = existing.spriteID;
+
             var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
             tex.LoadImage(File.ReadAllBytes(path));
             var cols = (tex.width + 1) / Pitch;
@@ -81,10 +91,11 @@ namespace BarrowsEnd.Editor
                 var yTop = r * Pitch;
                 var y = tex.height - yTop - Cell; // sprite rects are bottom-left origin
                 if (IsEmpty(pixels, tex.width, x, y)) continue;
+                var spriteName = $"{name}_{c}_{r}";
                 rects.Add(new SpriteRect
                 {
-                    name = $"{name}_{c}_{r}",
-                    spriteID = GUID.Generate(),
+                    name = spriteName,
+                    spriteID = existingIds.TryGetValue(spriteName, out var reused) ? reused : GUID.Generate(),
                     rect = new Rect(x, y, Cell, Cell),
                     alignment = SpriteAlignment.Center,
                     pivot = new Vector2(0.5f, 0.5f),
@@ -92,10 +103,6 @@ namespace BarrowsEnd.Editor
             }
             Object.DestroyImmediate(tex);
 
-            var factory = new SpriteDataProviderFactories();
-            factory.Init();
-            var provider = factory.GetSpriteEditorDataProviderFromObject(importer);
-            provider.InitSpriteEditorDataProvider();
             provider.SetSpriteRects(rects.ToArray());
             var nameFile = provider.GetDataProvider<ISpriteNameFileIdDataProvider>();
             nameFile.SetNameFileIdPairs(rects.ConvertAll(s => new SpriteNameFileIdPair(s.name, s.spriteID)));

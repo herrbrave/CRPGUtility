@@ -32,6 +32,7 @@ namespace CRPG.Editor.Npc
             root.Add(Section("Resources", "resources"));
             root.Add(Section("Features & Abilities", "featureIds", "abilityIds", "spellcastingStatId"));
             root.Add(Section("Equipment", "startingItemIds"));
+            root.Add(Section("Appearance", "appearance"));
             root.Add(BuildTemplateSection());
 
             return root;

@@ -1,0 +1,569 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c75226708033e93478d609028c9a7780, type: 3}
+  m_Name: catalog-weapon
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Sprites.SpriteLayerCatalog
+  id: catalog-weapon
+  layerSlot:
+    value: layer-weapon
+  displayName: Weapon
+  options:
+  - optionId:
+      value: weapon-kenney-42-0
+    displayName: weapon-kenney-42-0
+    sprite: {fileID: 2140704335, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-0
+    displayName: weapon-kenney-43-0
+    sprite: {fileID: 1333433767, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-0
+    displayName: weapon-kenney-44-0
+    sprite: {fileID: 12690476, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-0
+    displayName: weapon-kenney-45-0
+    sprite: {fileID: -24479239, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-0
+    displayName: weapon-kenney-46-0
+    sprite: {fileID: 1021200792, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-0
+    displayName: weapon-kenney-47-0
+    sprite: {fileID: 811138423, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-0
+    displayName: weapon-kenney-48-0
+    sprite: {fileID: -1403902939, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-0
+    displayName: weapon-kenney-49-0
+    sprite: {fileID: 1507462666, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-0
+    displayName: weapon-kenney-50-0
+    sprite: {fileID: -26827657, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-0
+    displayName: weapon-kenney-51-0
+    sprite: {fileID: 124540715, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-52-0
+    displayName: weapon-kenney-52-0
+    sprite: {fileID: 275644462, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-53-0
+    displayName: weapon-kenney-53-0
+    sprite: {fileID: 539813753, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-1
+    displayName: weapon-kenney-42-1
+    sprite: {fileID: -1064179089, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-1
+    displayName: weapon-kenney-43-1
+    sprite: {fileID: -1409090856, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-1
+    displayName: weapon-kenney-44-1
+    sprite: {fileID: -1702269476, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-1
+    displayName: weapon-kenney-45-1
+    sprite: {fileID: 686977267, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-1
+    displayName: weapon-kenney-46-1
+    sprite: {fileID: 2022812476, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-1
+    displayName: weapon-kenney-47-1
+    sprite: {fileID: 1134369321, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-1
+    displayName: weapon-kenney-48-1
+    sprite: {fileID: -783803686, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-1
+    displayName: weapon-kenney-49-1
+    sprite: {fileID: -1974331908, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-1
+    displayName: weapon-kenney-50-1
+    sprite: {fileID: -1167184080, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-1
+    displayName: weapon-kenney-51-1
+    sprite: {fileID: -766017497, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-52-1
+    displayName: weapon-kenney-52-1
+    sprite: {fileID: -1959212892, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-53-1
+    displayName: weapon-kenney-53-1
+    sprite: {fileID: 1706483678, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-2
+    displayName: weapon-kenney-42-2
+    sprite: {fileID: 1699017312, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-2
+    displayName: weapon-kenney-43-2
+    sprite: {fileID: 1244314790, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-2
+    displayName: weapon-kenney-44-2
+    sprite: {fileID: 1894276275, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-2
+    displayName: weapon-kenney-45-2
+    sprite: {fileID: 1379027508, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-2
+    displayName: weapon-kenney-46-2
+    sprite: {fileID: -756375453, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-2
+    displayName: weapon-kenney-47-2
+    sprite: {fileID: 1962829049, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-2
+    displayName: weapon-kenney-48-2
+    sprite: {fileID: -1731776393, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-2
+    displayName: weapon-kenney-49-2
+    sprite: {fileID: -559905553, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-2
+    displayName: weapon-kenney-50-2
+    sprite: {fileID: 129390936, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-2
+    displayName: weapon-kenney-51-2
+    sprite: {fileID: -1191874074, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-52-2
+    displayName: weapon-kenney-52-2
+    sprite: {fileID: -387956189, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-53-2
+    displayName: weapon-kenney-53-2
+    sprite: {fileID: -1669755501, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-3
+    displayName: weapon-kenney-42-3
+    sprite: {fileID: 152690819, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-3
+    displayName: weapon-kenney-43-3
+    sprite: {fileID: 2062814241, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-3
+    displayName: weapon-kenney-44-3
+    sprite: {fileID: 1947962436, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-3
+    displayName: weapon-kenney-45-3
+    sprite: {fileID: 757174333, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-3
+    displayName: weapon-kenney-46-3
+    sprite: {fileID: 467224205, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-3
+    displayName: weapon-kenney-47-3
+    sprite: {fileID: -1025077090, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-3
+    displayName: weapon-kenney-48-3
+    sprite: {fileID: -1667844965, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-3
+    displayName: weapon-kenney-49-3
+    sprite: {fileID: 328923511, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-3
+    displayName: weapon-kenney-50-3
+    sprite: {fileID: -2025062570, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-3
+    displayName: weapon-kenney-51-3
+    sprite: {fileID: -1522739446, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-52-3
+    displayName: weapon-kenney-52-3
+    sprite: {fileID: 592205715, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-53-3
+    displayName: weapon-kenney-53-3
+    sprite: {fileID: 1007198531, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-4
+    displayName: weapon-kenney-42-4
+    sprite: {fileID: -1765118023, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-4
+    displayName: weapon-kenney-43-4
+    sprite: {fileID: -1710687127, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-4
+    displayName: weapon-kenney-44-4
+    sprite: {fileID: 248434408, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-4
+    displayName: weapon-kenney-45-4
+    sprite: {fileID: -526147953, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-4
+    displayName: weapon-kenney-46-4
+    sprite: {fileID: -1674712376, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-4
+    displayName: weapon-kenney-47-4
+    sprite: {fileID: -1072231223, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-4
+    displayName: weapon-kenney-48-4
+    sprite: {fileID: 110235687, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-4
+    displayName: weapon-kenney-49-4
+    sprite: {fileID: 550179930, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-4
+    displayName: weapon-kenney-50-4
+    sprite: {fileID: -829312799, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-4
+    displayName: weapon-kenney-51-4
+    sprite: {fileID: -1473329537, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-52-4
+    displayName: weapon-kenney-52-4
+    sprite: {fileID: -2022519755, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-53-4
+    displayName: weapon-kenney-53-4
+    sprite: {fileID: -789670247, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-5
+    displayName: weapon-kenney-42-5
+    sprite: {fileID: 1849830975, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-5
+    displayName: weapon-kenney-43-5
+    sprite: {fileID: -827158300, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-5
+    displayName: weapon-kenney-44-5
+    sprite: {fileID: 536363433, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-5
+    displayName: weapon-kenney-45-5
+    sprite: {fileID: 1111349559, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-5
+    displayName: weapon-kenney-46-5
+    sprite: {fileID: 684955818, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-5
+    displayName: weapon-kenney-47-5
+    sprite: {fileID: 1551627040, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-5
+    displayName: weapon-kenney-48-5
+    sprite: {fileID: -1429368764, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-5
+    displayName: weapon-kenney-49-5
+    sprite: {fileID: -362646944, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-5
+    displayName: weapon-kenney-50-5
+    sprite: {fileID: 2122543954, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-5
+    displayName: weapon-kenney-51-5
+    sprite: {fileID: -1849361612, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-6
+    displayName: weapon-kenney-42-6
+    sprite: {fileID: -1381816044, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-6
+    displayName: weapon-kenney-43-6
+    sprite: {fileID: 1440403746, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-6
+    displayName: weapon-kenney-44-6
+    sprite: {fileID: 1403192473, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-6
+    displayName: weapon-kenney-45-6
+    sprite: {fileID: -241653662, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-6
+    displayName: weapon-kenney-46-6
+    sprite: {fileID: 807699597, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-6
+    displayName: weapon-kenney-47-6
+    sprite: {fileID: -344294505, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-6
+    displayName: weapon-kenney-48-6
+    sprite: {fileID: -1366906149, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-6
+    displayName: weapon-kenney-49-6
+    sprite: {fileID: 1122900200, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-6
+    displayName: weapon-kenney-50-6
+    sprite: {fileID: 466701114, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-6
+    displayName: weapon-kenney-51-6
+    sprite: {fileID: 417019656, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-7
+    displayName: weapon-kenney-42-7
+    sprite: {fileID: 1216480890, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-7
+    displayName: weapon-kenney-43-7
+    sprite: {fileID: -139291334, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-7
+    displayName: weapon-kenney-44-7
+    sprite: {fileID: -1804125007, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-7
+    displayName: weapon-kenney-45-7
+    sprite: {fileID: 48635777, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-7
+    displayName: weapon-kenney-46-7
+    sprite: {fileID: 1302322654, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-7
+    displayName: weapon-kenney-47-7
+    sprite: {fileID: 1508439946, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-7
+    displayName: weapon-kenney-48-7
+    sprite: {fileID: -1175230469, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-7
+    displayName: weapon-kenney-49-7
+    sprite: {fileID: 577204375, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-7
+    displayName: weapon-kenney-50-7
+    sprite: {fileID: 237573212, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-7
+    displayName: weapon-kenney-51-7
+    sprite: {fileID: -153495816, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-8
+    displayName: weapon-kenney-42-8
+    sprite: {fileID: 1368293631, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-8
+    displayName: weapon-kenney-43-8
+    sprite: {fileID: -2077492841, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-8
+    displayName: weapon-kenney-44-8
+    sprite: {fileID: 1603325898, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-8
+    displayName: weapon-kenney-45-8
+    sprite: {fileID: 1225045564, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-8
+    displayName: weapon-kenney-46-8
+    sprite: {fileID: -2101561667, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-8
+    displayName: weapon-kenney-47-8
+    sprite: {fileID: -1567302114, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-8
+    displayName: weapon-kenney-48-8
+    sprite: {fileID: -1359879255, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-8
+    displayName: weapon-kenney-49-8
+    sprite: {fileID: 70617481, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-8
+    displayName: weapon-kenney-50-8
+    sprite: {fileID: 41435287, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-8
+    displayName: weapon-kenney-51-8
+    sprite: {fileID: -770838913, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-42-9
+    displayName: weapon-kenney-42-9
+    sprite: {fileID: 1800801207, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-43-9
+    displayName: weapon-kenney-43-9
+    sprite: {fileID: -65990688, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-44-9
+    displayName: weapon-kenney-44-9
+    sprite: {fileID: 2145912920, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-45-9
+    displayName: weapon-kenney-45-9
+    sprite: {fileID: -2095202331, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-46-9
+    displayName: weapon-kenney-46-9
+    sprite: {fileID: 1063359558, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-47-9
+    displayName: weapon-kenney-47-9
+    sprite: {fileID: -1806902211, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-48-9
+    displayName: weapon-kenney-48-9
+    sprite: {fileID: -600563733, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-49-9
+    displayName: weapon-kenney-49-9
+    sprite: {fileID: -1960810971, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-50-9
+    displayName: weapon-kenney-50-9
+    sprite: {fileID: 1979399151, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: weapon-kenney-51-9
+    displayName: weapon-kenney-51-9
+    sprite: {fileID: -66752706, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

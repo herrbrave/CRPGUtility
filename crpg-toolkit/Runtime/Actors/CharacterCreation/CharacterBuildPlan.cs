@@ -23,6 +23,20 @@ namespace CRPG.Actors
         public int Level { get; set; } = 1;
         public StatBlock AbilityScores { get; } = new();
 
+        private readonly Dictionary<DefinitionId, DefinitionId> appearance = new();
+
+        /// <summary>2D campaign: the chosen look (layer slot -> option id), copied onto the built character.</summary>
+        public IReadOnlyDictionary<DefinitionId, DefinitionId> Appearance => appearance;
+
+        /// <summary>An invalid slot or option is ignored; use <see cref="ClearAppearance"/> to remove an entry.</summary>
+        public void SetAppearance(DefinitionId slot, DefinitionId option)
+        {
+            if (!slot.IsValid || !option.IsValid) return;
+            appearance[slot] = option;
+        }
+
+        public void ClearAppearance(DefinitionId slot) => appearance.Remove(slot);
+
         public IReadOnlyList<ChoiceRequirement> PendingChoices => pendingChoices;
         public IReadOnlyList<ResolvedChoice> ResolvedChoices => resolvedChoices;
         public bool IsComplete => pendingChoices.Count == 0;
