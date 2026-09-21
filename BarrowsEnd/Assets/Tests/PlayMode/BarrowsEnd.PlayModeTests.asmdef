@@ -20,7 +20,8 @@
     "CRPG.Quests",
     "CRPG.Combat",
     "CRPG.Camera",
-    "CRPG.Exploration"
+    "CRPG.Exploration",
+    "BarrowsEnd.Shell"
   ],
   "includePlatforms": [],
   "defineConstraints": [

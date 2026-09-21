@@ -23,7 +23,10 @@
     "CRPG.Exploration",
     "Unity.RenderPipelines.Universal.Runtime",
     "Unity.RenderPipelines.Core.Runtime",
-    "Unity.2D.Tilemap.Editor"
+    "Unity.2D.Tilemap.Editor",
+    "BarrowsEnd.Shell",
+    "CRPG.InputSystem",
+    "CRPG.Party"
   ],
   "includePlatforms": [
     "Editor"

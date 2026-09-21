@@ -1,0 +1,112 @@
+using System.IO;
+using BarrowsEnd.Gate;
+using BarrowsEnd.Shell;
+using CRPG.Camera;
+using CRPG.Exploration;
+using CRPG.InputSystem;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace BarrowsEnd.Editor
+{
+    /// <summary>
+    /// Task 3.4: authors <c>Core.unity</c>, the persistent scene that owns everything that outlives a location: the authored camera rig, the input source
+    /// (raycast camera = the rig's, cameraRig set so zoom works, hittable mask that excludes baked wall boxes), the <see cref="ShellBootstrap"/> that starts
+    /// the session and loads the first location, and a small panel. Also puts every scene in the build settings (Core first). Never hand-edited.
+    /// </summary>
+    public static class BarrowsEndCoreSceneAuthor
+    {
+        public const string ScenePath = "Assets/Scenes/Core.unity";
+
+        [MenuItem("Barrows End/Content/Author Core Scene")]
+        public static void Author()
+        {
+            BarrowsEndCameraAuthor.Author();
+            BarrowsEndGearAuthor.Author();
+            BarrowsEndLocationAuthor.AuthorAll();
+            BarrowsEndCharacterAuthor.Author();
+            Directory.CreateDirectory("Assets/Scenes");
+            AssetDatabase.Refresh();
+
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            // Loaded AFTER NewScene (assets loaded before it can turn into fake-null references).
+            var ruleset = AssetDatabase.LoadAssetAtPath<BarrowsEndRulesetProvider>(BarrowsEndGearAuthor.RulesetPath);
+            var partyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCharacterAuthor.SpriteCharacterPath);
+            var rigPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCameraAuthor.RigPrefabPath);
+            var panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PhaseTwoGateSceneAuthor.PanelSettingsPath);
+
+            var rigGo = (GameObject)PrefabUtility.InstantiatePrefab(rigPrefab);
+            var rig = rigGo.GetComponent<IsometricCameraRig>();
+            var follow = rigGo.GetComponent<PartyCameraFollowBehaviour>();
+            var camera = rigGo.GetComponentInChildren<Camera>();
+
+            var inputGo = new GameObject("Input");
+            var input = inputGo.AddComponent<InputSystemCommandSource>();
+            var inputSo = new SerializedObject(input);
+            inputSo.FindProperty("raycastCamera").objectReferenceValue = camera;
+            inputSo.FindProperty("cameraRig").objectReferenceValue = rig;
+            inputSo.FindProperty("hittableMask.m_Bits").uintValue = (uint)BarrowsEndLayers.RouterMask; // unsigned bits: a plain int would clamp ~mask to 0
+            inputSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var bootGo = new GameObject("ShellBootstrap");
+            var boot = bootGo.AddComponent<ShellBootstrap>();
+            var so = new SerializedObject(boot);
+            so.FindProperty("ruleset").objectReferenceValue = ruleset;
+            so.FindProperty("partyPrefab").objectReferenceValue = partyPrefab;
+            so.FindProperty("startingScenePath").stringValue = BarrowsEndLocationAuthor.TownPath;
+            so.FindProperty("startingDestinationId").stringValue = BarrowsEndLocationAuthor.TownStart;
+            so.FindProperty("inputSource").objectReferenceValue = input;
+            so.FindProperty("cameraRig").objectReferenceValue = rig;
+            so.FindProperty("cameraFollow").objectReferenceValue = follow;
+            var members = GateLayout.DefaultMembers();
+            var membersProp = so.FindProperty("members");
+            membersProp.arraySize = members.Length;
+            for (var i = 0; i < members.Length; i++)
+            {
+                var element = membersProp.GetArrayElementAtIndex(i);
+                element.FindPropertyRelative("displayName").stringValue = members[i].displayName;
+                element.FindPropertyRelative("spawnId").stringValue = members[i].spawnId;
+                element.FindPropertyRelative("maxHp").intValue = members[i].maxHp;
+                Strings(element.FindPropertyRelative("appearance"), members[i].appearance);
+                Strings(element.FindPropertyRelative("gear"), members[i].gear);
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var panelGo = new GameObject("ShellPanel");
+            var document = panelGo.AddComponent<UIDocument>();
+            document.panelSettings = panelSettings;
+            var panel = panelGo.AddComponent<ShellPanel>();
+            var panelSo = new SerializedObject(panel);
+            panelSo.FindProperty("bootstrap").objectReferenceValue = boot;
+            panelSo.ApplyModifiedPropertiesWithoutUndo();
+
+            EditorSceneManager.SaveScene(scene, ScenePath);
+            EditorBuildSettings.scenes = new[]
+            {
+                new EditorBuildSettingsScene(ScenePath, true),
+                new EditorBuildSettingsScene(BarrowsEndLocationAuthor.TownPath, true),
+                new EditorBuildSettingsScene(BarrowsEndLocationAuthor.CavePath, true),
+                new EditorBuildSettingsScene(PhaseTwoGateSceneAuthor.ScenePath, true),
+                new EditorBuildSettingsScene(PhaseTwoGateSceneAuthor.LookSpikeScenePath, true),
+            };
+            Debug.Log($"[BarrowsEnd] Core scene authored: {ScenePath}");
+        }
+
+        [MenuItem("Barrows End/Open Campaign Core")]
+        public static void Open()
+        {
+            if (!File.Exists(ScenePath)) Author();
+            EditorSceneManager.OpenScene(ScenePath);
+        }
+
+        private static void Strings(SerializedProperty array, string[] values)
+        {
+            array.arraySize = values.Length;
+            for (var i = 0; i < values.Length; i++) array.GetArrayElementAtIndex(i).stringValue = values[i];
+        }
+    }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "BarrowsEnd.Shell",
+  "rootNamespace": "BarrowsEnd.Shell",
+  "references": [
+    "BarrowsEnd.Content",
+    "BarrowsEnd.Gate",
+    "CRPG.Core",
+    "CRPG.Actors",
+    "CRPG.Camera",
+    "CRPG.Combat",
+    "CRPG.Exploration",
+    "CRPG.Gameplay",
+    "CRPG.Inventory",
+    "CRPG.InputSystem",
+    "CRPG.Navigation",
+    "CRPG.Party",
+    "CRPG.Presentation",
+    "CRPG.Quests",
+    "CRPG.Rules",
+    "CRPG.Rules.SRD5",
+    "CRPG.Saving",
+    "CRPG.UI"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,288 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using BarrowsEnd.Gate;
+using CRPG.Actors;
+using CRPG.Camera;
+using CRPG.Combat;
+using CRPG.Core;
+using CRPG.Exploration;
+using CRPG.Gameplay;
+using CRPG.Gameplay.Interactions;
+using CRPG.Gameplay.Interactions.Adapters;
+using CRPG.Gameplay.Scenes;
+using CRPG.InputSystem;
+using CRPG.Navigation.Grid;
+using CRPG.Party;
+using CRPG.Saving;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace BarrowsEnd.Shell
+{
+    /// <summary>
+    /// The campaign's composition root, living in the persistent Core scene (Task 3.4; ported from the toolkit dogfood AdventureSliceBootstrap, minus its
+    /// dialogue/quest/inventory UI). It starts the ruleset-aware session, owns the travel and load coordinators, spawns the party into the Core scene and
+    /// loads the location scenes additively. Everything that holds the current session is rebuilt by <see cref="GateSessionServices"/> after a load; travel
+    /// keeps the same session and needs none of that.
+    /// <para>The party uses FIXED character ids so a save can be loaded after a process restart (a runtime-generated id would only work in the same process).</para>
+    /// </summary>
+    public sealed class ShellBootstrap : MonoBehaviour
+    {
+        [Header("Content")]
+        [SerializeField] private BarrowsEndRulesetProvider ruleset;
+        [SerializeField] private GameObject partyPrefab;
+        [SerializeField] private GateMemberSpec[] members = Array.Empty<GateMemberSpec>();
+        [SerializeField] private int seed = 4242;
+
+        [Header("Start")]
+        [SerializeField] private string startingScenePath;
+        [SerializeField] private string startingDestinationId = "start";
+
+        [Header("Input / camera")]
+        [SerializeField] private InputSystemCommandSource inputSource;
+        [SerializeField] private IsometricCameraRig cameraRig;
+        [SerializeField] private PartyCameraFollowBehaviour cameraFollow;
+
+        private static readonly Type[] RequiredPolicies =
+        {
+            typeof(IArmorClassRule), typeof(IAttackBonusRule), typeof(IInitiativeRule), typeof(ISavingThrowRule),
+        };
+
+        private readonly Dictionary<RuntimeEntityId, GameObject> partyVisualPrefabs = new();
+        private GameSessionHost host;
+        private GridPathfindingService pathfinding;
+        private WorldTransitionGate transitionGate;
+        private SceneTravelRunner runner;
+        private SessionLoadCoordinator loadCoordinator;
+        private GateCommandSource commandSource;
+
+        public GateSessionServices Services { get; private set; }
+        public GameSession Session => Services?.Session;
+        public GridPathfindingService Pathfinding => pathfinding;
+        public WorldTransitionGate Gate => transitionGate;
+        public SceneTravelRunner Runner => runner;
+        public IsometricCameraRig CameraRig => cameraRig;
+        public bool IsReady { get; private set; }
+        public bool IsLoading => loadCoordinator != null && loadCoordinator.IsLoading;
+        public string LastMessage { get; private set; } = "";
+        public event Action<string> MessageChanged;
+
+        /// <summary>Where <see cref="SaveNow"/> writes and <see cref="LoadNow"/> reads. Tests point this at a temp file.</summary>
+        public string SavePath { get; set; }
+
+        /// <summary>The scene holding the current location (the active scene).</summary>
+        public Scene LocationScene => SceneManager.GetActiveScene();
+
+        private void Awake() => SavePath ??= Path.Combine(Application.persistentDataPath, "barrowsend-quicksave.json");
+
+        private void Start() => StartCoroutine(Boot());
+
+        private IEnumerator Boot()
+        {
+            if (ruleset == null || partyPrefab == null || inputSource == null || cameraRig == null || string.IsNullOrEmpty(startingScenePath))
+                throw new InvalidOperationException("ShellBootstrap needs its ruleset, party prefab, input source, camera rig and starting scene (author Core.unity with 'Barrows End/Content/Author Core Scene').");
+
+            var coreScene = gameObject.scene;
+            pathfinding = new GridPathfindingService();
+            host = gameObject.AddComponent<GameSessionHost>();
+            var session = host.StartSession(ruleset, new DiceService(new SeededRandomSource(seed)), RequiredPolicies);
+            var spawner = new WorldSpawnService(session) { GridNavigation = pathfinding };
+
+            transitionGate = new WorldTransitionGate();
+            var runnerGo = new GameObject("SceneTravelRunner");
+            runnerGo.transform.SetParent(transform);
+            runner = runnerGo.AddComponent<SceneTravelRunner>();
+            runner.Coordinator = NewTravelCoordinator(session, spawner);
+            loadCoordinator = new SessionLoadCoordinator(gate: transitionGate, gridPathfinding: pathfinding);
+            inputSource.TransitionGate = transitionGate;
+
+            yield return SceneManager.LoadSceneAsync(startingScenePath, LoadSceneMode.Additive);
+            var startingScene = SceneManager.GetSceneByPath(startingScenePath);
+            SceneManager.SetActiveScene(startingScene);
+            yield return null;
+            ActivateGridOf(startingScene);
+
+            SpawnParty(session, spawner, coreScene);
+
+            var interactionHost = GetComponentInChildren<InteractionControllerBehaviour>() ?? NewInteractionHost();
+            commandSource = new GateCommandSource(inputSource, () => Services?.Session?.Party);
+            Services = new GateSessionServices(commandSource, interactionHost, pathfinding);
+            Services.Rebind(session, spawner);
+
+            PrepareLocation(startingScene, session, spawner);
+            WireTravelAdapters();
+            SceneManager.sceneLoaded += OnSceneLoaded;
+
+            PlaceParty(session, startingScene, startingDestinationId);
+            InitializeCamera(session, startingScene);
+
+            IsReady = true;
+            Say("ready");
+        }
+
+        private SceneTravelCoordinator NewTravelCoordinator(GameSession session, WorldSpawnService spawner) =>
+            new(session, spawner, session.Party, transitionGate, cameraRig != null ? cameraRig.Rig : null, gridPathfinding: pathfinding);
+
+        private InteractionControllerBehaviour NewInteractionHost()
+        {
+            var go = new GameObject("InteractionControllerHost");
+            go.transform.SetParent(transform, false);
+            return go.AddComponent<InteractionControllerBehaviour>();
+        }
+
+        private void ActivateGridOf(Scene scene)
+        {
+            var provider = WalkabilityGridProvider.FindInScene(scene);
+            if (provider == null) throw new InvalidOperationException($"Location '{scene.path}' has no WalkabilityGridProvider: bake it ('Barrows End/Location/Bake Selected Location').");
+            pathfinding.SetActiveGrid(provider.Grid);
+        }
+
+        private void SpawnParty(GameSession session, WorldSpawnService spawner, Scene coreScene)
+        {
+            for (var i = 0; i < members.Length; i++)
+            {
+                var spec = members[i];
+                var id = RuntimeEntityId.FromString("ba00000000000000000000000000000" + (i + 1).ToString("x"));
+                var character = new CharacterState(id);
+                character.AddResource(new ResourceState(GateSessionServices.HitPoints, spec.maxHp));
+                foreach (var entry in spec.appearance)
+                {
+                    var parts = entry.Split('=');
+                    if (parts.Length == 2) character.SetAppearance(new DefinitionId(parts[0].Trim()), new DefinitionId(parts[1].Trim()));
+                }
+
+                session.Characters.Register(character);
+                session.Party.AddMember(id);
+                partyVisualPrefabs[id] = partyPrefab;
+
+                var instance = spawner.BindRestoredView(spec.spawnId, id, default, partyPrefab, Vector3.zero, Quaternion.identity, default, startInactive: false);
+                SceneManager.MoveGameObjectToScene(instance, coreScene);
+            }
+
+            if (session.Party.Members.Count > 0) session.Party.Select(session.Party.Members[0]);
+        }
+
+        private static ILocationContent FindLocationContent(Scene scene)
+        {
+            foreach (var candidate in FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (candidate is ILocationContent content && candidate.gameObject.scene == scene) return content;
+            return null;
+        }
+
+        private void PrepareLocation(Scene scene, GameSession session, WorldSpawnService spawner)
+        {
+            var content = FindLocationContent(scene);
+            if (content == null) return;
+            LocationInitializer.Prepare(content, session, spawner, scene);
+        }
+
+        private void PlaceParty(GameSession session, Scene scene, string destinationId)
+        {
+            SceneTravelDestination start = null;
+            foreach (var d in FindObjectsByType<SceneTravelDestination>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (d.gameObject.scene == scene && d.DestinationId == destinationId) { start = d; break; }
+            if (start == null) throw new InvalidOperationException($"'{scene.path}' has no SceneTravelDestination '{destinationId}'.");
+
+            var members = session.Party.Members;
+            var wanted = new WedgeFormationSolver().Solve(start.Anchor.position, start.Anchor.forward, members.Count, spacing: 1.5f);
+            var claimed = new List<Vector3>();
+            for (var i = 0; i < members.Count; i++)
+            {
+                var agent = GateSessionServices.FindAgent(members[i]);
+                if (agent == null) continue;
+                if (!pathfinding.TrySamplePositionAvoiding(wanted[i], out var spot, 6f, claimed)) spot = start.Anchor.position;
+                claimed.Add(spot);
+                agent.Motor?.Warp(spot);
+                agent.transform.rotation = start.Anchor.rotation;
+            }
+        }
+
+        private void InitializeCamera(GameSession session, Scene scene)
+        {
+            var content = FindLocationContent(scene);
+            if (content != null) cameraRig.Rig.SetBounds(content.CameraBoundsXZ);
+            if (cameraFollow != null) cameraFollow.Initialize(session.Party, new SceneSelectableSource());
+        }
+
+        // A travel interactable's runner and gate cannot be authored into a location scene (the runner lives in the Core scene), so every travel adapter of
+        // every loaded scene is wired here: at boot and each time a scene finishes loading.
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => WireTravelAdapters();
+
+        private void WireTravelAdapters()
+        {
+            foreach (var adapter in FindObjectsByType<TravelInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                adapter.Runner = runner;
+                adapter.Gate = transitionGate;
+            }
+        }
+
+        // ---------------------------------------------------------------------------------------------
+        // Save / load (real SaveService, cross-scene SessionLoadCoordinator.LoadCoroutine)
+        // ---------------------------------------------------------------------------------------------
+
+        public bool SaveNow()
+        {
+            if (!IsReady || transitionGate.IsBusy) { Say("cannot save right now"); return false; }
+
+            var session = Services.Session;
+            var snapshots = Services.Spawner.CaptureSnapshot().ToList();
+            var extras = snapshots.Select(s => RuntimeEntityId.FromString(s.CharacterId)).ToList();
+            var data = SaveService.Capture(
+                session.Party, session.Characters, session.Inventory, session.Timeline, session.Quests,
+                additionalCharacterIds: extras, worldSpawns: snapshots, stores: session.Stores, lootContainers: session.LootContainers,
+                scenePath: SceneManager.GetActiveScene().path, rulesetId: ruleset.RulesetId);
+
+            var result = new SaveFileStore().Save(SavePath, SaveService.ToJson(data));
+            Say(result.Success ? "saved" : "save failed: " + result.Message);
+            return result.Success;
+        }
+
+        /// <summary>Starts a load; <see cref="IsLoading"/> is true until it finishes. The optional callback receives the outcome.</summary>
+        public void LoadNow(Action<LoadOutcome> onFinished = null)
+        {
+            if (!IsReady || IsLoading || transitionGate.IsBusy) { Say("cannot load right now"); onFinished?.Invoke(LoadOutcome.LoadAlreadyInProgress); return; }
+            if (!File.Exists(SavePath)) { Say("nothing saved yet"); onFinished?.Invoke(LoadOutcome.FileNotFound); return; }
+
+            runner.Run(loadCoordinator.LoadCoroutine(
+                SavePath, ruleset, new DiceService(new SeededRandomSource(seed)), RequiredPolicies, host, Services.Spawner,
+                gameObject.scene, partyVisualPrefabs, result =>
+                {
+                    if (result.Outcome == LoadOutcome.Success) OnLoaded(result);
+                    else Say($"load failed ({result.Outcome}): {result.Message}");
+                    onFinished?.Invoke(result.Outcome);
+                }));
+        }
+
+        private void OnLoaded(LoadResult result)
+        {
+            var session = result.Session;
+            var spawner = result.WorldSpawnService;
+            runner.Coordinator = NewTravelCoordinator(session, spawner);
+            Services.Rebind(session, spawner);
+
+            var scene = SceneManager.GetActiveScene();
+            ActivateGridOf(scene); // the load activates the grid for a cross-scene load; this also covers a same-scene one
+            WireTravelAdapters();
+            InitializeCamera(session, scene);
+            Say("loaded");
+        }
+
+        public void Say(string message)
+        {
+            LastMessage = message;
+            MessageChanged?.Invoke(message);
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Services?.Dispose();
+            commandSource?.Dispose();
+            host?.EndSession();
+        }
+    }
+}
