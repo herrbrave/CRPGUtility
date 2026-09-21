@@ -16,6 +16,28 @@ namespace BarrowsEnd.Editor
             ObstacleLayer = BarrowsEndLayers.WorldObstacle,
         };
 
+        /// <summary>Opens a location scene, bakes it and saves it: for batch use and tests. Returns the report; the scene is only saved when the bake succeeded.</summary>
+        public static BakeReport BakeScene(string scenePath)
+        {
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath, UnityEditor.SceneManagement.OpenSceneMode.Single);
+            var root = FindLocationRoot(null);
+            var report = LocationBaker.Bake(root, Options());
+            if (report.Baked) UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+            return report;
+        }
+
+        /// <summary>Bakes both demo locations (batch entry point: -executeMethod BarrowsEnd.Editor.BarrowsEndLocationBake.BakeDemoLocations).</summary>
+        [MenuItem("Barrows End/Location/Bake Both Demo Locations")]
+        public static void BakeDemoLocations()
+        {
+            foreach (var path in new[] { BarrowsEndLocationAuthor.TownPath, BarrowsEndLocationAuthor.CavePath })
+            {
+                var report = BakeScene(path);
+                Debug.Log($"[BarrowsEnd] {path}: baked={report.Baked}, {report.WalkableCells} walkable, {report.BlockedCells} blocked, {report.WallBoxes} wall boxes, {report.Issues.Count} issue(s).");
+                foreach (var issue in report.Issues) Debug.LogWarning($"[BarrowsEnd] {path}: {issue}");
+            }
+        }
+
         [MenuItem("Barrows End/Location/Bake Selected Location")]
         public static void BakeSelected()
         {

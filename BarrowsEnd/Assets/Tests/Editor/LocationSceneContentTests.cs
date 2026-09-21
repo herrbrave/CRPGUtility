@@ -22,6 +22,7 @@ namespace BarrowsEnd.Tests
     /// <summary>Task 3.4: the two demo location scenes and the Core scene, checked as authored data (no play loop).</summary>
     public class LocationSceneContentTests
     {
+        // Authoring never overwrites an existing location scene, so hand-painted changes to the demo maps survive these tests.
         [OneTimeSetUp]
         public void Author() => BarrowsEndCoreSceneAuthor.Author();
 
@@ -151,7 +152,24 @@ namespace BarrowsEnd.Tests
         }
 
         [Test]
-        public void TheTownHasOneDoorTileInTheHouseWallAndTheCaveHasNone()
+        public void EveryLocationsBakeIsFreshSoNoPaintedChangeIsLeftUnbaked()
+        {
+            foreach (var (path, _, _) in Locations())
+            {
+                var scene = OpenAdditive(path);
+                try
+                {
+                    Assert.IsFalse(LocationBaker.IsStale(RootOf(scene), out var message), $"{path}: {message}");
+                }
+                finally
+                {
+                    EditorSceneManager.CloseScene(scene, true);
+                }
+            }
+        }
+
+        [Test]
+        public void TheTownKeepsItsHouseDoorAtTheSouthWall()
         {
             var town = OpenAdditive(BarrowsEndLocationAuthor.TownPath);
             try
@@ -160,7 +178,7 @@ namespace BarrowsEnd.Tests
                 foreach (var map in RootOf(town).GetComponentsInChildren<Tilemap>(true))
                 foreach (var pos in map.cellBounds.allPositionsWithin)
                     if (map.GetTile(pos) is SemanticTile tile && tile.Semantic == TileSemantic.Door) doors.Add(pos);
-                CollectionAssert.AreEqual(new[] { new Vector3Int(6, 11, 0) }, doors);
+                CollectionAssert.Contains(doors, new Vector3Int(6, 11, 0), "the house door (more doors may have been painted since)");
             }
             finally
             {

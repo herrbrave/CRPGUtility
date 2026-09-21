@@ -39,15 +39,31 @@ namespace BarrowsEnd.Editor
             Fence = ("town", 48, 23), CaveFloor = ("cave", 8, 2), CaveDirt = ("cave", 8, 5), CaveWall = ("cave", 9, 0), Rock = ("cave", 0, 0), RockB = ("cave", 1, 0),
             CaveWater = ("cave", 0, 10), Mushrooms = ("cave", 0, 3), Bones = ("cave", 0, 2);
 
+        /// <summary>Authors the demo locations that do not exist yet. An existing location scene is NEVER overwritten (it may hold hand-painted changes): use
+        /// <see cref="ResetAll"/> to regenerate from the code layouts on purpose.</summary>
         [MenuItem("Barrows End/Content/Author Demo Locations")]
-        public static void AuthorAll()
+        public static void AuthorAll() => Author(overwrite: false);
+
+        [MenuItem("Barrows End/Content/Reset Demo Locations (OVERWRITES hand edits)")]
+        public static void ResetAll()
+        {
+            if (!Application.isBatchMode && !EditorUtility.DisplayDialog("Reset demo locations?",
+                    "This regenerates Town_Slice and Cave_Slice from the code layouts and DISCARDS anything painted or placed by hand in them.", "Reset", "Cancel")) return;
+            Author(overwrite: true);
+        }
+
+        public static void Author(bool overwrite)
         {
             BarrowsEndTileAuthor.Author();
             Directory.CreateDirectory(Folder);
             AssetDatabase.Refresh();
-            var town = AuthorTown();
-            var cave = AuthorCave();
-            Debug.Log($"[BarrowsEnd] Demo locations authored: town {town.WalkableCells} walkable cells, cave {cave.WalkableCells}.");
+
+            var authored = new List<string>();
+            if (overwrite || !File.Exists(TownPath)) { AuthorTown(); authored.Add("town"); }
+            if (overwrite || !File.Exists(CavePath)) { AuthorCave(); authored.Add("cave"); }
+            Debug.Log(authored.Count == 0
+                ? "[BarrowsEnd] Demo locations already exist: left untouched (use 'Reset Demo Locations' to regenerate)."
+                : $"[BarrowsEnd] Demo locations authored: {string.Join(", ", authored)}.");
         }
 
         private sealed class Layout

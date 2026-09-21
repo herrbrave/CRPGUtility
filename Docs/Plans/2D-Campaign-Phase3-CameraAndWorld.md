@@ -243,3 +243,20 @@ Ported from `TestProject/Assets/AdventureSlice/AdventureSliceBootstrap.cs` (Core
 - `GateSessionServices` and `GateCommandSource` (named for the throwaway gate) are the shell's real services layer; rename when the gate is retired.
 - Not covered: NPCs, dialogue, quests, stores and any HUD (Phase 5/6); the demo maps use placeholder tile choices (the house walls are a flat grey ring, the cave arch is small); real mouse feel and the panel buttons need a hand check at Gate C.
 - Not committed.
+
+## Task 3.5 Results — Gate C (user review) and Phase 3 close-out (2026-09-20)
+
+**Confirmed by the user, live:** click-to-walk movement; layers render correctly; the house door opens and the party walks in; cave entry and return (travel both ways); camera feel ("pretty nice"); save and load; sorting is correct (objects the user painted into the town displayed under the trees properly).
+
+**Gap found at the gate and fixed: stale bakes.** Painting or moving tiles after a bake leaves the new objects walk-through, because walkability, wall colliders and camera bounds are baked. Now:
+- `TileFingerprint` (runtime, toolkit) hashes the Grid swizzle/cell size plus every painted cell's tilemap, position and tile SEMANTIC (not name or sprite: swapping one grass tile for another leaves a bake unchanged; placing ordinary objects does not count).
+- `LocationBaker` stores it in a `BakeFingerprint` component on the Baked root and exposes `IsStale`.
+- Stale locations are reported three ways: an Editor warning when the scene is saved (`StaleBakeWarning`), a `Debug.LogError` at Start in the editor/development builds (`BakeFingerprint`), and a BarrowsEnd content test (`EveryLocationsBakeIsFreshSoNoPaintedChangeIsLeftUnbaked`). Fix: `Barrows End > Location > Bake Selected Location` (or `Bake Both Demo Locations`).
+- Old bakes with no fingerprint are stale by the editor check but silent at runtime. Town_Slice (with the user's hand edits) and Cave_Slice need ONE re-bake to gain fingerprints; until then the freshness test fails for them by design.
+- Authoring is now non-destructive: `Author Demo Locations` never overwrites an existing location scene; `Reset Demo Locations (OVERWRITES hand edits)` is the explicit, confirmed regeneration.
+
+**Tests:** toolkit `LocationBakerTests` 21 -> 31 (10 fingerprint tests) and PlayMode `BakeFingerprintPlayTests` (2). Mutation checks (11 caught after strengthening): fingerprint ignoring semantic, cells, or including the tile name; counting tilemaps outside the Grid; always-current; baker writes none; no runtime check; missing fingerprint treated as fresh. Three initial survivors (cells, tile name, whole-scene tilemaps) led to three new tests.
+
+**Known limits, not re-checked at Gate C:** the painting workflow itself was only checked in Task 3.0; sorting is only visible with art taller than one tile (the demo trees are one tile and unwalkable, so a character can never stand behind one).
+
+**Phase 3 is closed.** Next: Phase 4 (2D character creator), plan and Opus review first.

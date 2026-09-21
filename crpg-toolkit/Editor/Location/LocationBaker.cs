@@ -232,6 +232,21 @@ namespace CRPG.Editor.Location
             return report;
         }
 
+        /// <summary>Whether the location's painted tiles still match its last bake. False with a reason when they changed, when there is no bake, or when the bake
+        /// predates fingerprints. A location that was never baked is reported as stale too.</summary>
+        public static bool IsStale(GameObject root, out string message)
+        {
+            var baked = root != null ? root.transform.Find(BakedRootName) : null;
+            var fingerprint = baked != null ? baked.GetComponent<BakeFingerprint>() : null;
+            if (fingerprint == null)
+            {
+                message = $"'{(root != null ? root.name : "(none)")}' has no bake with a fingerprint: bake it (Barrows End > Location > Bake Selected Location).";
+                return true;
+            }
+
+            return !fingerprint.IsCurrent(out message);
+        }
+
         private static bool IsUnderBaked(Transform transform, Transform root)
         {
             for (var t = transform; t != null && t != root; t = t.parent)
@@ -267,6 +282,8 @@ namespace CRPG.Editor.Location
                 wall.transform.position = min + new Vector3(rect.width * cellSize * 0.5f, 0f, rect.height * cellSize * 0.5f);
                 wall.AddComponent<BoxCollider>().size = new Vector3(rect.width * cellSize, options.WallHeight, rect.height * cellSize);
             }
+
+            baked.AddComponent<BakeFingerprint>().Record(root.GetComponentInChildren<Grid>(true));
 
             var content = root.GetComponent<LocationContent>() ?? root.AddComponent<LocationContent>();
             var so = new SerializedObject(content);

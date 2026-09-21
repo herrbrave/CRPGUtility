@@ -438,6 +438,151 @@ namespace CRPG.Tests.EditMode
         }
 
         // ---------------------------------------------------------------------------------------------
+        // Stale-bake detection (BakeFingerprint)
+        // ---------------------------------------------------------------------------------------------
+
+        [Test]
+        public void ABakeRecordsAFingerprintOfThePaintedTilesAndIsFreshStraightAfter()
+        {
+            Paint(new[] { "..#..", "....." });
+            LocationBaker.Bake(root, Options());
+
+            var fingerprint = root.transform.Find("Baked").GetComponent<BakeFingerprint>();
+            Assert.IsNotNull(fingerprint);
+            Assert.AreEqual(TileFingerprint.Compute(root.GetComponentInChildren<Grid>()), fingerprint.Value);
+            Assert.IsFalse(LocationBaker.IsStale(root, out var message), message);
+            Assert.IsTrue(fingerprint.IsCurrent(out _));
+        }
+
+        [Test]
+        public void PaintingAnObjectAfterTheBakeMakesItStaleWithAnActionableMessageAndReBakingFixesIt()
+        {
+            var maps = Paint(new[] { ".....", "....." });
+            LocationBaker.Bake(root, Options());
+
+            maps[1].SetTile(new Vector3Int(2, 1, 0), tiles[TileSemantic.Prop]); // a tree painted after the bake: still walk-through
+
+            Assert.IsTrue(LocationBaker.IsStale(root, out var message));
+            StringAssert.Contains("changed since it was last baked", message);
+            StringAssert.Contains("Bake Selected Location", message);
+            StringAssert.Contains("Location", message, "names the location");
+
+            Assert.IsTrue(LocationBaker.Bake(root, Options()).Baked);
+            Assert.IsFalse(LocationBaker.IsStale(root, out _));
+            Assert.IsFalse(GridOf(root).IsWalkable(new GridCoordinate(2, 1)), "and the new object now blocks");
+        }
+
+        [Test]
+        public void ErasingATileMakesItStaleAndPaintingTheSameTileBackMakesItFreshAgain()
+        {
+            var maps = Paint(new[] { "..T..", "....." });
+            LocationBaker.Bake(root, Options());
+
+            maps[1].SetTile(new Vector3Int(2, 0, 0), null);
+            Assert.IsTrue(LocationBaker.IsStale(root, out _), "erased");
+
+            maps[1].SetTile(new Vector3Int(2, 0, 0), tiles[TileSemantic.Prop]);
+            Assert.IsFalse(LocationBaker.IsStale(root, out var message), "the same tile back in the same cell is the same map: " + message);
+        }
+
+        [Test]
+        public void MovingATileToAnotherCellMakesTheBakeStale()
+        {
+            var maps = Paint(new[] { "..T..", "....." });
+            LocationBaker.Bake(root, Options());
+
+            maps[1].SetTile(new Vector3Int(2, 0, 0), null);
+            maps[1].SetTile(new Vector3Int(3, 1, 0), tiles[TileSemantic.Prop]); // the same tile, one cell over: same count, different map
+
+            Assert.IsTrue(LocationBaker.IsStale(root, out _));
+        }
+
+        [Test]
+        public void SwappingOneGroundTileForAnotherOfTheSameMeaningIsNotStaleBecauseTheBakeIsUnchanged()
+        {
+            var maps = Paint(new[] { "....." });
+            LocationBaker.Bake(root, Options());
+
+            var otherGrass = ScriptableObject.CreateInstance<SemanticTile>();
+            made.Add(otherGrass);
+            otherGrass.Configure(TileSemantic.Ground, null, null);
+            otherGrass.name = "another-grass";
+            maps[0].SetTile(new Vector3Int(1, 0, 0), otherGrass);
+
+            Assert.IsFalse(LocationBaker.IsStale(root, out var message), message);
+        }
+
+        [Test]
+        public void ATilemapOutsideTheGridDoesNotAffectTheFingerprint()
+        {
+            Paint(new[] { "..#.." });
+            LocationBaker.Bake(root, Options());
+
+            var stray = new GameObject("Stray");
+            made.Add(stray);
+            var strayGrid = stray.AddComponent<Grid>();
+            var mapGo = new GameObject("Elsewhere");
+            mapGo.transform.SetParent(stray.transform, false);
+            mapGo.AddComponent<Tilemap>().SetTile(new Vector3Int(1, 1, 0), tiles[TileSemantic.Prop]);
+
+            Assert.IsFalse(LocationBaker.IsStale(root, out var message), message);
+            Assert.IsNotNull(strayGrid);
+        }
+
+        [Test]
+        public void ChangingWhatATileMeansMakesTheBakeStale()
+        {
+            Paint(new[] { "..T.." });
+            LocationBaker.Bake(root, Options());
+
+            tiles[TileSemantic.Prop].Configure(TileSemantic.Decor, null, null); // the same asset, now walkable decor
+
+            Assert.IsTrue(LocationBaker.IsStale(root, out _));
+        }
+
+        [Test]
+        public void HandPlacedObjectsAndReBakingDoNotChangeTheFingerprint()
+        {
+            Paint(new[] { "..#..", "....." });
+            LocationBaker.Bake(root, Options());
+            var before = root.transform.Find("Baked").GetComponent<BakeFingerprint>().Value;
+
+            new GameObject("A hand-placed chest").transform.SetParent(root.transform, false);
+            LocationBaker.Bake(root, Options());
+
+            Assert.AreEqual(before, root.transform.Find("Baked").GetComponent<BakeFingerprint>().Value);
+            Assert.IsFalse(LocationBaker.IsStale(root, out _));
+        }
+
+        [Test]
+        public void TheFingerprintIsDeterministicForTheSameMapAndDiffersForADifferentOne()
+        {
+            Paint(new[] { "..#..", "..T.." });
+            var first = TileFingerprint.Compute(root.GetComponentInChildren<Grid>());
+            Object.DestroyImmediate(root);
+
+            Paint(new[] { "..#..", "..T.." });
+            Assert.AreEqual(first, TileFingerprint.Compute(root.GetComponentInChildren<Grid>()), "the same painting, built again");
+            Object.DestroyImmediate(root);
+
+            Paint(new[] { "..#..", "..#.." });
+            Assert.AreNotEqual(first, TileFingerprint.Compute(root.GetComponentInChildren<Grid>()));
+        }
+
+        [Test]
+        public void ALocationNeverBakedAndABakeWithoutAFingerprintAreBothReportedStale()
+        {
+            Paint(new[] { "...", "..." });
+            Assert.IsTrue(LocationBaker.IsStale(root, out var never));
+            StringAssert.Contains("no bake", never);
+
+            LocationBaker.Bake(root, Options());
+            Object.DestroyImmediate(root.transform.Find("Baked").GetComponent<BakeFingerprint>()); // a bake made before fingerprints existed
+            Assert.IsTrue(LocationBaker.IsStale(root, out var old));
+            StringAssert.Contains("fingerprint", old);
+        }
+
+        // ---------------------------------------------------------------------------------------------
         // WallMerger / WalkableRegions
         // ---------------------------------------------------------------------------------------------
 
