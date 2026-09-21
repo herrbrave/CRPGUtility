@@ -4,7 +4,8 @@
   "references": [
     "CRPG.Core",
     "CRPG.Actors",
-    "CRPG.Rules.SRD5"
+    "CRPG.Rules.SRD5",
+    "CRPG.Presentation"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

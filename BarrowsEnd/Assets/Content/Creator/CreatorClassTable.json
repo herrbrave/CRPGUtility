@@ -2,6 +2,7 @@
   "race": "race-human",
   "background": "background-soldier",
   "level": 1,
+  "standardArray": [15, 14, 13, 12, 10, 8],
   "classes": [
     {
       "classId": "class-barbarian",

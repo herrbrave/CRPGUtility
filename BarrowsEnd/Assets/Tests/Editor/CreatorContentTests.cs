@@ -26,7 +26,6 @@ namespace BarrowsEnd.Tests
         private const string ClassTablePath = "Assets/Content/Creator/CreatorClassTable.json";
         private const string Srd5ContentDir = "Packages/com.crpgtoolkit.core/Rules/SRD5e2014/Content";
         private const string MainHand = "slot-mainhand";
-        private static readonly int[] StandardArray = { 15, 14, 13, 12, 10, 8 };
         private static readonly string[] StatIds =
             { "stat-strength", "stat-dexterity", "stat-constitution", "stat-intelligence", "stat-wisdom", "stat-charisma" };
         private static readonly string[] ClassIds = { "class-barbarian", "class-cleric", "class-fighter", "class-rogue", "class-wizard" };
@@ -154,6 +153,7 @@ namespace BarrowsEnd.Tests
         {
             Assert.AreEqual("race-human", table.race);
             Assert.AreEqual(1, table.level);
+            CollectionAssert.AreEqual(new[] { 15, 14, 13, 12, 10, 8 }, table.standardArray, "the SRD standard array: the one source the creator reads");
             Assert.IsTrue(session.RulesDatabase.TryResolve<RaceDefinition>(new DefinitionId(table.race), out _));
             Assert.IsTrue(session.RulesDatabase.TryResolve<BackgroundDefinition>(new DefinitionId(table.background), out _), $"background '{table.background}'");
             CollectionAssert.AreEquivalent(ClassIds, table.classes.Select(c => c.classId).ToArray());
@@ -192,7 +192,7 @@ namespace BarrowsEnd.Tests
                 plan.Race = race;
                 plan.Class = cls;
                 plan.Background = background;
-                for (var i = 0; i < StatIds.Length; i++) plan.AbilityScores.SetScore(new DefinitionId(entry.scoreOrder[i]), StandardArray[i]);
+                for (var i = 0; i < StatIds.Length; i++) plan.AbilityScores.SetScore(new DefinitionId(entry.scoreOrder[i]), table.standardArray[i]);
 
                 service.RefreshPendingChoices(plan);
                 var pending = plan.PendingChoices.ToList();
@@ -218,7 +218,7 @@ namespace BarrowsEnd.Tests
 
                 var character = service.Build(plan, RuntimeEntityId.NewId());
                 for (var i = 0; i < StatIds.Length; i++)
-                    Assert.AreEqual(StandardArray[i] + 1, character.Stats.GetScore(new DefinitionId(entry.scoreOrder[i])), $"{entry.classId} {entry.scoreOrder[i]} (array value + Human's +1)");
+                    Assert.AreEqual(table.standardArray[i] + 1, character.Stats.GetScore(new DefinitionId(entry.scoreOrder[i])), $"{entry.classId} {entry.scoreOrder[i]} (array value + Human's +1)");
             }
         }
 

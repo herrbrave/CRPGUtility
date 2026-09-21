@@ -193,27 +193,15 @@ namespace CRPG.Presentation.Equipment
         {
             if (!slot.IsValid) return;
 
-            EquipmentVisualProfile profile = null;
-            if (rulesDatabase.TryResolve<ItemDefinition>(itemDefinitionId, out var itemDef) && itemDef.EquipmentVisualProfileId.IsValid)
-                rulesDatabase.TryResolve(itemDef.EquipmentVisualProfileId, out profile);
-
-            if (profile == null || profile.Kind == EquipmentVisualKind.None)
+            var paints = new List<LayerPaint>();
+            if (!SpriteEquipmentPaints.TryResolveSpritePaints(rulesDatabase, itemDefinitionId, paints, out var profile))
             {
-                ClearSlot(state, slot);
-                return;
-            }
-
-            if (profile.Kind != EquipmentVisualKind.Sprite)
-            {
-                if (warnedProfiles.Add(profile.Id))
+                // No visual (null / None) clears quietly; a profile of another kind draws nothing on a sprite character, worth one warning.
+                if (profile != null && profile.Kind != EquipmentVisualKind.None && warnedProfiles.Add(profile.Id))
                     Debug.LogWarning($"[SpriteEquipmentBinder] '{profile.name}' is a {profile.Kind} profile; it draws nothing on a sprite character.", this);
                 ClearSlot(state, slot);
                 return;
             }
-
-            var paints = new List<LayerPaint>(profile.SpriteLayers.Count);
-            foreach (var entry in profile.SpriteLayers)
-                if (entry != null) paints.Add(new LayerPaint(entry.layerSlot, new SpriteOption(entry.sprite, entry.tint)));
 
             state.SetEquipment(slot, profile.SpritePriority, paints, profile.HiddenLayerSlots);
             ownedKeys.Add(slot);

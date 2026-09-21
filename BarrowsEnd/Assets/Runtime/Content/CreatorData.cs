@@ -57,6 +57,8 @@ namespace BarrowsEnd
         public string race = "";
         public string background = "";
         public int level = 1;
+        /// <summary>The six ability scores handed out in each class's <c>scoreOrder</c> (the SRD standard array). One source for the creator and its validators.</summary>
+        public int[] standardArray = Array.Empty<int>();
         public CreatorClassEntry[] classes = Array.Empty<CreatorClassEntry>();
 
         public static CreatorClassTable Parse(string json) => JsonUtility.FromJson<CreatorClassTable>(json);
