@@ -49,7 +49,36 @@ namespace BarrowsEnd.Editor
             public int Priority;
         }
 
-        public static readonly GearSpec[] Gear =
+        public const string CreatorPicksPath = "Assets/Content/Creator/CreatorPicks.json";
+
+        private static GearSpec[] gear;
+
+        /// <summary>The fixed campaign gear plus one main-hand weapon item per weapon pick in <c>CreatorPicks.json</c> (Task 4.0: every
+        /// weapon the creator can show is a real item, so it can also be loot). A pick whose item is already fixed gear (the short sword)
+        /// adds nothing. Computed once per domain load; a changed picks file needs a recompile/reload to be seen.</summary>
+        public static GearSpec[] Gear => gear ??= BuildGear();
+
+        private static GearSpec[] BuildGear()
+        {
+            var all = new List<GearSpec>(FixedGear);
+            if (!File.Exists(CreatorPicksPath)) return all.ToArray();
+
+            var picks = CreatorPicks.Parse(File.ReadAllText(CreatorPicksPath));
+            var known = new HashSet<string>(all.Select(g => g.ItemId));
+            foreach (var pick in picks.weapons)
+            {
+                if (string.IsNullOrEmpty(pick.item) || !known.Add(pick.item)) continue;
+                all.Add(new GearSpec
+                {
+                    ItemId = pick.item, ProfileId = "visual-" + pick.item.Substring("item-".Length), DisplayName = pick.name,
+                    SlotId = "slot-mainhand", LayerSlot = "layer-weapon", CatalogShortName = "weapon", OptionId = pick.option,
+                });
+            }
+
+            return all.ToArray();
+        }
+
+        private static readonly GearSpec[] FixedGear =
         {
             new() { ItemId = "item-iron-helm", ProfileId = "visual-iron-helm", DisplayName = "Iron Helm", SlotId = HeadSlotId,
                     LayerSlot = "layer-helmet", CatalogShortName = "helmet", OptionId = "helmet-kenney-28-0", HiddenLayerSlots = new[] { "layer-hair" } },

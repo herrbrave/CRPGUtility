@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee36966b5f670bf42be24f81f364ab25, type: 3}
+  m_Name: visual-weapon-45-4
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Equipment.EquipmentVisualProfile
+  id: visual-weapon-45-4
+  kind: 3
+  visualPrefab: {fileID: 0}
+  bodyRegionId:
+    value: 
+  hiddenBodyRegions: []
+  socketId:
+    value: 
+  localPosition: {x: 0, y: 0, z: 0}
+  localRotation: {x: 0, y: 0, z: 0, w: 1}
+  localScale: {x: 1, y: 1, z: 1}
+  boneMap: {fileID: 0}
+  spriteLayers:
+  - layerSlot:
+      value: layer-weapon
+    sprite: {fileID: -526147953, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  spritePriority: 0
+  hiddenLayerSlots: []

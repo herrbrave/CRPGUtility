@@ -1,0 +1,1580 @@
+{
+  "skin": [
+    {
+      "option": "body-kenney-1-0",
+      "name": "Fair",
+      "item": ""
+    },
+    {
+      "option": "body-kenney-1-1",
+      "name": "Tan",
+      "item": ""
+    },
+    {
+      "option": "body-kenney-1-2",
+      "name": "Brown",
+      "item": ""
+    },
+    {
+      "option": "body-kenney-1-3",
+      "name": "Green",
+      "item": ""
+    }
+  ],
+  "hair": [
+    {
+      "option": "hair-kenney-19-0",
+      "name": "Brown Hair 1",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-0",
+      "name": "Brown Hair 4",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-0",
+      "name": "Brown Hair 7",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-0",
+      "name": "Brown Hair 10",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-0",
+      "name": "Brown Hair 13",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-0",
+      "name": "Brown Hair 16",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-0",
+      "name": "Brown Hair 19",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-0",
+      "name": "Brown Hair 22",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-1",
+      "name": "Brown Hair 2",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-1",
+      "name": "Brown Hair 5",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-1",
+      "name": "Brown Hair 8",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-1",
+      "name": "Brown Hair 11",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-1",
+      "name": "Brown Hair 14",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-1",
+      "name": "Brown Hair 17",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-1",
+      "name": "Brown Hair 20",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-1",
+      "name": "Brown Hair 23",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-2",
+      "name": "Brown Hair 3",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-2",
+      "name": "Brown Hair 6",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-2",
+      "name": "Brown Hair 9",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-2",
+      "name": "Brown Hair 12",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-2",
+      "name": "Brown Hair 15",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-2",
+      "name": "Brown Hair 18",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-2",
+      "name": "Brown Hair 21",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-2",
+      "name": "Brown Hair 24",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-3",
+      "name": "Brown Beard 1",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-3",
+      "name": "Brown Beard 2",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-3",
+      "name": "Brown Beard 3",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-3",
+      "name": "Brown Beard 4",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-3",
+      "name": "Brown Beard 5",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-3",
+      "name": "Brown Beard 6",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-3",
+      "name": "Brown Beard 7",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-3",
+      "name": "Brown Beard 8",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-4",
+      "name": "Blond Hair 1",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-4",
+      "name": "Blond Hair 4",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-4",
+      "name": "Blond Hair 7",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-4",
+      "name": "Blond Hair 10",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-4",
+      "name": "Blond Hair 13",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-4",
+      "name": "Blond Hair 16",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-4",
+      "name": "Blond Hair 19",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-4",
+      "name": "Blond Hair 22",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-5",
+      "name": "Blond Hair 2",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-5",
+      "name": "Blond Hair 5",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-5",
+      "name": "Blond Hair 8",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-5",
+      "name": "Blond Hair 11",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-5",
+      "name": "Blond Hair 14",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-5",
+      "name": "Blond Hair 17",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-5",
+      "name": "Blond Hair 20",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-5",
+      "name": "Blond Hair 23",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-6",
+      "name": "Blond Hair 3",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-6",
+      "name": "Blond Hair 6",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-6",
+      "name": "Blond Hair 9",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-6",
+      "name": "Blond Hair 12",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-6",
+      "name": "Blond Hair 15",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-6",
+      "name": "Blond Hair 18",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-6",
+      "name": "Blond Hair 21",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-6",
+      "name": "Blond Hair 24",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-7",
+      "name": "Blond Beard 1",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-7",
+      "name": "Blond Beard 2",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-7",
+      "name": "Blond Beard 3",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-7",
+      "name": "Blond Beard 4",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-23-7",
+      "name": "Blond Beard 5",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-24-7",
+      "name": "Blond Beard 6",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-25-7",
+      "name": "Blond Beard 7",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-26-7",
+      "name": "Blond Beard 8",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-8",
+      "name": "Grey Hair 1",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-8",
+      "name": "Grey Hair 4",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-8",
+      "name": "Grey Hair 7",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-8",
+      "name": "Grey Hair 10",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-9",
+      "name": "Grey Hair 2",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-9",
+      "name": "Grey Hair 5",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-9",
+      "name": "Grey Hair 8",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-9",
+      "name": "Grey Hair 11",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-10",
+      "name": "Grey Hair 3",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-10",
+      "name": "Grey Hair 6",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-10",
+      "name": "Grey Hair 9",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-10",
+      "name": "Grey Hair 12",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-19-11",
+      "name": "Grey Beard 1",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-20-11",
+      "name": "Grey Beard 2",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-21-11",
+      "name": "Grey Beard 3",
+      "item": ""
+    },
+    {
+      "option": "hair-kenney-22-11",
+      "name": "Grey Beard 4",
+      "item": ""
+    }
+  ],
+  "outfit": [
+    {
+      "option": "clothes-kenney-6-0",
+      "name": "Garment 1a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-0",
+      "name": "Garment 6a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-0",
+      "name": "Garment 11a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-0",
+      "name": "Garment 16a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-0",
+      "name": "Garment 21a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-0",
+      "name": "Garment 26a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-0",
+      "name": "Garment 31a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-0",
+      "name": "Garment 36a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-0",
+      "name": "Garment 41a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-0",
+      "name": "Garment 46a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-0",
+      "name": "Garment 51a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-0",
+      "name": "Garment 56a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-1",
+      "name": "Garment 2a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-1",
+      "name": "Garment 7a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-1",
+      "name": "Garment 12a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-1",
+      "name": "Garment 17a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-1",
+      "name": "Garment 22a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-1",
+      "name": "Garment 27a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-1",
+      "name": "Garment 32a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-1",
+      "name": "Garment 37a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-1",
+      "name": "Garment 42a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-1",
+      "name": "Garment 47a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-1",
+      "name": "Garment 52a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-1",
+      "name": "Garment 57a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-2",
+      "name": "Garment 3a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-2",
+      "name": "Garment 8a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-2",
+      "name": "Garment 13a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-2",
+      "name": "Garment 18a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-2",
+      "name": "Garment 23a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-2",
+      "name": "Garment 28a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-2",
+      "name": "Garment 33a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-2",
+      "name": "Garment 38a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-2",
+      "name": "Garment 43a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-2",
+      "name": "Garment 48a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-2",
+      "name": "Garment 53a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-2",
+      "name": "Garment 58a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-3",
+      "name": "Garment 4a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-3",
+      "name": "Garment 9a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-3",
+      "name": "Garment 14a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-3",
+      "name": "Garment 19a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-3",
+      "name": "Garment 24a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-3",
+      "name": "Garment 29a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-3",
+      "name": "Garment 34a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-3",
+      "name": "Garment 39a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-3",
+      "name": "Garment 44a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-3",
+      "name": "Garment 49a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-3",
+      "name": "Garment 54a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-3",
+      "name": "Garment 59a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-4",
+      "name": "Garment 5a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-4",
+      "name": "Garment 10a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-4",
+      "name": "Garment 15a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-4",
+      "name": "Garment 20a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-4",
+      "name": "Garment 25a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-4",
+      "name": "Garment 30a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-4",
+      "name": "Garment 35a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-4",
+      "name": "Garment 40a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-4",
+      "name": "Garment 45a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-4",
+      "name": "Garment 50a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-4",
+      "name": "Garment 55a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-4",
+      "name": "Garment 60a",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-5",
+      "name": "Garment 1b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-5",
+      "name": "Garment 6b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-5",
+      "name": "Garment 11b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-5",
+      "name": "Garment 16b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-5",
+      "name": "Garment 21b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-5",
+      "name": "Garment 26b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-5",
+      "name": "Garment 31b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-5",
+      "name": "Garment 36b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-5",
+      "name": "Garment 41b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-5",
+      "name": "Garment 46b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-5",
+      "name": "Garment 51b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-5",
+      "name": "Garment 56b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-6",
+      "name": "Garment 2b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-6",
+      "name": "Garment 7b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-6",
+      "name": "Garment 12b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-6",
+      "name": "Garment 17b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-6",
+      "name": "Garment 22b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-6",
+      "name": "Garment 27b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-6",
+      "name": "Garment 32b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-6",
+      "name": "Garment 37b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-6",
+      "name": "Garment 42b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-6",
+      "name": "Garment 47b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-6",
+      "name": "Garment 52b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-6",
+      "name": "Garment 57b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-7",
+      "name": "Garment 3b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-7",
+      "name": "Garment 8b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-7",
+      "name": "Garment 13b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-7",
+      "name": "Garment 18b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-7",
+      "name": "Garment 23b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-7",
+      "name": "Garment 28b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-7",
+      "name": "Garment 33b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-7",
+      "name": "Garment 38b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-7",
+      "name": "Garment 43b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-7",
+      "name": "Garment 48b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-7",
+      "name": "Garment 53b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-7",
+      "name": "Garment 58b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-8",
+      "name": "Garment 4b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-8",
+      "name": "Garment 9b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-8",
+      "name": "Garment 14b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-8",
+      "name": "Garment 19b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-8",
+      "name": "Garment 24b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-8",
+      "name": "Garment 29b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-8",
+      "name": "Garment 34b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-8",
+      "name": "Garment 39b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-8",
+      "name": "Garment 44b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-8",
+      "name": "Garment 49b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-8",
+      "name": "Garment 54b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-8",
+      "name": "Garment 59b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-6-9",
+      "name": "Garment 5b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-7-9",
+      "name": "Garment 10b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-8-9",
+      "name": "Garment 15b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-9-9",
+      "name": "Garment 20b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-10-9",
+      "name": "Garment 25b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-11-9",
+      "name": "Garment 30b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-12-9",
+      "name": "Garment 35b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-13-9",
+      "name": "Garment 40b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-14-9",
+      "name": "Garment 45b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-15-9",
+      "name": "Garment 50b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-16-9",
+      "name": "Garment 55b",
+      "item": ""
+    },
+    {
+      "option": "clothes-kenney-17-9",
+      "name": "Garment 60b",
+      "item": ""
+    }
+  ],
+  "weapons": [
+    {
+      "option": "weapon-kenney-42-0",
+      "name": "Short Sword",
+      "item": "item-short-sword"
+    },
+    {
+      "option": "weapon-kenney-43-0",
+      "name": "Weapon 43-0",
+      "item": "item-weapon-43-0"
+    },
+    {
+      "option": "weapon-kenney-44-0",
+      "name": "Weapon 44-0",
+      "item": "item-weapon-44-0"
+    },
+    {
+      "option": "weapon-kenney-45-0",
+      "name": "Weapon 45-0",
+      "item": "item-weapon-45-0"
+    },
+    {
+      "option": "weapon-kenney-46-0",
+      "name": "Weapon 46-0",
+      "item": "item-weapon-46-0"
+    },
+    {
+      "option": "weapon-kenney-47-0",
+      "name": "Weapon 47-0",
+      "item": "item-weapon-47-0"
+    },
+    {
+      "option": "weapon-kenney-48-0",
+      "name": "Weapon 48-0",
+      "item": "item-weapon-48-0"
+    },
+    {
+      "option": "weapon-kenney-49-0",
+      "name": "Weapon 49-0",
+      "item": "item-weapon-49-0"
+    },
+    {
+      "option": "weapon-kenney-50-0",
+      "name": "Weapon 50-0",
+      "item": "item-weapon-50-0"
+    },
+    {
+      "option": "weapon-kenney-51-0",
+      "name": "Weapon 51-0",
+      "item": "item-weapon-51-0"
+    },
+    {
+      "option": "weapon-kenney-52-0",
+      "name": "Weapon 52-0",
+      "item": "item-weapon-52-0"
+    },
+    {
+      "option": "weapon-kenney-53-0",
+      "name": "Weapon 53-0",
+      "item": "item-weapon-53-0"
+    },
+    {
+      "option": "weapon-kenney-42-1",
+      "name": "Apprentice Staff",
+      "item": "item-weapon-42-1"
+    },
+    {
+      "option": "weapon-kenney-43-1",
+      "name": "Weapon 43-1",
+      "item": "item-weapon-43-1"
+    },
+    {
+      "option": "weapon-kenney-44-1",
+      "name": "Weapon 44-1",
+      "item": "item-weapon-44-1"
+    },
+    {
+      "option": "weapon-kenney-45-1",
+      "name": "Weapon 45-1",
+      "item": "item-weapon-45-1"
+    },
+    {
+      "option": "weapon-kenney-46-1",
+      "name": "Weapon 46-1",
+      "item": "item-weapon-46-1"
+    },
+    {
+      "option": "weapon-kenney-47-1",
+      "name": "Weapon 47-1",
+      "item": "item-weapon-47-1"
+    },
+    {
+      "option": "weapon-kenney-48-1",
+      "name": "Weapon 48-1",
+      "item": "item-weapon-48-1"
+    },
+    {
+      "option": "weapon-kenney-49-1",
+      "name": "Weapon 49-1",
+      "item": "item-weapon-49-1"
+    },
+    {
+      "option": "weapon-kenney-50-1",
+      "name": "Weapon 50-1",
+      "item": "item-weapon-50-1"
+    },
+    {
+      "option": "weapon-kenney-51-1",
+      "name": "Weapon 51-1",
+      "item": "item-weapon-51-1"
+    },
+    {
+      "option": "weapon-kenney-52-1",
+      "name": "Weapon 52-1",
+      "item": "item-weapon-52-1"
+    },
+    {
+      "option": "weapon-kenney-53-1",
+      "name": "Weapon 53-1",
+      "item": "item-weapon-53-1"
+    },
+    {
+      "option": "weapon-kenney-42-2",
+      "name": "Weapon 42-2",
+      "item": "item-weapon-42-2"
+    },
+    {
+      "option": "weapon-kenney-43-2",
+      "name": "Weapon 43-2",
+      "item": "item-weapon-43-2"
+    },
+    {
+      "option": "weapon-kenney-44-2",
+      "name": "Weapon 44-2",
+      "item": "item-weapon-44-2"
+    },
+    {
+      "option": "weapon-kenney-45-2",
+      "name": "Weapon 45-2",
+      "item": "item-weapon-45-2"
+    },
+    {
+      "option": "weapon-kenney-46-2",
+      "name": "Weapon 46-2",
+      "item": "item-weapon-46-2"
+    },
+    {
+      "option": "weapon-kenney-47-2",
+      "name": "Weapon 47-2",
+      "item": "item-weapon-47-2"
+    },
+    {
+      "option": "weapon-kenney-48-2",
+      "name": "Weapon 48-2",
+      "item": "item-weapon-48-2"
+    },
+    {
+      "option": "weapon-kenney-49-2",
+      "name": "Weapon 49-2",
+      "item": "item-weapon-49-2"
+    },
+    {
+      "option": "weapon-kenney-50-2",
+      "name": "Weapon 50-2",
+      "item": "item-weapon-50-2"
+    },
+    {
+      "option": "weapon-kenney-51-2",
+      "name": "Weapon 51-2",
+      "item": "item-weapon-51-2"
+    },
+    {
+      "option": "weapon-kenney-52-2",
+      "name": "Weapon 52-2",
+      "item": "item-weapon-52-2"
+    },
+    {
+      "option": "weapon-kenney-53-2",
+      "name": "Weapon 53-2",
+      "item": "item-weapon-53-2"
+    },
+    {
+      "option": "weapon-kenney-42-3",
+      "name": "Weapon 42-3",
+      "item": "item-weapon-42-3"
+    },
+    {
+      "option": "weapon-kenney-43-3",
+      "name": "Weapon 43-3",
+      "item": "item-weapon-43-3"
+    },
+    {
+      "option": "weapon-kenney-44-3",
+      "name": "Weapon 44-3",
+      "item": "item-weapon-44-3"
+    },
+    {
+      "option": "weapon-kenney-45-3",
+      "name": "Weapon 45-3",
+      "item": "item-weapon-45-3"
+    },
+    {
+      "option": "weapon-kenney-46-3",
+      "name": "Weapon 46-3",
+      "item": "item-weapon-46-3"
+    },
+    {
+      "option": "weapon-kenney-47-3",
+      "name": "Weapon 47-3",
+      "item": "item-weapon-47-3"
+    },
+    {
+      "option": "weapon-kenney-48-3",
+      "name": "Weapon 48-3",
+      "item": "item-weapon-48-3"
+    },
+    {
+      "option": "weapon-kenney-49-3",
+      "name": "Weapon 49-3",
+      "item": "item-weapon-49-3"
+    },
+    {
+      "option": "weapon-kenney-50-3",
+      "name": "Weapon 50-3",
+      "item": "item-weapon-50-3"
+    },
+    {
+      "option": "weapon-kenney-51-3",
+      "name": "Weapon 51-3",
+      "item": "item-weapon-51-3"
+    },
+    {
+      "option": "weapon-kenney-52-3",
+      "name": "Weapon 52-3",
+      "item": "item-weapon-52-3"
+    },
+    {
+      "option": "weapon-kenney-53-3",
+      "name": "Weapon 53-3",
+      "item": "item-weapon-53-3"
+    },
+    {
+      "option": "weapon-kenney-42-4",
+      "name": "Weapon 42-4",
+      "item": "item-weapon-42-4"
+    },
+    {
+      "option": "weapon-kenney-43-4",
+      "name": "Weapon 43-4",
+      "item": "item-weapon-43-4"
+    },
+    {
+      "option": "weapon-kenney-44-4",
+      "name": "Weapon 44-4",
+      "item": "item-weapon-44-4"
+    },
+    {
+      "option": "weapon-kenney-45-4",
+      "name": "Weapon 45-4",
+      "item": "item-weapon-45-4"
+    },
+    {
+      "option": "weapon-kenney-46-4",
+      "name": "Weapon 46-4",
+      "item": "item-weapon-46-4"
+    },
+    {
+      "option": "weapon-kenney-47-4",
+      "name": "Iron Mace",
+      "item": "item-weapon-47-4"
+    },
+    {
+      "option": "weapon-kenney-48-4",
+      "name": "Weapon 48-4",
+      "item": "item-weapon-48-4"
+    },
+    {
+      "option": "weapon-kenney-49-4",
+      "name": "Weapon 49-4",
+      "item": "item-weapon-49-4"
+    },
+    {
+      "option": "weapon-kenney-50-4",
+      "name": "Weapon 50-4",
+      "item": "item-weapon-50-4"
+    },
+    {
+      "option": "weapon-kenney-51-4",
+      "name": "Iron Axe",
+      "item": "item-weapon-51-4"
+    },
+    {
+      "option": "weapon-kenney-52-4",
+      "name": "Weapon 52-4",
+      "item": "item-weapon-52-4"
+    },
+    {
+      "option": "weapon-kenney-53-4",
+      "name": "Weapon 53-4",
+      "item": "item-weapon-53-4"
+    },
+    {
+      "option": "weapon-kenney-42-5",
+      "name": "Weapon 42-5",
+      "item": "item-weapon-42-5"
+    },
+    {
+      "option": "weapon-kenney-43-5",
+      "name": "Weapon 43-5",
+      "item": "item-weapon-43-5"
+    },
+    {
+      "option": "weapon-kenney-44-5",
+      "name": "Weapon 44-5",
+      "item": "item-weapon-44-5"
+    },
+    {
+      "option": "weapon-kenney-45-5",
+      "name": "Weapon 45-5",
+      "item": "item-weapon-45-5"
+    },
+    {
+      "option": "weapon-kenney-46-5",
+      "name": "Weapon 46-5",
+      "item": "item-weapon-46-5"
+    },
+    {
+      "option": "weapon-kenney-47-5",
+      "name": "Weapon 47-5",
+      "item": "item-weapon-47-5"
+    },
+    {
+      "option": "weapon-kenney-48-5",
+      "name": "Weapon 48-5",
+      "item": "item-weapon-48-5"
+    },
+    {
+      "option": "weapon-kenney-49-5",
+      "name": "Weapon 49-5",
+      "item": "item-weapon-49-5"
+    },
+    {
+      "option": "weapon-kenney-50-5",
+      "name": "Weapon 50-5",
+      "item": "item-weapon-50-5"
+    },
+    {
+      "option": "weapon-kenney-51-5",
+      "name": "Weapon 51-5",
+      "item": "item-weapon-51-5"
+    },
+    {
+      "option": "weapon-kenney-42-6",
+      "name": "Weapon 42-6",
+      "item": "item-weapon-42-6"
+    },
+    {
+      "option": "weapon-kenney-43-6",
+      "name": "Weapon 43-6",
+      "item": "item-weapon-43-6"
+    },
+    {
+      "option": "weapon-kenney-44-6",
+      "name": "Iron Sword",
+      "item": "item-weapon-44-6"
+    },
+    {
+      "option": "weapon-kenney-45-6",
+      "name": "Weapon 45-6",
+      "item": "item-weapon-45-6"
+    },
+    {
+      "option": "weapon-kenney-46-6",
+      "name": "Weapon 46-6",
+      "item": "item-weapon-46-6"
+    },
+    {
+      "option": "weapon-kenney-47-6",
+      "name": "Weapon 47-6",
+      "item": "item-weapon-47-6"
+    },
+    {
+      "option": "weapon-kenney-48-6",
+      "name": "Weapon 48-6",
+      "item": "item-weapon-48-6"
+    },
+    {
+      "option": "weapon-kenney-49-6",
+      "name": "Weapon 49-6",
+      "item": "item-weapon-49-6"
+    },
+    {
+      "option": "weapon-kenney-50-6",
+      "name": "Weapon 50-6",
+      "item": "item-weapon-50-6"
+    },
+    {
+      "option": "weapon-kenney-51-6",
+      "name": "Weapon 51-6",
+      "item": "item-weapon-51-6"
+    },
+    {
+      "option": "weapon-kenney-42-7",
+      "name": "Weapon 42-7",
+      "item": "item-weapon-42-7"
+    },
+    {
+      "option": "weapon-kenney-43-7",
+      "name": "Weapon 43-7",
+      "item": "item-weapon-43-7"
+    },
+    {
+      "option": "weapon-kenney-44-7",
+      "name": "Weapon 44-7",
+      "item": "item-weapon-44-7"
+    },
+    {
+      "option": "weapon-kenney-45-7",
+      "name": "Weapon 45-7",
+      "item": "item-weapon-45-7"
+    },
+    {
+      "option": "weapon-kenney-46-7",
+      "name": "Weapon 46-7",
+      "item": "item-weapon-46-7"
+    },
+    {
+      "option": "weapon-kenney-47-7",
+      "name": "Weapon 47-7",
+      "item": "item-weapon-47-7"
+    },
+    {
+      "option": "weapon-kenney-48-7",
+      "name": "Weapon 48-7",
+      "item": "item-weapon-48-7"
+    },
+    {
+      "option": "weapon-kenney-49-7",
+      "name": "Weapon 49-7",
+      "item": "item-weapon-49-7"
+    },
+    {
+      "option": "weapon-kenney-50-7",
+      "name": "Weapon 50-7",
+      "item": "item-weapon-50-7"
+    },
+    {
+      "option": "weapon-kenney-51-7",
+      "name": "Weapon 51-7",
+      "item": "item-weapon-51-7"
+    },
+    {
+      "option": "weapon-kenney-42-8",
+      "name": "Weapon 42-8",
+      "item": "item-weapon-42-8"
+    },
+    {
+      "option": "weapon-kenney-43-8",
+      "name": "Weapon 43-8",
+      "item": "item-weapon-43-8"
+    },
+    {
+      "option": "weapon-kenney-44-8",
+      "name": "Weapon 44-8",
+      "item": "item-weapon-44-8"
+    },
+    {
+      "option": "weapon-kenney-45-8",
+      "name": "Weapon 45-8",
+      "item": "item-weapon-45-8"
+    },
+    {
+      "option": "weapon-kenney-46-8",
+      "name": "Weapon 46-8",
+      "item": "item-weapon-46-8"
+    },
+    {
+      "option": "weapon-kenney-47-8",
+      "name": "Weapon 47-8",
+      "item": "item-weapon-47-8"
+    },
+    {
+      "option": "weapon-kenney-48-8",
+      "name": "Weapon 48-8",
+      "item": "item-weapon-48-8"
+    },
+    {
+      "option": "weapon-kenney-49-8",
+      "name": "Weapon 49-8",
+      "item": "item-weapon-49-8"
+    },
+    {
+      "option": "weapon-kenney-50-8",
+      "name": "Weapon 50-8",
+      "item": "item-weapon-50-8"
+    },
+    {
+      "option": "weapon-kenney-51-8",
+      "name": "Weapon 51-8",
+      "item": "item-weapon-51-8"
+    },
+    {
+      "option": "weapon-kenney-42-9",
+      "name": "Weapon 42-9",
+      "item": "item-weapon-42-9"
+    },
+    {
+      "option": "weapon-kenney-43-9",
+      "name": "Weapon 43-9",
+      "item": "item-weapon-43-9"
+    },
+    {
+      "option": "weapon-kenney-44-9",
+      "name": "Weapon 44-9",
+      "item": "item-weapon-44-9"
+    },
+    {
+      "option": "weapon-kenney-45-9",
+      "name": "Weapon 45-9",
+      "item": "item-weapon-45-9"
+    },
+    {
+      "option": "weapon-kenney-46-9",
+      "name": "Weapon 46-9",
+      "item": "item-weapon-46-9"
+    },
+    {
+      "option": "weapon-kenney-47-9",
+      "name": "Weapon 47-9",
+      "item": "item-weapon-47-9"
+    },
+    {
+      "option": "weapon-kenney-48-9",
+      "name": "Weapon 48-9",
+      "item": "item-weapon-48-9"
+    },
+    {
+      "option": "weapon-kenney-49-9",
+      "name": "Weapon 49-9",
+      "item": "item-weapon-49-9"
+    },
+    {
+      "option": "weapon-kenney-50-9",
+      "name": "Weapon 50-9",
+      "item": "item-weapon-50-9"
+    },
+    {
+      "option": "weapon-kenney-51-9",
+      "name": "Weapon 51-9",
+      "item": "item-weapon-51-9"
+    }
+  ]
+}
