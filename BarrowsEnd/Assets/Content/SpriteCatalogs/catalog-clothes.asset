@@ -617,3 +617,28 @@ MonoBehaviour:
     displayName: clothes-kenney-17-9
     sprite: {fileID: 379064332, guid: c532de7cf1b1b74408f2a6076f494a95, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-be-0-0
+    displayName: clothes-be-0-0
+    sprite: {fileID: 1711036601, guid: 115eebe5214503f4a8894aa2ed4b1050, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-be-1-0
+    displayName: clothes-be-1-0
+    sprite: {fileID: -609482258, guid: 115eebe5214503f4a8894aa2ed4b1050, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-be-2-0
+    displayName: clothes-be-2-0
+    sprite: {fileID: 1530007266, guid: 115eebe5214503f4a8894aa2ed4b1050, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-be-3-0
+    displayName: clothes-be-3-0
+    sprite: {fileID: -1236776195, guid: 115eebe5214503f4a8894aa2ed4b1050, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  - optionId:
+      value: clothes-be-4-0
+    displayName: clothes-be-4-0
+    sprite: {fileID: 815490219, guid: 115eebe5214503f4a8894aa2ed4b1050, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}

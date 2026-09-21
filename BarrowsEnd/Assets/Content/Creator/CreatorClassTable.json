@@ -6,7 +6,7 @@
   "classes": [
     {
       "classId": "class-barbarian",
-      "weapons": ["item-weapon-51-4", "item-weapon-47-4"],
+      "startingItems": ["item-armor-be-0-0", "item-weapon-51-4"],
       "scoreOrder": ["stat-strength", "stat-constitution", "stat-dexterity", "stat-wisdom", "stat-charisma", "stat-intelligence"],
       "choiceDefaults": [
         { "requirementId": "choose-barbarian-skills", "options": ["skill-athletics", "skill-perception"] }
@@ -14,7 +14,7 @@
     },
     {
       "classId": "class-cleric",
-      "weapons": ["item-weapon-47-4", "item-weapon-44-6"],
+      "startingItems": ["item-armor-be-1-0", "item-weapon-47-4"],
       "scoreOrder": ["stat-wisdom", "stat-constitution", "stat-strength", "stat-charisma", "stat-dexterity", "stat-intelligence"],
       "choiceDefaults": [
         { "requirementId": "choose-cleric-skills", "options": ["skill-insight", "skill-medicine"] },
@@ -23,7 +23,7 @@
     },
     {
       "classId": "class-fighter",
-      "weapons": ["item-weapon-44-6", "item-weapon-51-4"],
+      "startingItems": ["item-armor-be-2-0", "item-weapon-44-6"],
       "scoreOrder": ["stat-strength", "stat-constitution", "stat-dexterity", "stat-wisdom", "stat-charisma", "stat-intelligence"],
       "choiceDefaults": [
         { "requirementId": "choose-fighting-style", "options": ["feature-fighting-style-defense"] },
@@ -32,7 +32,7 @@
     },
     {
       "classId": "class-rogue",
-      "weapons": ["item-weapon-44-6"],
+      "startingItems": ["item-armor-be-3-0", "item-weapon-44-6"],
       "scoreOrder": ["stat-dexterity", "stat-constitution", "stat-charisma", "stat-intelligence", "stat-wisdom", "stat-strength"],
       "choiceDefaults": [
         { "requirementId": "choose-rogue-skills", "options": ["skill-stealth", "skill-perception", "skill-acrobatics", "skill-sleight-of-hand"] },
@@ -41,7 +41,7 @@
     },
     {
       "classId": "class-wizard",
-      "weapons": ["item-weapon-42-1"],
+      "startingItems": ["item-armor-be-4-0", "item-weapon-42-1"],
       "scoreOrder": ["stat-intelligence", "stat-constitution", "stat-dexterity", "stat-wisdom", "stat-charisma", "stat-strength"],
       "choiceDefaults": [
         { "requirementId": "choose-wizard-skills", "options": ["skill-arcana", "skill-investigation"] },

@@ -1,9 +1,18 @@
-"""Writes the initial BarrowsEnd/Assets/Content/Creator/CreatorPicks.json (Phase 4, Task 4.0c): every skin/hair/outfit/weapon the creator offers.
+"""Writes BarrowsEnd/Assets/Content/Creator/CreatorPicks.json (Phase 4, Tasks 4.0c and 4.2b): what the character creator offers.
 
-Decision (user, 2026-09-20): skin = column 1 only (4 tones); hair, outfit and weapons = EVERY option in their catalogs (weapons double as loot).
-Option ids are the permanent catalog ids; weapon ITEM ids are item-weapon-<col>-<row> (item-short-sword for the existing 42-0), also permanent.
+Decisions (user): skin = column 1 only (4 tones); weapons = EVERY weapon in the catalog (each is a real item, so they double as loot); hair is FILTERED BY COLOUR
+(2026-09-21): a Hair Colour row with a swatch, then a Hair Style row of the 16 shapes (12 head styles + 4 beards), the same shape in every colour; the OUTFIT comes from
+the class (each class wears one generated armor, see Assets/Art/Source/make_class_armor.py), so there is no outfit list.
+
+The hair sheet (measured): 5 colour blocks x 16 identical shapes -
+    brown  cols 19-22 rows 0-3      ginger cols 23-26 rows 0-3
+    blond  cols 19-22 rows 4-7      ash    cols 23-26 rows 4-7
+    silver cols 19-22 rows 8-11
+Within a block, rows 0-2 are the 12 head styles and row 3 is the 4 beards. Each colour's 16 options are listed row-major, so a style has the same index in every colour.
+(An earlier version of this script assumed three colour bands and mislabelled ginger as brown and ash as blond.)
+
+Option ids are the permanent catalog ids; item ids are permanent too (item-weapon-<col>-<row>, item-short-sword for the existing 42-0, item-armor-be-<n>-0).
 Names are placeholders except where NAMED says otherwise; edit the JSON freely (names only: never an option or item id).
-
 Refuses to overwrite an existing file (it would discard hand-edited names) unless --force is given.
 
 Usage:  python make_default_picks.py [--force]
@@ -21,7 +30,23 @@ OUT = os.path.join(ROOT, 'Assets', 'Content', 'Creator', 'CreatorPicks.json')
 PITCH, CELL = 17, 16
 
 SKIN_NAMES = {0: 'Fair', 1: 'Tan', 2: 'Brown', 3: 'Green'}
-HAIR_BANDS = ['Brown', 'Blond', 'Grey']  # rows 0-3, 4-7, 8-11; row 3 of each band is a beard
+# (id, name, swatch, first col, first row): the swatch is the block's dominant hair pixel colour. "Ash" is really a dark grey, so it is not called black.
+HAIR_COLORS = [
+    ('brown', 'Brown', '#A17D52', 19, 0),
+    ('ginger', 'Ginger', '#C0751C', 23, 0),
+    ('blond', 'Blond', '#E2D4A8', 19, 4),
+    ('ash', 'Ash', '#5C5C5C', 23, 4),
+    ('silver', 'Silver', '#E8E8E8', 19, 8),
+]
+HAIR_STYLE_NAMES = [f'Style {i}' for i in range(1, 13)] + [f'Beard {i}' for i in range(1, 5)]
+# The class armors, in class order (make_class_armor.py cells 0-4): (option, item, name).
+ARMORS = [
+    ('clothes-be-0-0', 'item-armor-be-0-0', 'Barbarian Studded Leathers'),
+    ('clothes-be-1-0', 'item-armor-be-1-0', 'Cleric Vestments'),
+    ('clothes-be-2-0', 'item-armor-be-2-0', 'Fighter Padded Mail'),
+    ('clothes-be-3-0', 'item-armor-be-3-0', 'Rogue Dark Leathers'),
+    ('clothes-be-4-0', 'item-armor-be-4-0', 'Wizard Mantle'),
+]
 # (col,row) -> display name for the weapons a class actually starts with; everything else is a placeholder to be named when it becomes loot.
 NAMED = {(44, 6): 'Iron Sword', (51, 4): 'Iron Axe', (47, 4): 'Iron Mace', (42, 1): 'Apprentice Staff'}
 
@@ -29,11 +54,6 @@ NAMED = {(44, 6): 'Iron Sword', (51, 4): 'Iron Axe', (47, 4): 'Iron Mace', (42, 
 def non_empty(sheet, col, row):
     x, y = col * PITCH, row * PITCH
     return sheet.crop((x, y, x + CELL, y + CELL)).getchannel('A').getbbox() is not None
-
-
-def cells(sheet, cols, rows):
-    """Row-major, matching the catalog order."""
-    return [(c, r) for r in rows for c in cols if non_empty(sheet, c, r)]
 
 
 def main():
@@ -44,31 +64,28 @@ def main():
 
     skin = [{'option': f'body-kenney-1-{r}', 'name': SKIN_NAMES[r], 'item': ''} for r in range(4)]
 
-    hair = []
-    for c, r in cells(sheet, range(19, 27), range(0, 12)):
-        band, kind = HAIR_BANDS[r // 4], r % 4
-        if kind == 3:
-            name = f'{band} Beard {c - 18}'
-        else:
-            name = f'{band} Hair {(c - 19) * 3 + kind + 1}'
-        hair.append({'option': f'hair-kenney-{c}-{r}', 'name': name, 'item': ''})
+    hair_colors = []
+    for cid, name, swatch, c0, r0 in HAIR_COLORS:
+        options = [f'hair-kenney-{c}-{r}' for r in range(r0, r0 + 4) for c in range(c0, c0 + 4) if non_empty(sheet, c, r)]
+        assert len(options) == 16, f'{cid}: expected 16 options, found {len(options)}'
+        hair_colors.append({'id': cid, 'name': name, 'swatch': swatch, 'options': options})
 
-    outfit = []
-    for c, r in cells(sheet, range(6, 18), range(0, 10)):
-        garment = (c - 6) * 5 + (r % 5) + 1
-        outfit.append({'option': f'clothes-kenney-{c}-{r}', 'name': f'Garment {garment}{"a" if r < 5 else "b"}', 'item': ''})
+    armors = [{'option': option, 'name': name, 'item': item} for option, item, name in ARMORS]
 
     weapons = []
-    for c, r in cells(sheet, range(42, 54), range(0, 12)):
-        item = 'item-short-sword' if (c, r) == (42, 0) else f'item-weapon-{c}-{r}'
-        name = NAMED.get((c, r), 'Short Sword' if (c, r) == (42, 0) else f'Weapon {c}-{r}')
-        weapons.append({'option': f'weapon-kenney-{c}-{r}', 'name': name, 'item': item})
+    for r in range(0, 12):
+        for c in range(42, 54):
+            if not non_empty(sheet, c, r):
+                continue
+            item = 'item-short-sword' if (c, r) == (42, 0) else f'item-weapon-{c}-{r}'
+            name = NAMED.get((c, r), 'Short Sword' if (c, r) == (42, 0) else f'Weapon {c}-{r}')
+            weapons.append({'option': f'weapon-kenney-{c}-{r}', 'name': name, 'item': item})
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w', encoding='utf-8', newline='\n') as f:
-        json.dump({'skin': skin, 'hair': hair, 'outfit': outfit, 'weapons': weapons}, f, indent=2)
+        json.dump({'skin': skin, 'hairStyleNames': HAIR_STYLE_NAMES, 'hairColors': hair_colors, 'armors': armors, 'weapons': weapons}, f, indent=2)
         f.write('\n')
-    print(f'wrote {OUT}: skin {len(skin)}, hair {len(hair)}, outfit {len(outfit)}, weapons {len(weapons)}')
+    print(f'wrote {OUT}: skin {len(skin)}, hair {len(hair_colors)} colours x {len(HAIR_STYLE_NAMES)} styles, armors {len(armors)}, weapons {len(weapons)}')
 
 
 if __name__ == '__main__':

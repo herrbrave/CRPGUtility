@@ -26,7 +26,8 @@
     "Unity.2D.Tilemap.Editor",
     "BarrowsEnd.Shell",
     "CRPG.InputSystem",
-    "CRPG.Party"
+    "CRPG.Party",
+    "CRPG.UI"
   ],
   "includePlatforms": [
     "Editor"

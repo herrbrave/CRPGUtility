@@ -22,7 +22,7 @@ namespace BarrowsEnd.Tests
     {
         private static readonly Dictionary<string, int> ExpectedCounts = new()
         {
-            ["body"] = 10, ["feet"] = 20, ["clothes"] = 120, ["hair"] = 80, ["helmet"] = 36, ["shield"] = 60, ["weapon"] = 110,
+            ["body"] = 10, ["feet"] = 20, ["clothes"] = 125, ["hair"] = 80, ["helmet"] = 36, ["shield"] = 60, ["weapon"] = 110,
         };
 
         private static List<(BarrowsEndCatalogAuthor.CatalogSpec spec, SpriteLayerCatalog catalog)> LoadCatalogs() =>

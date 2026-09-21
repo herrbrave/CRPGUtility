@@ -5,8 +5,8 @@ Reads the copied Kenney character sheet in BarrowsEnd/Assets/Art/Source and writ
   skin.png, hair.png, outfit.png, weapon.png   one grid per creator slot; every option composited over a fixed reference character so it is judged
                                                as worn. Column numbers run along the top, row numbers down the left, so a pick is "hair, col 21, row 3".
   cells.csv                                    slot,option_id,col,row for every non-empty cell shown (the option ids the catalogs use)
-  assembled.png                                sample characters built from CreatorPicks.json (only if that file exists): judge combinations
-                                               (weapon alignment, outfit vs skin) before they are baked into items
+  assembled.png                                the five class kits (generated armor + weapon) in every hair colour, built from CreatorPicks.json and
+                                               CreatorClassTable.json: judge the looks before they are baked into items
 
 Structure of the sheet (measured, see Docs/Plans/2D-Campaign-Phase4-CharacterCreator.md): 16px cells on a 17px pitch, margin 0.
   body  cols 0-1 x rows 0-3   4 skin tones (col 1 only adds a mouth pixel)
@@ -111,53 +111,51 @@ def render_grid(sheet, name, prefix, cols, rows, under, mark, scale, csv_rows):
 
 
 def render_assembled(sheet, scale):
-    if not os.path.exists(PICKS):
-        print('no CreatorPicks.json yet: skipping assembled.png')
+    """The five class kits: one row per class, one column per hair colour, so the veto sees every class in its armor (with the generated trousers and boots) and weapon."""
+    table_path = os.path.join(os.path.dirname(PICKS), 'CreatorClassTable.json')
+    armor_path = os.path.join(ROOT, 'Assets', 'Art', 'Source', 'barrowsend_armor_transparent.png')
+    if not (os.path.exists(PICKS) and os.path.exists(table_path) and os.path.exists(armor_path)):
+        print('CreatorPicks.json, CreatorClassTable.json or the armor sheet is missing: skipping assembled.png')
         return
     with open(PICKS, encoding='utf-8') as f:
         picks = json.load(f)
+    with open(table_path, encoding='utf-8') as f:
+        table = json.load(f)
+    armor_sheet = Image.open(armor_path).convert('RGBA')
+    skins = picks['skin']
+    colours = picks['hairColors']
+    items = {p['item']: p for p in picks['armors'] + picks['weapons']}
 
-    def cells_of(key):
-        result = []
-        for entry in picks.get(key, []):
-            _, _, col, row = option_of(entry['option'])
-            result.append(((col, row), entry.get('name', entry['option'])))
-        return result
+    def item_cell(item_id):
+        """(sheet image, col, row) of an item's sprite: the class armors live on the generated sheet, weapons on the Kenney one."""
+        _, sheet_key, col, row = option_of(items[item_id]['option'])
+        return (armor_sheet if sheet_key == 'be' else sheet), col, row
 
-    skins, hairs, outfits, weapons = (cells_of(k) for k in ('skin', 'hair', 'outfit', 'weapons'))
-    if not (skins and hairs and outfits and weapons):
-        print('CreatorPicks.json is missing a slot: skipping assembled.png')
-        return
-
-    # Picks can be every catalog option, so show a fixed number of varied samples, not one per option. Weapons: only the starters
-    # (the class table's subset), since those are what a new character actually carries.
-    table_path = os.path.join(os.path.dirname(PICKS), 'CreatorClassTable.json')
-    if os.path.exists(table_path):
-        with open(table_path, encoding='utf-8') as f:
-            starter_items = {w for c in json.load(f)['classes'] for w in c['weapons']}
-        starters = [((option_of(e['option'])[2], option_of(e['option'])[3]), e.get('name', e['option']))
-                    for e in picks['weapons'] if e.get('item') in starter_items]
-        weapons = starters or weapons
-    count = 24
+    classes = table['classes']
     cell_px = CELL * scale
-    cols = 5
-    rows = (count + cols - 1) // cols
-    label_h = 44
-    step_x, step_y = 230, cell_px + label_h + 10
-    canvas = Image.new('RGBA', (cols * step_x + 20, rows * step_y + 20), (52, 58, 52, 255))
+    step_x, step_y = cell_px + 30, cell_px + 44
+    left = 130
+    canvas = Image.new('RGBA', (left + len(colours) * step_x + 20, len(classes) * step_y + 50), (52, 58, 52, 255))
     draw = ImageDraw.Draw(canvas)
-    for n in range(count):
-        # offset the cycles against each other so pairings vary, not just the diagonal
-        skin = skins[n % len(skins)]
-        hair = hairs[(n + n // len(hairs)) % len(hairs)]
-        outfit = outfits[(n * 2 + n // len(outfits)) % len(outfits)]
-        weapon = weapons[n % len(weapons)]
-        layers = [skin[0], outfit[0], hair[0], weapon[0]]  # body, clothes, hair, weapon (draw order)
-        img = composite(sheet, layers).resize((cell_px, cell_px), Image.NEAREST)
-        x, y = 20 + (n % cols) * step_x, 20 + (n // cols) * step_y
-        canvas.alpha_composite(img, (x, y))
-        draw.text((x, y + cell_px + 4), f'{skin[1]} / {hair[1]}', fill=(240, 240, 240, 255))
-        draw.text((x, y + cell_px + 18), f'{outfit[1]} / {weapon[1]}', fill=(200, 220, 200, 255))
+    for j, colour in enumerate(colours):
+        draw.text((left + j * step_x, 8), f"{colour['name']} {colour['swatch']}", fill=(240, 240, 240, 255))
+    for i, entry in enumerate(classes):
+        armor_id, weapon_id = entry['startingItems']
+        y = 30 + i * step_y
+        draw.text((10, y + cell_px // 2 - 10), entry['classId'].replace('class-', '').title(), fill=(240, 240, 240, 255))
+        draw.text((10, y + cell_px // 2 + 6), items[armor_id]['name'], fill=(200, 220, 200, 255))
+        draw.text((10, y + cell_px // 2 + 22), items[weapon_id]['name'], fill=(200, 220, 200, 255))
+        for j, colour in enumerate(colours):
+            _, _, hc, hr = option_of(colour['options'][(i * 2 + j) % 12])  # a head style (not a beard), varied per cell
+            comp = Image.new('RGBA', (CELL, CELL), (0, 0, 0, 0))
+            _, _, sc, sr = option_of(skins[(i + j) % len(skins)]['option'])
+            comp = Image.alpha_composite(comp, cell(sheet, sc, sr))
+            asheet, ac, ar = item_cell(armor_id)
+            comp = Image.alpha_composite(comp, cell(asheet, ac, ar))
+            comp = Image.alpha_composite(comp, cell(sheet, hc, hr))
+            wsheet, wc, wr = item_cell(weapon_id)
+            comp = Image.alpha_composite(comp, cell(wsheet, wc, wr))
+            canvas.alpha_composite(comp.resize((cell_px, cell_px), Image.NEAREST), (left + j * step_x, y))
     out = os.path.join(HERE, 'assembled.png')
     canvas.save(out)
     print(f'wrote {out}')

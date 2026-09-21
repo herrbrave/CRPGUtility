@@ -1,7 +1,7 @@
 {
     "name": "CRPG.UI",
     "rootNamespace": "CRPG.UI",
-    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Party", "CRPG.Abilities", "CRPG.Combat", "CRPG.Inventory", "CRPG.Dialogue", "CRPG.Quests", "CRPG.Saving"],
+    "references": ["CRPG.Core", "CRPG.Rules", "CRPG.Actors", "CRPG.Party", "CRPG.Abilities", "CRPG.Combat", "CRPG.Inventory", "CRPG.Dialogue", "CRPG.Quests", "CRPG.Saving", "CRPG.Presentation"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

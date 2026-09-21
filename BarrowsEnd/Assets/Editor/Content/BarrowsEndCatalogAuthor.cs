@@ -23,6 +23,8 @@ namespace BarrowsEnd.Editor
         public const string OutputDir = "Assets/Content/SpriteCatalogs";
         public const string KenneyChar = "Assets/Art/Source/roguelikeChar_transparent.png";
         public const string BarrowsEndBodies = "Assets/Art/Source/barrowsend_bodies_transparent.png";
+        /// <summary>The five generated class armors (a Kenney top over generated trousers and boots; make_class_armor.py), sheet key <c>be</c>.</summary>
+        public const string BarrowsEndArmor = "Assets/Art/Source/barrowsend_armor_transparent.png";
 
         /// <summary>One rectangle of cells on one sheet that feeds a catalog.</summary>
         public readonly struct CellRange
@@ -61,7 +63,11 @@ namespace BarrowsEnd.Editor
                 new CellRange("be", BarrowsEndBodies, 0, 1, 0, 0), // the two custom skeleton bodies
             } },
             new() { ShortName = "feet", LayerSlot = "layer-feet", DisplayName = "Feet", Ranges = new[] { new CellRange("kenney", KenneyChar, 3, 4, 0, 11) } },
-            new() { ShortName = "clothes", LayerSlot = "layer-clothes", DisplayName = "Clothes", Ranges = new[] { new CellRange("kenney", KenneyChar, 6, 17, 0, 11) } },
+            new() { ShortName = "clothes", LayerSlot = "layer-clothes", DisplayName = "Clothes", Ranges = new[]
+            {
+                new CellRange("kenney", KenneyChar, 6, 17, 0, 11),
+                new CellRange("be", BarrowsEndArmor, 0, 4, 0, 0), // the five class armors, in class order (barbarian, cleric, fighter, rogue, wizard)
+            } },
             new() { ShortName = "hair", LayerSlot = "layer-hair", DisplayName = "Hair", Ranges = new[] { new CellRange("kenney", KenneyChar, 19, 26, 0, 11) } },
             new() { ShortName = "helmet", LayerSlot = "layer-helmet", DisplayName = "Helmet", Ranges = new[] { new CellRange("kenney", KenneyChar, 28, 31, 0, 11) } },
             new() { ShortName = "shield", LayerSlot = "layer-shield", DisplayName = "Shield", Ranges = new[] { new CellRange("kenney", KenneyChar, 33, 40, 0, 11) } },

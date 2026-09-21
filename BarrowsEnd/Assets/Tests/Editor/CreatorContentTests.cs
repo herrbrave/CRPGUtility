@@ -66,11 +66,15 @@ namespace BarrowsEnd.Tests
             return (parts[0], parts[1], int.Parse(parts[2]), int.Parse(parts[3]));
         }
 
-        private IEnumerable<(string row, CreatorPick pick, string catalogSlot, string layerSlot)> AllPicks() =>
-            picks.skin.Select(p => ("skin", p, "body", "layer-body"))
-                .Concat(picks.hair.Select(p => ("hair", p, "hair", "layer-hair")))
-                .Concat(picks.outfit.Select(p => ("outfit", p, "clothes", "layer-clothes")))
-                .Concat(picks.weapons.Select(p => ("weapons", p, "weapon", "layer-weapon")));
+        private const string CharSheet = "Assets/Art/Source/roguelikeChar_transparent.png";
+        private const int HairColourCount = 5, HairStyleCount = 16, HeadStyles = 12;
+
+        // (row, pick, catalog short name, layer slot, expected sheet key). Hair picks are the 80 options across the colours (their names are per style, not per pick).
+        private IEnumerable<(string row, CreatorPick pick, string catalogSlot, string layerSlot, string sheet)> AllPicks() =>
+            picks.skin.Select(p => ("skin", p, "body", "layer-body", "kenney"))
+                .Concat(picks.hairColors.SelectMany(c => c.options).Select(o => ("hair", new CreatorPick { option = o, name = "(per style)" }, "hair", "layer-hair", "kenney")))
+                .Concat(picks.armors.Select(p => ("armors", p, "clothes", "layer-clothes", "be")))
+                .Concat(picks.weapons.Select(p => ("weapons", p, "weapon", "layer-weapon", "kenney")));
 
         // ---- 1. picks ----
 
@@ -78,29 +82,94 @@ namespace BarrowsEnd.Tests
         public void EveryCreatorRowHasOptionsAndEveryPickResolvesToASpriteInItsOwnCatalog()
         {
             Assert.IsNotEmpty(picks.skin, "skin");
-            Assert.IsNotEmpty(picks.hair, "hair");
-            Assert.IsNotEmpty(picks.outfit, "outfit");
+            Assert.IsNotEmpty(picks.hairColors, "hair colours");
+            Assert.IsNotEmpty(picks.armors, "armors");
             Assert.IsNotEmpty(picks.weapons, "weapons");
 
             var source = new SpriteCatalogSource(session.RulesDatabase);
-            foreach (var (row, pick, catalogSlot, layerSlot) in AllPicks())
+            foreach (var (row, pick, catalogSlot, layerSlot, expectedSheet) in AllPicks())
             {
                 Assert.IsFalse(string.IsNullOrWhiteSpace(pick.name), $"{row} pick '{pick.option}' has a curated name");
                 var (slot, sheet, _, _) = ParseOption(pick.option);
                 Assert.AreEqual(catalogSlot, slot, $"{row} pick '{pick.option}' is in the {catalogSlot} catalog");
-                Assert.AreEqual("kenney", sheet, $"{row} pick '{pick.option}' must not be a custom (monster) sheet option");
+                Assert.AreEqual(expectedSheet, sheet, $"{row} pick '{pick.option}' comes from the '{expectedSheet}' sheet (skin, hair and weapons use the Kenney art; only the class armors are custom, generated sprites)");
                 Assert.IsTrue(source.TryGetOption(new DefinitionId(layerSlot), new DefinitionId(pick.option), out var resolved), $"{pick.option} resolves");
                 Assert.IsNotNull(resolved.Sprite, $"{pick.option} has a sprite");
             }
         }
 
         [Test]
-        public void PickIdsAreUniqueWithinEachRow()
+        public void TheHairIsFiveColoursOfSixteenSharedStylesCoveringTheWholeHairCatalog()
         {
-            foreach (var group in AllPicks().GroupBy(p => p.row))
+            Assert.AreEqual(HairColourCount, picks.hairColors.Length);
+            Assert.AreEqual(HairStyleCount, picks.hairStyleNames.Length, "sixteen style names, shared by every colour");
+            CollectionAssert.AllItemsAreUnique(picks.hairStyleNames, "style names");
+            Assert.IsTrue(picks.hairStyleNames.All(n => !string.IsNullOrWhiteSpace(n)));
+            CollectionAssert.AllItemsAreUnique(picks.hairColors.Select(c => c.id).ToList(), "colour ids");
+            CollectionAssert.AllItemsAreUnique(picks.hairColors.Select(c => c.name).ToList(), "colour names");
+            CollectionAssert.AllItemsAreUnique(picks.hairColors.Select(c => c.swatch).ToList(), "swatches (each colour must be told apart)");
+
+            foreach (var colour in picks.hairColors)
             {
-                var ids = group.Select(p => p.pick.option).ToList();
-                CollectionAssert.AllItemsAreUnique(ids, $"{group.Key} option ids");
+                Assert.AreEqual(HairStyleCount, colour.options.Length, $"{colour.id} has one option per style");
+                StringAssert.IsMatch("^#[0-9A-Fa-f]{6}$", colour.swatch, $"{colour.id} swatch is #RRGGBB");
+            }
+
+            // Together the five colours are exactly the hair catalog: nothing dropped, nothing twice.
+            var all = picks.hairColors.SelectMany(c => c.options).ToList();
+            CollectionAssert.AllItemsAreUnique(all, "hair option ids across colours");
+            var hairSpec = BarrowsEndCatalogAuthor.Specs.First(x => x.ShortName == "hair");
+            var catalog = AssetDatabase.LoadAssetAtPath<SpriteLayerCatalog>(BarrowsEndCatalogAuthor.CatalogPath(hairSpec));
+            CollectionAssert.AreEquivalent(catalog.Options.Select(o => o.optionId.Value).ToList(), all, "the five colours cover the whole hair catalog");
+        }
+
+        [Test]
+        public void EveryColourListsTheSameStylesInTheSameOrderWithTheSameShapesAndBeardsLast()
+        {
+            var sheet = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            Assert.IsTrue(sheet.LoadImage(File.ReadAllBytes(CharSheet)));
+            try
+            {
+                bool[] Mask(int col, int row)
+                {
+                    var mask = new bool[16 * 16];
+                    for (var y = 0; y < 16; y++)
+                    for (var x = 0; x < 16; x++)
+                        mask[y * 16 + x] = sheet.GetPixel(col * 17 + x, sheet.height - 1 - (row * 17 + y)).a > 0f;
+                    return mask;
+                }
+
+                var baseline = picks.hairColors[0].options.Select(ParseOption).ToList();
+                var baselineOffsets = baseline.Select(c => (c.col - baseline.Min(b => b.col), c.row - baseline.Min(b => b.row))).ToList();
+                foreach (var colour in picks.hairColors)
+                {
+                    var cells = colour.options.Select(ParseOption).ToList();
+                    var minCol = cells.Min(c => c.col);
+                    var minRow = cells.Min(c => c.row);
+                    for (var i = 0; i < HairStyleCount; i++)
+                    {
+                        Assert.AreEqual(baselineOffsets[i], (cells[i].col - minCol, cells[i].row - minRow), $"{colour.id}: style {i} sits at the same offset in its colour block");
+                        Assert.AreEqual(Mask(baseline[i].col, baseline[i].row), Mask(cells[i].col, cells[i].row), $"{colour.id}: style {i} has the same shape as in {picks.hairColors[0].id}");
+                        var isBeard = cells[i].row - minRow == 3;
+                        Assert.AreEqual(i >= HeadStyles, isBeard, $"{colour.id}: style {i} is a {(i >= HeadStyles ? "beard" : "head style")} (the last four styles are the beards)");
+                    }
+                }
+
+                for (var i = HeadStyles; i < HairStyleCount; i++)
+                    StringAssert.StartsWith("Beard", picks.hairStyleNames[i], "the last four style names say they are beards");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(sheet);
+            }
+        }
+
+        [Test]
+        public void NamesAreUniqueWithinEachRowAndOptionIdsAreUniqueWithinEachRow()
+        {
+            foreach (var group in AllPicks().Where(p => p.row != "hair").GroupBy(p => p.row))
+            {
+                CollectionAssert.AllItemsAreUnique(group.Select(p => p.pick.option).ToList(), $"{group.Key} option ids");
                 CollectionAssert.AllItemsAreUnique(group.Select(p => p.pick.name).ToList(), $"{group.Key} names");
             }
         }
@@ -127,6 +196,31 @@ namespace BarrowsEnd.Tests
             }
 
             CollectionAssert.AllItemsAreUnique(picks.weapons.Select(p => p.item).ToList(), "one item per weapon pick");
+        }
+
+        [Test]
+        public void EveryClassArmorIsAnArmorSlotItemWhoseProfilePaintsOnlyTheClothesLayerAtPriorityTen()
+        {
+            var rules = session.RulesDatabase;
+            var source = new SpriteCatalogSource(rules);
+            Assert.AreEqual(5, picks.armors.Length, "one armor per class");
+            foreach (var pick in picks.armors)
+            {
+                StringAssert.IsMatch("^clothes-be-[0-4]-0$", pick.option, "the class armors are the five generated cells");
+                Assert.AreEqual("item-armor-" + pick.option.Substring("clothes-".Length), pick.item, "the item id derives from the option id (permanent)");
+                Assert.IsTrue(rules.TryResolve<ItemDefinition>(new DefinitionId(pick.item), out var item), $"{pick.item} resolves");
+                Assert.AreEqual("slot-armor", item.EquipmentSlotId.Value, $"{pick.item} slot");
+                Assert.IsTrue(rules.TryResolve<EquipmentVisualProfile>(item.EquipmentVisualProfileId, out var profile), $"{pick.item} has a visual profile");
+                Assert.AreEqual(EquipmentVisualKind.Sprite, profile.Kind);
+                Assert.AreEqual(1, profile.SpriteLayers.Count, $"{pick.item} paints one layer");
+                Assert.AreEqual("layer-clothes", profile.SpriteLayers[0].layerSlot.Value, $"{pick.item} paints only the clothes layer");
+                Assert.IsEmpty(profile.HiddenLayerSlots, $"{pick.item} hides nothing");
+                Assert.AreEqual(BarrowsEndGearAuthor.ArmorPriority, profile.SpritePriority, $"{pick.item}: an explicit priority, so it beats a tunic (priority 0) worn in another slot by rule");
+                Assert.IsTrue(source.TryGetOption(new DefinitionId("layer-clothes"), new DefinitionId(pick.option), out var option));
+                Assert.AreSame(option.Sprite, profile.SpriteLayers[0].sprite, $"{pick.item} paints the sprite of {pick.option}");
+            }
+
+            CollectionAssert.AllItemsAreUnique(picks.armors.Select(p => p.item).ToList(), "one item per armor");
         }
 
         [Test]
@@ -161,20 +255,22 @@ namespace BarrowsEnd.Tests
         }
 
         [Test]
-        public void EveryClassOffersOnlyPickedWeaponsAndAPermutationOfTheSixStats()
+        public void EveryClassStartsWithOneOfTheArmorsAndOneOfTheWeaponsAndHasAPermutationOfTheSixStats()
         {
-            var pickedItems = picks.weapons.Select(p => p.item).ToHashSet();
+            var armors = picks.armors.Select(p => p.item).ToHashSet();
+            var weapons = picks.weapons.Select(p => p.item).ToHashSet();
             foreach (var entry in table.classes)
             {
-                Assert.IsNotEmpty(entry.weapons, $"{entry.classId} offers a weapon");
-                foreach (var weapon in entry.weapons) Assert.IsTrue(pickedItems.Contains(weapon), $"{entry.classId} weapon '{weapon}' is a picked weapon");
-                CollectionAssert.AllItemsAreUnique(entry.weapons, $"{entry.classId} weapons");
+                Assert.AreEqual(2, entry.startingItems.Length, $"{entry.classId} starts with an armor and a weapon");
+                Assert.IsTrue(armors.Contains(entry.startingItems[0]), $"{entry.classId}: '{entry.startingItems[0]}' is one of the class armors (its outfit)");
+                Assert.IsTrue(weapons.Contains(entry.startingItems[1]), $"{entry.classId}: '{entry.startingItems[1]}' is a picked weapon");
                 CollectionAssert.AreEquivalent(StatIds, entry.scoreOrder, $"{entry.classId} scoreOrder is a permutation of the six stats");
             }
 
-            // Every weapon pick is a real item (so it can be loot), but only the class table's subset is a STARTER: the rest are not offered.
-            var starters = table.classes.SelectMany(c => c.weapons).Distinct().ToList();
-            Assert.Less(starters.Count, pickedItems.Count, "starter weapons are a subset of the weapon picks");
+            // One armor per class, and every armor belongs to a class: five classes, five different looks.
+            CollectionAssert.AreEquivalent(armors, table.classes.Select(c => c.startingItems[0]).ToList(), "each class wears its own armor, and no armor is unused");
+            // Every weapon pick is a real item (so it can be loot), but only the class kits are STARTING weapons.
+            Assert.Less(table.classes.Select(c => c.startingItems[1]).Distinct().Count(), weapons.Count, "starting weapons are a small subset of the weapon picks");
         }
 
         [Test]

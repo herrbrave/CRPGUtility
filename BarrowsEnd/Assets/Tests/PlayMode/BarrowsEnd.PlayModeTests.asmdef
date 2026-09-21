@@ -21,7 +21,10 @@
     "CRPG.Combat",
     "CRPG.Camera",
     "CRPG.Exploration",
-    "BarrowsEnd.Shell"
+    "BarrowsEnd.Shell",
+    "CRPG.UI",
+    "Unity.InputSystem",
+    "Unity.InputSystem.TestFramework"
   ],
   "includePlatforms": [],
   "defineConstraints": [

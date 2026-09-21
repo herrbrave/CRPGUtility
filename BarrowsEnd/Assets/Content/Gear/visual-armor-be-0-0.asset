@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee36966b5f670bf42be24f81f364ab25, type: 3}
+  m_Name: visual-armor-be-0-0
+  m_EditorClassIdentifier: CRPG.Presentation::CRPG.Presentation.Equipment.EquipmentVisualProfile
+  id: visual-armor-be-0-0
+  kind: 3
+  visualPrefab: {fileID: 0}
+  bodyRegionId:
+    value: 
+  hiddenBodyRegions: []
+  socketId:
+    value: 
+  localPosition: {x: 0, y: 0, z: 0}
+  localRotation: {x: 0, y: 0, z: 0, w: 1}
+  localScale: {x: 1, y: 1, z: 1}
+  boneMap: {fileID: 0}
+  spriteLayers:
+  - layerSlot:
+      value: layer-clothes
+    sprite: {fileID: 1711036601, guid: 115eebe5214503f4a8894aa2ed4b1050, type: 3}
+    tint: {r: 1, g: 1, b: 1, a: 1}
+  spritePriority: 10
+  hiddenLayerSlots: []

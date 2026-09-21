@@ -24,6 +24,7 @@ namespace CRPG.Presentation.Creator
         /// <summary>Stable identity for a view/test to find a row: the layer-slot id for appearance rows, <c>weapon</c> or <c>class</c>.</summary>
         public string Key { get; }
         public string Title { get; }
+
         public IReadOnlyList<CreatorOption> Options => options;
         public int Count => options.Length;
         public int Index { get; private set; }
@@ -62,9 +63,11 @@ namespace CRPG.Presentation.Creator
             return false;
         }
 
-        /// <summary>Swaps the option list (the Weapon row when the class changes), keeping the current option if the new list still
-        /// offers it, else falling back to the first. Raises <see cref="Changed"/> once if the list or selection changed.</summary>
-        internal void ReplaceOptions(IEnumerable<CreatorOption> replacement)
+        /// <summary>Swaps the option list. By default the current option is kept if the new list still offers it (matched by id), else the first is chosen
+        /// (the Weapon-style case). With <paramref name="keepIndex"/> the selection stays at the same POSITION instead, clamped to the new length (the style row
+        /// when the colour changes: the ids differ per colour, the shape at that position is the same). Raises <see cref="Changed"/> once if the list or the
+        /// selection changed, never for an identical list.</summary>
+        internal void ReplaceOptions(IEnumerable<CreatorOption> replacement, bool keepIndex = false)
         {
             var next = (replacement ?? Enumerable.Empty<CreatorOption>()).ToArray();
             var keep = options.Length == 0 ? default : options[Index].Id;
@@ -74,9 +77,15 @@ namespace CRPG.Presentation.Creator
             if (sameList) return;
 
             var newIndex = 0;
-            if (keep.IsValid)
+            if (keepIndex)
+            {
+                newIndex = next.Length == 0 ? 0 : Math.Min(Index, next.Length - 1);
+            }
+            else if (keep.IsValid)
+            {
                 for (var i = 0; i < next.Length; i++)
                     if (next[i].Id == keep) { newIndex = i; break; }
+            }
 
             options = next;
             Index = newIndex;

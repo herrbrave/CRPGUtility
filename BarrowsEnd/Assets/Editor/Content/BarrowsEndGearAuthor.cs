@@ -35,6 +35,8 @@ namespace BarrowsEnd.Editor
         public const string HitPointsPath = "Packages/com.crpgtoolkit.core/Rules/SRD5e2014/Content/ResourceDefinition_HitPoints.asset";
 
         public const string HeadSlotId = "slot-head";
+        public const string ArmorSlotId = "slot-armor";
+        public const int ArmorPriority = 10;
 
         public sealed class GearSpec
         {
@@ -53,9 +55,10 @@ namespace BarrowsEnd.Editor
 
         private static GearSpec[] gear;
 
-        /// <summary>The fixed campaign gear plus one main-hand weapon item per weapon pick in <c>CreatorPicks.json</c> (Task 4.0: every
-        /// weapon the creator can show is a real item, so it can also be loot). A pick whose item is already fixed gear (the short sword)
-        /// adds nothing. Computed once per domain load; a changed picks file needs a recompile/reload to be seen.</summary>
+        /// <summary>The fixed campaign gear plus one main-hand weapon item per weapon pick and one armor item per armor pick in <c>CreatorPicks.json</c>
+        /// (Task 4.0: every weapon the creator can show is a real item, so it can also be loot; Task 4.2b: each class's armor is an item on <c>slot-armor</c> painting
+        /// the clothes layer, priority 10 so it beats a tunic worn in another slot). A pick whose item is already fixed gear (the short sword) adds nothing.
+        /// Computed once per domain load; a changed picks file needs a recompile/reload to be seen.</summary>
         public static GearSpec[] Gear => gear ??= BuildGear();
 
         private static GearSpec[] BuildGear()
@@ -72,6 +75,16 @@ namespace BarrowsEnd.Editor
                 {
                     ItemId = pick.item, ProfileId = "visual-" + pick.item.Substring("item-".Length), DisplayName = pick.name,
                     SlotId = "slot-mainhand", LayerSlot = "layer-weapon", CatalogShortName = "weapon", OptionId = pick.option,
+                });
+            }
+
+            foreach (var pick in picks.armors)
+            {
+                if (string.IsNullOrEmpty(pick.item) || !known.Add(pick.item)) continue;
+                all.Add(new GearSpec
+                {
+                    ItemId = pick.item, ProfileId = "visual-" + pick.item.Substring("item-".Length), DisplayName = pick.name,
+                    SlotId = ArmorSlotId, LayerSlot = "layer-clothes", CatalogShortName = "clothes", OptionId = pick.option, Priority = ArmorPriority,
                 });
             }
 
