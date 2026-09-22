@@ -613,3 +613,13 @@ BarrowsEnd only (**no toolkit change; `COMPATIBILITY.md` needs no change**): `Sh
 **Findings worth keeping:** (1) the plan's Opus review was right that Continue must load after `IsReady` and that tests must wait on the callback: the test does. (2) The hidden-screen guard matters only when a screen is built later (Title mode Cancel/Continue paths rebuild them), which is why the flow hides them explicitly on every transition as well. (3) The default town flashes briefly before a Continue load replaces it (accepted, D8).
 
 **For you (the human check, and Gate D's raw material):** open `Assets/Scenes/Core.unity` (menu `Barrows End/Open Campaign Core`) and press Play at 1024x600 or larger. Title -> New Game -> pick a class/look -> Confirm: your character leads the party in the town, dressed in the class armor with the weapon, and the top-left panel's summary line shows HP, proficiencies and features. Press Save, stop, Play again -> Continue. The creator's rows are wide: in a small Game view use the model-driven flow or enlarge the view. Nothing is committed.
+
+### Task 4.4 Results - Gate D (user review, 2026-09-22)
+
+**Confirmed by the user, live:** three characters created through the real title -> New Game -> creator flow; each one's hit points and appearance checked against what was chosen; each moved in the town, saved, the game restarted, Continue pressed, and every character matched what was saved (look and hit points).
+
+**Not separately reported at the gate:** the per-class weapon visibility check and the explicit preview-vs-world visual comparison (both are pinned by automated tests from 4.3: the live compositor equals the creator preview slot for slot, and the weapon sits in `slot-mainhand`). No defects were found, so no code changed.
+
+**Still open (not gate failures):** placeholder hair/weapon option names; the stale-bake test (`Town_Slice`/`Cave_Slice` unbaked, needs `Bake Both Demo Locations`); class changing play is deferred until there is combat UI; armor is cosmetic (no AC).
+
+**Phase 4 is closed.** Next: Phase 5 (UI re-skin: HUD, paper doll, creator and title screen under Task 5.3).
