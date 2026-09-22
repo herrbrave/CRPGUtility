@@ -399,7 +399,7 @@ assumption.
 
 ### Task 5.3: Character creator screen re-skin
 
-Covered by Task 4.1's layout above — listed here only for the asset/USS pass once Task 4.1's structure exists.
+Covered by Task 4.1's layout above — listed here only for the asset/USS pass once Task 4.1's structure exists. **Also the shell title screen** (New Game / Continue) that Task 4.3 adds as a placeholder: it gets the same asset/USS pass.
 
 ## Phase 6 — Campaign content & story
 

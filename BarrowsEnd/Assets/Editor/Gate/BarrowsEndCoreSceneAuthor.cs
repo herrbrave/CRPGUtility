@@ -4,6 +4,7 @@ using BarrowsEnd.Shell;
 using CRPG.Camera;
 using CRPG.Exploration;
 using CRPG.InputSystem;
+using CRPG.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -27,6 +28,7 @@ namespace BarrowsEnd.Editor
             BarrowsEndGearAuthor.Author();
             BarrowsEndLocationAuthor.AuthorAll();
             BarrowsEndCharacterAuthor.Author();
+            BarrowsEndCreatorAuthor.AuthorPanelSettings(); // the creator/title panel settings: this author never created them (a fresh clone would render nothing)
             Directory.CreateDirectory("Assets/Scenes");
             AssetDatabase.Refresh();
 
@@ -37,6 +39,11 @@ namespace BarrowsEnd.Editor
             var partyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCharacterAuthor.SpriteCharacterPath);
             var rigPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCameraAuthor.RigPrefabPath);
             var panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PhaseTwoGateSceneAuthor.PanelSettingsPath);
+            var creatorSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(BarrowsEndCreatorAuthor.PanelSettingsPath)
+                                  ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.PanelSettingsPath} is missing.");
+            var creatorPicks = AssetDatabase.LoadAssetAtPath<TextAsset>(BarrowsEndCreatorAuthor.PicksPath) ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.PicksPath} is missing.");
+            var creatorTable = AssetDatabase.LoadAssetAtPath<TextAsset>(BarrowsEndCreatorAuthor.ClassTablePath) ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.ClassTablePath} is missing.");
+            if (panelSettings == null) throw new System.InvalidOperationException($"{PhaseTwoGateSceneAuthor.PanelSettingsPath} is missing.");
 
             var rigGo = (GameObject)PrefabUtility.InstantiatePrefab(rigPrefab);
             var rig = rigGo.GetComponent<IsometricCameraRig>();
@@ -74,6 +81,21 @@ namespace BarrowsEnd.Editor
                 Strings(element.FindPropertyRelative("gear"), members[i].gear);
             }
 
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Task 4.3: the title and creator screens (both on the creator panel settings, sorting order 10) and the start flow wiring. The real game starts at the title;
+            // ShellBootstrap.StartModeOverride lets the tests that boot straight into the town keep doing so.
+            var titleGo = new GameObject("TitleScreen");
+            titleGo.AddComponent<UIDocument>().panelSettings = creatorSettings;
+            var title = titleGo.AddComponent<ShellTitleScreen>();
+            var creatorGo = new GameObject("CharacterCreator");
+            creatorGo.AddComponent<UIDocument>().panelSettings = creatorSettings;
+            var creator = creatorGo.AddComponent<CharacterCreatorScreen>();
+            so.FindProperty("startMode").enumValueIndex = (int)ShellStartMode.Title;
+            so.FindProperty("titleScreen").objectReferenceValue = title;
+            so.FindProperty("creatorScreen").objectReferenceValue = creator;
+            so.FindProperty("creatorPicks").objectReferenceValue = creatorPicks;
+            so.FindProperty("creatorClassTable").objectReferenceValue = creatorTable;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var panelGo = new GameObject("ShellPanel");

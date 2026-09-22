@@ -23,6 +23,7 @@
     "CRPG.Exploration",
     "BarrowsEnd.Shell",
     "CRPG.UI",
+    "CRPG.Rules.SRD5",
     "Unity.InputSystem",
     "Unity.InputSystem.TestFramework"
   ],

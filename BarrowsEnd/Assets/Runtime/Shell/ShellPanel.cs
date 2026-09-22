@@ -1,4 +1,8 @@
 using System;
+using System.Linq;
+using BarrowsEnd.Gate;
+using CRPG.Actors;
+using CRPG.Core;
 using CRPG.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,6 +19,7 @@ namespace BarrowsEnd.Shell
 
         private Label status;
         private Label message;
+        private Label summary;
         private UIDocument document;
 
         private void OnEnable()
@@ -50,6 +55,8 @@ namespace BarrowsEnd.Shell
 
             status = Text(panel);
             message = Text(panel);
+            summary = Text(panel);
+            summary.name = "shell-summary";
             Row(panel, Button("Save", () => bootstrap.SaveNow()), Button("Load", () => bootstrap.LoadNow()));
             Row(panel,
                 Button("Zoom -", () => bootstrap.CameraRig.Rig.ApplyZoom(-1f)),
@@ -75,11 +82,26 @@ namespace BarrowsEnd.Shell
             parent.Add(row);
         }
 
+        /// <summary>The selected member in one line (Task 4.3, what Gate D reads): hit points, the number of proficiencies and the names of the granted features. There is no
+        /// class-identity field on a character, so the class shows through its features and hit points, which differ by class.</summary>
+        public static string Summarize(CharacterState character, IRulesDatabase rules)
+        {
+            if (character == null) return "";
+            var hp = character.TryGetResource(GateSessionServices.HitPoints, out var resource) ? $"HP {resource.Current}/{resource.Max}" : "HP -";
+            var names = character.Features
+                .Select(f => rules != null && rules.TryResolve<FeatureDefinition>(f, out var definition) && !string.IsNullOrEmpty(definition.DisplayName) ? definition.DisplayName : null)
+                .Where(n => n != null)
+                .Distinct();
+            return $"{hp}   Proficiencies: {character.Proficiencies.Count}   Features: {string.Join(", ", names)}";
+        }
+
         private void Update()
         {
             if (status == null || bootstrap == null || !bootstrap.IsReady) return;
             var scene = SceneManager.GetActiveScene();
             status.text = $"{scene.name}   zoom x{bootstrap.CameraRig.Rig.Scale}";
+            var session = bootstrap.Services?.Session;
+            summary.text = session != null && session.Characters.TryGetCharacter(session.Party.ActiveCharacter, out var member) ? Summarize(member, session.RulesDatabase) : "";
         }
     }
 }

@@ -23,6 +23,7 @@ namespace BarrowsEnd.Editor
         public const string ClassTablePath = "Assets/Content/Creator/CreatorClassTable.json";
         public const string SceneDir = "Assets/Scenes/Creator";
         public const string ScenePath = SceneDir + "/CreatorPreview.unity";
+        public const int SortingOrder = 10;
 
         public const DynamicAtlasFilters AllAtlasFilters = DynamicAtlasFilters.Readability | DynamicAtlasFilters.Size | DynamicAtlasFilters.Format | DynamicAtlasFilters.ColorSpace | DynamicAtlasFilters.FilterMode;
 
@@ -43,6 +44,7 @@ namespace BarrowsEnd.Editor
             settings.themeStyleSheet = theme;
             settings.scaleMode = PanelScaleMode.ConstantPixelSize;
             settings.scale = 1f;
+            settings.sortingOrder = SortingOrder; // the title and creator draw above the gate ShellPanel (sortingOrder 0)
             var atlas = settings.dynamicAtlasSettings;
             atlas.activeFilters = AllAtlasFilters;
             settings.dynamicAtlasSettings = atlas;

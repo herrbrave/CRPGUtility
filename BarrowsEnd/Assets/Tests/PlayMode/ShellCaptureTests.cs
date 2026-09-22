@@ -33,6 +33,13 @@ namespace BarrowsEnd.Tests
             Assert.Greater(different, 1000, $"{name} has content");
         }
 
+        // Task 4.3: this test boots straight into the town. Set BEFORE Core loads; cleared afterwards so a failure cannot leak into the Title-mode tests.
+        [SetUp]
+        public void UseTheAuthoredParty() => ShellBootstrap.StartModeOverride = ShellStartMode.AuthoredParty;
+
+        [TearDown]
+        public void ClearTheStartModeOverride() => ShellBootstrap.StartModeOverride = null;
+
         private static IEnumerator Seconds(float seconds)
         {
             var elapsed = 0f;

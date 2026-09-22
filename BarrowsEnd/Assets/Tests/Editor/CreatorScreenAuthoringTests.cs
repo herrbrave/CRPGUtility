@@ -22,6 +22,7 @@ namespace BarrowsEnd.Tests
             Assert.IsNotNull(settings.themeStyleSheet, "the runtime theme is assigned explicitly");
             Assert.AreEqual(PanelScaleMode.ConstantPixelSize, settings.scaleMode, "fractional panel scaling would blur the integer-scaled sprites");
             Assert.AreEqual(1f, settings.scale);
+            Assert.AreEqual(10, settings.sortingOrder, "the title and creator draw above the gate ShellPanel (Task 4.3)");
             Assert.AreEqual(BarrowsEndCreatorAuthor.AllAtlasFilters, settings.dynamicAtlasSettings.activeFilters, "no atlas re-filtering of the sprite textures");
         }
 

@@ -37,6 +37,7 @@ namespace BarrowsEnd.Tests
         public IEnumerator Boot()
         {
             savePath = Path.Combine(Path.GetTempPath(), $"barrowsend-shell-test-{Guid.NewGuid():N}.json");
+            ShellBootstrap.StartModeOverride = ShellStartMode.AuthoredParty; // these tests boot straight into the town: set BEFORE Core loads, cleared in Cleanup
             yield return SceneManager.LoadSceneAsync(CorePath, LoadSceneMode.Single);
             shell = UnityEngine.Object.FindFirstObjectByType<ShellBootstrap>();
             Assert.IsNotNull(shell);
@@ -48,6 +49,7 @@ namespace BarrowsEnd.Tests
         [TearDown]
         public void Cleanup()
         {
+            ShellBootstrap.StartModeOverride = null;
             if (File.Exists(savePath)) File.Delete(savePath);
             Time.timeScale = 1f;
         }

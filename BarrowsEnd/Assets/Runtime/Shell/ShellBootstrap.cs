@@ -14,8 +14,11 @@ using CRPG.Gameplay.Interactions;
 using CRPG.Gameplay.Interactions.Adapters;
 using CRPG.Gameplay.Scenes;
 using CRPG.InputSystem;
+using CRPG.Inventory;
 using CRPG.Navigation.Grid;
 using CRPG.Party;
+using CRPG.Presentation.Creator;
+using CRPG.UI;
 using CRPG.Saving;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -28,6 +31,10 @@ namespace BarrowsEnd.Shell
     /// loads the location scenes additively. Everything that holds the current session is rebuilt by <see cref="GateSessionServices"/> after a load; travel
     /// keeps the same session and needs none of that.
     /// <para>The party uses FIXED character ids so a save can be loaded after a process restart (a runtime-generated id would only work in the same process).</para>
+    /// <para>Task 4.3: in <see cref="ShellStartMode.Title"/> mode the start flow runs after the session exists and before any location loads: the title screen, then New Game
+    /// (the creator; Confirm hands over the protagonist, Cancel returns to the title) or Continue (boot the authored default party, then load the save over it, which works because
+    /// the fixed ids match). <see cref="ShellStartMode.AuthoredParty"/> is the old straight-into-the-town boot. Every member, protagonist or companion, is dressed (their gear
+    /// equipped) before the view binds, the load shape.</para>
     /// </summary>
     public sealed class ShellBootstrap : MonoBehaviour
     {
@@ -46,6 +53,13 @@ namespace BarrowsEnd.Shell
         [SerializeField] private IsometricCameraRig cameraRig;
         [SerializeField] private PartyCameraFollowBehaviour cameraFollow;
 
+        [Header("Start flow (Task 4.3)")]
+        [SerializeField] private ShellStartMode startMode = ShellStartMode.AuthoredParty;
+        [SerializeField] private ShellTitleScreen titleScreen;
+        [SerializeField] private CharacterCreatorScreen creatorScreen;
+        [SerializeField] private TextAsset creatorPicks;
+        [SerializeField] private TextAsset creatorClassTable;
+
         private static readonly Type[] RequiredPolicies =
         {
             typeof(IArmorClassRule), typeof(IAttackBonusRule), typeof(IInitiativeRule), typeof(ISavingThrowRule),
@@ -58,6 +72,8 @@ namespace BarrowsEnd.Shell
         private SceneTravelRunner runner;
         private SessionLoadCoordinator loadCoordinator;
         private GateCommandSource commandSource;
+        private CreatorResult protagonist;
+        private bool continueRequested;
 
         public GateSessionServices Services { get; private set; }
         public GameSession Session => Services?.Session;
@@ -66,6 +82,19 @@ namespace BarrowsEnd.Shell
         public SceneTravelRunner Runner => runner;
         public IsometricCameraRig CameraRig => cameraRig;
         public bool IsReady { get; private set; }
+        /// <summary>Test hook: when set, <c>Boot</c> uses this instead of the serialized start mode. The 6 tests that boot straight into the town set AuthoredParty BEFORE they load
+        /// Core (Boot reads it in Start) and clear it in teardown. A static, because the alternative is a second Core scene.</summary>
+        public static ShellStartMode? StartModeOverride { get; set; }
+
+        /// <summary>Where the start flow is; Playing once the game is running (for Continue, only after its load finished).</summary>
+        public ShellStartPhase Phase { get; private set; } = ShellStartPhase.Booting;
+
+        /// <summary>The creator's model while the start flow runs (null in AuthoredParty mode).</summary>
+        public CharacterCreatorModel CreatorModel { get; private set; }
+
+        /// <summary>How many times the creator was shown (a test asserts Continue never shows it).</summary>
+        public int CreatorRuns { get; private set; }
+
         public bool IsLoading => loadCoordinator != null && loadCoordinator.IsLoading;
         public string LastMessage { get; private set; } = "";
         public event Action<string> MessageChanged;
@@ -85,6 +114,13 @@ namespace BarrowsEnd.Shell
             if (ruleset == null || partyPrefab == null || inputSource == null || cameraRig == null || string.IsNullOrEmpty(startingScenePath))
                 throw new InvalidOperationException("ShellBootstrap needs its ruleset, party prefab, input source, camera rig and starting scene (author Core.unity with 'Barrows End/Content/Author Core Scene').");
 
+            // Both screens are authored enabled: hidden first on every path, or a full-screen document would capture the pointer over the world from scene load on.
+            titleScreen?.Hide();
+            creatorScreen?.Hide();
+            var mode = StartModeOverride ?? startMode;
+            if (mode == ShellStartMode.Title && (titleScreen == null || creatorScreen == null || creatorPicks == null || creatorClassTable == null))
+                throw new InvalidOperationException("ShellBootstrap in Title mode needs its title screen, creator screen and both creator JSON files (author Core.unity with 'Barrows End/Content/Author Core Scene').");
+
             var coreScene = gameObject.scene;
             pathfinding = new GridPathfindingService();
             host = gameObject.AddComponent<GameSessionHost>();
@@ -98,6 +134,8 @@ namespace BarrowsEnd.Shell
             runner.Coordinator = NewTravelCoordinator(session, spawner);
             loadCoordinator = new SessionLoadCoordinator(gate: transitionGate, gridPathfinding: pathfinding);
             inputSource.TransitionGate = transitionGate;
+
+            if (mode == ShellStartMode.Title) yield return RunStartFlow(session);
 
             yield return SceneManager.LoadSceneAsync(startingScenePath, LoadSceneMode.Additive);
             var startingScene = SceneManager.GetSceneByPath(startingScenePath);
@@ -121,6 +159,64 @@ namespace BarrowsEnd.Shell
 
             IsReady = true;
             Say("ready");
+
+            // LoadNow refuses before IsReady, and is fire-and-forget: the phase stays Loading until its callback fires (callers wait on that, not on IsReady).
+            if (continueRequested)
+            {
+                Phase = ShellStartPhase.Loading;
+                LoadNow(_ => Phase = ShellStartPhase.Playing);
+            }
+            else
+            {
+                Phase = ShellStartPhase.Playing;
+            }
+        }
+
+        // ---------------------------------------------------------------------------------------------
+        // Start flow (Title mode)
+        // ---------------------------------------------------------------------------------------------
+
+        private enum StartChoice { None, NewGame, Continue }
+
+        private IEnumerator RunStartFlow(GameSession session)
+        {
+            CreatorModel = new CharacterCreatorModel(session.RulesDatabase, CreatorContentLoader.Build(creatorPicks.text, creatorClassTable.text), Debug.LogWarning);
+
+            var choice = StartChoice.None;
+            CreatorResult confirmed = null;
+            var cancelled = false;
+            titleScreen.Initialize(() => File.Exists(SavePath), () => choice = StartChoice.NewGame, () => choice = StartChoice.Continue);
+            creatorScreen.Initialize(CreatorModel, result => confirmed = result, () => cancelled = true);
+
+            while (true)
+            {
+                Phase = ShellStartPhase.Title;
+                creatorScreen.Hide();
+                titleScreen.Show();
+                choice = StartChoice.None;
+                yield return new WaitUntil(() => choice != StartChoice.None);
+                titleScreen.Hide();
+
+                if (choice == StartChoice.Continue)
+                {
+                    continueRequested = true;
+                    yield break;
+                }
+
+                Phase = ShellStartPhase.Creating;
+                CreatorRuns++;
+                confirmed = null;
+                cancelled = false;
+                creatorScreen.Show();
+                yield return new WaitUntil(() => confirmed != null || cancelled);
+                creatorScreen.Hide();
+
+                if (confirmed != null)
+                {
+                    protagonist = confirmed;
+                    yield break;
+                }
+            }
         }
 
         private SceneTravelCoordinator NewTravelCoordinator(GameSession session, WorldSpawnService spawner) =>
@@ -142,27 +238,62 @@ namespace BarrowsEnd.Shell
 
         private void SpawnParty(GameSession session, WorldSpawnService spawner, Scene coreScene)
         {
+            var equipment = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
+
             for (var i = 0; i < members.Length; i++)
             {
                 var spec = members[i];
                 var id = RuntimeEntityId.FromString("ba00000000000000000000000000000" + (i + 1).ToString("x"));
-                var character = new CharacterState(id);
-                character.AddResource(new ResourceState(GateSessionServices.HitPoints, spec.maxHp));
-                foreach (var entry in spec.appearance)
+
+                CharacterState character;
+                IEnumerable<DefinitionId> gear;
+                if (i == 0 && protagonist != null)
                 {
-                    var parts = entry.Split('=');
-                    if (parts.Length == 2) character.SetAppearance(new DefinitionId(parts[0].Trim()), new DefinitionId(parts[1].Trim()));
+                    // Task 4.3: the created protagonist takes slot 1 (Aldric's spec, gear included, is replaced), built with real hit points and wearing the class kit.
+                    character = ProtagonistFactory.Build(session.RulesDatabase, protagonist, id);
+                    gear = protagonist.StartingItemIds;
+                }
+                else
+                {
+                    character = new CharacterState(id);
+                    character.AddResource(new ResourceState(GateSessionServices.HitPoints, spec.maxHp));
+                    foreach (var entry in spec.appearance)
+                    {
+                        var parts = entry.Split('=');
+                        if (parts.Length == 2) character.SetAppearance(new DefinitionId(parts[0].Trim()), new DefinitionId(parts[1].Trim()));
+                    }
+
+                    gear = spec.gear.Select(g => new DefinitionId(g));
                 }
 
                 session.Characters.Register(character);
                 session.Party.AddMember(id);
                 partyVisualPrefabs[id] = partyPrefab;
+                Dress(session, equipment, character, gear);
 
                 var instance = spawner.BindRestoredView(spec.spawnId, id, default, partyPrefab, Vector3.zero, Quaternion.identity, default, startInactive: false);
                 SceneManager.MoveGameObjectToScene(instance, coreScene);
             }
 
             if (session.Party.Members.Count > 0) session.Party.Select(session.Party.Members[0]);
+        }
+
+        // Worn BEFORE the view binds (the load shape, as the gate does): the sprite equipment binder reconciles from the inventory when the view initializes.
+        // Until Task 4.3 the shell ignored every member's authored gear.
+        private static void Dress(GameSession session, EquipmentService equipment, CharacterState character, IEnumerable<DefinitionId> gear)
+        {
+            foreach (var itemId in gear)
+            {
+                if (!session.RulesDatabase.TryResolve<ItemDefinition>(itemId, out var definition))
+                {
+                    Debug.LogWarning($"[Shell] Unknown gear '{itemId.Value}' for {character.Id}.");
+                    continue;
+                }
+
+                var instance = new ItemInstance(RuntimeEntityId.NewId(), definition.Id);
+                session.Inventory.AddItem(instance);
+                equipment.Equip(instance.InstanceId, character.Id, definition.EquipmentSlotId);
+            }
         }
 
         private static ILocationContent FindLocationContent(Scene scene)
