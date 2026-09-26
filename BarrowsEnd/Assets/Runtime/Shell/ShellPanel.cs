@@ -10,8 +10,11 @@ using UnityEngine.UIElements;
 
 namespace BarrowsEnd.Shell
 {
-    /// <summary>A minimal in-game panel for the Phase 3 shell (not the Phase 5 HUD): where the party is, the last message, save / load and zoom. Registered with
-    /// <see cref="UIToolkitPointerCapture"/> so a click on it never also becomes a world click.</summary>
+    /// <summary>The Phase 3/4 shell's placeholder debug panel (party/message/save/load/zoom) -- Task 5.1 replaced it in the shipped
+    /// Core scene with the real HUD (<see cref="HudBootstrap"/>). The type itself is kept only for its static <see cref="Summarize"/>
+    /// method, which three EditMode tests call directly and which the real HUD's own status line also uses; nothing instantiates
+    /// this MonoBehaviour in the authored scene anymore. Registered with <see cref="UIToolkitPointerCapture"/> so a click on it
+    /// never also becomes a world click, for anyone still using it as a standalone dev panel.</summary>
     [RequireComponent(typeof(UIDocument))]
     public sealed class ShellPanel : MonoBehaviour
     {

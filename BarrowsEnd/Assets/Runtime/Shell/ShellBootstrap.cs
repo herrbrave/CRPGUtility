@@ -44,6 +44,10 @@ namespace BarrowsEnd.Shell
         [SerializeField] private GateMemberSpec[] members = Array.Empty<GateMemberSpec>();
         [SerializeField] private int seed = 4242;
 
+        /// <summary>Task 5.1: the authored party spec, read-only -- the HUD needs each member's display name
+        /// (never persisted in a save, see SaveService) to build its PartyPresenter's memberNames dictionary.</summary>
+        public IReadOnlyList<GateMemberSpec> Members => members;
+
         [Header("Start")]
         [SerializeField] private string startingScenePath;
         [SerializeField] private string startingDestinationId = "start";
@@ -236,6 +240,11 @@ namespace BarrowsEnd.Shell
             pathfinding.SetActiveGrid(provider.Grid);
         }
 
+        /// <summary>The fixed party-slot id formula (Task 3.4): the same id every session/save, since a save must
+        /// load after a process restart and a runtime-generated id would only work in the same process. Public so
+        /// the HUD (Task 5.1) can build a memberId -> displayName map without duplicating this formula.</summary>
+        public static RuntimeEntityId MemberIdFor(int index) => RuntimeEntityId.FromString("ba00000000000000000000000000000" + (index + 1).ToString("x"));
+
         private void SpawnParty(GameSession session, WorldSpawnService spawner, Scene coreScene)
         {
             var equipment = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
@@ -243,7 +252,7 @@ namespace BarrowsEnd.Shell
             for (var i = 0; i < members.Length; i++)
             {
                 var spec = members[i];
-                var id = RuntimeEntityId.FromString("ba00000000000000000000000000000" + (i + 1).ToString("x"));
+                var id = MemberIdFor(i);
 
                 CharacterState character;
                 IEnumerable<DefinitionId> gear;

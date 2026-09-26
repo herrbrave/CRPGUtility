@@ -15,7 +15,8 @@ namespace BarrowsEnd.Editor
     /// <summary>
     /// Task 3.4: authors <c>Core.unity</c>, the persistent scene that owns everything that outlives a location: the authored camera rig, the input source
     /// (raycast camera = the rig's, cameraRig set so zoom works, hittable mask that excludes baked wall boxes), the <see cref="ShellBootstrap"/> that starts
-    /// the session and loads the first location, and a small panel. Also puts every scene in the build settings (Core first). Never hand-edited.
+    /// the session and loads the first location, and the HUD (Task 5.1: <see cref="HudBootstrap"/>, replacing the old debug-only ShellPanel). Also puts
+    /// every scene in the build settings (Core first). Never hand-edited.
     /// </summary>
     public static class BarrowsEndCoreSceneAuthor
     {
@@ -29,6 +30,7 @@ namespace BarrowsEnd.Editor
             BarrowsEndLocationAuthor.AuthorAll();
             BarrowsEndCharacterAuthor.Author();
             BarrowsEndCreatorAuthor.AuthorPanelSettings(); // the creator/title panel settings: this author never created them (a fresh clone would render nothing)
+            BarrowsEndUiAuthor.AuthorHudPanelSettings(); // Task 5.1: same reason, for the HUD's own panel settings
             Directory.CreateDirectory("Assets/Scenes");
             AssetDatabase.Refresh();
 
@@ -38,12 +40,12 @@ namespace BarrowsEnd.Editor
             var ruleset = AssetDatabase.LoadAssetAtPath<BarrowsEndRulesetProvider>(BarrowsEndGearAuthor.RulesetPath);
             var partyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCharacterAuthor.SpriteCharacterPath);
             var rigPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCameraAuthor.RigPrefabPath);
-            var panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PhaseTwoGateSceneAuthor.PanelSettingsPath);
             var creatorSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(BarrowsEndCreatorAuthor.PanelSettingsPath)
                                   ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.PanelSettingsPath} is missing.");
+            var hudSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(BarrowsEndUiAuthor.HudPanelSettingsPath)
+                                  ?? throw new System.InvalidOperationException($"{BarrowsEndUiAuthor.HudPanelSettingsPath} is missing.");
             var creatorPicks = AssetDatabase.LoadAssetAtPath<TextAsset>(BarrowsEndCreatorAuthor.PicksPath) ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.PicksPath} is missing.");
             var creatorTable = AssetDatabase.LoadAssetAtPath<TextAsset>(BarrowsEndCreatorAuthor.ClassTablePath) ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.ClassTablePath} is missing.");
-            if (panelSettings == null) throw new System.InvalidOperationException($"{PhaseTwoGateSceneAuthor.PanelSettingsPath} is missing.");
 
             var rigGo = (GameObject)PrefabUtility.InstantiatePrefab(rigPrefab);
             var rig = rigGo.GetComponent<IsometricCameraRig>();
@@ -98,13 +100,18 @@ namespace BarrowsEnd.Editor
             so.FindProperty("creatorClassTable").objectReferenceValue = creatorTable;
             so.ApplyModifiedPropertiesWithoutUndo();
 
-            var panelGo = new GameObject("ShellPanel");
-            var document = panelGo.AddComponent<UIDocument>();
-            document.panelSettings = panelSettings;
-            var panel = panelGo.AddComponent<ShellPanel>();
-            var panelSo = new SerializedObject(panel);
-            panelSo.FindProperty("bootstrap").objectReferenceValue = boot;
-            panelSo.ApplyModifiedPropertiesWithoutUndo();
+            // Task 5.1: the real HUD (party roster top-left, system menu top-right) replaces ShellPanel's single
+            // debug panel. HudRoot (required by HudBootstrap) is what registers the document with
+            // UIToolkitPointerCapture and sets PickingMode.Ignore on the root -- without it either every HUD
+            // click also becomes a world click, or the full-screen root blocks every world click.
+            var hudGo = new GameObject("Hud");
+            var hudDocument = hudGo.AddComponent<UIDocument>();
+            hudDocument.panelSettings = hudSettings;
+            hudGo.AddComponent<HudRoot>();
+            var hud = hudGo.AddComponent<HudBootstrap>();
+            var hudSo = new SerializedObject(hud);
+            hudSo.FindProperty("bootstrap").objectReferenceValue = boot;
+            hudSo.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[]

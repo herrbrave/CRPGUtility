@@ -63,8 +63,8 @@
   <Project Path="CRPG.Camera.csproj" />
   <Project Path="BarrowsEnd.Gate.csproj" />
   <Project Path="Unity.InputSystem.TestFramework.csproj" />
-  <Project Path="Unity.ShaderGraph.Utilities.csproj" />
   <Project Path="BarrowsEnd.Shell.csproj" />
+  <Project Path="Unity.ShaderGraph.Utilities.csproj" />
   <Project Path="Unity.Profiling.Core.csproj" />
   <Project Path="CRPG.Tests.Fixtures.CharacterCreatorVerification.csproj" />
   <Project Path="CRPG.Tests.Fixtures.AlternateRuleset.csproj" />

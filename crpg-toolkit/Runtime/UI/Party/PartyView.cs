@@ -14,15 +14,19 @@ namespace CRPG.UI
     /// any USS rule. A consumer that supplies its own stylesheet through <see cref="Initialize"/>'s panel/theme
     /// sets it false. Names/classes: <c>party-panel</c>, <c>party-title</c>, <c>party-roster</c>, <c>party-card</c>
     /// (+ <c>party-card--active</c>/<c>party-card--selected</c>), <c>party-card-name</c>, <c>party-card-hp</c>, and
-    /// (only when the flag is false) an <c>hp-bar</c> + <c>hp-bar__fill</c> child sized by a computed inline pixel
-    /// width (a Length.Percent width on the fill resolved against the fill's own native background-image size, not
-    /// the bar's actual width -- a real bug found at Gate review, fixed by computing pixels directly) -- built
-    /// only in that case so the flag-true look stays exactly what it always was (no extra child to account for).</para>
+    /// (only when the flag is false) an <c>hp-bar</c> + <c>hp-bar__fill</c> child. The bar's WIDTH is entirely the
+    /// consumer's/skin's to set (inline or via USS) -- this view never forces it, so a strip-shaped HUD row and a
+    /// tall portrait card can size the same bar completely differently. The fill reacts to whatever width the bar
+    /// actually resolves to via <see cref="GeometryChangedEvent"/>, recomputing <c>percent * the bar's real
+    /// resolved width</c> every time it changes (Task 5.1 Gate review: an earlier fixed-pixel constant meant the
+    /// bar could never be resized by a skin without the fill going wrong again, the same bug class as the
+    /// Length.Percent-resolves-against-the-wrong-thing bug Task 5.0's Gate review found). Consequence: EditMode
+    /// (no layout pass ever runs there) never fires that event, so the fill's exact pixel width is only meaningful
+    /// in a PlayMode test -- EditMode checks structure/display state only (see PartyViewSkinContractTests vs.
+    /// PartyViewGeometryTests).</para>
     /// </summary>
     public sealed class PartyView : MonoBehaviour
     {
-        private const float HpBarWidth = 120f;
-
         [Tooltip("Applies the plain built-in look (inline colours/borders). Turn off when a StyleSheet supplies the look (inline styles beat USS).")]
         [SerializeField] private bool usePlaceholderStyle = true;
 
@@ -51,6 +55,20 @@ namespace CRPG.UI
             // click/drag-box via PartyExplorationController) -- unlike Camp/Store, refreshing only after our
             // own button clicks would leave the panel stale after a world-driven selection change.
             presenter.Party.Changed += Refresh;
+        }
+
+        /// <summary>Task 5.1 Gate review: a session load swaps in a brand-new PartyState/ICharacterRegistry
+        /// (PartyPresenter.Rebind updates the presenter's own references), but this view's <c>Party.Changed</c>
+        /// subscription from <see cref="Initialize"/> is NOT re-raised by that -- left alone, the view stays
+        /// subscribed to the discarded, disposed PartyState forever and never refreshes from a world-driven
+        /// selection change again. Call this (not <see cref="Initialize"/> again) after rebinding the presenter:
+        /// cheaper than rebuilding the DOM, and leaves no dangling handler on the old, dead PartyState.</summary>
+        public void Rebind(PartyPresenter newPresenter)
+        {
+            if (presenter != null) presenter.Party.Changed -= Refresh;
+            presenter = newPresenter;
+            presenter.Party.Changed += Refresh;
+            Refresh();
         }
 
         private void OnDisable()
@@ -84,7 +102,10 @@ namespace CRPG.UI
 
             rosterContainer = new VisualElement { name = "party-roster" };
             rosterContainer.AddToClassList("party-roster");
-            rosterContainer.style.flexDirection = FlexDirection.Row;
+            // Task 5.1 Gate review (blocker): this was unconditional, so a consumer's USS `.party-roster
+            // { flex-direction: column }` rule was always a no-op (inline beats a stylesheet) -- the exact bug
+            // class the Task 5.0 gallery review already caught once. Gated so a re-skin can actually choose.
+            if (usePlaceholderStyle) rosterContainer.style.flexDirection = FlexDirection.Row;
             container.Add(rosterContainer);
         }
 
@@ -140,28 +161,40 @@ namespace CRPG.UI
                 var bar = new VisualElement { name = "hp-bar" };
                 bar.AddToClassList("be-bar");
                 bar.AddToClassList("be-part--bar-back-hp");
-                bar.style.width = HpBarWidth;
+                // No width set here, deliberately (Task 5.1 Gate review): the bar's width is entirely the
+                // consumer's/skin's to decide (inline or USS) -- a tall portrait card and a wide HUD strip can
+                // size it completely differently. The fill tracks whatever that resolves to, below.
                 var fill = new VisualElement { name = "hp-bar__fill" };
                 fill.AddToClassList("be-bar__fill");
                 fill.AddToClassList("be-part--bar-fill-hp");
                 var percent = member.MaxHp > 0 ? Mathf.Clamp01((float)member.CurrentHp / member.MaxHp) : 0f;
-                // A Length.Percent width on an absolutely-positioned child resolved against the fill's own
-                // native background-image size (36px), not the bar's actual width -- 25% rendered as ~9px, 50%
-                // as an 18x18 square. A computed pixel width sidesteps whatever layout-resolution quirk that is.
-                fill.style.width = HpBarWidth * percent;
                 fill.style.display = percent <= 0f ? DisplayStyle.None : DisplayStyle.Flex;
+                // Recomputes on every layout change to the bar (not just once): a bar whose own width changes
+                // later (a window resize, a different skin swapped in) keeps the fill correctly proportioned.
+                // This never fires in EditMode (no layout pass runs there) -- see the class doc comment.
+                bar.RegisterCallback<GeometryChangedEvent>(evt => fill.style.width = evt.newRect.width * percent);
                 bar.Add(fill);
                 card.Add(bar);
             }
 
-            card.RegisterCallback<ClickEvent>(evt => OnPortraitClicked(member.Id, evt));
+            // Task 5.1 Gate review (a real, pre-existing bug -- PartyView had no tests at all before Task 5.0,
+            // so this was never exercised through a real click): a bare RegisterCallback<ClickEvent> never fires
+            // from a genuine pointer press+release on a plain VisualElement -- there is no Clickable manipulator
+            // here to synthesize one, unlike Button (which owns one internally). This never worked for an actual
+            // mouse click either, not just in a test. A Clickable manipulator is what makes press+release-on-
+            // target register as a click at all; its callback receives the raw EventBase (the PointerUpEvent),
+            // read as IPointerEvent for the shift/double-click info the original ClickEvent handler used.
+            card.AddManipulator(new Clickable(evt => OnPortraitClicked(member.Id, evt)));
             return card;
         }
 
-        private void OnPortraitClicked(CRPG.Core.RuntimeEntityId id, ClickEvent evt)
+        private void OnPortraitClicked(CRPG.Core.RuntimeEntityId id, EventBase evt)
         {
-            if (evt.shiftKey) presenter.ToggleSelect(id);
-            else if (evt.clickCount >= 2) presenter.SetActive(id);
+            var shiftKey = evt is IPointerEvent pointerEvent && pointerEvent.shiftKey;
+            var clickCount = evt is IPointerEvent pe ? pe.clickCount : 1;
+
+            if (shiftKey) presenter.ToggleSelect(id);
+            else if (clickCount >= 2) presenter.SetActive(id);
             else presenter.SelectCharacter(id);
 
             Refresh();

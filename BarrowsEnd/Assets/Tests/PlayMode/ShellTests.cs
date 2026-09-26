@@ -246,7 +246,13 @@ namespace BarrowsEnd.Tests
         {
             yield return TravelTo(CavePath, Centre(14, 19));
             var walker = Agent(Member(0));
-            var target = Centre(14, 8);
+            // Task 5.1: the real HUD (HudBootstrap) covers real screen area at the 640x480 batch resolution, and
+            // since the camera follows the party, WHERE a given world cell projects on screen shifts depending
+            // on the party's current position -- (14,8), this test's original target, now lands inside the
+            // system menu region. (18,13) was verified (a throwaway diagnostic sweep covering both this click
+            // and the post-load one below, run together since fixing one in isolation can silently move the
+            // other) walkable and clear of both HUD regions at this point in the test.
+            var target = Centre(18, 13);
             Click(target);
             yield return WaitUntil(() => Vector3.Distance(walker.transform.position, target) < 0.7f, 30f, "the member walked into the cave");
             var savedPositions = Session.Party.Members.Select(m => Agent(m).transform.position).ToList();
@@ -276,8 +282,12 @@ namespace BarrowsEnd.Tests
             yield return AssertCameraClampsToTheActiveLocation();
 
             // The rebuilt click stack works against the new session and the new scene.
+            // Task 5.1: re-verified together with the click above in the same diagnostic sweep (fixing one click
+            // in isolation can silently move another, since the camera follows the party and each click changes
+            // where the party ends up next) -- (17,14) is walkable, clear of both HUD regions at this point, and
+            // deliberately distinct from the first click's (18,13) so this still exercises real movement.
             var next = Agent(Member(0));
-            var goal = Centre(14, 10);
+            var goal = Centre(17, 14);
             Click(goal);
             yield return WaitUntil(() => Vector3.Distance(next.transform.position, goal) < 0.7f, 30f, "movement works after the cross-scene load");
 

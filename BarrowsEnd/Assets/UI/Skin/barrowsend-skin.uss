@@ -242,28 +242,36 @@
     color: var(--be-ink-on-dark);
 }
 
+/* Task 5.1: a column of horizontal strips (name, HP text, HP bar in a row per member), matching the wireframe's
+   "stacked thin panels" HUD, not the Task 5.0 gallery's side-by-side portrait cards. Only possible because T-1
+   (Gate review) stopped PartyView forcing `flex-direction: row` on this element inline -- see PartyView.cs. */
 .party-roster {
-    flex-direction: row;
+    flex-direction: column;
 }
 
-/* Gate review round 1: with no sizing rule at all, cards had zero width/spacing and rendered squashed together,
-   text overlapping. Matches the flag-on placeholder's own card width/spacing (PartyView.cs), now owned by the
-   skin instead of an inline style.
-   Gate review round 2 (measured): a card's actual resolvedStyle.width came back 88px, not the 140px declared
-   here -- the roster's own container was narrower than 4 cards' combined width, and a flex child shrinks below
-   its declared width by default. The hp-bar inside stayed a fixed 120px regardless, so it overflowed the
-   shrunk card. `flex-shrink: 0` makes a card hold its designed size and, if the roster's own container is too
-   narrow, overflow the ROSTER instead of silently shrinking illegibly -- a party card should never shrink. */
+/* Task 5.0 Gate review (rounds 1/2): a card needs an explicit size or it either overlaps its neighbours or
+   silently shrinks illegibly with its hp-bar overflowing the shrunk box. `flex-shrink: 0` still means "this
+   strip never shrinks below its designed size" -- in a column roster that now protects HEIGHT, not width.
+   Task 5.1: reshaped from a 140px portrait box into a full-width horizontal strip (name, HP text, HP bar
+   left to right) -- the bar's own width is NOT set here; `.party-card .be-bar` below gives it flex-grow so it
+   fills whatever space the strip has left, and PartyView's fill tracks that via GeometryChangedEvent (T-2). */
 .party-card {
-    width: 140px;
+    width: 100%;
     flex-shrink: 0;
-    margin-right: 12px;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
     padding-left: 8px;
-    padding-top: 8px;
+    padding-top: 6px;
     padding-right: 8px;
-    padding-bottom: 8px;
+    padding-bottom: 6px;
     -unity-background-image-tint-color: rgb(255, 255, 255);
     color: var(--be-ink-on-dark);
+}
+
+.party-card .be-bar {
+    flex-grow: 1;
+    margin-left: var(--be-space-2);
 }
 
 .party-card--selected {
@@ -287,8 +295,10 @@
 .party-card-name {
     color: var(--be-ink-on-dark);
     -unity-font-style: bold;
+    min-width: 70px;
 }
 
 .party-card-hp {
     color: var(--be-ink-on-dark);
+    min-width: 70px;
 }
