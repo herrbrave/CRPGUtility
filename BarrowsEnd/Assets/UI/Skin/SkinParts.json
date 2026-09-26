@@ -1,0 +1,29 @@
+{
+  "parts": [
+    { "name": "panel-wood", "source": "panel_brown.png", "slice": [4, 6, 4, 4] },
+    { "name": "panel-stone", "source": "panel_blue.png", "slice": [4, 6, 4, 4] },
+    { "name": "panel-paper", "source": "panel_beige.png", "slice": [4, 7, 4, 4] },
+    { "name": "panel-inset", "source": "panelInset_beige.png", "slice": [4, 4, 4, 4] },
+
+    { "name": "button-primary", "source": "buttonLong_brown.png", "slice": [4, 4, 4, 8] },
+    { "name": "button-primary-pressed", "source": "buttonLong_brown_pressed.png", "slice": [4, 4, 4, 4] },
+    { "name": "button-secondary", "source": "buttonLong_grey.png", "slice": [4, 4, 4, 8] },
+    { "name": "button-secondary-pressed", "source": "buttonLong_grey_pressed.png", "slice": [4, 4, 4, 4] },
+    { "name": "button-square", "source": "buttonSquare_brown.png", "slice": [4, 4, 4, 8] },
+    { "name": "button-square-pressed", "source": "buttonSquare_brown_pressed.png", "slice": [4, 4, 4, 4] },
+    { "name": "button-round", "source": "buttonRound_brown.png", "slice": [0, 0, 0, 0] },
+
+    { "name": "arrow-left", "source": "arrowBeige_left.png", "slice": [0, 0, 0, 0] },
+    { "name": "arrow-right", "source": "arrowBeige_right.png", "slice": [0, 0, 0, 0] },
+
+    { "name": "icon-check", "source": "iconCheck_beige.png", "slice": [0, 0, 0, 0] },
+    { "name": "icon-cross", "source": "iconCross_beige.png", "slice": [0, 0, 0, 0] },
+    { "name": "cursor-hand", "source": "cursorHand_beige.png", "slice": [0, 0, 0, 0] },
+
+    { "name": "bar-back-hp", "composite": { "left": "barBack_horizontalLeft.png", "mid": "barBack_horizontalMid.png", "right": "barBack_horizontalRight.png" }, "slice": [9, 0, 9, 0] },
+    { "name": "bar-fill-hp", "composite": { "left": "barGreen_horizontalLeft.png", "mid": "barGreen_horizontalMid.png", "right": "barGreen_horizontalRight.png" }, "slice": [9, 0, 9, 0] },
+    { "name": "bar-fill-mana", "composite": { "left": "barBlue_horizontalLeft.png", "mid": "barBlue_horizontalBlue.png", "right": "barBlue_horizontalRight.png" }, "slice": [9, 0, 9, 0] },
+    { "name": "bar-fill-xp", "composite": { "left": "barYellow_horizontalLeft.png", "mid": "barYellow_horizontalMid.png", "right": "barYellow_horizontalRight.png" }, "slice": [9, 0, 9, 0] },
+    { "name": "bar-fill-danger", "composite": { "left": "barRed_horizontalLeft.png", "mid": "barRed_horizontalMid.png", "right": "barRed_horizontalRight.png" }, "slice": [9, 0, 9, 0] }
+  ]
+}

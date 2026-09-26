@@ -1,0 +1,6 @@
+/* Task 5.0 (D2): imports the built-in default theme FIRST, then the skin -- the skin's rules win any
+   tie by import order (S4 spikes this before anything is built on the assumption). Every UIDocument
+   picks this theme's look up through its PanelSettings.themeStyleSheet; no view attaches a stylesheet
+   itself. */
+@import url("unity-theme://default");
+@import url("/Assets/UI/Skin/barrowsend-skin.uss");

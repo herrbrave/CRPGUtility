@@ -1,0 +1,294 @@
+/* Barrow's End UI skin (Task 5.0). Component classes are declared once each and mix the skin's own
+   primitives (generated `.be-part--*` classes: background-image + slice, see skin-slices.uss, GENERATED
+   by UiSkinBuilder -- never hand-edited, never repeated here) with the semantic classes toolkit views
+   emit. No rule here sets a property a view sets inline (Docs/Plans/2D-Campaign-Phase5-UIReskin.md, D4).
+   Token rule: every colour/spacing/font number is a :root custom property; no rule outside :root uses a
+   hex literal (this file uses rgb() throughout, which trivially satisfies that -- see EditMode test 7).
+   ONE ACCEPTED EXCEPTION (noted where it happens, below): a button's `:active` (pressed) state repeats its
+   already-generated pressed part's background-image/slice literally, because USS has no way to swap which
+   of two already-declared background-image rules wins based on a pseudo-state without repeating one of them. */
+
+@import url("/Assets/UI/Skin/skin-slices.uss");
+
+:root {
+    /* --be-ink is for text on the skin's own LIGHT art (buttons, wood/stone/paper panels) -- confirmed readable
+       in the gallery. Text sitting directly on the dark be-screen backdrop (HUD labels over the game world, the
+       gallery's own section headers) needs --be-ink-on-dark instead -- the gallery caught this: a party member's
+       name/HP rendered in --be-ink directly on be-screen was nearly invisible (dark ink on a near-black screen). */
+    --be-ink: rgb(59, 41, 25);
+    --be-ink-on-dark: rgb(230, 222, 208);
+    --be-ink-muted: rgb(120, 100, 80);
+    --be-ink-danger: rgb(150, 40, 40);
+    --be-accent-ok: rgb(96, 148, 74);
+    --be-accent-warn: rgb(196, 148, 56);
+    --be-accent-danger: rgb(160, 56, 56);
+    --be-accent-info: rgb(74, 118, 160);
+
+    --be-space-1: 4px;
+    --be-space-2: 8px;
+    --be-space-3: 16px;
+    --be-space-4: 24px;
+
+    --be-font-body: 16px;
+    --be-font-title: 32px;
+    --be-font-small: 16px; /* pinned to KenPixel's own design size -- S3 found no clean 2x that stays crisp */
+
+    -unity-font-definition: url("/Assets/Art/UI/Source/KenPixel.ttf");
+    color: var(--be-ink);
+}
+
+/* ---- be-screen: full backdrop ---- */
+.be-screen {
+    background-color: rgb(45, 38, 33);
+}
+
+/* ---- be-panel: structural sizing shared by every panel skin (wood/stone/paper/inset via be-part--panel-*) ---- */
+.be-panel {
+    padding-left: var(--be-space-3);
+    padding-top: var(--be-space-3);
+    padding-right: var(--be-space-3);
+    padding-bottom: var(--be-space-3);
+    color: var(--be-ink);
+}
+
+/* ---- be-button: structural + state look shared by primary/secondary/square (be-part--button-*) ---- */
+.be-button {
+    color: var(--be-ink);
+    font-size: 18px;
+    -unity-text-align: middle-center;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    border-left-width: 0;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+}
+
+.be-button:hover {
+    -unity-background-image-tint-color: rgb(255, 244, 214);
+}
+
+/* Gate review round 1: `opacity` dims the WHOLE element, including the label -- stacked on top of a grey tint
+   AND the text's own dark --be-ink, the label became nearly unreadable.
+   Gate review round 2 (measured, not eyeballed -- a real WCAG-style contrast-ratio check against a rendered
+   pixel): the round-1 fix (drop this rule's own opacity, darken the text to rgb(90,90,90)) still measured a
+   contrast ratio of 1.05 (WCAG wants >=4.5) and looked WORSE. Root cause: UI Toolkit's BUILT-IN theme applies
+   its own opacity: 0.5 to any disabled control regardless of this rule -- removing the opacity line here never
+   removed that DEFAULT one, so the button kept fading toward the dark screen behind it. Fix: explicit
+   `opacity: 1` cancels the built-in default, and the light --be-ink-on-dark token (not a dark grey) gives real
+   contrast against the tinted-but-now-undimmed button art regardless of its exact base hue. */
+.be-button:disabled {
+    opacity: 1;
+    -unity-background-image-tint-color: rgb(30, 30, 30);
+    color: var(--be-ink-on-dark);
+}
+
+.be-button:focus {
+    border-left-width: 2px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: var(--be-accent-info);
+    border-top-color: var(--be-accent-info);
+    border-right-color: var(--be-accent-info);
+    border-bottom-color: var(--be-accent-info);
+}
+
+/* :active swaps to the pressed art (4px shorter than normal -- see Step 3's recipe) and shifts the
+   label down by the same 4px so the "sink" reads, rather than stretching the shorter art to fill the
+   normal box. The pressed part's own url()/slice are generated at Assets/UI/Skin/skin-slices.uss as
+   .be-part--button-primary-pressed etc.; repeated here (the one accepted exception, see file header)
+   because :active must win over the normal .be-part--button-primary rule on the SAME element. */
+.be-button.be-part--button-primary:active {
+    background-image: url("/Assets/Art/UI/Parts/button-primary-pressed.png");
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
+    -unity-slice-scale: 1px;
+    padding-top: 4px;
+}
+
+.be-button.be-part--button-secondary:active {
+    background-image: url("/Assets/Art/UI/Parts/button-secondary-pressed.png");
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
+    -unity-slice-scale: 1px;
+    padding-top: 4px;
+}
+
+.be-button.be-part--button-square:active {
+    background-image: url("/Assets/Art/UI/Parts/button-square-pressed.png");
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
+    -unity-slice-scale: 1px;
+    padding-top: 4px;
+}
+
+/* ---- be-button--round: icon buttons (Save/Load/close/etc.), icon drawn as a child .be-icon--* element ---- */
+.be-button--round {
+    width: 35px;
+    height: 38px;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    align-items: center;
+    justify-content: center;
+}
+
+.be-button--round:hover {
+    -unity-background-image-tint-color: rgb(255, 244, 214);
+}
+
+.be-button--round:disabled {
+    opacity: 1;
+    -unity-background-image-tint-color: rgb(170, 170, 170);
+}
+
+.be-icon {
+    width: 16px;
+    height: 15px;
+}
+
+/* ---- be-arrow: the creator's < > ---- */
+.be-arrow {
+    width: 22px;
+    height: 21px;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.be-arrow:hover {
+    -unity-background-image-tint-color: rgb(255, 244, 214);
+}
+
+/* ---- be-bar / be-bar__fill: back + a coloured fill child, width % set inline by the view ---- */
+.be-bar {
+    height: 18px;
+    position: relative;
+}
+
+.be-bar__fill {
+    height: 18px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* ---- be-slot: an equipment/inventory square ---- */
+.be-slot {
+    width: 40px;
+    height: 40px;
+}
+
+.be-slot--empty {
+    -unity-background-image-tint-color: rgba(255, 255, 255, 0.45);
+}
+
+.be-slot--selected {
+    border-left-width: 2px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: var(--be-accent-info);
+    border-top-color: var(--be-accent-info);
+    border-right-color: var(--be-accent-info);
+    border-bottom-color: var(--be-accent-info);
+}
+
+.be-slot:hover {
+    -unity-background-image-tint-color: rgb(255, 244, 214);
+}
+
+/* ---- be-label: text tokens ---- */
+.be-label {
+    color: var(--be-ink);
+    font-size: var(--be-font-body);
+}
+
+.be-label--title {
+    font-size: var(--be-font-title);
+    color: var(--be-ink-on-dark);
+}
+
+.be-label--muted {
+    color: var(--be-ink-muted);
+}
+
+.be-label--danger {
+    color: var(--be-ink-danger);
+}
+
+/* ---- be-scroll / be-tooltip: minimal stubs, built out for real in 5.2 ---- */
+.be-scroll {
+    width: 18px;
+}
+
+.be-tooltip {
+    padding-left: var(--be-space-2);
+    padding-top: var(--be-space-1);
+    padding-right: var(--be-space-2);
+    padding-bottom: var(--be-space-1);
+}
+
+/* ---- party HUD (Step 5's PartyView proof; see plan D3/D7): renders directly on the dark screen/world backdrop
+   in its real 5.1 home, so it uses --be-ink-on-dark, not --be-ink (which is for the skin's own light art). ---- */
+.party-panel {
+    color: var(--be-ink-on-dark);
+}
+
+.party-title {
+    font-size: var(--be-font-title);
+    color: var(--be-ink-on-dark);
+}
+
+.party-roster {
+    flex-direction: row;
+}
+
+/* Gate review round 1: with no sizing rule at all, cards had zero width/spacing and rendered squashed together,
+   text overlapping. Matches the flag-on placeholder's own card width/spacing (PartyView.cs), now owned by the
+   skin instead of an inline style.
+   Gate review round 2 (measured): a card's actual resolvedStyle.width came back 88px, not the 140px declared
+   here -- the roster's own container was narrower than 4 cards' combined width, and a flex child shrinks below
+   its declared width by default. The hp-bar inside stayed a fixed 120px regardless, so it overflowed the
+   shrunk card. `flex-shrink: 0` makes a card hold its designed size and, if the roster's own container is too
+   narrow, overflow the ROSTER instead of silently shrinking illegibly -- a party card should never shrink. */
+.party-card {
+    width: 140px;
+    flex-shrink: 0;
+    margin-right: 12px;
+    padding-left: 8px;
+    padding-top: 8px;
+    padding-right: 8px;
+    padding-bottom: 8px;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    color: var(--be-ink-on-dark);
+}
+
+.party-card--selected {
+    border-left-width: 2px;
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-color: var(--be-accent-warn);
+    border-top-color: var(--be-accent-warn);
+    border-right-color: var(--be-accent-warn);
+    border-bottom-color: var(--be-accent-warn);
+}
+
+.party-card--active {
+    border-left-width: 3px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+}
+
+.party-card-name {
+    color: var(--be-ink-on-dark);
+    -unity-font-style: bold;
+}
+
+.party-card-hp {
+    color: var(--be-ink-on-dark);
+}
