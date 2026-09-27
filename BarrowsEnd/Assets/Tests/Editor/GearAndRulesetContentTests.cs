@@ -87,6 +87,19 @@ namespace BarrowsEnd.Tests
             }
         }
 
+        /// <summary>Task 5.2 (paper doll): a regression guard, not fact-finding -- all five of DollPresenter's
+        /// fixed anatomical slots already resolve today (slot-head is BarrowsEnd's own addition above; the other
+        /// four are shipped as part of SRD5's own ruleset content and registered unconditionally by
+        /// BarrowsEndRulesetProvider), confirmed by reading the actual asset files before writing this test. This
+        /// exists so a future SRD5 upgrade or ruleset change that silently drops one can't reach the doll unnoticed.</summary>
+        [Test]
+        public void AllFiveAnatomicalDollSlotsResolveThroughTheSession()
+        {
+            var rules = session.RulesDatabase;
+            foreach (var slotId in CRPG.UI.DollPresenter.AnatomicalSlots)
+                Assert.IsTrue(rules.TryResolve<EquipmentSlotDefinition>(slotId, out _), $"{slotId.Value} resolves");
+        }
+
         [Test]
         public void TheSkeletonNpcResolvesWithHitPointsAFactionAndTheSkeletonBody()
         {

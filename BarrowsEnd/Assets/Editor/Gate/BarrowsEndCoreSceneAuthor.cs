@@ -31,6 +31,7 @@ namespace BarrowsEnd.Editor
             BarrowsEndCharacterAuthor.Author();
             BarrowsEndCreatorAuthor.AuthorPanelSettings(); // the creator/title panel settings: this author never created them (a fresh clone would render nothing)
             BarrowsEndUiAuthor.AuthorHudPanelSettings(); // Task 5.1: same reason, for the HUD's own panel settings
+            BarrowsEndUiAuthor.AuthorGalleryPanelSettings(); // Task 5.2: the doll reuses this (sortingOrder 10, already skinned) rather than a third asset
             Directory.CreateDirectory("Assets/Scenes");
             AssetDatabase.Refresh();
 
@@ -44,6 +45,8 @@ namespace BarrowsEnd.Editor
                                   ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.PanelSettingsPath} is missing.");
             var hudSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(BarrowsEndUiAuthor.HudPanelSettingsPath)
                                   ?? throw new System.InvalidOperationException($"{BarrowsEndUiAuthor.HudPanelSettingsPath} is missing.");
+            var gallerySettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(BarrowsEndUiAuthor.GalleryPanelSettingsPath)
+                                  ?? throw new System.InvalidOperationException($"{BarrowsEndUiAuthor.GalleryPanelSettingsPath} is missing.");
             var creatorPicks = AssetDatabase.LoadAssetAtPath<TextAsset>(BarrowsEndCreatorAuthor.PicksPath) ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.PicksPath} is missing.");
             var creatorTable = AssetDatabase.LoadAssetAtPath<TextAsset>(BarrowsEndCreatorAuthor.ClassTablePath) ?? throw new System.InvalidOperationException($"{BarrowsEndCreatorAuthor.ClassTablePath} is missing.");
 
@@ -109,8 +112,23 @@ namespace BarrowsEnd.Editor
             hudDocument.panelSettings = hudSettings;
             hudGo.AddComponent<HudRoot>();
             var hud = hudGo.AddComponent<HudBootstrap>();
+
+            // Task 5.2: the paper doll. Its own UIDocument on the reused gallery panel settings (sortingOrder 10 --
+            // above the HUD's 0, since it's a modal overlay); DollBootstrap.Build() reads GateSessionServices
+            // itself, so it only needs the ShellBootstrap reference (matching HudBootstrap's own wiring).
+            var dollGo = new GameObject("Doll");
+            var dollDocument = dollGo.AddComponent<UIDocument>();
+            dollDocument.panelSettings = gallerySettings;
+            var dollView = dollGo.AddComponent<DollView>();
+            var doll = dollGo.AddComponent<DollBootstrap>();
+            var dollSo = new SerializedObject(doll);
+            dollSo.FindProperty("bootstrap").objectReferenceValue = boot;
+            dollSo.FindProperty("view").objectReferenceValue = dollView;
+            dollSo.ApplyModifiedPropertiesWithoutUndo();
+
             var hudSo = new SerializedObject(hud);
             hudSo.FindProperty("bootstrap").objectReferenceValue = boot;
+            hudSo.FindProperty("dollBootstrap").objectReferenceValue = doll;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, ScenePath);

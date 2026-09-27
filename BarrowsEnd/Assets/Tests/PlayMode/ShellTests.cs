@@ -81,6 +81,30 @@ namespace BarrowsEnd.Tests
         private CharacterAgent Agent(RuntimeEntityId id) => CharacterAgent.AllLive.First(a => a != null && a.EntityId == id);
         private static Vector3 Centre(int x, int z) => new(x + 0.5f, 0f, z + 0.5f);
 
+        private static readonly string[] AbilityScoreIds = { "stat-strength", "stat-dexterity", "stat-constitution", "stat-intelligence", "stat-wisdom", "stat-charisma" };
+
+        /// <summary>Task 5.2: the user's call -- companions have no authored ability-score data yet (that's real
+        /// world-building content, decided later), so a rolled ("4d6 drop lowest") StatBlock is good enough for now
+        /// rather than the all-zero one an absent stat silently returns. Every companion (members 1-3; member 0 is
+        /// the protagonist, which already gets real scores from the creator) must have a real, non-zero, and
+        /// (extremely likely) DIFFERENT score per member -- catches a copy-paste bug that gave every companion the
+        /// same roll (e.g. reusing one seed for all of them).</summary>
+        [UnityTest]
+        public IEnumerator CompanionsGetRolledAbilityScoresNotAllZero()
+        {
+            yield return null;
+            var seenScoreSets = new System.Collections.Generic.HashSet<string>();
+            for (var i = 1; i < Session.Party.Members.Count; i++)
+            {
+                Session.Characters.TryGetCharacter(Member(i), out var character);
+                var scores = AbilityScoreIds.Select(id => character.Stats.GetScore(new DefinitionId(id))).ToList();
+                Assert.IsTrue(scores.All(s => s > 0), $"companion {i} has a real (non-zero) score for every ability");
+                seenScoreSets.Add(string.Join(",", scores));
+            }
+
+            Assert.Greater(seenScoreSets.Count, 1, "companions must not all share the exact same rolled scores (a distinct seed per member)");
+        }
+
         private void Click(Vector3 world)
         {
             var source = UnityEngine.Object.FindFirstObjectByType<InputSystemCommandSource>();

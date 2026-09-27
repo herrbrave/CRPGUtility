@@ -31,6 +31,7 @@ namespace BarrowsEnd.Shell
         private const float MenuWidth = 260f;
 
         [SerializeField] private ShellBootstrap bootstrap;
+        [SerializeField] private DollBootstrap dollBootstrap;
 
         private HudRoot hudRoot;
         private PartyPresenter presenter;
@@ -116,6 +117,15 @@ namespace BarrowsEnd.Shell
             row2.Add(MenuButton("zoom-out-button", "Zoom -", () => bootstrap.CameraRig.Rig.ApplyZoom(-1f)));
             row2.Add(MenuButton("zoom-in-button", "Zoom +", () => bootstrap.CameraRig.Rig.ApplyZoom(1f)));
 
+            if (dollBootstrap != null)
+            {
+                var row3 = MenuRow(panel);
+                var dollButton = MenuButton("doll-button", "Inventory", () => dollBootstrap.ToggleOpen());
+                dollButton.style.width = 208; // full row width (two 100px buttons + the 4px inter-button margin + 4px slack)
+                dollButton.style.marginRight = 0;
+                row3.Add(dollButton);
+            }
+
             statusLabel = new Label { name = "hud-status" };
             statusLabel.AddToClassList("be-label");
             statusLabel.AddToClassList("be-label--muted");
@@ -139,6 +149,8 @@ namespace BarrowsEnd.Shell
                 var newPresenter = BuildPresenter(bootstrap.Services.Session);
                 partyView.Rebind(newPresenter);
                 presenter = newPresenter;
+
+                dollBootstrap?.OnLoadCompleted();
             });
         }
 

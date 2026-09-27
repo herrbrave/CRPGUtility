@@ -18,6 +18,7 @@ using CRPG.Inventory;
 using CRPG.Navigation.Grid;
 using CRPG.Party;
 using CRPG.Presentation.Creator;
+using CRPG.Rules.SRD5;
 using CRPG.UI;
 using CRPG.Saving;
 using UnityEngine;
@@ -245,6 +246,30 @@ namespace BarrowsEnd.Shell
         /// the HUD (Task 5.1) can build a memberId -> displayName map without duplicating this formula.</summary>
         public static RuntimeEntityId MemberIdFor(int index) => RuntimeEntityId.FromString("ba00000000000000000000000000000" + (index + 1).ToString("x"));
 
+        private static readonly DefinitionId[] AbilityScoreIds =
+        {
+            new("stat-strength"), new("stat-dexterity"), new("stat-constitution"),
+            new("stat-intelligence"), new("stat-wisdom"), new("stat-charisma"),
+        };
+
+        /// <summary>Task 5.2: an authored companion (<see cref="GateMemberSpec"/>) has no ability-score data yet -- real
+        /// per-companion scores are content the user will author once the whole world's data is being built. Until then,
+        /// "4d6 drop lowest" (the toolkit's own <c>RandomRollsGenerationMethod</c>, the same generator the creator offers
+        /// the player) gives a companion a real, non-zero StatBlock rather than the all-zero one <see cref="StatBlock.GetScore"/>
+        /// silently returns for an absent stat. A distinct seed per member (offset from the session seed) keeps this
+        /// deterministic without perturbing the main DiceService's own roll sequence.</summary>
+        private static void RollAbilityScores(IRulesDatabase rules, CharacterState character, int seed)
+        {
+            var stats = new List<StatDefinition>(AbilityScoreIds.Length);
+            foreach (var id in AbilityScoreIds)
+                if (rules.TryResolve<StatDefinition>(id, out var stat)) stats.Add(stat);
+
+            if (stats.Count == 0) return; // a ruleset with no SRD5 stats at all -- nothing to roll
+
+            var block = new RandomRollsGenerationMethod(new SeededRandomSource(seed)).Generate(stats);
+            foreach (var (statId, score) in block.AllScores) character.Stats.SetScore(statId, score);
+        }
+
         private void SpawnParty(GameSession session, WorldSpawnService spawner, Scene coreScene)
         {
             var equipment = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
@@ -272,6 +297,7 @@ namespace BarrowsEnd.Shell
                         if (parts.Length == 2) character.SetAppearance(new DefinitionId(parts[0].Trim()), new DefinitionId(parts[1].Trim()));
                     }
 
+                    RollAbilityScores(session.RulesDatabase, character, seed + i + 1000);
                     gear = spec.gear.Select(g => new DefinitionId(g));
                 }
 
