@@ -41,6 +41,11 @@ namespace CRPG.UI
     {
         [SerializeField] private bool usePlaceholderStyle = true;
         [SerializeField] private List<StyleSheet> styleSheets = new();
+        /// <summary>Applies the plain built-in look. Turn off (before the first <see cref="Initialize"/>, like
+        /// HudBootstrap does for PartyView) when the skin's own theme supplies the look instead -- inline styles
+        /// beat USS, so a flag flip after Build() has already run inline colors would need a rebuild to take
+        /// effect, not just this property changing.</summary>
+        public bool UsePlaceholderStyle { get => usePlaceholderStyle; set => usePlaceholderStyle = value; }
         [Tooltip("Whole screen pixels per sprite pixel for the preview (a fractional size would blur it).")]
         [SerializeField, Min(1)] private int previewScale = 8;
 
@@ -225,6 +230,7 @@ namespace CRPG.UI
 
             var panel = Element("doll-panel", "doll-panel");
             panel.AddToClassList("be-panel");
+            panel.AddToClassList("be-part--panel-wood");
             panel.style.flexDirection = FlexDirection.Row;
             panel.style.paddingLeft = panel.style.paddingRight = panel.style.paddingTop = panel.style.paddingBottom = 16;
             if (usePlaceholderStyle)
@@ -246,7 +252,7 @@ namespace CRPG.UI
             cycleRow.style.alignItems = Align.Center;
             leftColumn.Add(cycleRow);
 
-            prevButton = SmallButton(cycleRow, "doll-prev-button", "<", OnCyclePrevious);
+            prevButton = ArrowButton(cycleRow, "doll-prev-button", isLeft: true, OnCyclePrevious);
 
             preview = new LayeredSpritePreview { name = "doll-preview", Scale = Math.Max(1, previewScale) };
             preview.AddToClassList("doll-preview");
@@ -254,10 +260,11 @@ namespace CRPG.UI
             preview.Bind(previewState);
             cycleRow.Add(preview);
 
-            nextButton = SmallButton(cycleRow, "doll-next-button", ">", OnCycleNext);
+            nextButton = ArrowButton(cycleRow, "doll-next-button", isLeft: false, OnCycleNext);
 
             hpLabel = new Label { name = "doll-hp" };
             hpLabel.AddToClassList("doll-hp");
+            hpLabel.AddToClassList("be-label");
             hpLabel.style.marginTop = 8;
             if (usePlaceholderStyle) hpLabel.style.color = Color.white;
             leftColumn.Add(hpLabel);
@@ -269,6 +276,8 @@ namespace CRPG.UI
             {
                 var label = new Label { name = $"doll-stat-{statId.Value}" };
                 label.AddToClassList("doll-stat");
+                label.AddToClassList("be-label");
+                label.AddToClassList("be-label--muted");
                 if (usePlaceholderStyle) label.style.color = new Color(0.85f, 0.85f, 0.88f, 1f);
                 abilityLabels.Add(label);
                 statsBlock.Add(label);
@@ -292,14 +301,20 @@ namespace CRPG.UI
 
             statusLabel = new Label { name = "doll-status" };
             statusLabel.AddToClassList("doll-status");
+            statusLabel.AddToClassList("be-label");
+            statusLabel.AddToClassList("be-label--danger");
             statusLabel.style.whiteSpace = WhiteSpace.Normal;
             statusLabel.style.marginTop = 8;
             if (usePlaceholderStyle) statusLabel.style.color = new Color(1f, 0.55f, 0.5f, 1f);
             rightColumn.Add(statusLabel);
 
-            var closeButton = SmallButton(rightColumn, "doll-close-button", "Close", Close);
+            var closeButton = new Button(Close) { name = "doll-close-button", text = "Close" };
+            closeButton.AddToClassList("be-button");
+            closeButton.AddToClassList("be-part--button-secondary");
             closeButton.style.marginTop = 8;
             closeButton.style.width = 100;
+            closeButton.style.height = 36;
+            rightColumn.Add(closeButton);
         }
 
         private VisualElement BuildSlotRow(DefinitionId slotId)
@@ -314,8 +329,16 @@ namespace CRPG.UI
             container.style.marginBottom = 8;
             container.style.minHeight = 40;
 
+            // be-slot (Task 5.0) is reused here for exactly the equipment-icon-square concept it was designed
+            // for -- 32px, not its own default 40px (a non-integer scale against 16px sprites, D5's pixel-
+            // exactness rule; the class's OWN width/height are overridden by these inline values, same trick
+            // used against a real property below in Truncate()). be-part--panel-inset gives it a real
+            // recessed-socket background (existing art, no new part needed) instead of the bare box the gallery
+            // itself never gave be-slot.
             row.Icon = new Image { name = $"doll-slot-{slotId.Value}-icon" };
             row.Icon.AddToClassList("doll-slot__icon");
+            row.Icon.AddToClassList("be-slot");
+            row.Icon.AddToClassList("be-part--panel-inset");
             row.Icon.style.width = row.Icon.style.height = 32;
             row.Icon.style.flexShrink = 0;
             row.Icon.scaleMode = ScaleMode.ScaleToFit;
@@ -327,12 +350,19 @@ namespace CRPG.UI
             container.Add(textColumn);
 
             row.Label = new Label { name = $"doll-slot-{slotId.Value}-label" };
+            // NOT be-label--muted: found live (user-reported) -- its low-contrast --be-ink-muted, deliberately
+            // dim for de-emphasis, read as barely visible on the wood panel's own brown. This label is content
+            // the user actually needs to read (which slot is which), not secondary text, so it gets full-strength
+            // ink; doll-slot__label's own CSS rule (bold) is what keeps it visually distinct from the item name
+            // below it instead.
             row.Label.AddToClassList("doll-slot__label");
+            row.Label.AddToClassList("be-label");
             if (usePlaceholderStyle) row.Label.style.color = new Color(0.8f, 0.8f, 0.82f, 1f);
             textColumn.Add(row.Label);
 
             row.ItemName = new Label { name = $"doll-slot-{slotId.Value}-item" };
             row.ItemName.AddToClassList("doll-slot__item");
+            row.ItemName.AddToClassList("be-label");
             Truncate(row.ItemName);
             if (usePlaceholderStyle) row.ItemName.style.color = Color.white;
             textColumn.Add(row.ItemName);
@@ -340,6 +370,7 @@ namespace CRPG.UI
 
             row.UnequipButton = new Button(() => OnUnequipSlotClicked(row)) { name = $"doll-slot-{slotId.Value}-unequip", text = "X" };
             row.UnequipButton.AddToClassList("be-button");
+            row.UnequipButton.AddToClassList("be-part--button-square");
             row.UnequipButton.style.width = 28;
             row.UnequipButton.style.height = 28;
             container.Add(row.UnequipButton);
@@ -355,12 +386,14 @@ namespace CRPG.UI
             return element;
         }
 
-        private Button SmallButton(VisualElement parent, string name, string text, Action onClick)
+        // be-arrow (Task 5.0's "the creator's < >", never actually wired to a clickable Button before this --
+        // the gallery's own example is a plain, unclickable VisualElement swatch): no text, since the background
+        // image (be-part--arrow-left/-right) IS the glyph.
+        private static Button ArrowButton(VisualElement parent, string name, bool isLeft, Action onClick)
         {
-            var button = new Button(onClick) { name = name, text = text };
-            button.AddToClassList("be-button");
-            button.style.width = 32;
-            button.style.height = 32;
+            var button = new Button(onClick) { name = name, text = string.Empty };
+            button.AddToClassList("be-arrow");
+            button.AddToClassList(isLeft ? "be-part--arrow-left" : "be-part--arrow-right");
             parent.Add(button);
             return button;
         }
@@ -417,22 +450,25 @@ namespace CRPG.UI
                     var item = slot.Item;
                     row.ItemName.text = TextKeyResolver.Resolve(item.Name, Localizer);
                     row.Icon.sprite = ResolveIcon(item.InstanceId);
-                    row.Icon.style.display = row.Icon.sprite != null ? DisplayStyle.Flex : DisplayStyle.None;
+                    row.Icon.RemoveFromClassList("be-slot--empty");
                     row.UnequipButton.style.display = DisplayStyle.Flex;
                     row.UnequipButton.userData = item.InstanceId;
                 }
                 else
                 {
                     row.ItemName.text = "-- empty --";
-                    row.Icon.sprite = null;
-                    row.Icon.style.display = DisplayStyle.None;
+                    row.Icon.sprite = null; // the be-slot socket (background art) still shows, just with no glyph
+                    row.Icon.AddToClassList("be-slot--empty");
                     row.UnequipButton.style.display = DisplayStyle.None;
                     row.UnequipButton.userData = null;
                 }
             }
 
             backpackContainer.Clear();
-            backpackContainer.Add(new Label("Backpack") { name = "doll-backpack-title" });
+            var backpackTitle = new Label("Backpack") { name = "doll-backpack-title" };
+            backpackTitle.AddToClassList("be-label");
+            backpackTitle.style.marginBottom = 4;
+            backpackContainer.Add(backpackTitle);
             foreach (var item in presenter.GetBackpackItems())
                 backpackContainer.Add(BuildBackpackRow(item));
         }
@@ -445,13 +481,19 @@ namespace CRPG.UI
             row.style.alignItems = Align.Center;
             row.style.marginBottom = 4;
 
+            // 32px, not the earlier 24px: 24/16 was ALSO a non-integer scale against a 16px sprite cell (the same
+            // pixel-exactness mistake finding 6 already flagged for the anatomical slots), just never caught
+            // live because a backpack item's icon is small enough not to look obviously wrong at a glance.
             var icon = new Image { name = $"doll-backpack-row-{item.InstanceId}-icon", scaleMode = ScaleMode.ScaleToFit, sprite = ResolveIcon(item.InstanceId) };
-            icon.style.width = icon.style.height = 24;
+            icon.AddToClassList("be-slot");
+            icon.AddToClassList("be-part--panel-inset");
+            if (icon.sprite == null) icon.AddToClassList("be-slot--empty");
+            icon.style.width = icon.style.height = 32;
             icon.style.flexShrink = 0;
-            icon.style.display = icon.sprite != null ? DisplayStyle.Flex : DisplayStyle.None;
             row.Add(icon);
 
             var label = new Label($"{TextKeyResolver.Resolve(item.Name, Localizer)} x{item.Quantity}") { name = $"doll-backpack-row-{item.InstanceId}-label" };
+            label.AddToClassList("be-label");
             label.style.flexGrow = 1;
             label.style.marginLeft = 4;
             Truncate(label);
@@ -463,6 +505,8 @@ namespace CRPG.UI
             {
                 var equipButton = new Button(() => OnEquipClicked(item)) { name = $"doll-backpack-row-{item.InstanceId}-equip", text = "Equip" };
                 equipButton.AddToClassList("be-button");
+                equipButton.AddToClassList("be-part--button-secondary");
+                equipButton.style.height = 28;
                 row.Add(equipButton);
             }
 

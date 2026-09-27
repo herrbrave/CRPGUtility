@@ -302,3 +302,18 @@
     color: var(--be-ink-on-dark);
     min-width: 70px;
 }
+
+/* ---- doll (Task 5.2 skin pass): almost everything the doll needs already existed (be-label, be-arrow,
+   be-slot, be-part--panel-wood/-inset, be-part--button-secondary/-square) -- DollView.cs opts into those
+   directly, so the only new rules here are the modal dim (the placeholder's own inline version is gated behind
+   usePlaceholderStyle, same convention as CharacterCreatorScreen's screen backdrop) and the slot label weight. ---- */
+.doll-screen {
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+/* User-reported: be-label--muted's low-contrast --be-ink-muted read as barely visible against the wood panel
+   for a slot header ("Head", "Armor", ...) -- real content the user needs to read, not secondary text. Full-
+   strength be-label ink plus bold keeps it visually distinct from the item name below it instead. */
+.doll-slot__label {
+    -unity-font-style: bold;
+}

@@ -72,6 +72,7 @@ namespace BarrowsEnd.Shell
             var hp = ResolveHitPointsResource(session.RulesDatabase);
             var inventoryPresenter = new InventoryPresenter(session.Inventory, session.RulesDatabase, bootstrap.Services.Equipment);
             presenter = new DollPresenter(session.Party, session.Characters, session.RulesDatabase, inventoryPresenter, hp);
+            view.UsePlaceholderStyle = false; // the skin pass: gallery-panel-settings.asset already carries the real theme
             view.Initialize(presenter, session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
         }
 
