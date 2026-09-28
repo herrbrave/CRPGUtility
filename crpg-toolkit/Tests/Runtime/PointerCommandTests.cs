@@ -368,6 +368,163 @@ namespace CRPG.Tests.PlayMode
             Assert.AreEqual(0, moveCount);
         }
 
+        // --- IDragSelectionFeedback (PlayerCommandRouter's own implementation) ---
+
+        [UnityTest]
+        public IEnumerator ADragPastThresholdFiresDragBoxChangedOnEachMoveWithTheLiveRectAndEndsExactlyOnceOnRelease()
+        {
+            var cameraGo = new GameObject("Camera");
+            spawned.Add(cameraGo);
+            var camera = CreateTopDownCamera(cameraGo);
+
+            IDragSelectionFeedback feedback = CreateRouter(new FakeSelectableSource(), new FakePointerCaptureProvider());
+            var changedCount = 0;
+            var endedCount = 0;
+            Rect? lastRect = null;
+            feedback.DragBoxChanged += rect => { changedCount++; lastRect = rect; };
+            feedback.DragBoxEnded += () => endedCount++;
+            var router = (PlayerCommandRouter)feedback;
+
+            var downLocal = new Vector3(-3f, 0f, -3f);
+            var downScreenPos = camera.WorldToScreenPoint(Origin + downLocal);
+            router.HandlePointerDown(downScreenPos, RayFromAbove(downLocal));
+            Assert.AreEqual(0, changedCount); // no movement yet -- still just a press
+
+            var midLocal = new Vector3(5f, 0f, 5f);
+            var midScreenPos = camera.WorldToScreenPoint(Origin + midLocal);
+            router.HandlePointerMove(midScreenPos); // exceeds the drag threshold
+            Assert.AreEqual(1, changedCount);
+            Assert.IsTrue(lastRect.HasValue);
+            // Not Rect.Contains(downScreenPos)/(midScreenPos) -- Contains' max bound is exclusive, and one of
+            // these two points IS the rect's own max corner on at least one axis, by construction. Check the
+            // bounds directly instead of relying on a containment check that can legitimately exclude a corner.
+            Assert.AreEqual(Mathf.Min(downScreenPos.x, midScreenPos.x), lastRect.Value.xMin, 0.01f);
+            Assert.AreEqual(Mathf.Max(downScreenPos.x, midScreenPos.x), lastRect.Value.xMax, 0.01f);
+            Assert.AreEqual(Mathf.Min(downScreenPos.y, midScreenPos.y), lastRect.Value.yMin, 0.01f);
+            Assert.AreEqual(Mathf.Max(downScreenPos.y, midScreenPos.y), lastRect.Value.yMax, 0.01f);
+
+            var furtherLocal = new Vector3(6f, 0f, 6f);
+            var furtherScreenPos = camera.WorldToScreenPoint(Origin + furtherLocal);
+            router.HandlePointerMove(furtherScreenPos); // still dragging -- fires again with the new rect
+            Assert.AreEqual(2, changedCount);
+            Assert.AreEqual(0, endedCount);
+
+            router.HandlePointerUp(furtherScreenPos, RayFromAbove(furtherLocal), camera, shiftHeld: false);
+            Assert.AreEqual(1, endedCount);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator APlainClickThatNeverExceedsTheDragThresholdNeverFiresDragBoxChangedOrEnded()
+        {
+            var cameraGo = new GameObject("Camera");
+            spawned.Add(cameraGo);
+            var camera = CreateTopDownCamera(cameraGo);
+            CreateGroundPlane();
+            yield return WaitForColliders();
+
+            IDragSelectionFeedback feedback = CreateRouter(new FakeSelectableSource(), new FakePointerCaptureProvider());
+            var changedRaised = false;
+            var endedRaised = false;
+            feedback.DragBoxChanged += _ => changedRaised = true;
+            feedback.DragBoxEnded += () => endedRaised = true;
+            var router = (PlayerCommandRouter)feedback;
+
+            var screenPos = camera.WorldToScreenPoint(Origin);
+            var ray = RayFromAbove(Vector3.zero);
+            router.HandlePointerDown(screenPos, ray);
+            router.HandlePointerUp(screenPos, ray, camera, shiftHeld: false);
+
+            Assert.IsFalse(changedRaised);
+            Assert.IsFalse(endedRaised);
+        }
+
+        [UnityTest]
+        public IEnumerator AModalThatOpensMidDragFiresDragBoxEndedAndStopsFurtherDragBoxChangedUntilReleased()
+        {
+            var cameraGo = new GameObject("Camera");
+            spawned.Add(cameraGo);
+            var camera = CreateTopDownCamera(cameraGo);
+
+            var capture = new FakePointerCaptureProvider();
+            IDragSelectionFeedback feedback = CreateRouter(new FakeSelectableSource(), capture);
+            var changedCount = 0;
+            var endedCount = 0;
+            feedback.DragBoxChanged += _ => changedCount++;
+            feedback.DragBoxEnded += () => endedCount++;
+            var router = (PlayerCommandRouter)feedback;
+
+            var downLocal = new Vector3(-3f, 0f, -3f);
+            var downScreenPos = camera.WorldToScreenPoint(Origin + downLocal);
+            router.HandlePointerDown(downScreenPos, RayFromAbove(downLocal)); // clean at press time
+
+            var midLocal = new Vector3(5f, 0f, 5f);
+            var midScreenPos = camera.WorldToScreenPoint(Origin + midLocal);
+            router.HandlePointerMove(midScreenPos); // exceeds threshold -- box now shown
+            Assert.AreEqual(1, changedCount);
+
+            capture.CaptureAll = true; // a modal opens mid-drag
+            router.HandlePointerMove(midScreenPos); // same position, but now suppressed live
+            Assert.AreEqual(1, changedCount); // no further Changed
+            Assert.AreEqual(1, endedCount); // box hides immediately, without waiting for release
+
+            router.HandlePointerUp(midScreenPos, RayFromAbove(midLocal), camera, shiftHeld: false);
+            Assert.AreEqual(1, endedCount); // still exactly once -- release doesn't double-fire an already-ended box
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator AGestureThatStartsOverUiNeverFiresDragBoxChangedEvenIfDraggedPastTheThreshold()
+        {
+            var cameraGo = new GameObject("Camera");
+            spawned.Add(cameraGo);
+            var camera = CreateTopDownCamera(cameraGo);
+
+            var capture = new FakePointerCaptureProvider { CaptureAll = true };
+            IDragSelectionFeedback feedback = CreateRouter(new FakeSelectableSource(), capture);
+            var changedRaised = false;
+            feedback.DragBoxChanged += _ => changedRaised = true;
+            var router = (PlayerCommandRouter)feedback;
+
+            var downLocal = new Vector3(-3f, 0f, -3f);
+            var downScreenPos = camera.WorldToScreenPoint(Origin + downLocal);
+            router.HandlePointerDown(downScreenPos, RayFromAbove(downLocal)); // starts "over UI"
+
+            var midLocal = new Vector3(5f, 0f, 5f);
+            var midScreenPos = camera.WorldToScreenPoint(Origin + midLocal);
+            router.HandlePointerMove(midScreenPos); // exceeds threshold, but the gesture is suppressed
+
+            Assert.IsFalse(changedRaised);
+            yield break;
+        }
+
+        [UnityTest]
+        public IEnumerator AbortGestureEndsAVisibleDragBoxExactlyOnce()
+        {
+            var cameraGo = new GameObject("Camera");
+            spawned.Add(cameraGo);
+            var camera = CreateTopDownCamera(cameraGo);
+
+            IDragSelectionFeedback feedback = CreateRouter(new FakeSelectableSource(), new FakePointerCaptureProvider());
+            var endedCount = 0;
+            feedback.DragBoxEnded += () => endedCount++;
+            var router = (PlayerCommandRouter)feedback;
+
+            var downLocal = new Vector3(-3f, 0f, -3f);
+            var downScreenPos = camera.WorldToScreenPoint(Origin + downLocal);
+            router.HandlePointerDown(downScreenPos, RayFromAbove(downLocal));
+
+            var midLocal = new Vector3(5f, 0f, 5f);
+            router.HandlePointerMove(camera.WorldToScreenPoint(Origin + midLocal)); // box now shown
+
+            router.AbortGesture();
+            Assert.AreEqual(1, endedCount);
+
+            router.AbortGesture(); // idempotent -- no gesture/box active any more
+            Assert.AreEqual(1, endedCount);
+            yield break;
+        }
+
         // --- SceneSelectableSource itself, at the production level ---
 
         [UnityTest]

@@ -81,6 +81,14 @@ namespace CRPG.UI
             container.Clear();
             container.name = "party-panel";
             container.AddToClassList("party-panel");
+            // Found live (user-reported, Phase 5 Gate E follow-up): with the flag off, this had NO background at
+            // all -- only an inline placeholder colour existed, gated below, and no be-part--panel-* class was
+            // ever added to replace it. The exact same gap already found and fixed twice this phase (be-slot's
+            // missing background in Task 5.2, the backpack icons' non-integer scale) -- a real look was never
+            // actually wired up here either. be-part--panel-stone matches HudBootstrap's own system-menu panel,
+            // so the HUD's two corners read as one visual family.
+            container.AddToClassList("be-panel");
+            container.AddToClassList("be-part--panel-stone");
             if (usePlaceholderStyle)
             {
                 container.style.paddingLeft = 16;

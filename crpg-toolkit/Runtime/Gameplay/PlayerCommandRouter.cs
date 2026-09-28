@@ -20,7 +20,7 @@ namespace CRPG.Gameplay
     /// <see cref="CRPG.Exploration.PartyExplorationController"/> and any future consumer --
     /// InputSystemCommandSource only reads raw Input System events and forwards them here.
     /// </remarks>
-    public sealed class PlayerCommandRouter : IPlayerCommandSource
+    public sealed class PlayerCommandRouter : IPlayerCommandSource, IDragSelectionFeedback
     {
         private readonly ISelectableSource selectableSource;
         private readonly IPointerCaptureProvider pointerCapture;
@@ -31,6 +31,7 @@ namespace CRPG.Gameplay
         private bool gestureActive;
         private bool gestureSuppressed;
         private bool exceededThreshold;
+        private bool dragBoxShown;
         private Vector2 downScreenPosition;
         private Vector2 currentScreenPosition;
 
@@ -38,6 +39,10 @@ namespace CRPG.Gameplay
         public event Action<MoveCommand> Move;
         public event Action<InteractCommand> Interact;
         public event Action Cancel;
+
+        /// <summary>See <see cref="IDragSelectionFeedback"/>'s own doc comments for exactly when these fire.</summary>
+        public event Action<Rect> DragBoxChanged;
+        public event Action DragBoxEnded;
 
         /// <summary>Reserved extension point for a future ability-targeting mode -- see
         /// <see cref="IPointerTargetingGate"/>. Null (the default) skips the "targeting" priority tier
@@ -69,6 +74,10 @@ namespace CRPG.Gameplay
         /// release happens to land over the game view ("suppress release-through after UI drags").</summary>
         public void HandlePointerDown(Vector2 screenPosition, Ray ray)
         {
+            // Defensive: a stale gesture that never got a matching Up (should not normally happen) must not
+            // leave a visible drag box stuck on screen forever once a new gesture starts.
+            EndDragBoxIfShown();
+
             gestureActive = true;
             exceededThreshold = false;
             downScreenPosition = screenPosition;
@@ -79,7 +88,10 @@ namespace CRPG.Gameplay
             gestureSuppressed = pointerCapture.IsPointerOverUI(screenPosition) || (TransitionGate?.IsBusy ?? false);
         }
 
-        /// <summary>Call while the pointer/tap is held down and moving. A no-op outside an active gesture.</summary>
+        /// <summary>Call while the pointer/tap is held down and moving. A no-op outside an active gesture.
+        /// Suppression is re-checked live on every move (not just the press-time snapshot) purely for the drag
+        /// box's own visibility -- a modal opening mid-drag must hide an already-visible box immediately, even
+        /// though the gesture's eventual resolution still only ever consults the press-time snapshot.</summary>
         public void HandlePointerMove(Vector2 screenPosition)
         {
             if (!gestureActive) return;
@@ -87,6 +99,17 @@ namespace CRPG.Gameplay
             currentScreenPosition = screenPosition;
             if (!exceededThreshold && (screenPosition - downScreenPosition).sqrMagnitude >= dragThresholdPixelsSquared)
                 exceededThreshold = true;
+
+            var currentlySuppressed = gestureSuppressed || pointerCapture.IsPointerOverUI(screenPosition) || (TransitionGate?.IsBusy ?? false);
+            if (exceededThreshold && !currentlySuppressed)
+            {
+                dragBoxShown = true;
+                DragBoxChanged?.Invoke(ComputeDragRect());
+            }
+            else
+            {
+                EndDragBoxIfShown();
+            }
         }
 
         /// <summary>Call when the pointer/tap is released. Resolves to a click (never exceeded the drag
@@ -99,6 +122,9 @@ namespace CRPG.Gameplay
             if (!gestureActive) return;
             gestureActive = false;
             currentScreenPosition = screenPosition;
+            // Always ends any visible box before resolving anything below, so every path out of this method --
+            // suppressed, click, or drag-select -- leaves no box stuck on screen.
+            EndDragBoxIfShown();
 
             if (gestureSuppressed || pointerCapture.IsPointerOverUI(screenPosition) || (TransitionGate?.IsBusy ?? false)) return;
 
@@ -106,11 +132,33 @@ namespace CRPG.Gameplay
             else ResolveClick(ray, shiftHeld);
         }
 
+        /// <summary>Ends the current gesture without resolving it into any command -- for a release that
+        /// cannot be resolved normally (e.g. no camera available to build a ray/world position from). Still
+        /// ends a visible drag box, so it can never survive this path either.</summary>
+        public void AbortGesture()
+        {
+            gestureActive = false;
+            EndDragBoxIfShown();
+        }
+
         public void HandleCancel()
         {
             if (TransitionGate?.IsBusy ?? false) return;
             Cancel?.Invoke();
         }
+
+        private void EndDragBoxIfShown()
+        {
+            if (!dragBoxShown) return;
+            dragBoxShown = false;
+            DragBoxEnded?.Invoke();
+        }
+
+        private Rect ComputeDragRect() => Rect.MinMaxRect(
+            Mathf.Min(downScreenPosition.x, currentScreenPosition.x),
+            Mathf.Min(downScreenPosition.y, currentScreenPosition.y),
+            Mathf.Max(downScreenPosition.x, currentScreenPosition.x),
+            Mathf.Max(downScreenPosition.y, currentScreenPosition.y));
 
         private void ResolveClick(Ray ray, bool shiftHeld)
         {
@@ -146,11 +194,7 @@ namespace CRPG.Gameplay
         {
             if (camera == null) return;
 
-            var rect = Rect.MinMaxRect(
-                Mathf.Min(downScreenPosition.x, currentScreenPosition.x),
-                Mathf.Min(downScreenPosition.y, currentScreenPosition.y),
-                Mathf.Max(downScreenPosition.x, currentScreenPosition.x),
-                Mathf.Max(downScreenPosition.y, currentScreenPosition.y));
+            var rect = ComputeDragRect();
 
             List<RuntimeEntityId> hits = null;
             foreach (var selectable in selectableSource.GetSelectables())

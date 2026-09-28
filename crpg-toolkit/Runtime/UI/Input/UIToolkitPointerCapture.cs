@@ -46,14 +46,24 @@ namespace CRPG.UI
                 var panel = document.rootVisualElement?.panel;
                 if (panel == null) continue;
 
-                // Input System / Camera screen coordinates start at bottom-left; UI Toolkit's
-                // ScreenToPanel expects top-left pixels (and then applies panel scaling).
-                var topLeftPosition = new Vector2(screenPosition.x, Screen.height - screenPosition.y);
-                var panelPosition = RuntimePanelUtils.ScreenToPanel(panel, topLeftPosition);
-                if (panel.Pick(panelPosition) != null) return true;
+                if (panel.Pick(ScreenToPanelPoint(panel, screenPosition)) != null) return true;
             }
 
             return false;
+        }
+
+        /// <summary>Converts a single screen-space point (Input System/Camera convention: origin bottom-left)
+        /// into the given panel's own panel-space coordinates. Extracted (2D-Campaign-ExplorationUX-Followups.md
+        /// S1) so another UI Toolkit consumer needing this exact conversion -- e.g. <c>DragSelectionOverlay</c>
+        /// converting a drag rect's corners -- doesn't hand-duplicate it. Converting a RECT means calling this
+        /// for BOTH corners and taking min/max of the results, never treating one converted point as a rect's
+        /// top-left directly -- the bottom-left-to-top-left y-flip below reorders which corner ends up where.</summary>
+        public static Vector2 ScreenToPanelPoint(IPanel panel, Vector2 screenPosition)
+        {
+            // Input System / Camera screen coordinates start at bottom-left; UI Toolkit's ScreenToPanel expects
+            // top-left pixels (and then applies panel scaling).
+            var topLeftPosition = new Vector2(screenPosition.x, Screen.height - screenPosition.y);
+            return RuntimePanelUtils.ScreenToPanel(panel, topLeftPosition);
         }
 
         private sealed class ModalScope : IDisposable

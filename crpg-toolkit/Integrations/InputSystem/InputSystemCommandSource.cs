@@ -17,7 +17,7 @@ namespace CRPG.InputSystem
     /// this class's own job since a camera rig isn't part of the click-resolution pipeline.
     /// </summary>
     [AddComponentMenu("CRPG/Input System Command Source")]
-    public sealed class InputSystemCommandSource : MonoBehaviour, IPlayerCommandSource, CRPGInputActions.IExplorationActions
+    public sealed class InputSystemCommandSource : MonoBehaviour, IPlayerCommandSource, IDragSelectionFeedback, CRPGInputActions.IExplorationActions
     {
         [SerializeField] private UnityEngine.Camera raycastCamera;
         [SerializeField] private LayerMask hittableMask = ~0;
@@ -43,6 +43,12 @@ namespace CRPG.InputSystem
         public event Action<MoveCommand> Move { add => Router.Move += value; remove => Router.Move -= value; }
         public event Action<InteractCommand> Interact { add => Router.Interact += value; remove => Router.Interact -= value; }
         public event Action Cancel { add => Router.Cancel += value; remove => Router.Cancel -= value; }
+
+        /// <summary>Pass-through onto the internal router's own <see cref="IDragSelectionFeedback"/>
+        /// implementation, same shape as Select/Move/Interact/Cancel above -- Router stays private, so a UI
+        /// overlay wires to this component directly (through the interface), never to the router itself.</summary>
+        public event Action<Rect> DragBoxChanged { add => Router.DragBoxChanged += value; remove => Router.DragBoxChanged -= value; }
+        public event Action DragBoxEnded { add => Router.DragBoxEnded += value; remove => Router.DragBoxEnded -= value; }
 
         /// <summary>Task 3.6: forwards to the internal router's own TransitionGate -- Router itself is
         /// intentionally private (lazily/internally constructed), so this is the composition root's only way to
@@ -118,7 +124,14 @@ namespace CRPG.InputSystem
         public void OnClick(InputAction.CallbackContext context)
         {
             var camera = ActiveCamera;
-            if (camera == null) return;
+            if (camera == null)
+            {
+                // No camera to build a ray/world position from -- can't resolve a release normally, but an
+                // in-progress gesture (and any visible drag box) must still not be left stuck forever (e.g. the
+                // main camera briefly null across a scene transition mid-drag).
+                if (context.canceled) Router.AbortGesture();
+                return;
+            }
 
             if (context.started)
             {

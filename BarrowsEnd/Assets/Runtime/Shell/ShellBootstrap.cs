@@ -86,6 +86,12 @@ namespace BarrowsEnd.Shell
         public WorldTransitionGate Gate => transitionGate;
         public SceneTravelRunner Runner => runner;
         public IsometricCameraRig CameraRig => cameraRig;
+
+        /// <summary>2D-Campaign-ExplorationUX-Followups.md D3: the composition-root's own real
+        /// InputSystemCommandSource reference, for a consumer (HudBootstrap's drag-select overlay, the move
+        /// destination marker) that needs it directly -- wiring happens in runtime code, not a cross-assembly
+        /// SerializeField, since CRPG.UI/CRPG.Presentation cannot serialize a CRPG.InputSystem type (B2).</summary>
+        public InputSystemCommandSource InputSource => inputSource;
         public bool IsReady { get; private set; }
         /// <summary>Test hook: when set, <c>Boot</c> uses this instead of the serialized start mode. The 6 tests that boot straight into the town set AuthoredParty BEFORE they load
         /// Core (Boot reads it in Start) and clear it in teardown. A static, because the alternative is a second Core scene.</summary>

@@ -6,14 +6,16 @@ using CRPG.Party;
 namespace BarrowsEnd.Gate
 {
     /// <summary>
-    /// Wraps the real command source (InputSystemCommandSource) for the gate scene. Two things the stock stack does not do for a scene
+    /// Wraps the real command source (InputSystemCommandSource) for the gate scene. One thing the stock stack does not do for a scene
     /// that mixes party members with a hostile NPC:
     /// <list type="bullet">
-    /// <item>Select commands are filtered to party members and cut to ONE character. The router's SceneSelectableSource offers every live
-    /// agent (the skeleton included) and PartyState.Select throws for a non-member; and PartyExplorationController applies formation
-    /// offsets to every selected member, so a multi-select would scatter the party.</item>
+    /// <item>Select commands are filtered to party members only -- the router's SceneSelectableSource offers every live agent (the
+    /// skeleton included), and PartyState.Select throws for a non-member.</item>
     /// <item>Move / Interact / Cancel pass straight through.</item>
     /// </list>
+    /// Real multi-select (2D-Campaign-ExplorationUX-Followups.md, D4): every matching party member in a SelectCommand is forwarded, with
+    /// the original SelectionMode preserved -- an earlier version of this class cut a multi-hit drag-select down to exactly one member
+    /// and forced Replace regardless of the real mode, which was never an intentional design constraint, just an unexamined default.
     /// Session independent: it asks for the CURRENT party each time, so it survives a save/load session swap.
     /// </summary>
     public sealed class GateCommandSource : IPlayerCommandSource, IDisposable
@@ -49,12 +51,19 @@ namespace BarrowsEnd.Gate
             var party = currentParty();
             if (party == null) return;
 
+            List<RuntimeEntityId> members = null;
             foreach (var character in command.Characters)
             {
                 if (!party.IsMember(character)) continue;
-                Select?.Invoke(new SelectCommand(new List<RuntimeEntityId> { character }, SelectionMode.Replace));
-                return; // exactly one
+                members ??= new List<RuntimeEntityId>();
+                members.Add(character);
             }
+
+            // No matching member is a legal "selected only the hostile NPC / nothing" outcome -- stays silent
+            // rather than routing an empty command through, same convention as PlayerCommandRouter.ResolveDragSelect.
+            if (members == null) return;
+
+            Select?.Invoke(new SelectCommand(members, command.Mode));
         }
 
         private void OnMove(MoveCommand command) => Move?.Invoke(command);

@@ -27,6 +27,15 @@ namespace CRPG.UI
         private void OnEnable() => UIToolkitPointerCapture.Register(GetComponent<UIDocument>());
         private void OnDisable() => UIToolkitPointerCapture.Unregister(GetComponent<UIDocument>());
 
+        /// <summary>The shared document's own root -- for a sibling overlay that must NOT go through
+        /// <see cref="CreateRegion"/> (2D-Campaign-ExplorationUX-Followups.md D2/B5): a `CreateRegion` region is
+        /// a fixed, corner-anchored panel that defaults to `PickingMode.Position`, so stretching one full-screen
+        /// to host a drag-select overlay would make every point on screen read as "over UI," swallowing every
+        /// world click including the drag's own release. This root is already `PickingMode.Ignore` (see
+        /// Awake), so a direct `PickingMode.Ignore` child added here stays exactly as click-through as every
+        /// other point on screen.</summary>
+        public VisualElement DocumentRoot => document.rootVisualElement;
+
         /// <summary>Creates and anchors a new child region for one HUD panel to build its content into.</summary>
         public VisualElement CreateRegion(HudCorner corner, float width, float margin = 16f)
         {

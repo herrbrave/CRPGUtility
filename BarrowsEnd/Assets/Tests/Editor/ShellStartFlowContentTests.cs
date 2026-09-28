@@ -9,6 +9,7 @@ using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay;
 using CRPG.Presentation.Creator;
+using CRPG.Presentation.Sprites;
 using CRPG.Rules.SRD5;
 using CRPG.UI;
 using NUnit.Framework;
@@ -166,6 +167,28 @@ namespace BarrowsEnd.Tests
                 Assert.AreSame(creatorSettings, title.GetComponent<UIDocument>().panelSettings, "the title uses the creator panel settings");
                 Assert.AreSame(creatorSettings, creator.GetComponent<UIDocument>().panelSettings, "the creator uses the creator panel settings");
                 Assert.AreEqual(10, creatorSettings.sortingOrder, "the title and creator draw above the gate ShellPanel");
+            }
+            finally
+            {
+                EditorSceneManager.CloseScene(scene, true);
+            }
+        }
+
+        [Test]
+        public void TheAuthoredCoreSceneWiresTheMoveDestinationMarkerUnderInputAndIntoTheHud()
+        {
+            var scene = EditorSceneManager.OpenScene(CorePath, OpenSceneMode.Additive);
+            try
+            {
+                var roots = scene.GetRootGameObjects();
+                var hud = roots.SelectMany(r => r.GetComponentsInChildren<HudBootstrap>(true)).Single();
+                var marker = roots.SelectMany(r => r.GetComponentsInChildren<MoveDestinationMarker>(true)).Single();
+
+                Assert.IsNotNull(marker.GetComponent<SpriteRenderer>(), "the marker carries its own SpriteRenderer");
+                Assert.AreEqual("Input", marker.transform.parent.name, "authored as a child of the Input GameObject (D7)");
+
+                var hudSo = new SerializedObject(hud);
+                Assert.AreSame(marker, hudSo.FindProperty("moveDestinationMarker").objectReferenceValue, "HudBootstrap references the same authored instance");
             }
             finally
             {

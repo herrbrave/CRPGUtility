@@ -4,6 +4,7 @@ using BarrowsEnd.Shell;
 using CRPG.Camera;
 using CRPG.Exploration;
 using CRPG.InputSystem;
+using CRPG.Presentation.Sprites;
 using CRPG.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -62,6 +63,15 @@ namespace BarrowsEnd.Editor
             inputSo.FindProperty("cameraRig").objectReferenceValue = rig;
             inputSo.FindProperty("hittableMask.m_Bits").uintValue = (uint)BarrowsEndLayers.RouterMask; // unsigned bits: a plain int would clamp ~mask to 0
             inputSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // 2D-Campaign-ExplorationUX-Followups.md D5/D7: a child of the Input GameObject (not the object
+            // itself -- its own transform moves to the raw click destination, which the input source's own
+            // transform has no other use for). HudBootstrap.Build() wires Initialize/IsWorldTransitioning at
+            // runtime (D3) once ShellBootstrap actually has a live InputSource/Gate to hand it.
+            var markerGo = new GameObject("MoveDestinationMarker");
+            markerGo.transform.SetParent(inputGo.transform, false);
+            markerGo.AddComponent<SpriteRenderer>();
+            var moveMarker = markerGo.AddComponent<MoveDestinationMarker>();
 
             var bootGo = new GameObject("ShellBootstrap");
             var boot = bootGo.AddComponent<ShellBootstrap>();
@@ -129,6 +139,7 @@ namespace BarrowsEnd.Editor
             var hudSo = new SerializedObject(hud);
             hudSo.FindProperty("bootstrap").objectReferenceValue = boot;
             hudSo.FindProperty("dollBootstrap").objectReferenceValue = doll;
+            hudSo.FindProperty("moveDestinationMarker").objectReferenceValue = moveMarker;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, ScenePath);

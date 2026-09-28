@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BarrowsEnd.Gate;
 using CRPG.Actors;
 using CRPG.Core;
+using CRPG.Presentation.Sprites;
 using CRPG.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,6 +33,7 @@ namespace BarrowsEnd.Shell
 
         [SerializeField] private ShellBootstrap bootstrap;
         [SerializeField] private DollBootstrap dollBootstrap;
+        [SerializeField] private MoveDestinationMarker moveDestinationMarker;
 
         private HudRoot hudRoot;
         private PartyPresenter presenter;
@@ -39,6 +41,7 @@ namespace BarrowsEnd.Shell
         private ResourceDefinition hpResource;
         private Label statusLabel;
         private Label messageLabel;
+        private DragSelectionOverlay dragOverlay;
         private bool built;
 
         private void OnEnable()
@@ -51,6 +54,8 @@ namespace BarrowsEnd.Shell
         {
             if (bootstrap != null) bootstrap.MessageChanged -= OnMessage;
         }
+
+        private void OnDestroy() => dragOverlay?.Dispose();
 
         private void Update()
         {
@@ -83,6 +88,18 @@ namespace BarrowsEnd.Shell
 
             var menuRegion = hudRoot.CreateRegion(HudCorner.TopRight, MenuWidth);
             BuildSystemMenu(menuRegion);
+
+            // 2D-Campaign-ExplorationUX-Followups.md D2/D3/D7: the drag-select overlay attaches directly to
+            // the HUD's own document root (never through CreateRegion, which would swallow every world click --
+            // see DragSelectionOverlay's own class doc comment), wired here in runtime code since CRPG.UI
+            // cannot serialize/reference bootstrap.InputSource's own type directly (B1/B2).
+            dragOverlay = new DragSelectionOverlay(hudRoot.DocumentRoot, bootstrap.InputSource);
+
+            if (moveDestinationMarker != null)
+            {
+                moveDestinationMarker.Initialize(bootstrap.InputSource);
+                moveDestinationMarker.IsWorldTransitioning = () => bootstrap.Gate.IsBusy;
+            }
         }
 
         /// <summary>Throws with a clear message rather than leaving the HUD silently blank if the shipped ruleset
