@@ -1,4 +1,4 @@
-# 2D Campaign Phase 5: UI re-skin (HUD, paper doll, creator + title) - plan v9 (5.0 + 5.1 + 5.2 committed; 5.3 built, suites green (bar a newly-found pre-existing flake), awaiting your live review before commit)
+# 2D Campaign Phase 5: UI re-skin (HUD, paper doll, creator + title) - CLOSED (all tasks 5.0-5.4 done, committed, Gate E passed 2026-09-28; next: Phase 6, needs story/content input)
 
 Master plan: `2D-Campaign-Implementation.md` (Phase 5). Source handoff: `BarrowsEnd/Docs/Handoff/Barrows-End-GUI-Handoff.md` (wireframes A HUD, B creator, C paper doll; assets `uipack_rpg_sheet.png` + `KenPixel.ttf`). Prior phase: `2D-Campaign-Phase4-CharacterCreator.md` (closed, Gate D passed).
 
@@ -429,11 +429,28 @@ Built exactly per the reviewed plan. `CharacterCreatorScreen` gained a public `U
 
 **User-reported, found and fixed:** both screens rendered with no background at all. The code fix (D-5.3.3, `AuthorPanelSettings()` -> `UiPanelSettingsAuthor.Author`) was correct, but nothing in this session's verification had actually RUN it against the real project's saved `creator-panel-settings.asset` -- every check happened in throwaway copies, so the asset on disk still referenced Unity's own default theme (`themeUss` guid `2578ad72...`) rather than the skin (`991cc3e4...`), confirmed by reading the real committed asset's YAML directly, not assumed. Fixed by running `BarrowsEndCreatorAuthor.AuthorPanelSettings()` in a throwaway copy and copying just the regenerated `.asset` file back (scale mode/sorting order/atlas filters confirmed unchanged) -- neither `Core.unity` nor `CreatorPreview.unity` needed re-authoring, since both reference this asset externally by GUID rather than embedding a copy of it.
 
-**NEXT: you judge the actual visual look live** (the title screen, the creator's wood panels at a larger scale than anything judged so far, the row cycle arrows, the swatch border, the error label's contrast on wood) -- same as every visual task in this phase, I can't verify this myself. Then commit when ready, then Task 5.4 (Gate E, the playthrough close-out).
+**Committed 2026-09-27 (`4dfe3d4`). Task 5.3 is fully closed. NEXT: Task 5.4 (Gate E, the playthrough close-out) -- the last task in Phase 5.**
 
 ## Task 5.4 - Gate E (playthrough close-out)
 
-**Gate E.** You play through: title -> create -> town with HUD -> select/heal-check -> open the paper doll -> equip/unequip -> save/quit/continue, and read every screen at 1280x720 and 1920x1080.
+**Correction before handing this to you (checked against source, not assumed):** the original one-line sketch's "select/heal-check" step is unreachable as written. `HealAndStand`/`GatePanel` (the only heal-related UI anywhere in the repo) belong to the OLD Phase-2-era debug "Gate" scene (`GateBootstrap`/`GateSessionServices`), a completely separate scene from `Core.unity` -- `BarrowsEndCoreSceneAuthor` never references `GatePanel` at all. There is no rest/heal mechanic anywhere in the real HUD/doll flow you'll actually be playing (Camp/rest is toolkit-generic infrastructure BarrowsEnd has never wired in, and isn't this phase's job to add -- Phase 5 is a UI re-skin, not a new gameplay system). This is the same class of thing Task 4.4 caught once already ("Gate D criterion unobservable -> replaced") -- fixed the same way: replaced with a criterion that's actually there to check.
+
+**Gate E checklist** (everything below is already built and committed -- 5.0/5.1/5.2/5.3; this task adds no new code, it's the holistic check that ties them together):
+
+1. **Title -> Create.** Launch `Core.unity` (`Barrows End/Open Campaign Core`) at 1280x720. Title screen shows the wood-panel look with New Game/Continue. New Game opens the creator (real skin: wood panels, arrow-glyph row cycling, real labels).
+2. **Create a character.** Cycle looks/hair/class rows, confirm the kit label updates, Confirm builds the party and enters the town.
+3. **Town with the real HUD.** Top-left party roster (4 members, names + HP bars); top-right system menu (Save/Load/Zoom +/-/Inventory). Click a different party member's card and confirm the HUD reflects the new active/selected member (replaces the old "heal-check" -- this exercises the same "select a member and see real state reflected" idea the original criterion was going for, using the mechanism that actually exists).
+4. **Open the paper doll** from the HUD's Inventory button: the active member's real equipped gear, ability scores, HP; cycle to a different party member with the arrows and confirm their gear differs; unequip an item (moves to the backpack, slot goes empty, live preview updates) and equip it back.
+5. **Save, quit, Continue:** Save from the HUD, close Play mode (or quit), Continue from the title -- confirm the SAME character/party/equipped-gear state is restored, not a fresh one.
+6. **Resolution check:** repeat a quick pass of the above at both 1280x720 and 1920x1080 (`ConstantPixelSize` panel settings mean the UI stays pixel-exact rather than scaling with the window, so at 1080p everything should look identical in size, just occupying a smaller share of a bigger window -- confirm nothing overlaps or gets cut off at the smaller resolution instead).
+
+Nothing here needs new implementation work; this is the point of the phase where you play through the whole thing end to end and tell me what, if anything, doesn't hold up. If everything passes, Phase 5 closes.
+
+### Gate E: PASSED (2026-09-28)
+
+You ran the full checklist (title/create, selecting a different party member and confirming the HUD reflects it, opening the doll and cycling/equipping/unequipping, save/quit/Continue) at both 1280x720 and 1920x1080 -- everything held up, GUI looks good at both resolutions. **Phase 5 (UI re-skin) is closed.** Every task (5.0 skin foundation, 5.1 HUD, 5.2 paper doll + skin pass, 5.3 creator/title + skin pass, 5.4 this gate) is built, tested, live-reviewed, and committed.
+
+Per the master plan (`2D-Campaign-Implementation.md`), next is **Phase 6 (Campaign content & story)** -- dialogue trees, quests, encounter placement, map layout, save points -- explicitly scoped as "built once the story and map count are known", not something to plan blind. Needs the user's story/content input before it can be broken into tasks. Phase 7 (the 30-60 minute playable-pass gate) follows once Phase 6 exists.
 
 ## Decisions (user, 2026-09-22)
 
