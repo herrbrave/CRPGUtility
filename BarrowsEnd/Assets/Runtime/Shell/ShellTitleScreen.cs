@@ -6,11 +6,16 @@ using UnityEngine.UIElements;
 namespace BarrowsEnd.Shell
 {
     /// <summary>
-    /// The shell's placeholder title screen (Task 4.3; the Phase 5 re-skin gets it under Task 5.3): a title and two buttons, <c>new-game-button</c> and
-    /// <c>continue-button</c> (enabled only while a save exists). Like the creator screen it fills the panel, registers with <see cref="UIToolkitPointerCapture"/> only while
-    /// shown, and is hidden with <see cref="Hide"/> (never by disabling the UIDocument, which would destroy its root). "Is there a save?" is asked when the screen is shown and then
-    /// about twice a second while it is visible, not every frame (a syscall per frame), yet still soon enough for a test that sets the save path after the scene loads.
+    /// The shell's title screen: a title and two buttons, <c>new-game-button</c> and <c>continue-button</c> (enabled only while a save exists). Like the
+    /// creator screen it fills the panel, registers with <see cref="UIToolkitPointerCapture"/> only while shown, and is hidden with <see cref="Hide"/>
+    /// (never by disabling the UIDocument, which would destroy its root). "Is there a save?" is asked when the screen is shown and then about twice a
+    /// second while it is visible, not every frame (a syscall per frame), yet still soon enough for a test that sets the save path after the scene loads.
     /// Its buttons lie within 400 px of the panel origin so they stay clickable in a small game view.
+    /// <para>Task 5.3: real skin classes (<c>be-screen</c>, <c>be-panel</c> + <c>be-part--panel-wood</c>, <c>be-label</c>, <c>be-button</c> +
+    /// <c>be-part--button-secondary</c>) applied directly, unconditionally -- unlike the toolkit's own re-skinnable views (<c>PartyView</c>,
+    /// <c>CharacterCreatorScreen</c>, the doll's <c>DollView</c>), this is a BarrowsEnd-only class with exactly one instance and no other consumer, so
+    /// there is no "other consumer on the default theme" a placeholder-style flag would need to protect -- retrofitting one here would be planned code
+    /// this screen doesn't need (a Task 5.3 review finding).</para>
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public sealed class ShellTitleScreen : MonoBehaviour
@@ -84,21 +89,26 @@ namespace BarrowsEnd.Shell
 
             var screen = new VisualElement { name = "shell-title" };
             screen.AddToClassList("shell-title");
+            screen.AddToClassList("be-screen");
             screen.style.position = Position.Absolute;
             screen.style.left = screen.style.top = screen.style.right = screen.style.bottom = 0;
-            screen.style.backgroundColor = new Color(0.09f, 0.1f, 0.12f, 1f);
             root.Add(screen);
 
             var panel = new VisualElement { name = "shell-title-panel" };
+            panel.AddToClassList("be-panel");
+            panel.AddToClassList("be-part--panel-wood");
             panel.style.position = Position.Absolute;
             panel.style.left = 48;
             panel.style.top = 48;
             panel.style.width = 300;
             screen.Add(panel);
 
+            // NOT be-label--title: that token's --be-ink-on-dark is meant for text directly on the be-screen
+            // backdrop, but this label sits inside the wood-panel child -- light ink on brown wood, the same
+            // contrast mistake Task 5.2's skin pass already found once for a different label on the same wood
+            // art. Plain be-label (full-strength --be-ink) plus this element's own font-size rule instead.
             var title = new Label("Barrow's End") { name = "shell-title-label" };
-            title.style.fontSize = 32;
-            title.style.color = Color.white;
+            title.AddToClassList("be-label");
             title.style.marginBottom = 24;
             panel.Add(title);
 
@@ -111,6 +121,8 @@ namespace BarrowsEnd.Shell
         private static Button MenuButton(string name, string text, Action onClick)
         {
             var button = new Button(onClick) { name = name, text = text };
+            button.AddToClassList("be-button");
+            button.AddToClassList("be-part--button-secondary");
             button.style.width = 220;
             button.style.height = 40;
             button.style.marginBottom = 8;

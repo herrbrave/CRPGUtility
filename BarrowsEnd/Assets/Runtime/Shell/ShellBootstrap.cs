@@ -191,6 +191,7 @@ namespace BarrowsEnd.Shell
             CreatorResult confirmed = null;
             var cancelled = false;
             titleScreen.Initialize(() => File.Exists(SavePath), () => choice = StartChoice.NewGame, () => choice = StartChoice.Continue);
+            creatorScreen.UsePlaceholderStyle = false; // Task 5.3: the skin's real look; the panel settings already carry the theme (BarrowsEndCreatorAuthor)
             creatorScreen.Initialize(CreatorModel, result => confirmed = result, () => cancelled = true);
 
             while (true)

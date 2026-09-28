@@ -15,15 +15,18 @@ namespace BarrowsEnd.Tests
     public class CreatorScreenAuthoringTests
     {
         [Test]
-        public void ThePanelSettingsCarryTheThemeAllAtlasFiltersAndConstantPixelScaleOne()
+        public void ThePanelSettingsCarryTheSkinThemeAllAtlasFiltersAndConstantPixelScaleOne()
         {
             var settings = BarrowsEndCreatorAuthor.AuthorPanelSettings();
 
-            Assert.IsNotNull(settings.themeStyleSheet, "the runtime theme is assigned explicitly");
+            // Task 5.3: this used to carry Unity's own default runtime theme -- strengthened from a bare
+            // not-null check to actually confirm it's the skin, or a future regression could silently reintroduce
+            // the unskinned default and this test would keep passing.
+            Assert.AreSame(AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>("Assets/UI/Skin/BarrowsEndTheme.tss"), settings.themeStyleSheet, "the SKIN's theme is assigned, not Unity's default runtime theme");
             Assert.AreEqual(PanelScaleMode.ConstantPixelSize, settings.scaleMode, "fractional panel scaling would blur the integer-scaled sprites");
             Assert.AreEqual(1f, settings.scale);
-            Assert.AreEqual(10, settings.sortingOrder, "the title and creator draw above the gate ShellPanel (Task 4.3)");
-            Assert.AreEqual(BarrowsEndCreatorAuthor.AllAtlasFilters, settings.dynamicAtlasSettings.activeFilters, "no atlas re-filtering of the sprite textures");
+            Assert.AreEqual(10, settings.sortingOrder, "the title and creator draw above the HUD (sortingOrder 0)");
+            Assert.AreEqual((DynamicAtlasFilters)UiPanelSettingsAuthor.AllAtlasFilters, settings.dynamicAtlasSettings.activeFilters, "no atlas re-filtering of the sprite textures");
         }
 
         [Test]

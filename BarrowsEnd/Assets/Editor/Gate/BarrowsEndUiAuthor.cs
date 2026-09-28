@@ -28,7 +28,9 @@ namespace BarrowsEnd.Editor
         public static PanelSettings AuthorGalleryPanelSettings() =>
             UiPanelSettingsAuthor.Author(GalleryPanelSettingsPath, GallerySortingOrder, LoadTheme());
 
-        private static ThemeStyleSheet LoadTheme()
+        // internal, not private: Task 5.3 (BarrowsEndCreatorAuthor) reuses this rather than hand-rolling a
+        // second theme loader with its own, different error message.
+        internal static ThemeStyleSheet LoadTheme()
         {
             var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(ThemePath);
             if (theme == null) throw new System.InvalidOperationException($"{ThemePath} is missing: run 'Barrows End/UI/Build Skin Parts' first.");

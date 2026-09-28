@@ -36,6 +36,7 @@ namespace BarrowsEnd.Shell
             host = gameObject.AddComponent<GameSessionHost>();
             Session = host.StartSession(ruleset, new DiceService(new SeededRandomSource(seed)), Array.Empty<Type>());
             Model = new CharacterCreatorModel(Session.RulesDatabase, CreatorContentLoader.Build(picks.text, classTable.text), Debug.LogWarning);
+            screen.UsePlaceholderStyle = false; // Task 5.3: judge the real skin's look in this dev scene too
             screen.Initialize(Model, OnConfirm, seedSource: () => Environment.TickCount);
         }
 

@@ -169,17 +169,21 @@ namespace BarrowsEnd.Tests
         }
 
         [Test]
-        public void GateAndCreatorPanelSettingsAreUntouchedBy50()
+        public void TheGatesOwnPanelSettingsStayUntouched()
         {
-            // D6: 5.0 must not switch the SHIPPED gate/creator panel settings over to the new theme/scale mode.
+            // D6: 5.0 must not switch the SHIPPED gate panel settings over to the new theme/scale mode.
+            // Renamed from "GateAndCreatorPanelSettingsAreUntouchedBy50" (Task 5.3): the creator's OWN panel
+            // settings are no longer untouched -- Task 5.3 deliberately opted them into the skin theme (see
+            // CreatorScreenAuthoringTests for that guarantee instead). This test only ever asserted the gate's
+            // asset; only its stale name claimed otherwise.
             var gate = AssetDatabase.LoadAssetAtPath<PanelSettings>(PhaseTwoGateSceneAuthor.PanelSettingsPath);
             Assert.IsNotNull(gate);
             // Correction (verified directly against the asset, 2026-09-22): the shipped gate is ConstantPhysicalSize,
             // not ScaleWithScreenSize as both the Opus review and the plan's D6 first assumed -- this Unity
             // version's PanelScaleMode enum order is not {ConstantPixelSize, ScaleWithScreenSize, ConstantPhysicalSize}
             // as guessed; m_ScaleMode: 1 in the real .asset YAML maps to ConstantPhysicalSize. The design point (5.0
-            // must not switch the shipped gate/creator panel settings) is unaffected -- only the exact mode name was wrong.
-            Assert.AreEqual(PanelScaleMode.ConstantPhysicalSize, gate.scaleMode, "the gate's panel settings must stay untouched (ConstantPhysicalSize) until 5.1 deliberately opts it in");
+            // must not switch the shipped gate panel settings) is unaffected -- only the exact mode name was wrong.
+            Assert.AreEqual(PanelScaleMode.ConstantPhysicalSize, gate.scaleMode, "the gate's panel settings must stay untouched (ConstantPhysicalSize) -- nothing in this phase opts it in");
         }
 
         // Test 6 -------------------------------------------------------------------------------------------
@@ -202,6 +206,12 @@ namespace BarrowsEnd.Tests
             // PartyView's own emitted classes (built directly, not string-guessed) all appear in a selector.
             var partyClasses = new[] { "party-panel", "party-title", "party-roster", "party-card", "party-card--active", "party-card--selected", "party-card-name", "party-card-hp" };
             foreach (var cls in partyClasses) Assert.IsTrue(skin.Contains($".{cls}"), $"skin has a rule for PartyView's .{cls}");
+
+            // Task 5.3: the creator/title screens' own re-skin work reuses the be-* primitives above directly
+            // (already covered) rather than introducing new creator-*/shell-* component rules -- shell-title-label
+            // is the one genuine exception (the title heading's larger size, since be-label--title's on-dark ink
+            // is wrong for a label sitting inside a wood panel, not on the bare be-screen backdrop).
+            Assert.IsTrue(skin.Contains(".shell-title-label"), "skin has a rule for the title heading's font size");
         }
 
         // Test 7 -------------------------------------------------------------------------------------------

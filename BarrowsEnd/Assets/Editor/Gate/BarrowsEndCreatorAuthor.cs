@@ -18,41 +18,20 @@ namespace BarrowsEnd.Editor
     public static class BarrowsEndCreatorAuthor
     {
         public const string PanelSettingsPath = "Assets/Content/Creator/creator-panel-settings.asset";
-        public const string ThemePath = "Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss";
         public const string PicksPath = "Assets/Content/Creator/CreatorPicks.json";
         public const string ClassTablePath = "Assets/Content/Creator/CreatorClassTable.json";
         public const string SceneDir = "Assets/Scenes/Creator";
         public const string ScenePath = SceneDir + "/CreatorPreview.unity";
         public const int SortingOrder = 10;
 
-        public const DynamicAtlasFilters AllAtlasFilters = DynamicAtlasFilters.Readability | DynamicAtlasFilters.Size | DynamicAtlasFilters.Format | DynamicAtlasFilters.ColorSpace | DynamicAtlasFilters.FilterMode;
-
-        public static PanelSettings AuthorPanelSettings()
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(PanelSettingsPath));
-            AssetDatabase.Refresh();
-
-            var settings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
-            if (settings == null)
-            {
-                settings = ScriptableObject.CreateInstance<PanelSettings>();
-                AssetDatabase.CreateAsset(settings, PanelSettingsPath);
-            }
-
-            var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(ThemePath)
-                        ?? throw new System.InvalidOperationException($"{ThemePath} is missing: the runtime theme the creator panel needs.");
-            settings.themeStyleSheet = theme;
-            settings.scaleMode = PanelScaleMode.ConstantPixelSize;
-            settings.scale = 1f;
-            settings.sortingOrder = SortingOrder; // the title and creator draw above the gate ShellPanel (sortingOrder 0)
-            var atlas = settings.dynamicAtlasSettings;
-            atlas.activeFilters = AllAtlasFilters;
-            settings.dynamicAtlasSettings = atlas;
-
-            EditorUtility.SetDirty(settings);
-            AssetDatabase.SaveAssets();
-            return settings;
-        }
+        // Task 5.3: this asset carried Unity's own default runtime theme, not the skin, from Task 4.2 until now.
+        // UiPanelSettingsAuthor.Author (Task 5.0) is a byte-for-byte compatible replacement for what this method's
+        // body used to hand-roll (same ConstantPixelSize/scale 1/all five atlas filters/idempotent load-or-create)
+        // -- its own doc comment already anticipated this exact call ("5.1 and 5.3 each explicitly opt their
+        // existing asset into this author when they re-skin that screen"). Reuses BarrowsEndUiAuthor.LoadTheme()
+        // rather than hand-rolling a second theme loader with a different error message.
+        public static PanelSettings AuthorPanelSettings() =>
+            UiPanelSettingsAuthor.Author(PanelSettingsPath, SortingOrder, BarrowsEndUiAuthor.LoadTheme(), PanelScaleMode.ConstantPixelSize);
 
         [MenuItem("Barrows End/Content/Author Creator Preview Scene")]
         public static void Author()

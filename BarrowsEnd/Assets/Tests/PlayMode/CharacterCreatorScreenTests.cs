@@ -92,7 +92,7 @@ namespace BarrowsEnd.Tests
 
         // A batch-mode PlayMode run has a 640x480 game view, narrower than the layout, so by default the panel renders into a 1280x720 RenderTexture (clicks are in panel
         // coordinates, so they behave exactly as on a real display). Only the pointer-capture tests use the screen-targeted panel: they convert real screen coordinates.
-        private void Create(CreatorContent content = null, bool withCancel = false, Func<int> seed = null, bool renderToTexture = true)
+        private void Create(CreatorContent content = null, bool withCancel = false, Func<int> seed = null, bool renderToTexture = true, bool usePlaceholderStyle = true)
         {
 #if UNITY_EDITOR
             var authored = UnityEditor.AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
@@ -109,6 +109,7 @@ namespace BarrowsEnd.Tests
             document = host.AddComponent<UIDocument>();
             document.panelSettings = settings;
             screen = host.AddComponent<CharacterCreatorScreen>();
+            screen.UsePlaceholderStyle = usePlaceholderStyle; // Task 5.3: must be set before Initialize (which builds the layout)
             model = new CharacterCreatorModel(session.RulesDatabase, content ?? RealContent(), reports.Add);
             screen.Initialize(model, result => confirmed.Add(result), withCancel ? () => cancelled++ : null, seed);
         }
@@ -494,6 +495,40 @@ namespace BarrowsEnd.Tests
             Click("row-class-next"); // Cleric in its white tabard
             yield return Frames(6);
 
+            AssertPixelExactPreview("creator-screen.png");
+        }
+
+        // Task 5.3 (Opus review, should-fix): no test exercised a flag-off (real-skin) creator at all before this
+        // -- every other test in this fixture uses the default UsePlaceholderStyle=true. Re-runs the exact same
+        // pixel-exactness check with the wood panel behind the preview instead of the placeholder's own flat
+        // colour, and confirms the row arrows carry no inline size/text once the flag is off (the Task 5.3 review's
+        // own blocker: RowButton used to set both unconditionally, which would have stretched be-arrow's 22x21 art
+        // to a non-integer scale with a stray glyph drawn over it).
+        [UnityTest]
+        public IEnumerator WithTheFlagOffTheRowArrowsHaveNoInlineSizeAndThePreviewStaysPixelExactBehindTheWoodPanel()
+        {
+            Create(usePlaceholderStyle: false);
+            yield return Frames(3);
+
+            var prev = Btn("row-class-prev");
+            Assert.AreEqual(string.Empty, prev.text, "the background image is the glyph, not a text character");
+            // Confirmed empirically (not assumed): a Button property that was never assigned inline reads as
+            // StyleKeyword.Null in this Unity version, not .Undefined.
+            Assert.AreEqual(StyleKeyword.Null, prev.style.width.keyword, "no inline width override -- be-arrow's own 22px must be free to apply");
+            Assert.AreEqual(StyleKeyword.Null, prev.style.height.keyword, "no inline height override -- be-arrow's own 21px must be free to apply");
+            Assert.IsTrue(prev.ClassListContains("be-arrow"));
+            Assert.IsTrue(prev.ClassListContains("be-part--arrow-left"));
+
+            Click("row-hair-color-next");
+            Click("row-layer-hair-next");
+            Click("row-class-next");
+            yield return Frames(6);
+
+            AssertPixelExactPreview("creator-screen-skinned.png");
+        }
+
+        private void AssertPixelExactPreview(string debugFileName)
+        {
             var kenney = LoadPng(CharSheet);
             var armorSheet = LoadPng(ArmorSheet);
             var layers = new List<EffectiveLayer>();
@@ -508,7 +543,7 @@ namespace BarrowsEnd.Tests
 
             var dir = Path.Combine(Environment.GetEnvironmentVariable("TEMP") ?? Path.GetTempPath(), "sp");
             Directory.CreateDirectory(dir);
-            File.WriteAllBytes(Path.Combine(dir, "creator-screen.png"), read.EncodeToPNG());
+            File.WriteAllBytes(Path.Combine(dir, debugFileName), read.EncodeToPNG());
 
             var origin = screen.Preview.worldBound.position;
             const int scale = 12;

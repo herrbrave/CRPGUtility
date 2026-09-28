@@ -317,3 +317,12 @@
 .doll-slot__label {
     -unity-font-style: bold;
 }
+
+/* ---- title + creator (Task 5.3): almost everything both screens need already existed too (be-screen, be-panel
+   + be-part--panel-wood, be-label + variants, be-arrow, be-button + be-part--button-secondary) -- ShellTitleScreen
+   and CharacterCreatorScreen opt into those directly. The title's heading needs plain be-label's ink (NOT
+   be-label--title, which is meant for text on the dark be-screen backdrop, not inside a wood panel -- see
+   ShellTitleScreen.cs) with a larger size; that size is the only new rule needed. ---- */
+.shell-title-label {
+    font-size: var(--be-font-title);
+}

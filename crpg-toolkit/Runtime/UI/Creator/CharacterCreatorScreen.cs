@@ -12,12 +12,16 @@ namespace CRPG.UI
     /// <see cref="CharacterCreatorModel"/> row on the right (every row shows an "n / count" position, and a row whose options carry a swatch, such as Hair Colour,
     /// draws it beside the name), a one-line "Gear:" label under the rows naming the class's starting kit, and Randomize / Confirm / (Cancel) below. A thin view: all
     /// logic lives in the model, and the screen only renders it and forwards clicks.
-    /// <para><b>Contract for a re-skin (Phase 5):</b> every element has a stable <c>name</c> and a <c>creator-*</c> USS class. Structure and sizing are inline (the
+    /// <para><b>Contract for a re-skin (Phase 5):</b> every element has a stable <c>name</c> and a <c>creator-*</c> USS class -- NOTE the element's <c>name</c> and
+    /// its CLASS are not always the same string (e.g. the <c>creator-kit-label</c> element carries class <c>creator-kit</c>, <c>error-label</c> carries
+    /// <c>creator-error</c>, and every <c>row-&lt;key&gt;-prev</c>/<c>-next</c> button carries the SHARED class <c>creator-row__button</c>, not one class per row) --
+    /// a Task 5.3 review finding, since targeting the wrong one silently writes a dead USS rule. Structure and sizing are inline (the
     /// screen must fill the panel and the preview must sit on whole pixels); the placeholder LOOK (colours, borders) is inline too and is applied only while
-    /// <c>usePlaceholderStyle</c> is true, because an inline style beats any USS rule. Turn it off and add a <see cref="StyleSheet"/> to restyle. Names:
+    /// <see cref="UsePlaceholderStyle"/> is true, because an inline style beats any USS rule. Turn it off and add a <see cref="StyleSheet"/> to restyle. Names:
     /// <c>creator-screen</c>, <c>creator-preview-panel</c>, <c>creator-options-panel</c>, <c>row-&lt;key&gt;</c> with <c>row-&lt;key&gt;-value</c>/<c>-position</c>/<c>-prev</c>/<c>-next</c>
     /// (and <c>-swatch</c> on swatch rows; row keys are the layer-slot id, the filter key such as <c>hair-color</c>, or <c>class</c>), <c>creator-kit-label</c>,
-    /// <c>random-button</c>, <c>confirm-button</c>, <c>cancel-button</c>, <c>error-label</c>.</para>
+    /// <c>random-button</c>, <c>confirm-button</c>, <c>cancel-button</c>, <c>error-label</c>. Task 5.3: with the flag off, the row <c>&lt;</c>/<c>&gt;</c> buttons carry
+    /// <c>be-arrow</c> + <c>be-part--arrow-left</c>/<c>-right</c> instead of an inline size and text glyph (matching the paper doll's own cycle-arrow precedent).</para>
     /// <para><b>Panel settings the preview needs to stay pixel-exact:</b> <see cref="PanelScaleMode.ConstantPixelSize"/> (fractional scaling blurs integer-scaled sprites), the
     /// runtime theme, and every dynamic-atlas filter active. <c>previewScale</c> must stay a whole number of screen pixels per sprite pixel.</para>
     /// <para>Show/Hide toggle the root's display and the pointer-capture registration; never disable the GameObject or the UIDocument to hide it (a disabled UIDocument destroys
@@ -31,6 +35,11 @@ namespace CRPG.UI
         [Tooltip("Applies the plain built-in look. Turn off when a StyleSheet supplies the look (inline styles beat USS).")]
         [SerializeField] private bool usePlaceholderStyle = true;
         [SerializeField] private List<StyleSheet> styleSheets = new();
+
+        /// <summary>Matches PartyView/DollView's own public property -- set it before the first <see cref="Initialize"/>
+        /// (a flag flip after Build() has already run inline colors would need a rebuild to take effect, not just this
+        /// property changing).</summary>
+        public bool UsePlaceholderStyle { get => usePlaceholderStyle; set => usePlaceholderStyle = value; }
 
         private sealed class RowView
         {
@@ -131,6 +140,9 @@ namespace CRPG.UI
             // Sized explicitly (absolute, all four insets 0) so it genuinely fills the panel: a flex-grow child of an auto-sized document root can collapse to
             // nothing, which would also break the modal capture. Anchored top-left with whole-pixel padding, never centred, so the preview cannot land on a half pixel.
             var screen = Element("creator-screen", "creator-screen");
+            screen.AddToClassList("be-screen"); // Task 5.3: without this, the backdrop goes transparent once the
+                                                 // placeholder's own inline color is gated off below (Task 5.2's
+                                                 // .doll-screen needed the identical fix for its own modal dim).
             screen.style.position = Position.Absolute;
             screen.style.left = screen.style.top = screen.style.right = screen.style.bottom = 0;
             screen.style.flexDirection = FlexDirection.Row;
@@ -140,6 +152,8 @@ namespace CRPG.UI
             root.Add(screen);
 
             var previewPanel = Element("creator-preview-panel", "creator-preview-panel");
+            previewPanel.AddToClassList("be-panel");
+            previewPanel.AddToClassList("be-part--panel-wood");
             previewPanel.style.flexShrink = 0;
             previewPanel.style.paddingLeft = previewPanel.style.paddingRight = previewPanel.style.paddingTop = previewPanel.style.paddingBottom = 24;
             if (usePlaceholderStyle)
@@ -155,6 +169,8 @@ namespace CRPG.UI
             screen.Add(previewPanel);
 
             var options = Element("creator-options-panel", "creator-options-panel");
+            options.AddToClassList("be-panel");
+            options.AddToClassList("be-part--panel-wood");
             options.style.width = 560;
             options.style.marginLeft = 32;
             options.style.flexShrink = 0;
@@ -169,6 +185,7 @@ namespace CRPG.UI
 
             kitLabel = new Label { name = "creator-kit-label" };
             kitLabel.AddToClassList("creator-kit");
+            kitLabel.AddToClassList("be-label");
             kitLabel.style.whiteSpace = WhiteSpace.Normal;
             kitLabel.style.marginTop = 4;
             kitLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
@@ -177,6 +194,8 @@ namespace CRPG.UI
 
             errorLabel = new Label { name = "error-label" };
             errorLabel.AddToClassList("creator-error");
+            errorLabel.AddToClassList("be-label");
+            errorLabel.AddToClassList("be-label--danger");
             errorLabel.style.display = DisplayStyle.None;
             errorLabel.style.whiteSpace = WhiteSpace.Normal;
             errorLabel.style.marginTop = 8;
@@ -205,7 +224,7 @@ namespace CRPG.UI
             container.style.alignItems = Align.Center;
             container.style.marginBottom = 8;
 
-            view.Prev = RowButton(container, $"row-{row.Key}-prev", "<", () => row.Advance(-1));
+            view.Prev = RowButton(container, $"row-{row.Key}-prev", isLeft: true, () => row.Advance(-1));
 
             if (row.Options.Any(o => o.HasSwatch))
             {
@@ -214,12 +233,16 @@ namespace CRPG.UI
                 view.Swatch.style.width = view.Swatch.style.height = 28;
                 view.Swatch.style.flexShrink = 0;
                 view.Swatch.style.marginLeft = 8;
-                if (usePlaceholderStyle) Border(view.Swatch, new Color(0.95f, 0.95f, 0.97f, 1f), 2); // a light border keeps blond and silver distinguishable
+                // NOT gated behind usePlaceholderStyle (Task 5.3 review): this border is functional, not a look
+                // choice -- it keeps visually similar swatches (blond vs silver hair) distinguishable regardless
+                // of skin, the same reasoning PartyView's hp-bar geometry is never gated either.
+                Border(view.Swatch, new Color(0.95f, 0.95f, 0.97f, 1f), 2);
                 container.Add(view.Swatch);
             }
 
             view.Value = new Label { name = $"row-{row.Key}-value" };
             view.Value.AddToClassList("creator-row__value");
+            view.Value.AddToClassList("be-label");
             view.Value.style.flexGrow = 1;
             view.Value.style.flexShrink = 1;
             view.Value.style.unityTextAlign = TextAnchor.MiddleCenter;
@@ -229,13 +252,15 @@ namespace CRPG.UI
 
             view.Position = new Label { name = $"row-{row.Key}-position" };
             view.Position.AddToClassList("creator-row__position");
+            view.Position.AddToClassList("be-label");
+            view.Position.AddToClassList("be-label--muted"); // the "n / count" counter -- genuinely secondary text
             view.Position.style.minWidth = 64;
             view.Position.style.unityTextAlign = TextAnchor.MiddleRight;
             view.Position.style.marginRight = 8;
             if (usePlaceholderStyle) view.Position.style.color = new Color(0.8f, 0.8f, 0.82f, 1f);
             container.Add(view.Position);
 
-            view.Next = RowButton(container, $"row-{row.Key}-next", ">", () => row.Advance(1));
+            view.Next = RowButton(container, $"row-{row.Key}-next", isLeft: false, () => row.Advance(1));
 
             rowViews.Add(view);
             return container;
@@ -248,12 +273,30 @@ namespace CRPG.UI
             return element;
         }
 
-        private Button RowButton(VisualElement parent, string name, string text, Action onClick)
+        // Task 5.3 review (blocker): this used to set its inline 36x32 size and "<"/">" text UNCONDITIONALLY, so
+        // simply adding be-arrow/be-part--arrow-left(-right) classes alongside it would have stretched that 22x21
+        // art to a non-integer scale with the text glyph drawn on top -- an inline style always beats USS. Now
+        // gated exactly like Border() elsewhere in this file: flag on keeps today's look/size unchanged (so other,
+        // non-BarrowsEnd toolkit consumers on the default theme see no difference); flag off drops the inline
+        // size (letting be-arrow's own 22x21 win) and the text (the background image IS the glyph), matching
+        // DollView.ArrowButton's real, working precedent exactly.
+        private Button RowButton(VisualElement parent, string name, bool isLeft, Action onClick)
         {
-            var button = new Button(onClick) { name = name, text = text };
+            var button = new Button(onClick) { name = name };
             button.AddToClassList("creator-row__button");
-            button.style.width = 36;
-            button.style.height = 32;
+            if (usePlaceholderStyle)
+            {
+                button.text = isLeft ? "<" : ">";
+                button.style.width = 36;
+                button.style.height = 32;
+            }
+            else
+            {
+                button.text = string.Empty;
+                button.AddToClassList("be-arrow");
+                button.AddToClassList(isLeft ? "be-part--arrow-left" : "be-part--arrow-right");
+            }
+
             parent.Add(button);
             return button;
         }
@@ -262,6 +305,8 @@ namespace CRPG.UI
         {
             var button = new Button(onClick) { name = name, text = text };
             button.AddToClassList("creator-footer__button");
+            button.AddToClassList("be-button");
+            button.AddToClassList("be-part--button-secondary"); // matches the HUD's own convention: secondary throughout, no primary/secondary split
             button.style.height = 36;
             button.style.minWidth = 110;
             button.style.marginRight = 8;
