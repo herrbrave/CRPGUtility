@@ -29,6 +29,7 @@
   <Project Path="CRPG.Saving.csproj" />
   <Project Path="CRPG.Tests.EditMode.csproj" />
   <Project Path="CRPG.Tests.PlayMode.csproj" />
+  <Project Path="BarrowsEnd.Content.Editor.csproj" />
   <Project Path="CRPG.Presentation.csproj" />
   <Project Path="CRPG.Core.csproj" />
   <Project Path="Unity.UnifiedRayTracing.Runtime.csproj" />
@@ -54,7 +55,6 @@
   <Project Path="Unity.GraphAuthoring.Editor.csproj" />
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
   <Project Path="CRPG.Party.csproj" />
-  <Project Path="BarrowsEnd.Content.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="BarrowsEnd.Content.csproj" />
   <Project Path="Unity.Collections.CodeGen.csproj" />

@@ -221,6 +221,31 @@ namespace CRPG.Tests.EditMode
             Assert.AreEqual(5, listing.Quantity);
         }
 
+        // Task 6.0: found live -- a real game's composition root re-preps its scene's ILocationContent on load
+        // (LocationInitializer.RebindStoresAndLoot), which always calls GetOrCreateStore(seedIfNew:...) against
+        // the brand-new session's own empty stores dictionary; a same StoreId is therefore always "new" to it
+        // and always gets re-seeded from InitialListings BEFORE RestoreStores ever runs. Without RestoreStores
+        // clearing first, TryGetListing kept returning the stale reseeded quantity, not the restored one --
+        // confirmed via a real depleted-stock-survives-a-load test before this was traced to its root cause here.
+        [Test]
+        public void RestoreStoresReplacesAnAlreadySeededStoresListingsRatherThanLayeringOnTopOfThem()
+        {
+            var store = new StoreInventoryState();
+            store.AddListing(new DefinitionId("item-potion"), 3); // depleted from an initial seed of 5, then saved
+            var stores = new System.Collections.Generic.Dictionary<string, StoreInventoryState> { ["griff-store"] = store };
+            var data = SaveService.Capture(new PartyState(), new CharacterRegistry(), new PartyInventoryState(), new Timeline(), new QuestLog(), stores: stores);
+
+            // Simulates GetOrCreateStore(seedIfNew:...) already having re-seeded a "new" instance before restore runs.
+            var freshlySeededStore = new StoreInventoryState();
+            freshlySeededStore.AddListing(new DefinitionId("item-potion"), 5);
+
+            SaveService.RestoreStores(data, new System.Collections.Generic.Dictionary<string, StoreInventoryState> { ["griff-store"] = freshlySeededStore });
+
+            Assert.IsTrue(freshlySeededStore.TryGetListing(new DefinitionId("item-potion"), out var listing));
+            Assert.AreEqual(3, listing.Quantity, "the SAVED (depleted) quantity, not the freshly re-seeded one");
+            Assert.AreEqual(1, freshlySeededStore.Listings.Count, "no duplicate listing left behind for the same item");
+        }
+
         [Test]
         public void LootContainerStateRoundTripsThroughCaptureAndRestore()
         {
@@ -239,6 +264,27 @@ namespace CRPG.Tests.EditMode
 
             Assert.AreEqual(1, newContainer.Items.Count);
             Assert.AreEqual(2, newContainer.Items[0].Quantity);
+        }
+
+        // Task 6.0: same class of bug as the store one above -- GetOrCreateLootContainer(seedIfNew:...) always
+        // re-seeds InitialItems into a "new" (to this session) container before restore runs.
+        [Test]
+        public void RestoreLootContainersReplacesAnAlreadySeededContainersItemsRatherThanLayeringOnTopOfThem()
+        {
+            var container = new LootContainerState();
+            var savedItem = new ItemInstance(RuntimeEntityId.NewId(), new DefinitionId("item-gem"), quantity: 1); // looted down from 2, then saved
+            container.AddItem(savedItem);
+            var lootContainers = new System.Collections.Generic.Dictionary<string, LootContainerState> { ["chest-1"] = container };
+            var data = SaveService.Capture(new PartyState(), new CharacterRegistry(), new PartyInventoryState(), new Timeline(), new QuestLog(), lootContainers: lootContainers);
+
+            // Simulates GetOrCreateLootContainer(seedIfNew:...) already having re-seeded a "new" instance before restore runs.
+            var freshlySeededContainer = new LootContainerState();
+            freshlySeededContainer.AddItem(new ItemInstance(RuntimeEntityId.NewId(), new DefinitionId("item-gem"), quantity: 2));
+
+            SaveService.RestoreLootContainers(data, new System.Collections.Generic.Dictionary<string, LootContainerState> { ["chest-1"] = freshlySeededContainer });
+
+            Assert.AreEqual(1, freshlySeededContainer.Items.Count, "no leftover freshly-seeded item alongside the restored one");
+            Assert.AreEqual(1, freshlySeededContainer.Items[0].Quantity, "the SAVED (looted-down) quantity, not the freshly re-seeded one");
         }
 
         [Test]

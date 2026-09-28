@@ -35,6 +35,15 @@ namespace CRPG.Gameplay.Interactions.Adapters
         /// might include a check (see DialogueContext.SkillCheckRule's own remarks on why there's no fallback).</summary>
         public ISkillCheckRule SkillCheckRule { get; set; }
 
+        /// <summary>Task 6.0: whatever this conversation's Long Rest should actually run against -- null for an
+        /// NPC whose dialogue never reaches a RequestLongRestAction, matching SkillCheckRule's own "supplied only
+        /// when the content might need it" convention above.</summary>
+        public RestService RestService { get; set; }
+
+        /// <summary>Task 6.0: fire-and-forget hook for RequestSaveAction -- see DialogueContext.RequestSave's own
+        /// remarks on why this is a plain delegate, not a typed save port.</summary>
+        public Action RequestSave { get; set; }
+
         public DefinitionId ActionId { get; } = new("interact-talk");
 
         private bool conversationOpen;
@@ -45,7 +54,8 @@ namespace CRPG.Gameplay.Interactions.Adapters
         {
             conversationOpen = true;
 
-            var context = new DialogueContext(performer, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, SkillCheckRule, store: Store, currencyItemId: CurrencyItemId);
+            var context = new DialogueContext(performer, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, SkillCheckRule,
+                store: Store, currencyItemId: CurrencyItemId, restService: RestService, requestSave: RequestSave);
             var controller = new ConversationController(dialogue, context, panelSettings);
 
             return new Execution(this, controller, onFinished);

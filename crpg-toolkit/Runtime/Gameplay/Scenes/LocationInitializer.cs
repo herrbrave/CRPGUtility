@@ -76,6 +76,20 @@ namespace CRPG.Gameplay.Scenes
             }
         }
 
+        /// <summary>Task 6.0: the Store/LootContainer half of <see cref="Prepare"/>, on its own -- for a
+        /// same-scene session swap (a save load) where SpawnPoints are already fully handled by
+        /// <c>SessionLoadCoordinator</c>'s own restoration. Re-running the SpawnPoints loop there would
+        /// duplicate every already-loaded NPC: <c>WorldSpawnService.BindRestoredView</c> unconditionally
+        /// instantiates a fresh view regardless of whether a spawn record already exists (confirmed by reading
+        /// it directly, not assumed) -- it only skips re-inserting the RECORD, never the GameObject. Safe to call
+        /// against an already-prepared scene: <c>GetOrCreateStore</c>/<c>GetOrCreateLootContainer</c> are
+        /// idempotent by design (return the existing one if the id is already known).</summary>
+        public static void RebindStoresAndLoot(ILocationContent content, GameSession session)
+        {
+            foreach (var storePoint in content.Stores) PrepareStore(storePoint, session);
+            foreach (var lootPoint in content.LootContainers) PrepareLootContainer(lootPoint, session);
+        }
+
         private static void PrepareStore(StoreContentPoint storePoint, GameSession session)
         {
             var store = session.GetOrCreateStore(storePoint.StoreId, seedIfNew: s =>

@@ -75,6 +75,12 @@ namespace CRPG.Saving
                 if (!stores.TryGetValue(entry.StoreId, out var store)) continue;
                 store.BuyPriceMultiplier = entry.BuyPriceMultiplier;
                 store.SellPriceMultiplier = entry.SellPriceMultiplier;
+                // REPLACES, not layers onto, whatever a fresh GetOrCreateStore(seedIfNew:...) already populated
+                // -- a same-id store is always "new" to a just-loaded session (its own stores dictionary starts
+                // empty), so it always re-seeds from InitialListings before this ever runs. Without clearing
+                // first, AddListing's own "no per-item identity check" means the stale seeded listing would
+                // still be the one TryGetListing finds.
+                store.ClearListings();
                 foreach (var listing in entry.Listings) store.AddListing(new DefinitionId(listing.ItemId), listing.Quantity);
             }
         }
@@ -87,6 +93,9 @@ namespace CRPG.Saving
             foreach (var entry in data.LootContainers)
             {
                 if (!lootContainers.TryGetValue(entry.ContainerId, out var container)) continue;
+                // REPLACES, not layers onto, whatever a fresh GetOrCreateLootContainer(seedIfNew:...) already
+                // populated -- see ClearItems' own remarks.
+                container.ClearItems();
                 foreach (var itemEntry in entry.Items)
                 {
                     var item = new ItemInstance(

@@ -61,8 +61,8 @@ namespace BarrowsEnd.Tests
         {
             var provider = Load<BarrowsEndRulesetProvider>(BarrowsEndGearAuthor.RulesetPath);
             Assert.IsNotNull(provider.Srd5);
-            // 7 catalogs + head slot + (profile + item) per gear + the debug abilities + the skeleton NPC
-            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + BarrowsEndGearAuthor.DebugAbilities.Length + 1;
+            // 7 catalogs + head slot + (profile + item) per gear + the currency item (Task 6.0) + the debug abilities + the skeleton NPC
+            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + 1 + BarrowsEndGearAuthor.DebugAbilities.Length + 1;
             Assert.AreEqual(expected, provider.ExtraContent.Count);
             Assert.AreEqual(provider.ExtraContent.Count, provider.ExtraContent.Select(c => c.Id.Value).Distinct().Count(), "no duplicate ids");
             Assert.IsTrue(session.RulesDatabase.TryResolve<ResourceDefinition>(HitPoints, out _), "SRD5 content is still there");

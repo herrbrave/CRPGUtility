@@ -44,6 +44,7 @@ namespace BarrowsEnd.Tests
         public void Cleanup()
         {
             ShellBootstrap.StartModeOverride = null;
+            ShellBootstrap.StartingSceneOverride = null;
             if (File.Exists(savePath)) File.Delete(savePath);
             Time.timeScale = 1f;
         }
@@ -77,6 +78,10 @@ namespace BarrowsEnd.Tests
         private IEnumerator LoadCore(ShellStartMode mode)
         {
             ShellBootstrap.StartModeOverride = mode; // BEFORE the scene loads: Boot reads it in Start
+            // Task 6.0: this file's assertions/click coordinates are written against Town_Slice's own small
+            // geometry (including "the town is not loaded behind the title"), not the real Town -- keep booting
+            // the demo slice on purpose.
+            ShellBootstrap.StartingSceneOverride = (TownPath, "start");
             yield return SceneManager.LoadSceneAsync(CorePath, LoadSceneMode.Single);
             shell = UnityEngine.Object.FindFirstObjectByType<ShellBootstrap>();
             Assert.IsNotNull(shell);

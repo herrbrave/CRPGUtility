@@ -20,12 +20,13 @@ namespace CRPG.Gameplay
     /// only the composition root, never a UI presenter, has any legitimate use for.</summary>
     public sealed class LoadResult
     {
-        private LoadResult(LoadOutcome outcome, string message, GameSession session, WorldSpawnService worldSpawnService)
+        private LoadResult(LoadOutcome outcome, string message, GameSession session, WorldSpawnService worldSpawnService, SaveData data)
         {
             Outcome = outcome;
             Message = message;
             Session = session;
             WorldSpawnService = worldSpawnService;
+            Data = data;
         }
 
         public LoadOutcome Outcome { get; }
@@ -37,8 +38,17 @@ namespace CRPG.Gameplay
         public GameSession Session { get; }
         public WorldSpawnService WorldSpawnService { get; }
 
-        public static LoadResult Ok(GameSession session, WorldSpawnService worldSpawnService) => new(LoadOutcome.Success, null, session, worldSpawnService);
-        public static LoadResult Fail(LoadOutcome outcome, string message) => new(outcome, message, null, null);
+        /// <summary>Task 6.0: non-null only on Success. The raw save data this load restored -- Party/
+        /// Characters/Inventory/Timeline/Quests/WorldSpawns are already applied to <see cref="Session"/> by the
+        /// time this result exists, but Stores/LootContainers are NOT (SaveService.RestoreStores/
+        /// RestoreLootContainers apply onto ALREADY-CONSTRUCTED StoreInventoryState/LootContainerState instances,
+        /// which don't exist yet at this point -- they're only created once the caller re-preps the active
+        /// scene's ILocationContent, e.g. LocationInitializer.RebindStoresAndLoot). The caller is expected to
+        /// call those two SaveService methods itself against this Data once it has done so.</summary>
+        public SaveData Data { get; }
+
+        public static LoadResult Ok(GameSession session, WorldSpawnService worldSpawnService, SaveData data) => new(LoadOutcome.Success, null, session, worldSpawnService, data);
+        public static LoadResult Fail(LoadOutcome outcome, string message) => new(outcome, message, null, null, null);
     }
 
     /// <summary>
@@ -159,7 +169,7 @@ namespace CRPG.Gameplay
                 if (!build.Success) return LoadResult.Fail(build.Outcome, build.Message);
 
                 Commit(host, oldWorldSpawnService, build.Session, build.WorldSpawnService, build.Staged);
-                return LoadResult.Ok(build.Session, build.WorldSpawnService);
+                return LoadResult.Ok(build.Session, build.WorldSpawnService, build.Data);
             }
             finally
             {
@@ -353,7 +363,7 @@ namespace CRPG.Gameplay
             }
 
             EndLoading();
-            onFinished(LoadResult.Ok(build.Session, build.WorldSpawnService));
+            onFinished(LoadResult.Ok(build.Session, build.WorldSpawnService, build.Data));
         }
 
         private void EndLoading()
@@ -403,6 +413,7 @@ namespace CRPG.Gameplay
             public GameSession Session;
             public WorldSpawnService WorldSpawnService;
             public List<GameObject> Staged;
+            public SaveData Data;
         }
 
         /// <summary>The shared build phase both Load and LoadCoroutine funnel through: restore SaveData into a
@@ -483,7 +494,7 @@ namespace CRPG.Gameplay
                 return new BuildResult { Success = false, Outcome = LoadOutcome.ViewBindingFailed, Message = ex.Message };
             }
 
-            return new BuildResult { Success = true, Session = newSession, WorldSpawnService = newWorldSpawnService, Staged = staged };
+            return new BuildResult { Success = true, Session = newSession, WorldSpawnService = newWorldSpawnService, Staged = staged, Data = data };
         }
 
         /// <summary>Build phase fully succeeded -- only now does the old world get touched. Destroys EVERY

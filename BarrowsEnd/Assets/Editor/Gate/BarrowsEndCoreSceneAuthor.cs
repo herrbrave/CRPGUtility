@@ -33,6 +33,11 @@ namespace BarrowsEnd.Editor
             BarrowsEndCreatorAuthor.AuthorPanelSettings(); // the creator/title panel settings: this author never created them (a fresh clone would render nothing)
             BarrowsEndUiAuthor.AuthorHudPanelSettings(); // Task 5.1: same reason, for the HUD's own panel settings
             BarrowsEndUiAuthor.AuthorGalleryPanelSettings(); // Task 5.2: the doll reuses this (sortingOrder 10, already skinned) rather than a third asset
+            // Task 6.0: the real campaign maps, replacing Town_Slice/Cave_Slice as ShellBootstrap's actual
+            // starting scene/travel graph below. Must run AFTER the gallery panel settings above -- the Town's
+            // own proof-fixture NPCs need that asset to already exist.
+            BarrowsEndCavernsAuthor.Author(overwrite: false);
+            BarrowsEndTownAuthor.Author(overwrite: false);
             Directory.CreateDirectory("Assets/Scenes");
             AssetDatabase.Refresh();
 
@@ -78,8 +83,11 @@ namespace BarrowsEnd.Editor
             var so = new SerializedObject(boot);
             so.FindProperty("ruleset").objectReferenceValue = ruleset;
             so.FindProperty("partyPrefab").objectReferenceValue = partyPrefab;
-            so.FindProperty("startingScenePath").stringValue = BarrowsEndLocationAuthor.TownPath;
-            so.FindProperty("startingDestinationId").stringValue = BarrowsEndLocationAuthor.TownStart;
+            // Task 6.0: the real Town, not the Phase 3 demo slice -- ShellTests/ShellCaptureTests/parts of
+            // ShellStartFlowTests still boot the demo slice on purpose via ShellBootstrap.StartingSceneOverride,
+            // set explicitly in those tests' own setup, since they assert against Town_Slice's specific geometry.
+            so.FindProperty("startingScenePath").stringValue = BarrowsEndTownAuthor.Path;
+            so.FindProperty("startingDestinationId").stringValue = BarrowsEndTownAuthor.StartDestination;
             so.FindProperty("inputSource").objectReferenceValue = input;
             so.FindProperty("cameraRig").objectReferenceValue = rig;
             so.FindProperty("cameraFollow").objectReferenceValue = follow;
@@ -146,6 +154,10 @@ namespace BarrowsEnd.Editor
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene(ScenePath, true),
+                new EditorBuildSettingsScene(BarrowsEndTownAuthor.Path, true),
+                new EditorBuildSettingsScene(BarrowsEndCavernsAuthor.UpperPath, true),
+                new EditorBuildSettingsScene(BarrowsEndCavernsAuthor.MiddlePath, true),
+                new EditorBuildSettingsScene(BarrowsEndCavernsAuthor.DeepPath, true),
                 new EditorBuildSettingsScene(BarrowsEndLocationAuthor.TownPath, true),
                 new EditorBuildSettingsScene(BarrowsEndLocationAuthor.CavePath, true),
                 new EditorBuildSettingsScene(PhaseTwoGateSceneAuthor.ScenePath, true),

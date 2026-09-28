@@ -1,3 +1,4 @@
+using System;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Inventory;
@@ -24,7 +25,9 @@ namespace CRPG.Dialogue
             ISkillCheckRule skillCheckRule = null,
             ICombatLog combatLog = null,
             StoreInventoryState store = null,
-            DefinitionId currencyItemId = default)
+            DefinitionId currencyItemId = default,
+            RestService restService = null,
+            Action requestSave = null)
         {
             NpcId = npcId;
             Party = party;
@@ -37,6 +40,8 @@ namespace CRPG.Dialogue
             CombatLog = combatLog;
             Store = store;
             CurrencyItemId = currencyItemId;
+            RestService = restService;
+            RequestSave = requestSave;
         }
 
         public RuntimeEntityId NpcId { get; }
@@ -63,6 +68,18 @@ namespace CRPG.Dialogue
         /// for the conversation's store handoff. Only meaningful when Store is non-null; left DefinitionId.None
         /// (default) for an NPC that doesn't sell anything.</summary>
         public DefinitionId CurrencyItemId { get; }
+
+        /// <summary>Task 6.0: whatever this conversation's Long Rest should actually run against -- null for an
+        /// NPC whose dialogue never reaches a <see cref="RequestLongRestAction"/>. Mirrors <c>CampPresenter</c>'s
+        /// own existing "take a whole RestService instance" shape (its <c>ConfirmLongRest</c>), rather than
+        /// reinventing a different one here.</summary>
+        public RestService RestService { get; }
+
+        /// <summary>Task 6.0: fire-and-forget hook for <see cref="RequestSaveAction"/> -- a plain delegate, not
+        /// <c>CRPG.Saving.ISaveRequestPort</c>, since a consumer's own save entrypoint (e.g. BarrowsEnd's
+        /// <c>ShellBootstrap.SaveNow</c>) doesn't have to implement that port just to let dialogue trigger a save.
+        /// Null for a conversation that never reaches a <see cref="RequestSaveAction"/>.</summary>
+        public Action RequestSave { get; }
 
         private bool storeOpenRequested;
 

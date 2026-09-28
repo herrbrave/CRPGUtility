@@ -196,8 +196,10 @@ namespace BarrowsEnd.Tests
                 var so = new SerializedObject(boot);
                 foreach (var field in new[] { "ruleset", "partyPrefab", "inputSource", "cameraRig", "cameraFollow" })
                     Assert.IsNotNull(so.FindProperty(field).objectReferenceValue, field);
-                Assert.AreEqual(BarrowsEndLocationAuthor.TownPath, so.FindProperty("startingScenePath").stringValue);
-                Assert.AreEqual(BarrowsEndLocationAuthor.TownStart, so.FindProperty("startingDestinationId").stringValue);
+                // Task 6.0: the real Town, not the Phase 3 demo slice -- ShellBootstrap.StartingSceneOverride is
+                // what lets ShellTests/ShellCaptureTests/ShellStartFlowTests keep booting Town_Slice on purpose.
+                Assert.AreEqual(BarrowsEndTownAuthor.Path, so.FindProperty("startingScenePath").stringValue);
+                Assert.AreEqual(BarrowsEndTownAuthor.StartDestination, so.FindProperty("startingDestinationId").stringValue);
                 Assert.AreEqual(4, so.FindProperty("members").arraySize);
 
                 var input = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<InputSystemCommandSource>(true)).Single();
@@ -216,6 +218,10 @@ namespace BarrowsEnd.Tests
             var paths = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToList();
             Assert.AreEqual(BarrowsEndCoreSceneAuthor.ScenePath, paths[0], "Core loads first");
             CollectionAssert.IsSupersetOf(paths, new[] { BarrowsEndLocationAuthor.TownPath, BarrowsEndLocationAuthor.CavePath });
+            CollectionAssert.IsSupersetOf(paths, new[]
+            {
+                BarrowsEndTownAuthor.Path, BarrowsEndCavernsAuthor.UpperPath, BarrowsEndCavernsAuthor.MiddlePath, BarrowsEndCavernsAuthor.DeepPath,
+            });
         }
     }
 }

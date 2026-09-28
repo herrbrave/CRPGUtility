@@ -148,6 +148,47 @@ namespace CRPG.Tests.EditMode
             Assert.AreEqual(itemCountAfterFirstPrepare, session.Inventory.AllItems.Count()); // starting items not re-granted
         }
 
+        // Task 6.0: RebindStoresAndLoot exists specifically for a same-scene session swap (a save load) where
+        // SpawnPoints are already fully restored by SessionLoadCoordinator's own path -- re-running Prepare's
+        // SpawnPoints loop there would duplicate every already-loaded NPC (BindRestoredView unconditionally
+        // instantiates a fresh view even for an already-known spawn id, confirmed by reading it directly).
+        [Test]
+        public void RebindStoresAndLootRebindsAnAlreadySeededStoreWithoutTouchingSpawnPoints()
+        {
+            var rulesDatabase = new RulesDatabase();
+            var potion = TestDefinitionFactory.CreateItemDefinition("item-potion", "Potion", baseValue: 10);
+            rulesDatabase.Register(potion);
+
+            var session = new GameSession(rulesDatabase, new DiceService(new SeededRandomSource(1)));
+            var worldSpawnService = new WorldSpawnService(session);
+            var currentScene = SceneManager.GetActiveScene();
+
+            var firstAdapter = Track(new GameObject("Merchant")).AddComponent<TalkInteractionAdapter>();
+            var location = new FakeLocationContent();
+            location.StoresList.Add(new StoreContentPoint
+            {
+                StoreId = "store-a",
+                Adapter = firstAdapter,
+                InitialListings = { new StoreListingSeed { Item = potion, Quantity = 5 } },
+            });
+
+            LocationInitializer.Prepare(location, session, worldSpawnService, currentScene);
+            var storeService = new StoreService(rulesDatabase, session.Inventory, potion.Id);
+            session.Inventory.AddItem(new ItemInstance(RuntimeEntityId.NewId(), potion.Id, 100));
+            Assert.IsTrue(storeService.TryBuy(firstAdapter.Store, potion.Id, 2));
+            Assert.AreEqual(3, GetListingQuantity(firstAdapter.Store, potion.Id));
+
+            // Simulate a fresh session load into the SAME scene: a brand new adapter instance (as a real load
+            // would produce, since SessionLoadCoordinator rebuilds every restored view), the SAME StoreId.
+            var secondAdapter = Track(new GameObject("Merchant-Reloaded")).AddComponent<TalkInteractionAdapter>();
+            location.StoresList[0].Adapter = secondAdapter;
+
+            LocationInitializer.RebindStoresAndLoot(location, session);
+
+            Assert.AreSame(session.GetOrCreateStore("store-a"), secondAdapter.Store);
+            Assert.AreEqual(3, GetListingQuantity(secondAdapter.Store, potion.Id)); // depleted stock survives, not reseeded
+        }
+
         private static int GetListingQuantity(StoreInventoryState store, DefinitionId itemId)
         {
             store.TryGetListing(itemId, out var listing);

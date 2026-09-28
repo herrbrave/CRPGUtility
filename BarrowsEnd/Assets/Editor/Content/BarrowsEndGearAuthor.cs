@@ -29,6 +29,7 @@ namespace BarrowsEnd.Editor
         public const string SkeletonBodyOptionId = "body-be-0-0";
         public const string SkeletonFaction = "faction-undead";
         public const string GearDir = "Assets/Content/Gear";
+        public const string CurrencyItemId = "item-gold";
         public const string AbilityDir = "Assets/Content/Abilities";
         public const string RulesetPath = "Assets/Content/Ruleset/BarrowsEndRuleset.asset";
         public const string Srd5ProviderPath = "Packages/com.crpgtoolkit.core/Rules/SRD5e2014/Content/SRD5RulesetProvider.asset";
@@ -119,6 +120,7 @@ namespace BarrowsEnd.Editor
         };
 
         public static string ItemPath(GearSpec g) => $"{GearDir}/{g.ItemId}.asset";
+        public static string GoldPath => $"{GearDir}/{CurrencyItemId}.asset";
         public static string ProfilePath(GearSpec g) => $"{GearDir}/{g.ProfileId}.asset";
         public static string SlotPath => $"{GearDir}/{HeadSlotId}.asset";
         public static string AbilityPath(DebugAbilitySpec a) => $"{AbilityDir}/{a.AbilityId}.asset";
@@ -174,6 +176,18 @@ namespace BarrowsEnd.Editor
                 content.Add(profile);
                 content.Add(item);
             }
+
+            // Task 6.0: a stackable currency item -- nothing in BarrowsEnd sold/bought anything before the
+            // Task 6.0 vendor proof, so none existed. Registered here (not a separate script) since Author()
+            // overwrites the ruleset's whole extraContent list on every run -- anything registered elsewhere
+            // would be silently wiped the next time this runs.
+            var gold = LoadOrCreate<ItemDefinition>(GoldPath);
+            SetField(gold, "id", CurrencyItemId);
+            SetField(gold, "displayName", "Gold Piece");
+            SetField(gold, "maxStackSize", 999);
+            SetField(gold, "baseValue", 1f);
+            Save(gold);
+            content.Add(gold);
 
             var hitPoints = AssetDatabase.LoadAssetAtPath<CRPG.Actors.ResourceDefinition>(HitPointsPath)
                             ?? throw new InvalidOperationException($"{HitPointsPath} is missing.");

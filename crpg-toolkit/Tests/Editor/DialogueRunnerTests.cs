@@ -32,9 +32,10 @@ namespace CRPG.Tests.EditMode
             party = new PartyState(new[] { fighter.Id });
         }
 
-        private DialogueContext CreateContext(IDiceService diceService = null, StoreInventoryState store = null) =>
+        private DialogueContext CreateContext(
+            IDiceService diceService = null, StoreInventoryState store = null, RestService restService = null, System.Action requestSave = null) =>
             new(npc, party, characters, rulesDatabase, timeline, inventory, diceService ?? new DiceService(new SeededRandomSource(1)),
-                new DefaultSkillCheckRule(characters, rulesDatabase), store: store);
+                new DefaultSkillCheckRule(characters, rulesDatabase), store: store, restService: restService, requestSave: requestSave);
 
         [Test]
         public void RunnerStartsAtTheDefinitionsStartNode()
@@ -359,6 +360,86 @@ namespace CRPG.Tests.EditMode
             var end = DialogueTestFactory.CreateEnd("end");
             var actionNode = DialogueTestFactory.CreateAction(
                 "start", DialogueTestFactory.CreateSetStorePriceMultiplierAction(1f, 0.5f), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            Assert.DoesNotThrow(() => new DialogueRunner(dialogue, CreateContext()));
+        }
+
+        [Test]
+        public void RequestLongRestActionRestoresMatchingResourcesForThePartyThenAutoAdvances()
+        {
+            var hp = TestDefinitionFactory.CreateResourceDefinition("resource-hp", "Hit Points", RestTrigger.LongRest);
+            rulesDatabase.Register(hp);
+            characters.TryGetCharacter(System.Linq.Enumerable.First(party.Members), out var fighter);
+            fighter.AddResource(new ResourceState(hp.Id, max: 10, current: 3));
+
+            var restService = new RestService(characters, rulesDatabase);
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRequestLongRestAction(), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            var runner = new DialogueRunner(dialogue, CreateContext(restService: restService));
+
+            Assert.IsTrue(runner.IsComplete);
+            fighter.TryGetResource(hp.Id, out var hpState);
+            Assert.AreEqual(10, hpState.Current);
+        }
+
+        // Task 6.0 (2D-Campaign-Phase6-CampaignContent.md): RestService.Rest only restores resources whose
+        // RestTrigger matches -- it never touches Conditions. A Long Rest triggered from dialogue must not be
+        // mistaken for "stands a downed party member back up" -- this pins that down explicitly rather than
+        // leaving it as an assumption a future task could get wrong.
+        [Test]
+        public void RequestLongRestActionRestoresHpButLeavesAnExistingConditionInPlace()
+        {
+            var hp = TestDefinitionFactory.CreateResourceDefinition("resource-hp", "Hit Points", RestTrigger.LongRest);
+            rulesDatabase.Register(hp);
+            characters.TryGetCharacter(System.Linq.Enumerable.First(party.Members), out var fighter);
+            fighter.AddResource(new ResourceState(hp.Id, max: 10, current: 0));
+            var unconscious = new DefinitionId("condition-unconscious");
+            fighter.ApplyCondition(new ConditionInstance(unconscious, fighter.Id, fighter.Id));
+
+            var restService = new RestService(characters, rulesDatabase);
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRequestLongRestAction(), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            new DialogueRunner(dialogue, CreateContext(restService: restService));
+
+            fighter.TryGetResource(hp.Id, out var hpState);
+            Assert.AreEqual(10, hpState.Current); // HP restored...
+            Assert.IsTrue(fighter.HasCondition(unconscious)); // ...but still unconscious
+        }
+
+        [Test]
+        public void RequestLongRestActionIsANoOpWhenTheContextHasNoRestService()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRequestLongRestAction(), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            Assert.DoesNotThrow(() => new DialogueRunner(dialogue, CreateContext()));
+        }
+
+        [Test]
+        public void RequestSaveActionInvokesTheContextsRequestSaveDelegateThenAutoAdvances()
+        {
+            var callCount = 0;
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRequestSaveAction(), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            var runner = new DialogueRunner(dialogue, CreateContext(requestSave: () => callCount++));
+
+            Assert.IsTrue(runner.IsComplete);
+            Assert.AreEqual(1, callCount);
+        }
+
+        [Test]
+        public void RequestSaveActionIsANoOpWhenTheContextHasNoRequestSaveDelegate()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRequestSaveAction(), "end");
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
 
             Assert.DoesNotThrow(() => new DialogueRunner(dialogue, CreateContext()));

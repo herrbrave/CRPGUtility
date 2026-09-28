@@ -35,10 +35,20 @@ namespace BarrowsEnd.Tests
 
         // Task 4.3: this test boots straight into the town. Set BEFORE Core loads; cleared afterwards so a failure cannot leak into the Title-mode tests.
         [SetUp]
-        public void UseTheAuthoredParty() => ShellBootstrap.StartModeOverride = ShellStartMode.AuthoredParty;
+        public void UseTheAuthoredParty()
+        {
+            ShellBootstrap.StartModeOverride = ShellStartMode.AuthoredParty;
+            // Task 6.0: this test's click coordinates are written against Town_Slice/Cave_Slice's own small
+            // geometry, not the real Town/Caverns -- keep booting the demo slice on purpose.
+            ShellBootstrap.StartingSceneOverride = ("Assets/Scenes/Locations/Town_Slice.unity", "start");
+        }
 
         [TearDown]
-        public void ClearTheStartModeOverride() => ShellBootstrap.StartModeOverride = null;
+        public void ClearTheStartModeOverride()
+        {
+            ShellBootstrap.StartModeOverride = null;
+            ShellBootstrap.StartingSceneOverride = null;
+        }
 
         private static IEnumerator Seconds(float seconds)
         {

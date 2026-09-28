@@ -29,6 +29,13 @@ namespace CRPG.Inventory
 
         public void AddListing(DefinitionId itemId, int quantity = -1) => listings.Add(new StoreListing(itemId, quantity));
 
+        /// <summary>Task 6.0: removes every listing -- for SaveService.RestoreStores, which must REPLACE
+        /// whatever a fresh GetOrCreateStore(seedIfNew:...) just populated (a same-id store is always "new" to
+        /// a just-loaded session, so it always re-seeds from InitialListings first), not layer the saved
+        /// listings on top of them. AddListing has no per-item identity check, so without this, TryGetListing
+        /// would keep returning the FIRST (stale, reseeded) listing for an item that also has a restored one.</summary>
+        public void ClearListings() => listings.Clear();
+
         public bool TryGetListing(DefinitionId itemId, out StoreListing listing)
         {
             foreach (var candidate in listings)

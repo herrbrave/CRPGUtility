@@ -128,6 +128,13 @@ namespace CRPG.Tests.PlayMode
             Assert.IsTrue(result.Session.Characters.TryGetCharacter(npcId, out var restoredNpc));
             Assert.AreEqual(5, restoredNpc.Level, "Restored state must reflect the SAVED snapshot, not the live drift after it.");
 
+            // Task 6.0: the raw save data itself is exposed on a successful result -- Party/Characters/Inventory/
+            // Timeline/Quests/WorldSpawns are already applied to Session by this point, but Stores/LootContainers
+            // are NOT (they need ALREADY-CONSTRUCTED StoreInventoryState/LootContainerState instances that don't
+            // exist yet here -- the composition root applies this onto them itself, once it has re-prepped the
+            // active scene's own content).
+            Assert.IsNotNull(result.Data, "the composition root needs this to call SaveService.RestoreStores/RestoreLootContainers itself");
+
             var newNpcAgents = result.WorldSpawnService.OwnedAgents.Where(a => a.EntityId == npcId).ToList();
             Assert.AreEqual(1, newNpcAgents.Count, "Exactly one live agent for the NPC -- no duplicate spawn.");
             Assert.AreEqual(new Vector3(5, 0, 5), newNpcAgents[0].transform.position, "Restored view must be placed at the saved position.");

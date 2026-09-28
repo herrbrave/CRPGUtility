@@ -97,6 +97,13 @@ namespace BarrowsEnd.Shell
         /// Core (Boot reads it in Start) and clear it in teardown. A static, because the alternative is a second Core scene.</summary>
         public static ShellStartMode? StartModeOverride { get; set; }
 
+        /// <summary>Task 6.0: test hook mirroring <see cref="StartModeOverride"/> exactly -- when set, <c>Boot</c>
+        /// uses this instead of the serialized <c>startingScenePath</c>/<c>startingDestinationId</c>. Lets
+        /// ShellTests/ShellCaptureTests/ShellStartFlowTests keep booting the Phase 3 demo slice (whose exact
+        /// geometry their own click coordinates/door counts assert against) even though the real campaign's
+        /// authored default now points at the real Town. A static, same reason as StartModeOverride.</summary>
+        public static (string scenePath, string destinationId)? StartingSceneOverride { get; set; }
+
         /// <summary>Where the start flow is; Playing once the game is running (for Continue, only after its load finished).</summary>
         public ShellStartPhase Phase { get; private set; } = ShellStartPhase.Booting;
 
@@ -122,7 +129,10 @@ namespace BarrowsEnd.Shell
 
         private IEnumerator Boot()
         {
-            if (ruleset == null || partyPrefab == null || inputSource == null || cameraRig == null || string.IsNullOrEmpty(startingScenePath))
+            var effectiveScenePath = StartingSceneOverride?.scenePath ?? startingScenePath;
+            var effectiveDestinationId = StartingSceneOverride?.destinationId ?? startingDestinationId;
+
+            if (ruleset == null || partyPrefab == null || inputSource == null || cameraRig == null || string.IsNullOrEmpty(effectiveScenePath))
                 throw new InvalidOperationException("ShellBootstrap needs its ruleset, party prefab, input source, camera rig and starting scene (author Core.unity with 'Barrows End/Content/Author Core Scene').");
 
             // Both screens are authored enabled: hidden first on every path, or a full-screen document would capture the pointer over the world from scene load on.
@@ -148,8 +158,8 @@ namespace BarrowsEnd.Shell
 
             if (mode == ShellStartMode.Title) yield return RunStartFlow(session);
 
-            yield return SceneManager.LoadSceneAsync(startingScenePath, LoadSceneMode.Additive);
-            var startingScene = SceneManager.GetSceneByPath(startingScenePath);
+            yield return SceneManager.LoadSceneAsync(effectiveScenePath, LoadSceneMode.Additive);
+            var startingScene = SceneManager.GetSceneByPath(effectiveScenePath);
             SceneManager.SetActiveScene(startingScene);
             yield return null;
             ActivateGridOf(startingScene);
@@ -163,9 +173,10 @@ namespace BarrowsEnd.Shell
 
             PrepareLocation(startingScene, session, spawner);
             WireTravelAdapters();
+            WireTalkAdapters(session);
             SceneManager.sceneLoaded += OnSceneLoaded;
 
-            PlaceParty(session, startingScene, startingDestinationId);
+            PlaceParty(session, startingScene, effectiveDestinationId);
             InitializeCamera(session, startingScene);
 
             IsReady = true;
@@ -382,7 +393,11 @@ namespace BarrowsEnd.Shell
 
         // A travel interactable's runner and gate cannot be authored into a location scene (the runner lives in the Core scene), so every travel adapter of
         // every loaded scene is wired here: at boot and each time a scene finishes loading.
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => WireTravelAdapters();
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            WireTravelAdapters();
+            WireTalkAdapters(Services.Session);
+        }
 
         private void WireTravelAdapters()
         {
@@ -390,6 +405,32 @@ namespace BarrowsEnd.Shell
             {
                 adapter.Runner = runner;
                 adapter.Gate = transitionGate;
+            }
+        }
+
+        /// <summary>Task 6.0: TalkInteractionAdapter's session dependencies can't be authored at scene-authoring
+        /// time -- no live session exists yet, and a session load swaps in a brand-new one (Characters/
+        /// RulesDatabase/EventBus all change identity, and RestService captures those at construction, so a
+        /// stale one silently rests/saves against a disposed session). LocationInitializer only wires an
+        /// adapter's Store half (via RebindStoresAndLoot/Prepare); this covers the rest, for every
+        /// TalkInteractionAdapter currently loaded, idempotently -- mirrors WireTravelAdapters' own shape and
+        /// AdventureSliceBootstrap's own precedent (TestProject/Assets/AdventureSlice/Scripts/
+        /// AdventureSliceBootstrap.cs).</summary>
+        private void WireTalkAdapters(GameSession session)
+        {
+            var skillCheckRule = new DefaultSkillCheckRule(session.Characters, session.RulesDatabase);
+            var restService = new RestService(session.Characters, session.RulesDatabase, session.EventBus);
+            foreach (var adapter in FindObjectsByType<TalkInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                adapter.Party = session.Party;
+                adapter.Characters = session.Characters;
+                adapter.RulesDatabase = session.RulesDatabase;
+                adapter.Timeline = session.Timeline;
+                adapter.Inventory = session.Inventory;
+                adapter.DiceService = session.DiceService;
+                adapter.SkillCheckRule = skillCheckRule;
+                adapter.RestService = restService;
+                adapter.RequestSave = () => SaveNow();
             }
         }
 
@@ -440,6 +481,26 @@ namespace BarrowsEnd.Shell
             var scene = SceneManager.GetActiveScene();
             ActivateGridOf(scene); // the load activates the grid for a cross-scene load; this also covers a same-scene one
             WireTravelAdapters();
+            WireTalkAdapters(session);
+            // NOT PrepareLocation/LocationInitializer.Prepare here -- SessionLoadCoordinator already fully
+            // restores this scene's SpawnPoints itself (its own BindRestoredView calls); re-running Prepare's
+            // SpawnPoints loop on top of that would duplicate every already-restored NPC (BindRestoredView
+            // unconditionally instantiates a fresh view even for an already-known spawn id). Only the Store/
+            // LootContainer half needs rebinding here -- SessionLoadCoordinator does not touch those at all.
+            var content = FindLocationContent(scene);
+            if (content != null)
+            {
+                LocationInitializer.RebindStoresAndLoot(content, session);
+                // RebindStoresAndLoot only just (re)created these StoreInventoryState/LootContainerState
+                // instances via GetOrCreateStore/GetOrCreateLootContainer -- freshly seeded, not yet carrying
+                // whatever was actually saved (SessionLoadCoordinator's own SaveService.Restore call, earlier in
+                // the load, only covers Party/Characters/Inventory/Timeline/Quests). Apply the saved listings/
+                // multipliers/contents onto them now that they actually exist -- found live (a real depleted-
+                // stock-survives-a-load test) that skipping this silently reseeds every store back to its
+                // InitialListings on every load.
+                SaveService.RestoreStores(result.Data, session.Stores);
+                SaveService.RestoreLootContainers(result.Data, session.LootContainers);
+            }
             InitializeCamera(session, scene);
             Say("loaded");
         }

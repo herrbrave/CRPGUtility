@@ -38,6 +38,10 @@ namespace BarrowsEnd.Tests
         {
             savePath = Path.Combine(Path.GetTempPath(), $"barrowsend-shell-test-{Guid.NewGuid():N}.json");
             ShellBootstrap.StartModeOverride = ShellStartMode.AuthoredParty; // these tests boot straight into the town: set BEFORE Core loads, cleared in Cleanup
+            // Task 6.0: this whole file's click coordinates/door counts are written against Town_Slice/Cave_Slice's
+            // own specific (small, one-building) geometry, not the real Town/Caverns -- keep booting the demo
+            // slice on purpose via this override rather than rewriting every coordinate in this file.
+            ShellBootstrap.StartingSceneOverride = (TownPath, "start");
             yield return SceneManager.LoadSceneAsync(CorePath, LoadSceneMode.Single);
             shell = UnityEngine.Object.FindFirstObjectByType<ShellBootstrap>();
             Assert.IsNotNull(shell);
@@ -50,6 +54,7 @@ namespace BarrowsEnd.Tests
         public void Cleanup()
         {
             ShellBootstrap.StartModeOverride = null;
+            ShellBootstrap.StartingSceneOverride = null;
             if (File.Exists(savePath)) File.Delete(savePath);
             Time.timeScale = 1f;
         }

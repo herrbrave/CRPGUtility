@@ -111,6 +111,10 @@ namespace CRPG.Tests.EditMode
 
         public static OpenStoreAction CreateOpenStoreAction() => new();
 
+        public static RequestLongRestAction CreateRequestLongRestAction() => new();
+
+        public static RequestSaveAction CreateRequestSaveAction() => new();
+
         public static SetStorePriceMultiplierAction CreateSetStorePriceMultiplierAction(float buyPriceMultiplier, float sellPriceMultiplier)
         {
             var action = new SetStorePriceMultiplierAction();

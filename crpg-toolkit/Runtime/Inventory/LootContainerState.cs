@@ -12,5 +12,12 @@ namespace CRPG.Inventory
 
         public void AddItem(ItemInstance item) => items.Add(item);
         public bool RemoveItem(ItemInstance item) => items.Remove(item);
+
+        /// <summary>Task 6.0: removes every item -- for SaveService.RestoreLootContainers, which must REPLACE
+        /// whatever a fresh GetOrCreateLootContainer(seedIfNew:...) just populated (a same-id container is
+        /// always "new" to a just-loaded session, so it always re-seeds from InitialItems first), not layer the
+        /// saved items on top -- each restored ItemInstance carries its own distinct saved InstanceId, so
+        /// without this a load would leave both the stale reseeded items AND the real restored ones present.</summary>
+        public void ClearItems() => items.Clear();
     }
 }
