@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-flavor-jenkins
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-flavor-jenkins
+  displayName: 
+  startNodeId:
+    low: 4473712550732811978
+    high: 7167139110029504532
+  nodes:
+  - rid: 4304781063743864974
+  - rid: 4304781063743864975
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864974
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 4473712550732811978
+          high: 7167139110029504532
+        editorPosition: {x: 0, y: 0}
+        speakerName: Jenkins
+        text: Old Man Jenkins here. Sit a while -- I know every rumor worth knowing in Barrow's End, and most that aren't.
+        nextNodeId:
+          low: 2093729151973378056
+          high: 8321625862716579457
+    - rid: 4304781063743864975
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 2093729151973378056
+          high: 8321625862716579457
+        editorPosition: {x: 0, y: 0}

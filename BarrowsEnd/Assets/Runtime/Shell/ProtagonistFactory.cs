@@ -19,6 +19,12 @@ namespace BarrowsEnd.Shell
     {
         private static readonly DefinitionId Constitution = new("stat-constitution");
 
+        // Duplicated from BarrowsEndGearAuthor.StrikeAbilityId (Editor-only, not reachable from Runtime) -- same
+        // Editor/Runtime id-duplication convention this project already uses elsewhere (e.g. GiantRatBrain's own
+        // RatBiteAbilityId). Task 6.1: without this, a protagonist would have zero combat abilities and the
+        // palisade-breach tutorial's ability bar would show nothing to click.
+        private static readonly DefinitionId StrikeAbility = new("ability-strike");
+
         public static CharacterState Build(IRulesDatabase rules, CreatorResult result, RuntimeEntityId id)
         {
             if (rules == null) throw new ArgumentNullException(nameof(rules));
@@ -35,6 +41,7 @@ namespace BarrowsEnd.Shell
             var modifier = AbilityModifier.From(character.Stats.GetScore(Constitution));
             var maxHitPoints = Mathf.Max(1, die.Count * die.Sides + die.Modifier + modifier);
             character.AddResource(new ResourceState(GateSessionServices.HitPoints, maxHitPoints));
+            character.LearnAbility(StrikeAbility);
             return character;
         }
     }

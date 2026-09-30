@@ -27,7 +27,9 @@ namespace CRPG.Dialogue
             StoreInventoryState store = null,
             DefinitionId currencyItemId = default,
             RestService restService = null,
-            Action requestSave = null)
+            Action requestSave = null,
+            Action<string> requestRecruit = null,
+            Action<string> requestStartQuest = null)
         {
             NpcId = npcId;
             Party = party;
@@ -42,6 +44,8 @@ namespace CRPG.Dialogue
             CurrencyItemId = currencyItemId;
             RestService = restService;
             RequestSave = requestSave;
+            RequestRecruit = requestRecruit;
+            RequestStartQuest = requestStartQuest;
         }
 
         public RuntimeEntityId NpcId { get; }
@@ -80,6 +84,19 @@ namespace CRPG.Dialogue
         /// <c>ShellBootstrap.SaveNow</c>) doesn't have to implement that port just to let dialogue trigger a save.
         /// Null for a conversation that never reaches a <see cref="RequestSaveAction"/>.</summary>
         public Action RequestSave { get; }
+
+        /// <summary>Task 6.1: fire-and-forget hook for <see cref="RecruitToPartyAction"/> -- a plain delegate
+        /// keyed by the action's own authored companion key (never <see cref="NpcId"/>, which is the PARTY
+        /// MEMBER doing the talking, not the NPC being recruited -- see the action's own doc comment). Null for
+        /// a conversation that never reaches a <see cref="RecruitToPartyAction"/>.</summary>
+        public Action<string> RequestRecruit { get; }
+
+        /// <summary>Task 6.1: fire-and-forget hook for <see cref="StartQuestAction"/>, keyed by the action's own
+        /// authored quest key. A plain delegate rather than a <c>QuestService</c> reference on purpose: Dialogue
+        /// and Quests are only meant to meet through Timeline keys (see <c>QuestDialogueIntegrationTests</c>),
+        /// and <c>CRPG.Dialogue</c> deliberately does not reference <c>CRPG.Quests</c>. Null for a conversation
+        /// that never reaches a <see cref="StartQuestAction"/>.</summary>
+        public Action<string> RequestStartQuest { get; }
 
         private bool storeOpenRequested;
 

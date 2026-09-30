@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-elida
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-elida
+  displayName: 
+  startNodeId:
+    low: 7316972216384987320
+    high: -8854025358080938869
+  nodes:
+  - rid: 4304781063743864944
+  - rid: 4304781063743864945
+  - rid: 4304781063743864946
+  - rid: 4304781063743864947
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864944
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 7316972216384987320
+          high: -8854025358080938869
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864948
+        nextNodeId:
+          low: -2632483798096267232
+          high: -1005366716642557169
+    - rid: 4304781063743864945
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -2632483798096267232
+          high: -1005366716642557169
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864949
+        nextNodeId:
+          low: -4871137191664215755
+          high: -5951960006948521049
+    - rid: 4304781063743864946
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -4871137191664215755
+          high: -5951960006948521049
+        editorPosition: {x: 0, y: 0}
+        speakerName: Elida
+        text: There now -- rested and saved. The Restful Hearth is always open to you.
+        nextNodeId:
+          low: -3846575101487389762
+          high: 4520167084589446332
+    - rid: 4304781063743864947
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -3846575101487389762
+          high: 4520167084589446332
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864948
+      type: {class: RequestLongRestAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 
+    - rid: 4304781063743864949
+      type: {class: RequestSaveAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 

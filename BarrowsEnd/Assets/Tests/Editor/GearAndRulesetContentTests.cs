@@ -61,8 +61,10 @@ namespace BarrowsEnd.Tests
         {
             var provider = Load<BarrowsEndRulesetProvider>(BarrowsEndGearAuthor.RulesetPath);
             Assert.IsNotNull(provider.Srd5);
-            // 7 catalogs + head slot + (profile + item) per gear + the currency item (Task 6.0) + the debug abilities + the skeleton NPC
-            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + 1 + BarrowsEndGearAuthor.DebugAbilities.Length + 1;
+            // 7 catalogs + head slot + (profile + item) per gear + the currency item (Task 6.0) + the debug abilities
+            // + the skeleton NPC + the rat-bite ability + the strike ability + the Giant Rat NPC + the identify
+            // scroll item + the gathering-storm quest (all Task 6.1)
+            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + 1 + BarrowsEndGearAuthor.DebugAbilities.Length + 1 + 1 + 1 + 1 + 1 + 1;
             Assert.AreEqual(expected, provider.ExtraContent.Count);
             Assert.AreEqual(provider.ExtraContent.Count, provider.ExtraContent.Select(c => c.Id.Value).Distinct().Count(), "no duplicate ids");
             Assert.IsTrue(session.RulesDatabase.TryResolve<ResourceDefinition>(HitPoints, out _), "SRD5 content is still there");
@@ -114,6 +116,55 @@ namespace BarrowsEnd.Tests
 
             var bodies = Load<SpriteLayerCatalog>(BarrowsEndCatalogAuthor.CatalogPath(BarrowsEndCatalogAuthor.Specs.First(s => s.ShortName == "body")));
             Assert.IsTrue(bodies.Options.Any(o => o.optionId.Value == BarrowsEndGearAuthor.SkeletonBodyOptionId), "the option exists in the body catalog");
+        }
+
+        [Test]
+        public void TheGiantRatNpcResolvesWithHitPointsAFactionAndARealMeleeBiteAbility()
+        {
+            var rules = session.RulesDatabase;
+            Assert.IsTrue(rules.TryResolve<NpcDefinition>(new DefinitionId(BarrowsEndGearAuthor.GiantRatNpcId), out var npc));
+            Assert.AreEqual(BarrowsEndGearAuthor.GiantRatFaction, npc.Faction.Value);
+            Assert.IsNotNull(npc.VisualPrefab, "the sprite character prefab");
+            Assert.AreEqual(1, npc.Resources.Count);
+            Assert.AreEqual(HitPoints, npc.Resources[0].Resource.Id);
+            Assert.AreEqual(7, npc.Resources[0].MaxAmount);
+            Assert.AreEqual(1, npc.Appearance.Count);
+            Assert.AreEqual(BarrowsEndGearAuthor.GiantRatBodyOptionId, npc.Appearance[0].option.Value);
+
+            var bodies = Load<SpriteLayerCatalog>(BarrowsEndCatalogAuthor.CatalogPath(BarrowsEndCatalogAuthor.Specs.First(s => s.ShortName == "body")));
+            Assert.IsTrue(bodies.Options.Any(o => o.optionId.Value == BarrowsEndGearAuthor.GiantRatBodyOptionId), "the option exists in the body catalog");
+
+            // Task 6.1: a REAL combat-usable ability, not the debug abilities' Any-relation/1000-range/no-LOS
+            // shortcut -- true melee range, real hostile targeting, real line-of-sight/effect/visibility.
+            Assert.AreEqual(1, npc.AbilityIds.Count);
+            Assert.AreEqual(BarrowsEndGearAuthor.RatBiteAbilityId, npc.AbilityIds[0].Value);
+            Assert.IsTrue(rules.TryResolve<AbilityDefinition>(new DefinitionId(BarrowsEndGearAuthor.RatBiteAbilityId), out var bite));
+            Assert.AreEqual("Bite", bite.DisplayName);
+            Assert.IsTrue(bite.Tags.HasFlag(AbilityTag.Attack));
+            Assert.IsTrue(bite.Tags.HasFlag(AbilityTag.Hostile));
+            Assert.AreEqual(0, bite.Costs.Count, "no turn-resource economy exists yet for any combatant");
+            Assert.AreEqual(TargetRelation.Enemy, bite.Targeting.Relation);
+            Assert.AreEqual(1.5f, bite.Targeting.Range);
+            Assert.IsFalse(bite.Targeting.RequireLineOfSight, "melee-only range makes an obstruction check unnecessary risk for no benefit");
+            Assert.IsFalse(bite.Targeting.RequireLineOfEffect);
+            Assert.IsTrue(bite.Targeting.RequireVisibleTarget);
+            Assert.AreEqual(1, bite.Effects.Count);
+            Assert.IsInstanceOf<DamageEffect>(bite.Effects[0], "the bite deals damage");
+        }
+
+        [Test]
+        public void TheStrikeAbilityResolvesAsARealPartyFacingMeleeAttack()
+        {
+            var rules = session.RulesDatabase;
+            Assert.IsTrue(rules.TryResolve<AbilityDefinition>(new DefinitionId(BarrowsEndGearAuthor.StrikeAbilityId), out var strike));
+            Assert.AreEqual("Strike", strike.DisplayName);
+            Assert.IsTrue(strike.Tags.HasFlag(AbilityTag.Attack));
+            Assert.AreEqual(0, strike.Costs.Count);
+            Assert.AreEqual(TargetRelation.Enemy, strike.Targeting.Relation);
+            Assert.AreEqual(1.5f, strike.Targeting.Range);
+            Assert.IsTrue(strike.Targeting.RequireVisibleTarget);
+            Assert.AreEqual(1, strike.Effects.Count);
+            Assert.IsInstanceOf<DamageEffect>(strike.Effects[0]);
         }
 
         [Test]

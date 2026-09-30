@@ -25,7 +25,8 @@
     "CRPG.UI",
     "CRPG.Rules.SRD5",
     "Unity.InputSystem",
-    "Unity.InputSystem.TestFramework"
+    "Unity.InputSystem.TestFramework",
+    "CRPG.AI"
   ],
   "includePlatforms": [],
   "defineConstraints": [

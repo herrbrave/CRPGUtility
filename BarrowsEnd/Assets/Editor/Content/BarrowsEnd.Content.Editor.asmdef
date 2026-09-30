@@ -20,7 +20,10 @@
     "CRPG.Exploration",
     "CRPG.Party",
     "Unity.2D.Tilemap.Editor",
-    "CRPG.Dialogue"
+    "CRPG.Dialogue",
+    "BarrowsEnd.Gate",
+    "CRPG.Quests",
+    "BarrowsEnd.Shell"
   ],
   "includePlatforms": [
     "Editor"

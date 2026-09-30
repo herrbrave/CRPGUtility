@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using BarrowsEnd.Gate;
 using BarrowsEnd.Shell;
 using CRPG.UI;
 using NUnit.Framework;
@@ -27,6 +28,9 @@ namespace BarrowsEnd.Tests
         public IEnumerator Boot()
         {
             ShellBootstrap.StartModeOverride = ShellStartMode.AuthoredParty;
+            // Task 6.1: cycling to "a different member" needs at least 2 party members -- the real Core scene now
+            // authors only the protagonist, so keep booting the demo roster on purpose.
+            ShellBootstrap.MembersOverride = GateLayout.DefaultMembers();
             yield return SceneManager.LoadSceneAsync(CorePath, LoadSceneMode.Single);
             shell = UnityEngine.Object.FindFirstObjectByType<ShellBootstrap>();
             Assert.IsNotNull(shell);
@@ -46,6 +50,7 @@ namespace BarrowsEnd.Tests
             // force-closes on its own (the scene reload should trigger it), but a test must not depend on that.
             if (doll != null && doll.IsOpen) doll.ToggleOpen();
             ShellBootstrap.StartModeOverride = null;
+            ShellBootstrap.MembersOverride = null;
         }
 
         private static IEnumerator WaitUntil(Func<bool> condition, float seconds, string what)

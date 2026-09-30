@@ -18,6 +18,7 @@ using CRPG.Inventory;
 using CRPG.Navigation.Grid;
 using CRPG.Party;
 using CRPG.Presentation.Creator;
+using CRPG.Quests;
 using CRPG.Rules.SRD5;
 using CRPG.UI;
 using CRPG.Saving;
@@ -46,8 +47,11 @@ namespace BarrowsEnd.Shell
         [SerializeField] private int seed = 4242;
 
         /// <summary>Task 5.1: the authored party spec, read-only -- the HUD needs each member's display name
-        /// (never persisted in a save, see SaveService) to build its PartyPresenter's memberNames dictionary.</summary>
-        public IReadOnlyList<GateMemberSpec> Members => members;
+        /// (never persisted in a save, see SaveService) to build its PartyPresenter's memberNames dictionary.
+        /// Task 6.1: reflects <see cref="MembersOverride"/> once <c>Boot</c> has run (falls back to the serialized
+        /// field before then), so a test that overrides members sees the SAME array through both this property
+        /// and what actually got spawned.</summary>
+        public IReadOnlyList<GateMemberSpec> Members => effectiveMembers ?? members;
 
         [Header("Start")]
         [SerializeField] private string startingScenePath;
@@ -71,6 +75,7 @@ namespace BarrowsEnd.Shell
         };
 
         private readonly Dictionary<RuntimeEntityId, GameObject> partyVisualPrefabs = new();
+        private GateMemberSpec[] effectiveMembers;
         private GameSessionHost host;
         private GridPathfindingService pathfinding;
         private WorldTransitionGate transitionGate;
@@ -81,6 +86,7 @@ namespace BarrowsEnd.Shell
         private bool continueRequested;
 
         public GateSessionServices Services { get; private set; }
+        public TacticalCombatSession CombatSession { get; private set; }
         public GameSession Session => Services?.Session;
         public GridPathfindingService Pathfinding => pathfinding;
         public WorldTransitionGate Gate => transitionGate;
@@ -103,6 +109,16 @@ namespace BarrowsEnd.Shell
         /// geometry their own click coordinates/door counts assert against) even though the real campaign's
         /// authored default now points at the real Town. A static, same reason as StartModeOverride.</summary>
         public static (string scenePath, string destinationId)? StartingSceneOverride { get; set; }
+
+        /// <summary>Task 6.1: test hook mirroring <see cref="StartingSceneOverride"/> exactly -- when set,
+        /// <c>Boot</c> uses this instead of the serialized <c>members</c> array. The real campaign now boots with
+        /// only the protagonist (Garrick/Elara/Silas join through <see cref="RecruitCompanion"/>, not at boot),
+        /// but several existing tests assert against the OLD 4-member demo-slice geometry (drag-select/
+        /// multi-select coverage, HP-roll-differs assertions, doll member-cycling) -- confirmed by reading those
+        /// test files during the Opus review, not assumed. Those tests set this to <c>GateLayout.DefaultMembers()</c>
+        /// before booting Core and clear it in teardown, exactly as they already do for <see cref="StartModeOverride"/>.
+        /// A static, same reason as the other two overrides.</summary>
+        public static GateMemberSpec[] MembersOverride { get; set; }
 
         /// <summary>Where the start flow is; Playing once the game is running (for Continue, only after its load finished).</summary>
         public ShellStartPhase Phase { get; private set; } = ShellStartPhase.Booting;
@@ -127,10 +143,17 @@ namespace BarrowsEnd.Shell
 
         private void Start() => StartCoroutine(Boot());
 
+        // Task 6.1: ticks the tactical combat stack (ActionScheduler + AI turn driver + manual win-condition
+        // polling -- neither CombatEncounterService nor TacticalEncounterController auto-detects "one side
+        // wiped," confirmed by reading both classes). CombatSession.Tick itself no-ops when no encounter is
+        // active, so this costs nothing outside of combat.
+        private void Update() => CombatSession?.Tick(Time.deltaTime);
+
         private IEnumerator Boot()
         {
             var effectiveScenePath = StartingSceneOverride?.scenePath ?? startingScenePath;
             var effectiveDestinationId = StartingSceneOverride?.destinationId ?? startingDestinationId;
+            effectiveMembers = MembersOverride ?? members;
 
             if (ruleset == null || partyPrefab == null || inputSource == null || cameraRig == null || string.IsNullOrEmpty(effectiveScenePath))
                 throw new InvalidOperationException("ShellBootstrap needs its ruleset, party prefab, input source, camera rig and starting scene (author Core.unity with 'Barrows End/Content/Author Core Scene').");
@@ -164,16 +187,30 @@ namespace BarrowsEnd.Shell
             yield return null;
             ActivateGridOf(startingScene);
 
-            SpawnParty(session, spawner, coreScene);
+            SpawnParty(session, spawner, coreScene, effectiveMembers);
 
             var interactionHost = GetComponentInChildren<InteractionControllerBehaviour>() ?? NewInteractionHost();
             commandSource = new GateCommandSource(inputSource, () => Services?.Session?.Party);
             Services = new GateSessionServices(commandSource, interactionHost, pathfinding);
             Services.Rebind(session, spawner);
 
+            // Task 6.1: constructed once (never rebuilt on a load, unlike Services -- the HudRoot/AbilityBarView
+            // it wires are real scene objects that outlive any session swap); RebindSession keeps its own
+            // session-scoped references fresh the same way WireTalkAdapters does for TalkInteractionAdapter.
+            if (CombatSession == null)
+            {
+                var hudRoot = FindFirstObjectByType<HudRoot>();
+                var abilityBarGo = new GameObject("AbilityBar");
+                abilityBarGo.transform.SetParent(transform);
+                var abilityBarView = abilityBarGo.AddComponent<AbilityBarView>();
+                CombatSession = new TacticalCombatSession(commandSource, inputSource, hudRoot, abilityBarView, BarrowsEndLayers.RouterMask);
+            }
+            CombatSession.RebindSession(session, spawner);
+
             PrepareLocation(startingScene, session, spawner);
             WireTravelAdapters();
             WireTalkAdapters(session);
+            WireCombatTriggers(session);
             SceneManager.sceneLoaded += OnSceneLoaded;
 
             PlaceParty(session, startingScene, effectiveDestinationId);
@@ -288,13 +325,29 @@ namespace BarrowsEnd.Shell
             foreach (var (statId, score) in block.AllScores) character.Stats.SetScore(statId, score);
         }
 
-        private void SpawnParty(GameSession session, WorldSpawnService spawner, Scene coreScene)
+        /// <summary>Task 6.1: the currency item every store's <c>CurrencyItemId</c> is wired to
+        /// (<see cref="WireTalkAdapters"/>) -- authored by <c>BarrowsEndGearAuthor</c> since Task 6.0.</summary>
+        private static readonly DefinitionId CurrencyItemId = new("item-gold");
+
+        /// <summary>Task 6.1: how much starting gold the party begins with -- otherwise every shop is
+        /// technically wired but practically unusable (a real gap the Opus review found: <see cref="WireTalkAdapters"/>
+        /// never set <c>CurrencyItemId</c> before this task, and nothing granted any either).</summary>
+        private const int StartingGold = 50;
+
+        // Duplicated from BarrowsEndGearAuthor.StrikeAbilityId (Editor-only) -- Task 6.1: every party member,
+        // protagonist or companion, needs this granted or the tactical combat ability bar shows nothing to
+        // click. ProtagonistFactory.Build grants its own copy directly (the protagonist's CharacterState is
+        // fully built there before SpawnParty ever sees it); every OTHER member (boot-time companion or a
+        // recruit) is granted it here / in RecruitCompanion.
+        private static readonly DefinitionId StrikeAbility = new("ability-strike");
+
+        private void SpawnParty(GameSession session, WorldSpawnService spawner, Scene coreScene, GateMemberSpec[] roster)
         {
             var equipment = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
 
-            for (var i = 0; i < members.Length; i++)
+            for (var i = 0; i < roster.Length; i++)
             {
-                var spec = members[i];
+                var spec = roster[i];
                 var id = MemberIdFor(i);
 
                 CharacterState character;
@@ -317,6 +370,7 @@ namespace BarrowsEnd.Shell
 
                     RollAbilityScores(session.RulesDatabase, character, seed + i + 1000);
                     gear = spec.gear.Select(g => new DefinitionId(g));
+                    character.LearnAbility(StrikeAbility); // the protagonist branch already granted its own copy inside ProtagonistFactory.Build
                 }
 
                 session.Characters.Register(character);
@@ -329,6 +383,19 @@ namespace BarrowsEnd.Shell
             }
 
             if (session.Party.Members.Count > 0) session.Party.Select(session.Party.Members[0]);
+
+            // Task 6.1 (fact 6): every companion's fixed id gets a partyVisualPrefabs entry unconditionally, whether
+            // or not they're recruited yet -- they all use the same partyPrefab, so this costs nothing, and it's
+            // what lets SessionLoadCoordinator restore an ALREADY-recruited companion after a process restart
+            // (a fresh process's dictionary would otherwise only know about boot-time members and throw
+            // ViewBindingFailed -- confirmed as a real crash, not a hypothetical, by the Opus review).
+            foreach (var key in CompanionRoster.Keys) partyVisualPrefabs[CompanionRoster.IdFor(key)] = partyPrefab;
+
+            // Task 6.1 (T6.1-D7 / B10): shops are otherwise wired but unusable -- nothing ever granted the party
+            // any currency. Granted once here, not per-load (SaveService.Capture/Restore already round-trips
+            // PartyInventoryState, so a loaded save keeps whatever gold was actually spent/earned).
+            if (session.RulesDatabase.TryResolve<ItemDefinition>(CurrencyItemId, out var gold))
+                session.Inventory.AddItem(new ItemInstance(RuntimeEntityId.NewId(), gold.Id, StartingGold));
         }
 
         // Worn BEFORE the view binds (the load shape, as the gate does): the sprite equipment binder reconciles from the inventory when the view initializes.
@@ -397,6 +464,7 @@ namespace BarrowsEnd.Shell
         {
             WireTravelAdapters();
             WireTalkAdapters(Services.Session);
+            WireCombatTriggers(Services.Session);
         }
 
         private void WireTravelAdapters()
@@ -431,7 +499,146 @@ namespace BarrowsEnd.Shell
                 adapter.SkillCheckRule = skillCheckRule;
                 adapter.RestService = restService;
                 adapter.RequestSave = () => SaveNow();
+                adapter.RequestRecruit = RecruitCompanion;
+                adapter.RequestStartQuest = RequestStartQuest;
+                adapter.CurrencyItemId = CurrencyItemId;
             }
+
+            // Task 6.1 (T6.1-D2): a companion's own talk-point fixture is never destroyed mid-conversation (its
+            // ConversationController/UIDocument might still be live) -- hidden here instead, the next time this
+            // scene's session-scoped state is (re)wired, which covers boot, every scene load, and a session load.
+            HideRecruitedCompanionFixtures(session);
+        }
+
+        /// <summary>Task 6.1: wires every PalisadeBreachTrigger currently loaded with the current session/
+        /// spawner/CombatSession, and re-checks each one's own persisted "already fired" Timeline flag -- same
+        /// shape and call sites as WireTalkAdapters (boot, every scene load, after a session load).</summary>
+        private void WireCombatTriggers(GameSession session)
+        {
+            foreach (var trigger in FindObjectsByType<PalisadeBreachTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                trigger.Session = session;
+                trigger.Spawner = Services.Spawner;
+                trigger.CombatSession = CombatSession;
+                trigger.RequestQuestRefresh = RefreshQuestProgress;
+                trigger.RefreshFiredState();
+            }
+        }
+
+        /// <summary>Task 6.1 (T6.1-D4): DialogueContext.RequestStartQuest's real target -- resolves the quest by
+        /// id and starts it through a freshly-constructed QuestService, same "constructed fresh every call, never
+        /// cached" reasoning as WireTalkAdapters' own RestService (captures session-scoped references).</summary>
+        private void RequestStartQuest(string questKey)
+        {
+            var session = Services?.Session;
+            if (session == null) return;
+            if (!session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId(questKey), out var quest))
+            {
+                Debug.LogWarning($"[Shell] Unknown quest '{questKey}'.");
+                return;
+            }
+
+            new QuestService(session.Quests, session.Timeline, session.EventBus, session.Inventory).StartQuest(quest);
+        }
+
+        /// <summary>Task 6.1: called by whoever just recorded a Timeline event one of this quest's objectives
+        /// tracks (currently only PalisadeBreachTrigger) -- QuestService.RefreshProgress is never triggered
+        /// automatically by recording a Timeline event.</summary>
+        private void RefreshQuestProgress(string questKey)
+        {
+            var session = Services?.Session;
+            if (session == null) return;
+            if (!session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId(questKey), out var quest)) return;
+
+            new QuestService(session.Quests, session.Timeline, session.EventBus, session.Inventory).RefreshProgress(quest);
+        }
+
+        /// <summary>Task 6.1 (T6.1-D2): recruits one companion for real -- builds their CharacterState fresh (they
+        /// were never a spawned CharacterAgent to "promote"; a world NPC can't even be clicked, see
+        /// DialogueContext.RequestRecruit's own doc comment), mirroring exactly what SpawnParty already does for
+        /// a boot-time member. Idempotent: a second call for an already-recruited companion (e.g. a stray repeat
+        /// invocation) is a no-op rather than a duplicate-registration throw.</summary>
+        public void RecruitCompanion(string companionKey)
+        {
+            if (Services?.Session == null) return;
+            var session = Services.Session;
+            var id = CompanionRoster.IdFor(companionKey);
+            if (session.Party.Members.Contains(id)) return;
+
+            var spec = CompanionRoster.SpecFor(companionKey);
+            var character = new CharacterState(id);
+            character.AddResource(new ResourceState(GateSessionServices.HitPoints, spec.maxHp));
+            foreach (var entry in spec.appearance)
+            {
+                var parts = entry.Split('=');
+                if (parts.Length == 2) character.SetAppearance(new DefinitionId(parts[0].Trim()), new DefinitionId(parts[1].Trim()));
+            }
+
+            RollAbilityScores(session.RulesDatabase, character, seed + CompanionSeedOffset(companionKey));
+            character.LearnAbility(StrikeAbility);
+            session.Characters.Register(character);
+            session.Party.AddMember(id);
+            partyVisualPrefabs[id] = partyPrefab; // already set at boot (SpawnParty); harmless to set again
+
+            var equipment = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
+            Dress(session, equipment, character, spec.gear.Select(g => new DefinitionId(g)));
+
+            // Falls back to the active party member's own (necessarily walkable) position if no fixture is found
+            // in the scene -- ShellBootstrap's own transform is an authoring-time position with no guarantee of
+            // sitting inside the walkable grid at all, which silently stranded a recruit outside pathfinding
+            // range (found live by this task's own recruit-proof test: the click-to-move assertion failed with
+            // zero movement, not an exception, because SetDestination correctly rejected an unreachable point).
+            var recruitPosition = FindCompanionFixturePosition(companionKey)
+                ?? GateSessionServices.FindAgent(session.Party.ActiveCharacter)?.transform.position
+                ?? transform.position;
+            var instance = Services.Spawner.BindRestoredView(spec.spawnId, id, default, partyPrefab, recruitPosition, Quaternion.identity, default, startInactive: false);
+            SceneManager.MoveGameObjectToScene(instance, gameObject.scene);
+
+            var agent = instance.GetComponent<CharacterAgent>();
+            if (agent != null && agent.Motor != null) Services.RegisterMemberMotor(id, agent.Motor);
+        }
+
+        // A fixed per-companion offset (distinct from the boot-order-indexed "seed + i + 1000" SpawnParty uses,
+        // since recruiting isn't boot-ordered) -- deterministic, so the same companion always rolls the same
+        // ability scores for a given session seed.
+        private static int CompanionSeedOffset(string companionKey) => companionKey switch
+        {
+            "garrick" => 2000, "elara" => 2001, "silas" => 2002,
+            _ => 2999,
+        };
+
+        private static Vector3? FindCompanionFixturePosition(string companionKey)
+        {
+            var name = CompanionRoster.FixtureName(companionKey);
+            foreach (var adapter in FindObjectsByType<TalkInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (adapter.gameObject.name == name) return adapter.transform.position;
+            return null;
+        }
+
+        private static void HideRecruitedCompanionFixtures(GameSession session)
+        {
+            foreach (var key in CompanionRoster.Keys)
+            {
+                if (!session.Party.Members.Contains(CompanionRoster.IdFor(key))) continue;
+                var name = CompanionRoster.FixtureName(key);
+                foreach (var adapter in FindObjectsByType<TalkInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                    if (adapter.gameObject.name == name) adapter.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>Task 6.1 (T6.1-D9): display name for the HUD -- covers both boot members and the 3 fixed
+        /// companion ids, so a recruited companion shows their real name instead of HudBootstrap's raw-GUID
+        /// fallback (HudBootstrap previously only knew about boot-time members).</summary>
+        public string DisplayNameFor(RuntimeEntityId id)
+        {
+            var roster = effectiveMembers ?? members;
+            for (var i = 0; i < roster.Length; i++)
+                if (MemberIdFor(i) == id) return roster[i].displayName;
+
+            foreach (var key in CompanionRoster.Keys)
+                if (CompanionRoster.IdFor(key) == id) return CompanionRoster.SpecFor(key).displayName;
+
+            return null;
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -478,10 +685,13 @@ namespace BarrowsEnd.Shell
             runner.Coordinator = NewTravelCoordinator(session, spawner);
             Services.Rebind(session, spawner);
 
+            CombatSession.RebindSession(session, spawner);
+
             var scene = SceneManager.GetActiveScene();
             ActivateGridOf(scene); // the load activates the grid for a cross-scene load; this also covers a same-scene one
             WireTravelAdapters();
             WireTalkAdapters(session);
+            WireCombatTriggers(session);
             // NOT PrepareLocation/LocationInitializer.Prepare here -- SessionLoadCoordinator already fully
             // restores this scene's SpawnPoints itself (its own BindRestoredView calls); re-running Prepare's
             // SpawnPoints loop on top of that would duplicate every already-restored NPC (BindRestoredView

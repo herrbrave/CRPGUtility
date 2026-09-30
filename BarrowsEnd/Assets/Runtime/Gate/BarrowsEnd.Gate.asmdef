@@ -18,7 +18,8 @@
     "CRPG.Presentation",
     "CRPG.UI",
     "CRPG.InputSystem",
-    "CRPG.Quests"
+    "CRPG.Quests",
+    "CRPG.AI"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

@@ -9,6 +9,18 @@ EditorBuildSettings:
     path: Assets/Scenes/Core.unity
     guid: d84b6451b0f9dab43aec2d3f6e4e6c0b
   - enabled: 1
+    path: Assets/Scenes/Locations/Town.unity
+    guid: fedabd1006bea3442a3ae8f19a873aeb
+  - enabled: 1
+    path: Assets/Scenes/Locations/Cavern_Upper.unity
+    guid: c91c67d90079ab74cae349f042e715c7
+  - enabled: 1
+    path: Assets/Scenes/Locations/Cavern_Middle.unity
+    guid: 990c1aefa9d9f9042ab7f63a1ec5113f
+  - enabled: 1
+    path: Assets/Scenes/Locations/Cavern_Deep.unity
+    guid: 40054152218970c42b849e84af71185d
+  - enabled: 1
     path: Assets/Scenes/Locations/Town_Slice.unity
     guid: 86611d74de59f8b4f83c0582eb147abd
   - enabled: 1

@@ -9,6 +9,7 @@ using CRPG.Core;
 using CRPG.Inventory;
 using CRPG.Presentation.Equipment;
 using CRPG.Presentation.Sprites;
+using CRPG.Quests;
 using CRPG.Rules.SRD5;
 using UnityEditor;
 using UnityEngine;
@@ -28,6 +29,37 @@ namespace BarrowsEnd.Editor
         public const string SkeletonNpcId = "npc-skeleton";
         public const string SkeletonBodyOptionId = "body-be-0-0";
         public const string SkeletonFaction = "faction-undead";
+
+        // Task 6.1: the palisade-breach combat tutorial's hostile. No rat/beast sprite exists anywhere in this
+        // project's art (confirmed by search -- BarrowsEndCatalogAuthor.cs:63's own comment says both "be" body
+        // options are "the two custom skeleton bodies"), so this reuses the second, otherwise-unused skeleton
+        // body (body-be-1-0) as a placeholder -- visually distinct from the skeleton's own body-be-0-0 at least,
+        // flagged here for a real rat sprite once one exists (matches this project's standing "demo art is
+        // placeholder" convention elsewhere).
+        public const string GiantRatNpcId = "npc-giant-rat";
+        public const string GiantRatBodyOptionId = "body-be-1-0";
+        public const string GiantRatFaction = "faction-hostile";
+        public const string RatBiteAbilityId = "ability-rat-bite";
+
+        // Task 6.1: no party member (protagonist or companion) had ANY combat ability before this task -- found
+        // live while wiring the palisade-breach tutorial: with nothing granted, the real AbilityBarView would
+        // show zero buttons and the fight could never be won through the actual UI. A real (not "debug") melee
+        // ability every party member is granted at creation/recruit time -- flat 1d6, matching the rat bite's
+        // own "auto-hit, no attack roll" simplification (real weapon-damage-die/attack-bonus resolution needs
+        // equipped-weapon-aware combat math this task doesn't build).
+        public const string StrikeAbilityId = "ability-strike";
+
+        // Task 6.1 (T6.1-D4): Act 1's own quest -- NOT a multi-act quest, so it can't complete prematurely once
+        // Act 1's own objective finishes (fact 10's should-fix). One Kill objective, trackingKey matching what
+        // PalisadeBreachTrigger records on the party's actual victory (not a per-rat count -- the trigger records
+        // the flag exactly once, so targetCount 1 against HistoricalCount is correct).
+        public const string GatheringStormQuestId = "quest-gathering-storm";
+        public const string DefeatPalisadeRatsObjectiveId = "defeat-palisade-rats";
+
+        // Task 6.1 (T6.1-D7): Lyra's Arcanist Study needs ONE new item -- no SRD5-package scroll exists (fact
+        // 13, confirmed by search), unlike Fendrick's/Silvan's catalogs, which stock entirely from the already-
+        // resolving SRD5e2014 package with zero new authoring.
+        public const string IdentifyScrollItemId = "item-scroll-identify";
         public const string GearDir = "Assets/Content/Gear";
         public const string CurrencyItemId = "item-gold";
         public const string AbilityDir = "Assets/Content/Abilities";
@@ -229,6 +261,93 @@ namespace BarrowsEnd.Editor
             SetField(skeleton, "appearance", new List<AppearanceEntry> { new(new DefinitionId("layer-body"), new DefinitionId(SkeletonBodyOptionId)) });
             Save(skeleton);
             content.Add(skeleton);
+
+            // Task 6.1 (T6.1-D6): a real, usable melee ability -- unlike the debug abilities above (Any-relation,
+            // 1000 range, purely dev tooling), this targets Enemy at true melee range with a real visibility
+            // requirement. Line-of-sight/line-of-effect are deliberately left off (not "off by omission" --
+            // a melee bite only ever resolves at 1.5-unit adjacency, where an obstruction check adds real risk
+            // of getting BarrowsEnd's own PhysicsLineOfSightProvider obstruction mask wrong -- e.g. picking up
+            // the attacker's/target's own collider as a false obstruction -- for no gameplay benefit at melee
+            // range) for zero benefit this task actually needs.
+            var ratBite = LoadOrCreate<AbilityDefinition>($"{AbilityDir}/{RatBiteAbilityId}.asset");
+            SetField(ratBite, "id", RatBiteAbilityId);
+            SetField(ratBite, "displayName", "Bite");
+            SetField(ratBite, "tags", AbilityTag.Attack | AbilityTag.Hostile);
+            SetField(ratBite, "costs", new List<AbilityCost>()); // Task 6.1: no per-turn resource pool exists yet for any combatant (party or hostile) -- matches the debug abilities' own "no turn loop refills a cost pool" reasoning; item 6's tactical-stack wiring is what would add real action-economy tracking, for every combatant at once, not just this one NPC's own definition.
+            var ratTargeting = new TargetingDefinition();
+            SetField(ratTargeting, "relation", TargetRelation.Enemy);
+            SetField(ratTargeting, "range", 1.5f); // one grid cell's reach
+            SetField(ratTargeting, "requireLineOfSight", false);
+            SetField(ratTargeting, "requireLineOfEffect", false);
+            SetField(ratTargeting, "requireVisibleTarget", true);
+            SetField(ratBite, "targeting", ratTargeting);
+            var ratDamage = new DamageEffect();
+            SetField(ratDamage, "hitPointResource", hitPoints);
+            SetField(ratDamage, "amount", new DiceExpression(1, 4, 0)); // SRD5's own Giant Rat bite, roughly (1d4-1); kept non-negative for simplicity
+            SetField(ratBite, "effects", new List<AbilityEffect> { ratDamage });
+            Save(ratBite);
+            content.Add(ratBite);
+
+            var strike = LoadOrCreate<AbilityDefinition>($"{AbilityDir}/{StrikeAbilityId}.asset");
+            SetField(strike, "id", StrikeAbilityId);
+            SetField(strike, "displayName", "Strike");
+            SetField(strike, "tags", AbilityTag.Attack);
+            SetField(strike, "costs", new List<AbilityCost>());
+            var strikeTargeting = new TargetingDefinition();
+            SetField(strikeTargeting, "relation", TargetRelation.Enemy);
+            SetField(strikeTargeting, "range", 1.5f);
+            SetField(strikeTargeting, "requireLineOfSight", false);
+            SetField(strikeTargeting, "requireLineOfEffect", false);
+            SetField(strikeTargeting, "requireVisibleTarget", true);
+            SetField(strike, "targeting", strikeTargeting);
+            var strikeDamage = new DamageEffect();
+            SetField(strikeDamage, "hitPointResource", hitPoints);
+            SetField(strikeDamage, "amount", new DiceExpression(1, 6, 0));
+            SetField(strike, "effects", new List<AbilityEffect> { strikeDamage });
+            Save(strike);
+            content.Add(strike);
+
+            var giantRat = LoadOrCreate<NpcDefinition>($"{NpcDir}/{GiantRatNpcId}.asset");
+            var ratGrant = (object)new ResourceGrant();
+            SetField(ratGrant, "resource", hitPoints);
+            SetField(ratGrant, "maxAmount", 7); // SRD5's own Giant Rat: 7 HP
+            SetField(giantRat, "id", GiantRatNpcId);
+            SetField(giantRat, "displayName", "Giant Rat");
+            SetField(giantRat, "faction", new DefinitionId(GiantRatFaction));
+            SetField(giantRat, "level", 1);
+            SetField(giantRat, "resources", new List<ResourceGrant> { (ResourceGrant)ratGrant });
+            SetField(giantRat, "abilityIds", new List<DefinitionId> { new(RatBiteAbilityId) });
+            SetField(giantRat, "visualPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCharacterAuthor.SpriteCharacterPath)
+                                                ?? throw new InvalidOperationException($"{BarrowsEndCharacterAuthor.SpriteCharacterPath} is missing -- run the character author first."));
+            SetField(giantRat, "appearance", new List<AppearanceEntry> { new(new DefinitionId("layer-body"), new DefinitionId(GiantRatBodyOptionId)) });
+            Save(giantRat);
+            content.Add(giantRat);
+
+            // Task 6.1 (T6.1-D4/fact 10): Act 1's own quest, registered here (not a separate script) for the same
+            // reason the currency item is -- this method overwrites the ruleset's whole extraContent list on
+            // every run, so anything registered elsewhere would be silently wiped the next time it runs. Must be
+            // registered or a save containing this quest fails ContentValidator on a later load (fact 10's B8).
+            var identifyScroll = LoadOrCreate<ItemDefinition>($"{GearDir}/{IdentifyScrollItemId}.asset");
+            SetField(identifyScroll, "id", IdentifyScrollItemId);
+            SetField(identifyScroll, "displayName", "Scroll of Identify");
+            SetField(identifyScroll, "maxStackSize", 20);
+            SetField(identifyScroll, "baseValue", 25f);
+            Save(identifyScroll);
+            content.Add(identifyScroll);
+
+            var quest = LoadOrCreate<QuestDefinition>($"{NpcDir}/{GatheringStormQuestId}.asset");
+            var objective = new QuestObjectiveDefinition();
+            SetField(objective, "id", DefeatPalisadeRatsObjectiveId);
+            SetField(objective, "displayName", "Clear the giant rats breaching the palisade");
+            SetField(objective, "type", QuestObjectiveType.Kill);
+            SetField(objective, "trackingKey", BarrowsEnd.Gate.PalisadeBreachTrigger.RatsDefeatedTimelineKey);
+            SetField(objective, "targetCount", 1);
+            SetField(quest, "id", GatheringStormQuestId);
+            SetField(quest, "displayName", "The Gathering Storm");
+            SetField(quest, "description", "Mayor Thaddeus has sent you to clear the giant rats breaching Barrow's End's palisade before the caverns beneath the town can be explored.");
+            SetField(quest, "objectives", new List<QuestObjectiveDefinition> { objective });
+            Save(quest);
+            content.Add(quest);
 
             var srd5 = AssetDatabase.LoadAssetAtPath<SRD5RulesetProvider>(Srd5ProviderPath)
                        ?? throw new InvalidOperationException($"{Srd5ProviderPath} is missing.");

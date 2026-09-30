@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BarrowsEnd.Gate;
 using BarrowsEnd.Shell;
 using CRPG.Core;
 using CRPG.Gameplay;
@@ -42,6 +43,10 @@ namespace BarrowsEnd.Tests
             // own specific (small, one-building) geometry, not the real Town/Caverns -- keep booting the demo
             // slice on purpose via this override rather than rewriting every coordinate in this file.
             ShellBootstrap.StartingSceneOverride = (TownPath, "start");
+            // Task 6.1: the real Core scene now authors only the protagonist (Garrick/Elara/Silas join through
+            // recruiting, not at boot) -- this file's own assertions (drag-select/multi-select coverage, HP-roll-
+            // differs checks) are written against the OLD 4-member boot, so keep booting that exact roster.
+            ShellBootstrap.MembersOverride = GateLayout.DefaultMembers();
             yield return SceneManager.LoadSceneAsync(CorePath, LoadSceneMode.Single);
             shell = UnityEngine.Object.FindFirstObjectByType<ShellBootstrap>();
             Assert.IsNotNull(shell);
@@ -55,6 +60,7 @@ namespace BarrowsEnd.Tests
         {
             ShellBootstrap.StartModeOverride = null;
             ShellBootstrap.StartingSceneOverride = null;
+            ShellBootstrap.MembersOverride = null;
             if (File.Exists(savePath)) File.Delete(savePath);
             Time.timeScale = 1f;
         }

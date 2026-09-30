@@ -115,6 +115,20 @@ namespace CRPG.Tests.EditMode
 
         public static RequestSaveAction CreateRequestSaveAction() => new();
 
+        public static RecruitToPartyAction CreateRecruitToPartyAction(string companionKey)
+        {
+            var action = new RecruitToPartyAction();
+            TestDefinitionFactory.SetPrivateField(action, "companionKey", companionKey);
+            return action;
+        }
+
+        public static StartQuestAction CreateStartQuestAction(string questKey)
+        {
+            var action = new StartQuestAction();
+            TestDefinitionFactory.SetPrivateField(action, "questKey", questKey);
+            return action;
+        }
+
         public static SetStorePriceMultiplierAction CreateSetStorePriceMultiplierAction(float buyPriceMultiplier, float sellPriceMultiplier)
         {
             var action = new SetStorePriceMultiplierAction();

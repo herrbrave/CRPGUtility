@@ -77,6 +77,48 @@ namespace CRPG.Tests.EditMode
             Assert.IsFalse(character.HasCondition(Unconscious));
         }
 
+        // Task 6.1 (2D-Campaign-Phase6-CampaignContent.md): the death-save loop is a player-character rule --
+        // real hostile combat exposed that a monster was going Unconscious and rolling death saves at 0 HP like
+        // a PC instead of dying outright. The usesDeathSaves predicate is the fix.
+        [Test]
+        public void ACharacterTheUsesDeathSavesPredicateExcludesDiesOutrightInsteadOfGoingUnconscious()
+        {
+            var died = false;
+            eventBus.Subscribe(GameEvent.CreatureDied, _ => died = true);
+            new DeathSaveService(registry, new DiceService(new TestRandomSource()), eventBus, HitPoints, Unconscious, combatLog,
+                usesDeathSaves: _ => false); // nobody uses death saves in this test
+
+            var damageRandom = new TestRandomSource();
+            damageRandom.EnqueueResult(20); // exactly lethal, zero overkill -- would normally start death saves
+            var effect = CreateDamageEffect(1, 20, 0);
+            var context = new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(damageRandom), combatLog, eventBus);
+
+            effect.Apply(context);
+
+            Assert.IsTrue(died, "died outright, matching a monster's real SRD5.1 behavior");
+            Assert.IsNull(character.DeathSaves);
+            Assert.IsFalse(character.HasCondition(Unconscious));
+        }
+
+        [Test]
+        public void ANullUsesDeathSavesPredicatePreservesTheOriginalEveryoneGetsDeathSavesBehavior()
+        {
+            // Default (no predicate supplied) -- exact copy of DroppingToZeroStartsDeathSavesInsteadOfInstantRemoval,
+            // pinning that omitting the new parameter regresses nothing for every existing caller (e.g. the Gate
+            // scene, where everyone who can reach 0 HP is a party member anyway).
+            CreateService(new TestRandomSource());
+
+            var damageRandom = new TestRandomSource();
+            damageRandom.EnqueueResult(20);
+            var effect = CreateDamageEffect(1, 20, 0);
+            var context = new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(damageRandom), combatLog, eventBus);
+
+            effect.Apply(context);
+
+            Assert.IsNotNull(character.DeathSaves);
+            Assert.IsTrue(character.HasCondition(Unconscious));
+        }
+
         [Test]
         public void DamageWhileAlreadyDownCountsAsAFailureInsteadOfFurtherHpLoss()
         {

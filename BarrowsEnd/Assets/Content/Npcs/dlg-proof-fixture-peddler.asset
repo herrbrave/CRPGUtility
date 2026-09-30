@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-proof-fixture-peddler
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-proof-fixture-peddler
+  displayName: 
+  startNodeId:
+    low: -4608051580862793922
+    high: 3495326892301168179
+  nodes:
+  - rid: 4304781063743864914
+  - rid: 4304781063743864915
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864914
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -4608051580862793922
+          high: 3495326892301168179
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864916
+        nextNodeId:
+          low: 3274037854792712831
+          high: 6029811905607383809
+    - rid: 4304781063743864915
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 3274037854792712831
+          high: 6029811905607383809
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864916
+      type: {class: OpenStoreAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 

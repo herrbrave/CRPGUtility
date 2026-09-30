@@ -56,12 +56,12 @@
   <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
   <Project Path="CRPG.Party.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="BarrowsEnd.Gate.csproj" />
   <Project Path="BarrowsEnd.Content.csproj" />
   <Project Path="Unity.Collections.CodeGen.csproj" />
   <Project Path="CRPG.Inventory.csproj" />
   <Project Path="Unity.PathTracing.Editor.csproj" />
   <Project Path="CRPG.Camera.csproj" />
-  <Project Path="BarrowsEnd.Gate.csproj" />
   <Project Path="Unity.InputSystem.TestFramework.csproj" />
   <Project Path="BarrowsEnd.Shell.csproj" />
   <Project Path="Unity.ShaderGraph.Utilities.csproj" />

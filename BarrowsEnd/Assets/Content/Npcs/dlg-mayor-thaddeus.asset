@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-mayor-thaddeus
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-mayor-thaddeus
+  displayName: 
+  startNodeId:
+    low: -6116595504972208326
+    high: -961846010939578399
+  nodes:
+  - rid: 4304781063743864917
+  - rid: 4304781063743864918
+  - rid: 4304781063743864919
+  - rid: 4304781063743864920
+  - rid: 4304781063743864921
+  - rid: 4304781063743864922
+  - rid: 4304781063743864923
+  - rid: 4304781063743864924
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864917
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -6116595504972208326
+          high: -961846010939578399
+        editorPosition: {x: 0, y: 0}
+        speakerName: Mayor Thaddeus
+        text: I see the new mercenary squad has finally arrived. The caverns beneath Barrow's End are crawling with hostiles. Are you properly equipped to handle this, or are you just here to waste my time?
+        nextNodeId:
+          low: -3542742179009036045
+          high: -8333625937336966343
+    - rid: 4304781063743864918
+      type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -3542742179009036045
+          high: -8333625937336966343
+        editorPosition: {x: 0, y: 0}
+        options:
+        - text: We have our squad and our supplies. We are ready to descend.
+          nextNodeId:
+            low: -5290639410534997749
+            high: -1329972510102117419
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: What exactly is down there?
+          nextNodeId:
+            low: 6853798793414543926
+            high: 1457862725361840005
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+    - rid: 4304781063743864919
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -5290639410534997749
+          high: -1329972510102117419
+        editorPosition: {x: 0, y: 0}
+        timelineKey: companion-recruited
+        secondTimelineKey: 
+        conditionType: 4
+        threshold: 3
+        trueNodeId:
+          low: 1084768952786139926
+          high: 6198857277735619603
+        falseNodeId:
+          low: -1004834837973872468
+          high: 6807351834014827338
+    - rid: 4304781063743864920
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 1084768952786139926
+          high: 6198857277735619603
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864925
+        nextNodeId:
+          low: -8836070445625988595
+          high: -4279305738254098879
+    - rid: 4304781063743864921
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -8836070445625988595
+          high: -4279305738254098879
+        editorPosition: {x: 0, y: 0}
+        speakerName: Mayor Thaddeus
+        text: Excellent. Head past the northern barricades. The guards have orders to let you through.
+        nextNodeId:
+          low: -6674083795254070407
+          high: -8775704770207652925
+    - rid: 4304781063743864922
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -1004834837973872468
+          high: 6807351834014827338
+        editorPosition: {x: 0, y: 0}
+        speakerName: Mayor Thaddeus
+        text: Recruit the rest of your squad first. Garrick, Elara, and Silas are all still in town -- come back when you're ready.
+        nextNodeId:
+          low: -6674083795254070407
+          high: -8775704770207652925
+    - rid: 4304781063743864923
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 6853798793414543926
+          high: 1457862725361840005
+        editorPosition: {x: 0, y: 0}
+        speakerName: Mayor Thaddeus
+        text: Goblins, mostly. But they are organized. They've built heavy barricades and seem to be guarding something deeper in the stone.
+        nextNodeId:
+          low: -3542742179009036045
+          high: -8333625937336966343
+    - rid: 4304781063743864924
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -6674083795254070407
+          high: -8775704770207652925
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864925
+      type: {class: StartQuestAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        questKey: quest-gathering-storm

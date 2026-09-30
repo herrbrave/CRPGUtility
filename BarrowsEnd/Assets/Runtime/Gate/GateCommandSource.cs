@@ -38,6 +38,17 @@ namespace BarrowsEnd.Gate
         public event Action<InteractCommand> Interact;
         public event Action Cancel;
 
+        /// <summary>Task 6.1: while set, every Move command is redirected here instead of raised on
+        /// <see cref="Move"/> -- the toolkit's own <c>TacticalPlayerMoveAdapter</c> doc comment names exactly
+        /// this as unsolved by any shipped example ("there is exactly one movement mode during a tactical
+        /// encounter, so there's no dual-ownership of the Move event to arbitrate"): without this, a ground
+        /// click during combat would reach BOTH <c>PartyExplorationController</c> (subscribed to this class's own
+        /// <see cref="Move"/>) and a tactical move adapter (if wired directly to the same underlying
+        /// <c>InputSystemCommandSource</c>), letting the player freely walk the whole party around mid-fight,
+        /// bypassing turn order and the Movement resource entirely. Null (the default) preserves the original
+        /// pass-through-to-<see cref="Move"/> behavior.</summary>
+        public Action<MoveCommand> CombatMoveOverride { get; set; }
+
         public void Dispose()
         {
             inner.Select -= OnSelect;
@@ -66,7 +77,11 @@ namespace BarrowsEnd.Gate
             Select?.Invoke(new SelectCommand(members, command.Mode));
         }
 
-        private void OnMove(MoveCommand command) => Move?.Invoke(command);
+        private void OnMove(MoveCommand command)
+        {
+            if (CombatMoveOverride != null) { CombatMoveOverride(command); return; }
+            Move?.Invoke(command);
+        }
         private void OnInteract(InteractCommand command) => Interact?.Invoke(command);
         private void OnCancel() => Cancel?.Invoke();
     }

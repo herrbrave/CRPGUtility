@@ -28,7 +28,7 @@ MonoBehaviour:
     requireLineOfEffect: 0
     requireVisibleTarget: 0
   effects:
-  - rid: 4304780895392628740
+  - rid: 4304781063743864978
   spellLevel: 0
   prepareSeconds: 0
   recoverSeconds: 0
@@ -37,7 +37,7 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 4304780895392628740
+    - rid: 4304781063743864978
       type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
       data:
         hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}

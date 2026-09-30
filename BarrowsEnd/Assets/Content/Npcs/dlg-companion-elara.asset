@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-companion-elara
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-companion-elara
+  displayName: 
+  startNodeId:
+    low: -2663007581416389252
+    high: -382037516118955521
+  nodes:
+  - rid: 4304781063743864932
+  - rid: 4304781063743864933
+  - rid: 4304781063743864934
+  - rid: 4304781063743864935
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864932
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -2663007581416389252
+          high: -382037516118955521
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864936
+        nextNodeId:
+          low: -5729124878731739528
+          high: 2901013212060058840
+    - rid: 4304781063743864933
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -5729124878731739528
+          high: 2901013212060058840
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864937
+        nextNodeId:
+          low: 8288045887498000368
+          high: -469282759482093969
+    - rid: 4304781063743864934
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 8288045887498000368
+          high: -469282759482093969
+        editorPosition: {x: 0, y: 0}
+        speakerName: Elara
+        text: Glad to fight alongside you. Lead the way.
+        nextNodeId:
+          low: -671673638018573349
+          high: 6227226622926883860
+    - rid: 4304781063743864935
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -671673638018573349
+          high: 6227226622926883860
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864936
+      type: {class: RecruitToPartyAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        companionKey: elara
+    - rid: 4304781063743864937
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: companion-recruited
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1

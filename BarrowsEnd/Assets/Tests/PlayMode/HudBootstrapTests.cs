@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
+using BarrowsEnd.Gate;
 using BarrowsEnd.Shell;
 using CRPG.Core;
 using CRPG.UI;
@@ -29,6 +30,9 @@ namespace BarrowsEnd.Tests
         {
             savePath = Path.Combine(Path.GetTempPath(), $"barrowsend-hud-test-{Guid.NewGuid():N}.json");
             ShellBootstrap.StartModeOverride = ShellStartMode.AuthoredParty;
+            // Task 6.1: this file's assertions assume the OLD 4-member boot (all-four-cards, Members[1] card
+            // selection) -- the real Core scene now authors only the protagonist, so keep booting the demo roster.
+            ShellBootstrap.MembersOverride = GateLayout.DefaultMembers();
             yield return SceneManager.LoadSceneAsync(CorePath, LoadSceneMode.Single);
             shell = UnityEngine.Object.FindFirstObjectByType<ShellBootstrap>();
             Assert.IsNotNull(shell);
@@ -47,6 +51,7 @@ namespace BarrowsEnd.Tests
         public void Cleanup()
         {
             ShellBootstrap.StartModeOverride = null;
+            ShellBootstrap.MembersOverride = null;
             if (File.Exists(savePath)) File.Delete(savePath);
         }
 

@@ -91,7 +91,13 @@ namespace BarrowsEnd.Editor
             so.FindProperty("inputSource").objectReferenceValue = input;
             so.FindProperty("cameraRig").objectReferenceValue = rig;
             so.FindProperty("cameraFollow").objectReferenceValue = follow;
-            var members = GateLayout.DefaultMembers();
+            // Task 6.1 (T6.1-D1/fact 6): the real campaign boots with ONLY the protagonist -- Garrick/Elara/Silas
+            // are no longer boot-time GateMemberSpecs, they join through ShellBootstrap.RecruitCompanion when
+            // talked to in Town. Keeping only slot 0 (Aldric's own spec -- still the fallback SpawnParty uses when
+            // Title mode has no confirmed protagonist yet) is a real behavior change several existing tests assert
+            // against the OLD 4-member boot; those tests opt into ShellBootstrap.MembersOverride explicitly
+            // (mirroring StartingSceneOverride) rather than this authored scene silently keeping the old array.
+            var members = new[] { GateLayout.DefaultMembers()[0] };
             var membersProp = so.FindProperty("members");
             membersProp.arraySize = members.Length;
             for (var i = 0; i < members.Length; i++)

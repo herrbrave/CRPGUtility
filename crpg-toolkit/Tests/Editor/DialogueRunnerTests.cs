@@ -33,9 +33,11 @@ namespace CRPG.Tests.EditMode
         }
 
         private DialogueContext CreateContext(
-            IDiceService diceService = null, StoreInventoryState store = null, RestService restService = null, System.Action requestSave = null) =>
+            IDiceService diceService = null, StoreInventoryState store = null, RestService restService = null, System.Action requestSave = null,
+            System.Action<string> requestRecruit = null, System.Action<string> requestStartQuest = null) =>
             new(npc, party, characters, rulesDatabase, timeline, inventory, diceService ?? new DiceService(new SeededRandomSource(1)),
-                new DefaultSkillCheckRule(characters, rulesDatabase), store: store, restService: restService, requestSave: requestSave);
+                new DefaultSkillCheckRule(characters, rulesDatabase), store: store, restService: restService, requestSave: requestSave,
+                requestRecruit: requestRecruit, requestStartQuest: requestStartQuest);
 
         [Test]
         public void RunnerStartsAtTheDefinitionsStartNode()
@@ -440,6 +442,60 @@ namespace CRPG.Tests.EditMode
         {
             var end = DialogueTestFactory.CreateEnd("end");
             var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRequestSaveAction(), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            Assert.DoesNotThrow(() => new DialogueRunner(dialogue, CreateContext()));
+        }
+
+        // Task 6.1 (2D-Campaign-Phase6-CampaignContent.md): RecruitToPartyAction is keyed by its own authored
+        // companionKey, NOT DialogueContext.NpcId -- context.NpcId is the party member doing the talking, not the
+        // NPC being recruited (a real design error the Opus review caught: context.Party.AddMember(context.NpcId)
+        // would have silently re-added whoever's already in the party). These tests pin the delegate contract
+        // down directly rather than exercising real party-membership plumbing, which lives in BarrowsEnd's own
+        // ShellBootstrap.RecruitCompanion, not in this generic toolkit action.
+        [Test]
+        public void RecruitToPartyActionInvokesTheContextsRequestRecruitDelegateWithItsOwnCompanionKeyThenAutoAdvances()
+        {
+            string recruited = null;
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRecruitToPartyAction("garrick"), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            var runner = new DialogueRunner(dialogue, CreateContext(requestRecruit: key => recruited = key));
+
+            Assert.IsTrue(runner.IsComplete);
+            Assert.AreEqual("garrick", recruited);
+        }
+
+        [Test]
+        public void RecruitToPartyActionIsANoOpWhenTheContextHasNoRequestRecruitDelegate()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateRecruitToPartyAction("garrick"), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            Assert.DoesNotThrow(() => new DialogueRunner(dialogue, CreateContext()));
+        }
+
+        [Test]
+        public void StartQuestActionInvokesTheContextsRequestStartQuestDelegateWithItsOwnQuestKeyThenAutoAdvances()
+        {
+            string started = null;
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateStartQuestAction("quest-gathering-storm"), "end");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
+
+            var runner = new DialogueRunner(dialogue, CreateContext(requestStartQuest: key => started = key));
+
+            Assert.IsTrue(runner.IsComplete);
+            Assert.AreEqual("quest-gathering-storm", started);
+        }
+
+        [Test]
+        public void StartQuestActionIsANoOpWhenTheContextHasNoRequestStartQuestDelegate()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var actionNode = DialogueTestFactory.CreateAction("start", DialogueTestFactory.CreateStartQuestAction("quest-gathering-storm"), "end");
             var dialogue = DialogueTestFactory.CreateDialogue("dlg-test", "start", actionNode, end);
 
             Assert.DoesNotThrow(() => new DialogueRunner(dialogue, CreateContext()));

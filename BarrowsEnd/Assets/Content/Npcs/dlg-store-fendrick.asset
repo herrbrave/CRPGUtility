@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-store-fendrick
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-store-fendrick
+  displayName: 
+  startNodeId:
+    low: -1436514445032988945
+    high: -6051443956592729489
+  nodes:
+  - rid: 4304781063743864956
+  - rid: 4304781063743864957
+  - rid: 4304781063743864958
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864956
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -1436514445032988945
+          high: -6051443956592729489
+        editorPosition: {x: 0, y: 0}
+        speakerName: Fendrick
+        text: Potions, salves, the odd antitoxin. Don't drink anything you can't identify first.
+        nextNodeId:
+          low: 7192890955084399862
+          high: 9077772545177482633
+    - rid: 4304781063743864957
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 7192890955084399862
+          high: 9077772545177482633
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864959
+        nextNodeId:
+          low: 6468371042699211542
+          high: 4781747921676097511
+    - rid: 4304781063743864958
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 6468371042699211542
+          high: 4781747921676097511
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864959
+      type: {class: OpenStoreAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 

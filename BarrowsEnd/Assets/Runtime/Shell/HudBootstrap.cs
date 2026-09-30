@@ -114,8 +114,14 @@ namespace BarrowsEnd.Shell
 
         private PartyPresenter BuildPresenter(CRPG.Gameplay.GameSession session)
         {
+            // Task 6.1 (T6.1-D9): ShellBootstrap.DisplayNameFor covers both boot members and the 3 fixed
+            // companion ids -- a companion isn't a boot-time member any more (they join through
+            // ShellBootstrap.RecruitCompanion), so seeding this dictionary from bootstrap.Members alone would
+            // leave a recruited companion showing as a raw GUID. A not-yet-recruited companion's entry costs
+            // nothing (PartyPresenter only ever looks a name up for an id actually in session.Party.Members).
             var names = new Dictionary<RuntimeEntityId, string>();
-            for (var i = 0; i < bootstrap.Members.Count; i++) names[ShellBootstrap.MemberIdFor(i)] = bootstrap.Members[i].displayName;
+            for (var i = 0; i < bootstrap.Members.Count; i++) names[ShellBootstrap.MemberIdFor(i)] = bootstrap.DisplayNameFor(ShellBootstrap.MemberIdFor(i));
+            foreach (var key in CompanionRoster.Keys) names[CompanionRoster.IdFor(key)] = bootstrap.DisplayNameFor(CompanionRoster.IdFor(key));
             return new PartyPresenter(session.Party, session.Characters, hpResource, names);
         }
 

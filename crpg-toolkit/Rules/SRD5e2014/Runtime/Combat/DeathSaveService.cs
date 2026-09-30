@@ -1,3 +1,4 @@
+using System;
 using CRPG.Actors;
 using CRPG.Core;
 
@@ -19,14 +20,23 @@ namespace CRPG.Rules.SRD5
         private readonly ICombatLog combatLog;
         private readonly DefinitionId hitPointResourceId;
         private readonly DefinitionId unconsciousConditionId;
+        private readonly Func<RuntimeEntityId, bool> usesDeathSaves;
 
+        /// <param name="usesDeathSaves">SRD5.1's death-save loop is a player-character rule -- a monster just
+        /// dies at 0 HP (Task 6.1: found live when a real hostile-vs-party encounter first existed in BarrowsEnd
+        /// -- a giant rat dropped to 0 HP was going Unconscious and rolling death saves like a PC instead of
+        /// dying). Null (the default) preserves this service's original behavior of applying death saves to
+        /// EVERY character regardless of side, matching every existing caller (e.g. the Gate scene, where
+        /// everyone who can reach 0 HP is a party member anyway). When supplied, a character this predicate
+        /// returns false for dies outright on dropping to 0 HP, the same as an overkill hit.</param>
         public DeathSaveService(
             ICharacterRegistry characters,
             IDiceService diceService,
             IGameEventBus eventBus,
             DefinitionId hitPointResourceId,
             DefinitionId unconsciousConditionId = default,
-            ICombatLog combatLog = null)
+            ICombatLog combatLog = null,
+            Func<RuntimeEntityId, bool> usesDeathSaves = null)
         {
             this.characters = characters;
             this.diceService = diceService;
@@ -34,6 +44,7 @@ namespace CRPG.Rules.SRD5
             this.hitPointResourceId = hitPointResourceId;
             this.unconsciousConditionId = unconsciousConditionId;
             this.combatLog = combatLog;
+            this.usesDeathSaves = usesDeathSaves;
 
             eventBus.Subscribe(GameEvent.BeforeDamage, OnBeforeDamage);
             eventBus.Subscribe(GameEvent.CreatureDroppedToZeroHP, OnCreatureDroppedToZeroHP);
@@ -83,6 +94,12 @@ namespace CRPG.Rules.SRD5
         private void OnCreatureDroppedToZeroHP(GameEventContext context)
         {
             if (!characters.TryGetCharacter(context.Target, out var character)) return;
+
+            if (usesDeathSaves != null && !usesDeathSaves(context.Target))
+            {
+                eventBus.Publish(new GameEventContext(GameEvent.CreatureDied, context.Source, context.Target));
+                return;
+            }
 
             var overkill = context.Data.TryGetValue("Overkill", out var overkillValue) && overkillValue is int amount ? amount : 0;
             var maxHitPoints = character.TryGetResource(hitPointResourceId, out var hp) ? hp.Max : 0;

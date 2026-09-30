@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-store-marjorie
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-store-marjorie
+  displayName: 
+  startNodeId:
+    low: -4753600963663104488
+    high: -5359193784177613725
+  nodes:
+  - rid: 4304781063743864960
+  - rid: 4304781063743864961
+  - rid: 4304781063743864962
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864960
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -4753600963663104488
+          high: -5359193784177613725
+        editorPosition: {x: 0, y: 0}
+        speakerName: Marjorie
+        text: Rope, packs, the basics every adventurer forgets until they need it.
+        nextNodeId:
+          low: 6939389571535241847
+          high: 715322533690593973
+    - rid: 4304781063743864961
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 6939389571535241847
+          high: 715322533690593973
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864963
+        nextNodeId:
+          low: 4139956425611914812
+          high: -7498502606425585916
+    - rid: 4304781063743864962
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 4139956425611914812
+          high: -7498502606425585916
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864963
+      type: {class: OpenStoreAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 

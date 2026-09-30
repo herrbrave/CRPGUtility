@@ -160,5 +160,60 @@ namespace CRPG.Tests.PlayMode
             Assert.DoesNotThrow(() => execution = adapter.BeginExecute(fighter.Id, _ => { }));
             execution?.Cancel();
         }
+
+        // Task 6.1 (2D-Campaign-Phase6-CampaignContent.md): RequestRecruit/RequestStartQuest are the same
+        // pass-through shape as RestService/RequestSave above (Task 6.0's own precedent).
+        [Test]
+        public void TheAdaptersRequestRecruitPropertyReachesTheConstructedContextWithTheActionsOwnCompanionKey()
+        {
+            string recruited = null;
+            adapter.RequestRecruit = key => recruited = key;
+
+            var end = CreateEnd("end");
+            var action = new RecruitToPartyAction();
+            SetField(action, "companionKey", "elara");
+            var actionNode = CreateActionNode("start", action, "end");
+            SetField(adapter, "dialogue", CreateDialogue("start", actionNode, end));
+
+            var execution = adapter.BeginExecute(fighter.Id, _ => { });
+
+            Assert.AreEqual("elara", recruited);
+            execution.Cancel();
+        }
+
+        [Test]
+        public void TheAdaptersRequestStartQuestPropertyReachesTheConstructedContextWithTheActionsOwnQuestKey()
+        {
+            string started = null;
+            adapter.RequestStartQuest = key => started = key;
+
+            var end = CreateEnd("end");
+            var action = new StartQuestAction();
+            SetField(action, "questKey", "quest-gathering-storm");
+            var actionNode = CreateActionNode("start", action, "end");
+            SetField(adapter, "dialogue", CreateDialogue("start", actionNode, end));
+
+            var execution = adapter.BeginExecute(fighter.Id, _ => { });
+
+            Assert.AreEqual("quest-gathering-storm", started);
+            execution.Cancel();
+        }
+
+        [Test]
+        public void WithNeitherRecruitNorQuestPropertySetBothActionsAreSilentNoOps()
+        {
+            var end = CreateEnd("end");
+            var recruitAction = new RecruitToPartyAction();
+            SetField(recruitAction, "companionKey", "elara");
+            var questAction = new StartQuestAction();
+            SetField(questAction, "questKey", "quest-gathering-storm");
+            var recruitNode = CreateActionNode("start", recruitAction, "quest");
+            var questNode = CreateActionNode("quest", questAction, "end");
+            SetField(adapter, "dialogue", CreateDialogue("start", recruitNode, questNode, end));
+
+            IInteractionExecution execution = null;
+            Assert.DoesNotThrow(() => execution = adapter.BeginExecute(fighter.Id, _ => { }));
+            execution?.Cancel();
+        }
     }
 }

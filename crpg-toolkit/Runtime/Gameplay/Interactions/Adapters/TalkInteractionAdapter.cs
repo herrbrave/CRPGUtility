@@ -44,6 +44,14 @@ namespace CRPG.Gameplay.Interactions.Adapters
         /// remarks on why this is a plain delegate, not a typed save port.</summary>
         public Action RequestSave { get; set; }
 
+        /// <summary>Task 6.1: fire-and-forget hook for RecruitToPartyAction -- see DialogueContext.RequestRecruit's
+        /// own remarks on why this is keyed by a companion key, not DialogueContext.NpcId.</summary>
+        public Action<string> RequestRecruit { get; set; }
+
+        /// <summary>Task 6.1: fire-and-forget hook for StartQuestAction -- see DialogueContext.RequestStartQuest's
+        /// own remarks on why this stays a plain delegate rather than a QuestService reference.</summary>
+        public Action<string> RequestStartQuest { get; set; }
+
         public DefinitionId ActionId { get; } = new("interact-talk");
 
         private bool conversationOpen;
@@ -55,7 +63,8 @@ namespace CRPG.Gameplay.Interactions.Adapters
             conversationOpen = true;
 
             var context = new DialogueContext(performer, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, SkillCheckRule,
-                store: Store, currencyItemId: CurrencyItemId, restService: RestService, requestSave: RequestSave);
+                store: Store, currencyItemId: CurrencyItemId, restService: RestService, requestSave: RequestSave,
+                requestRecruit: RequestRecruit, requestStartQuest: RequestStartQuest);
             var controller = new ConversationController(dialogue, context, panelSettings);
 
             return new Execution(this, controller, onFinished);

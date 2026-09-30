@@ -75,7 +75,11 @@ namespace BarrowsEnd.Gate
 
             // Null faction provider and positions on purpose: the debug abilities are authored to work between anyone (see BarrowsEndGearAuthor).
             Abilities = new AbilityResolutionService(session.Characters, session.DiceService, eventBus: session.EventBus, rulesDatabase: session.RulesDatabase);
-            DeathSaves = new DeathSaveService(session.Characters, session.DiceService, session.EventBus, HitPoints, Unconscious);
+            // Task 6.1: only real party members use SRD5.1's death-save loop -- a hostile (a Giant Rat, etc.)
+            // just dies outright at 0 HP, its real SRD5.1 behavior, found live once a real hostile-vs-party
+            // encounter first existed in BarrowsEnd (DeathSaveService.cs's own doc comment has the full story).
+            DeathSaves = new DeathSaveService(session.Characters, session.DiceService, session.EventBus, HitPoints, Unconscious,
+                usesDeathSaves: id => session.Party.Members.Contains(id));
             Equipment = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
 
             subscribedBus = session.EventBus;
@@ -103,6 +107,15 @@ namespace BarrowsEnd.Gate
         }
 
         public void Dispose() => Teardown();
+
+        /// <summary>Task 6.1: registers ONE member's motor with the live <see cref="PartyExplorationController"/>
+        /// outside of <see cref="Rebind"/> -- needed because a mid-session recruit (<c>ShellBootstrap.
+        /// RecruitCompanion</c>) never goes through a full session rebuild. Takes the motor directly (the
+        /// caller's own just-created instance), not looked up via <see cref="FindAgent"/>: <c>CharacterAgent.
+        /// AllLive</c> is a HashSet with deferred Destroy, so a stale/about-to-be-destroyed agent could still be
+        /// findable for one frame if this looked it up instead (a real gap the Opus review caught in the v1
+        /// design).</summary>
+        public void RegisterMemberMotor(RuntimeEntityId id, IMovable motor) => exploration?.RegisterMotor(id, motor);
 
         public static CharacterAgent FindAgent(RuntimeEntityId id)
         {

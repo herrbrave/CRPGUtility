@@ -200,7 +200,9 @@ namespace BarrowsEnd.Tests
                 // what lets ShellTests/ShellCaptureTests/ShellStartFlowTests keep booting Town_Slice on purpose.
                 Assert.AreEqual(BarrowsEndTownAuthor.Path, so.FindProperty("startingScenePath").stringValue);
                 Assert.AreEqual(BarrowsEndTownAuthor.StartDestination, so.FindProperty("startingDestinationId").stringValue);
-                Assert.AreEqual(4, so.FindProperty("members").arraySize);
+                // Task 6.1: the real campaign now boots with ONLY the protagonist -- Garrick/Elara/Silas join
+                // through ShellBootstrap.RecruitCompanion, not as boot-time GateMemberSpecs (fact 6/T6.1-D1).
+                Assert.AreEqual(1, so.FindProperty("members").arraySize);
 
                 var input = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<InputSystemCommandSource>(true)).Single();
                 var inputSo = new SerializedObject(input);

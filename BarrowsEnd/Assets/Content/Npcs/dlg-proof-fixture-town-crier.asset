@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-proof-fixture-town-crier
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-proof-fixture-town-crier
+  displayName: 
+  startNodeId:
+    low: -6196838342722525083
+    high: -276225141397481768
+  nodes:
+  - rid: 4304781063743864908
+  - rid: 4304781063743864909
+  - rid: 4304781063743864910
+  - rid: 4304781063743864911
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864908
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -6196838342722525083
+          high: -276225141397481768
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864912
+        nextNodeId:
+          low: 4164719993425852483
+          high: 6199573607963062781
+    - rid: 4304781063743864909
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 4164719993425852483
+          high: 6199573607963062781
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864913
+        nextNodeId:
+          low: -5455974570177356183
+          high: -6813164449137157792
+    - rid: 4304781063743864910
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -5455974570177356183
+          high: -6813164449137157792
+        editorPosition: {x: 0, y: 0}
+        speakerName: Town Crier
+        text: There now -- rested and saved. Safe travels.
+        nextNodeId:
+          low: 3274037854792712831
+          high: 6029811905607383809
+    - rid: 4304781063743864911
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 3274037854792712831
+          high: 6029811905607383809
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864912
+      type: {class: RequestLongRestAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 
+    - rid: 4304781063743864913
+      type: {class: RequestSaveAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data: 

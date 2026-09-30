@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BarrowsEnd.Gate;
 using BarrowsEnd.Shell;
 using CRPG.Actors;
 using CRPG.Core;
@@ -45,6 +46,7 @@ namespace BarrowsEnd.Tests
         {
             ShellBootstrap.StartModeOverride = null;
             ShellBootstrap.StartingSceneOverride = null;
+            ShellBootstrap.MembersOverride = null;
             if (File.Exists(savePath)) File.Delete(savePath);
             Time.timeScale = 1f;
         }
@@ -82,6 +84,11 @@ namespace BarrowsEnd.Tests
             // geometry (including "the town is not loaded behind the title"), not the real Town -- keep booting
             // the demo slice on purpose.
             ShellBootstrap.StartingSceneOverride = (TownPath, "start");
+            // Task 6.1: this whole file's assertions assume the OLD 4-member boot (a "New Game" confirm still
+            // expects 3 already-present companions, AuthoredParty mode checks their authored gear) -- the real
+            // Core scene now authors only the protagonist, so keep booting the demo roster on purpose, same
+            // reasoning as StartingSceneOverride above.
+            ShellBootstrap.MembersOverride = GateLayout.DefaultMembers();
             yield return SceneManager.LoadSceneAsync(CorePath, LoadSceneMode.Single);
             shell = UnityEngine.Object.FindFirstObjectByType<ShellBootstrap>();
             Assert.IsNotNull(shell);

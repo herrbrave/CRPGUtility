@@ -27,7 +27,9 @@
     "BarrowsEnd.Shell",
     "CRPG.InputSystem",
     "CRPG.Party",
-    "CRPG.UI"
+    "CRPG.UI",
+    "CRPG.Dialogue",
+    "CRPG.Quests"
   ],
   "includePlatforms": [
     "Editor"

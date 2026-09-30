@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-companion-garrick
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-companion-garrick
+  displayName: 
+  startNodeId:
+    low: 8401274021284545369
+    high: 4612754619918694995
+  nodes:
+  - rid: 4304781063743864926
+  - rid: 4304781063743864927
+  - rid: 4304781063743864928
+  - rid: 4304781063743864929
+  references:
+    version: 2
+    RefIds:
+    - rid: 4304781063743864926
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 8401274021284545369
+          high: 4612754619918694995
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864930
+        nextNodeId:
+          low: -9160083288069136171
+          high: 6824437447986696478
+    - rid: 4304781063743864927
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -9160083288069136171
+          high: 6824437447986696478
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 4304781063743864931
+        nextNodeId:
+          low: -1455208818140576426
+          high: -2811775430219196389
+    - rid: 4304781063743864928
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -1455208818140576426
+          high: -2811775430219196389
+        editorPosition: {x: 0, y: 0}
+        speakerName: Garrick
+        text: Glad to fight alongside you. Lead the way.
+        nextNodeId:
+          low: 3489688250382341554
+          high: -8912589661199006867
+    - rid: 4304781063743864929
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 3489688250382341554
+          high: -8912589661199006867
+        editorPosition: {x: 0, y: 0}
+    - rid: 4304781063743864930
+      type: {class: RecruitToPartyAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        companionKey: garrick
+    - rid: 4304781063743864931
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: companion-recruited
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1

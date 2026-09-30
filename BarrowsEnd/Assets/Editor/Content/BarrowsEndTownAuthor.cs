@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using BarrowsEnd.Gate;
 using CRPG.Core;
 using CRPG.Dialogue;
 using CRPG.Editor.Location;
@@ -119,6 +120,8 @@ namespace BarrowsEnd.Editor
 
             var content = root.AddComponent<LocationContent>();
             AuthorProofFixtures(root, content);
+            AuthorPalisadeBreachTrigger(root);
+            BarrowsEndAct1NpcAuthor.Author(root, content);
 
             BakeAndSave(scene, root, Path);
             Debug.Log($"[BarrowsEnd] Town authored: {Path}");
@@ -175,6 +178,24 @@ namespace BarrowsEnd.Editor
             listingElement.FindPropertyRelative("Item").objectReferenceValue = helm;
             listingElement.FindPropertyRelative("Quantity").intValue = 5;
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Task 6.1 (T6.1-D6, fact 15's placement fix): sits well inside the north road corridor
+        /// (x in [32,35], matching the palisade gap itself) but clearly offset from BOTH the TravelToCaverns
+        /// point (Cell(33,Depth-4)) and the FromCavernsDestination arrival point (Cell(33,Depth-6)) -- a party
+        /// walking the road to the caverns passes through it before ever reaching either travel point, and a
+        /// party arriving FROM the caverns lands well past it, never re-triggering it on return (its own
+        /// persisted "already fired" Timeline flag is the real one-shot guard; the placement just avoids the
+        /// worse failure mode of firing on travel-point approach itself).</summary>
+        private static void AuthorPalisadeBreachTrigger(GameObject root)
+        {
+            var go = new GameObject("PalisadeBreachTrigger");
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = Centre(Cell(33, 41));
+            var collider = go.AddComponent<SphereCollider>();
+            collider.isTrigger = true;
+            collider.radius = 2.5f;
+            go.AddComponent<PalisadeBreachTrigger>();
         }
 
         private static DialogueDefinition BuildTalkerDialogue()
