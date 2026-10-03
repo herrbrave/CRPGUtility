@@ -120,7 +120,7 @@ namespace BarrowsEnd.Editor
 
             var content = root.AddComponent<LocationContent>();
             AuthorProofFixtures(root, content);
-            AuthorPalisadeBreachTrigger(root);
+            AuthorPalisadeEncounterTrigger(root);
             BarrowsEndAct1NpcAuthor.Author(root, content);
 
             BakeAndSave(scene, root, Path);
@@ -187,7 +187,7 @@ namespace BarrowsEnd.Editor
         /// party arriving FROM the caverns lands well past it, never re-triggering it on return (its own
         /// persisted "already fired" Timeline flag is the real one-shot guard; the placement just avoids the
         /// worse failure mode of firing on travel-point approach itself).</summary>
-        private static void AuthorPalisadeBreachTrigger(GameObject root)
+        private static void AuthorPalisadeEncounterTrigger(GameObject root)
         {
             var go = new GameObject("PalisadeBreachTrigger");
             go.transform.SetParent(root.transform, false);
@@ -195,7 +195,7 @@ namespace BarrowsEnd.Editor
             var collider = go.AddComponent<SphereCollider>();
             collider.isTrigger = true;
             collider.radius = 2.5f;
-            go.AddComponent<PalisadeBreachTrigger>();
+            go.AddComponent<EncounterTrigger>();
         }
 
         private static DialogueDefinition BuildTalkerDialogue()

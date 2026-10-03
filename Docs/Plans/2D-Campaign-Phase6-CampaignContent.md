@@ -1182,3 +1182,133 @@ pre-Task-6.1 content until the authoring scripts are actually run against the re
 documented lesson: verifying the code in a throwaway copy is not the same as the real asset being regenerated).
 
 **Not yet committed.**
+
+
+---
+
+# Task 6.2: Act 2 — The Descent
+
+**Status: Opus-reviewed (8 blockers, all folded in below); awaiting user approval. Task 6.1 is committed (d15b8c8 + 5834a7d).**
+
+Gate: a live playthrough from the Town through Cavern_Upper and Cavern_Middle — goblin encounters fought and won with
+the tactical stack, the Act 2 quest advancing, Grumble's mushroom side quest accepted, completed and turned in.
+Cavern_Deep stays a shell (Task 6.3).
+
+## What 6.1 left us (verified in the committed code, not assumed)
+
+- `PalisadeBreachTrigger` is a one-off: hard-coded rat count, `npc-giant-rat`, `GiantRatBrain`, Timeline keys and quest
+  id. `TacticalCombatSession.StartEncounter` names every hostile "Giant Rat N" and takes an opaque brain.
+- Combat turn economy (6.1 follow-ups): per-turn `resource-movement` (6 units), `resource-action`, `resource-bonus-action`;
+  Strike/Bite cost one Action; a resolved ability ends the turn when no Action is left; `TacticalPlayerMoveAdapter`
+  drives click-to-move through the real `MoveActionExecution` (grid path planning via `spawner.GridNavigation`).
+- `Cavern_Upper/Middle/Deep` exist as shells (walls, floor, mine rail, water, two-way travel) from Task 6.0. The Upper
+  level's mine-rail strip is already reserved for goblin patrols; Deep has a reserved boss approach.
+- Grumble's `dlg-grumble` is a single placeholder line ("ask me again once you've made some progress").
+- `QuestObjectiveType` has Kill/Collect/Interact/etc., all driven by Timeline keys with `HistoricalCount` or
+  `CountSinceActivation` progress; there is no Quests-side knowledge of how a key gets recorded.
+- The only interaction adapters are Talk/Loot/Travel/Door/Teleport. There is no "harvest a world pickup" adapter.
+- Known 6.1 gap carried in: nothing happens if the whole party is defeated.
+
+## Decisions (T6.2-)
+
+- **T6.2-D1 (generalise the encounter trigger):** replace `PalisadeBreachTrigger` with a data-driven
+  `EncounterTrigger` MonoBehaviour: serialized `encounterKey` (persisted Timeline "fired" flag
+  `encounter-<key>-triggered`, "won" flag `encounter-<key>-won`), a list of `(npcDefinitionId, count)` spawns, a
+  `behaviorSetId`/brain builder id, `scatter`, and an optional `questId` to refresh on a win. The palisade encounter
+  becomes the first instance (same keys as today so saves/tests keep working — `palisade-breach-triggered`/
+  `palisade-rats-defeated` are preserved by making the key prefix configurable, not renamed).
+  `TacticalCombatSession.StartEncounter` takes a hostile display-name prefix instead of hard-coding "Giant Rat".
+- **T6.2-D2 (goblins):** new `npc-goblin` (melee, ~7 HP, Strike-like `ability-goblin-slash` d6, one Action) and
+  `npc-goblin-archer` (~5 HP, `ability-goblin-shortbow` d6, range 8, `requireLineOfSight` true). New
+  `GoblinBrain` (Close Distance to melee for the grunt; Close Distance to a stop distance of ~6 then shoot for the
+  archer), authored the same reflection way as `GiantRatBrain`. **Open question for review:** is an archer worth the
+  extra surface (ranged targeting through `AbilityTargetingGate`, a LOS provider BarrowsEnd's tactical session does not
+  construct today), or should Act 2 be melee-only with the "barricades" as terrain? Default: melee-only plus ONE
+  archer on the Middle level, only if `PhysicsLineOfSightProvider`-equivalent is cheap on the 2D grid.
+- **T6.2-D3 (encounters):** Upper: two patrol encounters on the mine-rail strip (2 grunts each), placed so the party
+  must cross them. Middle: one larger "barricade" encounter in front of the Deep gate (3 grunts + 1 archer) with the
+  barricades authored as `Rock`/`TallColumn`/`IronBars`-style blocking objects in `BarrowsEndCavernsAuthor.AuthorMiddle`
+  (terrain only; no cover rules — the toolkit has none). Authored in `BarrowsEndCavernsAuthor`, not the Town author.
+- **T6.2-D4 (Act 2 quest):** new `QuestDefinition` `quest-the-descent`, started by a `QuestStartTrigger` (or the first
+  encounter's own trigger) the first time the party enters `Cavern_Upper` — NOT by a dialogue, since Thaddeus's
+  briefing already ended Act 1's quest. Objectives: Kill (clear the Upper patrols, targetCount 2 encounters), Kill (break
+  the Middle barricade, targetCount 1). Registered in `BarrowsEndGearAuthor`'s content list (6.1's ContentValidator
+  lesson). Completion (all objectives) is NOT the end of the main quest — 6.3 owns that.
+- **T6.2-D5 (Grumble side quest):** `dlg-grumble` becomes a real tree: gated `BranchNode`s on
+  `quest-gathering-storm` completion (before: the current placeholder), accept -> `StartQuestAction("quest-grumbles-mushrooms")`,
+  in-progress reminder, turn-in branch (`CountAtLeast` on the harvest key) -> `GiveItemAction` (gold + a healing potion)
+  + `RecordEventAction("grumble-quest-complete")`, then a thank-you line. Quest: one Collect objective, 3 mushrooms
+  (`HistoricalCount` so harvesting before accepting still counts — decision for review), one TalkTo/SetFlag for the turn-in.
+- **T6.2-D6 (harvest interaction):** new BarrowsEnd-local `HarvestInteractionAdapter : IInteractionAdapter` (+
+  `WorldInteractable`), placed as 3 mushroom clusters (2 Upper, 1 Middle — the `Mushrooms` tile already decorates
+  Upper at `(6, UpperDepth-6)`): `BeginExecute` records the shared key `mushroom-harvested` plus a per-node key
+  `mushroom-node-<id>`, then hides itself; a node whose per-node key already occurred is hidden on scene load (same
+  persisted-flag-checked-on-enable fix 6.1 applied to the palisade trigger).
+- **T6.2-D7 (defeat handling, closes the carried-in gap):** when the party is wiped, `TacticalCombatSession` reports a
+  loss to the encounter; `EncounterTrigger` then (a) clears its own "fired" flag so the encounter can be retried and
+  (b) the shell reloads the most recent save via the existing `LoadNow`, or, if there is none, restarts at the Town
+  `Restful Hearth`. **Open question for review:** is silently reloading right, or is a "Defeated" screen with a choice
+  better? Default: message via `Say`, then reload last save.
+- **T6.2-D8 (what is NOT in scope):** loot drops/XP/level-up, cover mechanics, the Deep level, patrol AI that walks the
+  rails while exploring (the goblins are static until their trigger fires — "patrol" is flavour for placement only),
+  class abilities for companions (a separate later class-work task per the user).
+
+## Risks
+
+1. **Spawning combatants away from the trigger point**: 6.1's `ratSpawnScatter` let rats spawn up to 2.5 units from the
+   trigger, outside Strike's 1.5 range; combat only became playable once movement existed. Goblin spawns must be
+   sampled on walkable cells through `TrySamplePositionAvoiding` and verified reachable (path-planned) from the party.
+2. **Party members can be in any scene state at fire time** (some in formation behind the leader): the combatants list
+   is every party member; a far-behind member could be a combatant yet unable to reach melee. Mitigation: only members
+   within N units of the trigger join, OR warp the party into formation — decide in review.
+3. **Multiple encounters in one location** share `TacticalCombatSession` (it no-ops a second `StartEncounter` while
+   one is active) — two triggers firing the same frame must not drop one silently (queue or re-arm).
+4. **Persisted keys vs. saves**: new Timeline keys and the new `NpcDefinition`/`AbilityDefinition`/`QuestDefinition`
+   assets all need ruleset registration or `ContentValidator` rejects saves made after them (6.0/6.1 both hit this).
+5. **Throwaway-copy verification caveat** (6.1 lesson): the real project's scenes only change when the authoring menus
+   are actually run against the live project; verification in `BarrowsEnd_verify` is not the real asset.
+
+## Task breakdown (tests first, per file — high-level)
+
+1. `TacticalCombatSession`: hostile name prefix + loss reporting (`StartEncounter` result as won/lost with a reason);
+   PlayMode tests extended from `TacticalCombatSessionTests`.
+2. `EncounterTrigger` replaces `PalisadeBreachTrigger`; palisade encounter re-authored onto it with unchanged keys;
+   the existing palisade tests pass unmodified apart from the type name.
+3. Goblin content: `npc-goblin`, `npc-goblin-archer`, abilities, `GoblinBrain`, ruleset registration; EditMode content
+   tests mirroring the Giant Rat ones.
+4. `BarrowsEndCavernsAuthor`: Upper patrols, Middle barricade, mushroom nodes, quest-start trigger; scene content tests.
+5. `HarvestInteractionAdapter` + the Collect quest + Grumble's tree; EditMode dialogue tests + a PlayMode harvest test.
+6. Defeat handling (D7) with a PlayMode test (a deliberately overmatched encounter).
+7. Throwaway-copy full verification, then the live gate playthrough with the user.
+
+
+## Opus review record (Task 6.2) — blockers found and the revisions they force
+
+The reviewer verified every claim against source. The draft above is SUPERSEDED where it conflicts with this section.
+
+**Blockers (all accepted):**
+- **B1 hostile AI never attacks in range (a 6.1 bug).** Both rat behaviors have empty `considerations`; `UtilityMath.CombineScores` returns 0 for none, and the provider only replaces a decision on a strictly higher score, so Move (listed first) always wins and a rat bites only after burning all 6 Movement. Fix: a `Distance` consideration per behavior with attack's lowest score above Move's highest (the toolkit's `TacticalEncounterTestContent` already records this exact fix); a PlayMode test asserting a hostile actually damages the party.
+- **B2 one brain per encounter cannot drive grunt + archer.** Fix: a BarrowsEnd decision provider selecting a brain per NPC definition (`TacticalAiTurnDriver` takes any `ITurnDecisionProvider`); both goblin types share one faction.
+- **B3 Upper objective unreachable with per-encounter keys.** Fix: `EncounterTrigger` serializes a shared `progressKey` recorded alongside its own won key.
+- **B4 quests are never re-checked** (only the palisade trigger does). Fix: `ShellBootstrap.RefreshAllActiveQuests()` after StartQuest, after every conversation ends, after a harvest, after an encounter ends (also fixes the existing 6.1 Act 1 ordering bug).
+- **B5 saving mid-combat breaks the encounter** (fired flag persists, encounter does not). Fix: `SaveNow` refuses while `CombatSession.IsActive`.
+- **B6 clicking a world object during combat soft-locks** (Interact passes through `GateCommandSource`). Fix: drop Interact while `CombatMoveOverride != null`.
+- **B7 defeat (D7) as drafted does not work:** a downed member stays a combatant, nobody rolls party death saves, a dead member is permanently `MarkDefeated`, and retry collides on fixed spawn ids and the in-memory `fired` flag. **Revised D7:** treat a party combatant with `DeathSaves != null` as out of the fight; wire `RollDeathSave` into the UI bridge; stabilise downed members after a win; write a CHECKPOINT save just before an encounter fires (before the fired flag), and on a loss show a `Say` message, wait ~1.5s, and reload that checkpoint (needs `LoadNow` to take a path). No flag clearing or restart path.
+- **B8 a second trigger firing during combat loses its encounter** (`fired` and the persisted key are set before `StartEncounter` silently no-ops). Fix: `StartEncounter` returns bool; trigger ignores entry while combat is active, re-checks via `OnTriggerStay`, records fired only after a successful start.
+
+**Should-fix (accepted):** serialize full `firedKey`/`wonKey`/`progressKey` strings (the two palisade keys share no prefix) and keep the existing key constants; `Town.unity` stores the old trigger by script GUID so it needs a Reset rebuild (or keep the class name and add fields); add a test that actually walks into the trigger; archer needs `PhysicsLineOfSightProvider(ObstacleMask)` passed at session construction (otherwise `requireLineOfSight` is silently ignored) and only `Wall` tiles block sight; place the archer so its stop point never lands in the Middle water; quest-start-on-entry has no hook, so a small component wired in the same pass as `WireCombatTriggers`; gate Grumble on `HasOccurred("palisade-rats-defeated")` (quest completion records no key), order branches turn-in -> accepted -> not accepted, gold and potion need two `GiveItemAction`s; harvest adapter uses a serialized node id and the sprite on the node (the painted decor tile stays); breakdown must list the `ShellBootstrap` work; add a `Say` on quest started/objective/completed since BarrowsEnd has no quest log UI; content-count test +6 and every new definition registered in `BarrowsEndGearAuthor.extraContent` (ContentValidator does not check Timeline keys, so Risk 4 was partly wrong); goblins need a body option; caverns need `Reset Caverns` (Author skips existing scenes); show `NpcDefinition.DisplayName` in the turn-order list; auto-hit d6 damage makes balance tight, tune goblin HP/count in the live gate.
+
+**Open questions answered:** archer = yes but LAST and first thing to cut; defeat = `Say` + checkpoint reload, not a silent quicksave reload and not a new screen.
+
+### Revised task breakdown (supersedes the one above)
+0. Carried-in combat fixes, tests first: B1 considerations + "hostile attacks" test; downed/stabilise + death-save wiring; no save / no Interact during combat; `StartEncounter` returns bool; `RefreshAllActiveQuests`.
+1. `EncounterTrigger` (explicit keys, unique spawn ids per attempt, per-NPC brain map, ignores entry during combat) + Town rebuild + a walk-into-trigger test.
+2. Defeat handling: pre-encounter checkpoint + reload-on-loss.
+3. Melee goblin content + `GoblinBrain` + content-count update + registration.
+4. Caverns content via Reset Caverns, with spawn-reachability tests.
+5. Quest plumbing: location-entry quest start, Act 2 quest with shared `progressKey`, `Say` notifications.
+6. Harvest adapter, Grumble's side quest and tree.
+7. Archer (LOS provider + per-NPC brain), optional.
+8. Throwaway-copy verification, regenerate the real project, live gate with the user.
+
+**Not yet committed.**

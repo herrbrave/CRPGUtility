@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using BarrowsEnd.Gate;
 using CRPG.Actors;
 using CRPG.Core;
@@ -64,8 +65,23 @@ namespace BarrowsEnd.Shell
             built = true;
         }
 
+        // The party cards only redraw on selection/membership changes, so damage and healing never reached them.
+        // A cheap per-frame signature of every member's hit points redraws them the moment any number moves.
+        private string partyHpSignature = "";
+
+        private void RefreshPartyCardsWhenHitPointsChange()
+        {
+            if (partyView == null || presenter == null) return;
+            var signature = string.Join("|", presenter.GetMembers().Select(m => $"{m.Id}:{m.CurrentHp}/{m.MaxHp}"));
+            if (signature == partyHpSignature) return;
+
+            partyHpSignature = signature;
+            partyView.RefreshNow();
+        }
+
         private void LateUpdate()
         {
+            if (built) RefreshPartyCardsWhenHitPointsChange();
             if (!built || statusLabel == null) return;
             var session = bootstrap.Services?.Session;
             statusLabel.text = session != null && session.Characters.TryGetCharacter(session.Party.ActiveCharacter, out var member)

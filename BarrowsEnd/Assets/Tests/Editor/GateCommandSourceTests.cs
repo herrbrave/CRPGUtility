@@ -88,5 +88,24 @@ namespace BarrowsEnd.Tests
             Assert.AreEqual(interactCommand.Target, interact.Value.Target);
             Assert.IsTrue(cancelled);
         }
+
+        [Test]
+        public void InteractIsDroppedWhileCombatOwnsInputAndRestoredAfterwards()
+        {
+            var member = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { member });
+            var inner = new FakeCommandSource();
+            using var gate = new GateCommandSource(inner, () => party);
+            var interactions = 0;
+            gate.Interact += _ => interactions++;
+
+            gate.CombatMoveOverride = _ => { };
+            inner.RaiseInteract(new InteractCommand(RuntimeEntityId.NewId()));
+            Assert.AreEqual(0, interactions, "a click on a travel arch / NPC mid-fight must not start an interaction");
+
+            gate.CombatMoveOverride = null;
+            inner.RaiseInteract(new InteractCommand(RuntimeEntityId.NewId()));
+            Assert.AreEqual(1, interactions);
+        }
     }
 }

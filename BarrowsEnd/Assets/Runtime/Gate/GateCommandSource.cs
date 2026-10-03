@@ -82,7 +82,13 @@ namespace BarrowsEnd.Gate
             if (CombatMoveOverride != null) { CombatMoveOverride(command); return; }
             Move?.Invoke(command);
         }
-        private void OnInteract(InteractCommand command) => Interact?.Invoke(command);
+        // A world click on an interactable (travel arch, NPC, pickup) mid-fight would walk a member there outside
+        // turn order and could travel away, leaving combat stuck on -- so Interact is dropped while combat owns input.
+        private void OnInteract(InteractCommand command)
+        {
+            if (CombatMoveOverride != null) return;
+            Interact?.Invoke(command);
+        }
         private void OnCancel() => Cancel?.Invoke();
     }
 }

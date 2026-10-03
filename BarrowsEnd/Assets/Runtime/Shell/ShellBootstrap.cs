@@ -147,7 +147,39 @@ namespace BarrowsEnd.Shell
         // polling -- neither CombatEncounterService nor TacticalEncounterController auto-detects "one side
         // wiped," confirmed by reading both classes). CombatSession.Tick itself no-ops when no encounter is
         // active, so this costs nothing outside of combat.
-        private void Update() => CombatSession?.Tick(Time.deltaTime);
+        private void Update()
+        {
+            CombatSession?.Tick(Time.deltaTime);
+            HookInteractionEnded();
+        }
+
+        // The interaction controller is rebuilt on every session rebind, so re-subscribe whenever it changes.
+        // A finished conversation can record Timeline events a quest objective tracks (a turn-in, a flag), and
+        // recording never re-checks quests by itself.
+        private InteractionController hookedInteractionController;
+
+        private void HookInteractionEnded()
+        {
+            var controller = GetComponentInChildren<InteractionControllerBehaviour>()?.Controller;
+            if (controller == null || ReferenceEquals(controller, hookedInteractionController)) return;
+
+            hookedInteractionController = controller;
+            controller.RequestEnded += _ => RefreshAllActiveQuests();
+        }
+
+        /// <summary>Re-checks every Active quest against the Timeline. Called after a quest starts (earlier
+        /// progress may already count) and after every finished interaction.</summary>
+        public void RefreshAllActiveQuests()
+        {
+            var session = Services?.Session;
+            if (session == null) return;
+
+            var service = new QuestService(session.Quests, session.Timeline, session.EventBus, session.Inventory);
+            foreach (var state in session.Quests.Quests.Where(q => q.Status == QuestStatus.Active).ToList())
+            {
+                if (session.RulesDatabase.TryResolve<QuestDefinition>(state.QuestId, out var definition)) service.RefreshProgress(definition);
+            }
+        }
 
         private IEnumerator Boot()
         {
@@ -207,7 +239,7 @@ namespace BarrowsEnd.Shell
                 turnOrderGo.transform.SetParent(transform);
                 var turnOrderView = turnOrderGo.AddComponent<TurnOrderView>();
                 CombatSession = new TacticalCombatSession(commandSource, inputSource, hudRoot, abilityBarView, BarrowsEndLayers.RouterMask,
-                    turnOrderView, DisplayNameFor, Say);
+                    turnOrderView, DisplayNameFor, Say, id => Services.DeathSaves.RollDeathSave(id), id => Services.DeathSaves.Stabilize(id));
             }
             CombatSession.RebindSession(session, spawner);
 
@@ -514,17 +546,19 @@ namespace BarrowsEnd.Shell
             HideRecruitedCompanionFixtures(session);
         }
 
-        /// <summary>Task 6.1: wires every PalisadeBreachTrigger currently loaded with the current session/
+        /// <summary>Task 6.1: wires every EncounterTrigger currently loaded with the current session/
         /// spawner/CombatSession, and re-checks each one's own persisted "already fired" Timeline flag -- same
         /// shape and call sites as WireTalkAdapters (boot, every scene load, after a session load).</summary>
         private void WireCombatTriggers(GameSession session)
         {
-            foreach (var trigger in FindObjectsByType<PalisadeBreachTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var trigger in FindObjectsByType<EncounterTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
                 trigger.Session = session;
                 trigger.Spawner = Services.Spawner;
                 trigger.CombatSession = CombatSession;
-                trigger.RequestQuestRefresh = RefreshQuestProgress;
+                trigger.RequestQuestRefresh = RefreshAllActiveQuests;
+                trigger.RequestCheckpoint = SaveCheckpoint;
+                trigger.RequestDefeat = HandlePartyDefeated;
                 trigger.RefreshFiredState();
             }
         }
@@ -543,18 +577,7 @@ namespace BarrowsEnd.Shell
             }
 
             new QuestService(session.Quests, session.Timeline, session.EventBus, session.Inventory).StartQuest(quest);
-        }
-
-        /// <summary>Task 6.1: called by whoever just recorded a Timeline event one of this quest's objectives
-        /// tracks (currently only PalisadeBreachTrigger) -- QuestService.RefreshProgress is never triggered
-        /// automatically by recording a Timeline event.</summary>
-        private void RefreshQuestProgress(string questKey)
-        {
-            var session = Services?.Session;
-            if (session == null) return;
-            if (!session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId(questKey), out var quest)) return;
-
-            new QuestService(session.Quests, session.Timeline, session.EventBus, session.Inventory).RefreshProgress(quest);
+            RefreshAllActiveQuests();
         }
 
         /// <summary>Task 6.1 (T6.1-D2): recruits one companion for real -- builds their CharacterState fresh (they
@@ -652,7 +675,22 @@ namespace BarrowsEnd.Shell
         public bool SaveNow()
         {
             if (!IsReady || transitionGate.IsBusy) { Say("cannot save right now"); return false; }
+            if (CombatSession != null && CombatSession.IsActive) { Say("cannot save during combat"); return false; }
 
+            var saved = SaveTo(SavePath, out var message);
+            Say(saved ? "saved" : "save failed: " + message);
+            return saved;
+        }
+
+        /// <summary>Where the pre-encounter checkpoint lives (never the player's own quicksave).</summary>
+        public string CheckpointPath => SavePath + ".checkpoint";
+
+        /// <summary>Silently writes the checkpoint a lost encounter reloads. Called by an <see cref="EncounterTrigger"/>
+        /// just before it spawns hostiles; the player's quicksave is left alone.</summary>
+        public bool SaveCheckpoint() => IsReady && !transitionGate.IsBusy && SaveTo(CheckpointPath, out _);
+
+        private bool SaveTo(string path, out string message)
+        {
             var session = Services.Session;
             var snapshots = Services.Spawner.CaptureSnapshot().ToList();
             var extras = snapshots.Select(s => RuntimeEntityId.FromString(s.CharacterId)).ToList();
@@ -661,19 +699,35 @@ namespace BarrowsEnd.Shell
                 additionalCharacterIds: extras, worldSpawns: snapshots, stores: session.Stores, lootContainers: session.LootContainers,
                 scenePath: SceneManager.GetActiveScene().path, rulesetId: ruleset.RulesetId);
 
-            var result = new SaveFileStore().Save(SavePath, SaveService.ToJson(data));
-            Say(result.Success ? "saved" : "save failed: " + result.Message);
+            var result = new SaveFileStore().Save(path, SaveService.ToJson(data));
+            message = result.Message;
             return result.Success;
         }
 
+        /// <summary>The party was wiped: say so, give the player a beat, then reload the pre-encounter checkpoint.</summary>
+        public void HandlePartyDefeated()
+        {
+            Say("The party has fallen...");
+            StartCoroutine(ReloadCheckpointAfterDelay());
+        }
+
+        private IEnumerator ReloadCheckpointAfterDelay()
+        {
+            yield return new WaitForSeconds(1.5f);
+            if (File.Exists(CheckpointPath)) LoadFrom(CheckpointPath);
+            else Say("No checkpoint to return to.");
+        }
+
         /// <summary>Starts a load; <see cref="IsLoading"/> is true until it finishes. The optional callback receives the outcome.</summary>
-        public void LoadNow(Action<LoadOutcome> onFinished = null)
+        public void LoadNow(Action<LoadOutcome> onFinished = null) => LoadFrom(SavePath, onFinished);
+
+        public void LoadFrom(string path, Action<LoadOutcome> onFinished = null)
         {
             if (!IsReady || IsLoading || transitionGate.IsBusy) { Say("cannot load right now"); onFinished?.Invoke(LoadOutcome.LoadAlreadyInProgress); return; }
-            if (!File.Exists(SavePath)) { Say("nothing saved yet"); onFinished?.Invoke(LoadOutcome.FileNotFound); return; }
+            if (!File.Exists(path)) { Say("nothing saved yet"); onFinished?.Invoke(LoadOutcome.FileNotFound); return; }
 
             runner.Run(loadCoordinator.LoadCoroutine(
-                SavePath, ruleset, new DiceService(new SeededRandomSource(seed)), RequiredPolicies, host, Services.Spawner,
+                path, ruleset, new DiceService(new SeededRandomSource(seed)), RequiredPolicies, host, Services.Spawner,
                 gameObject.scene, partyVisualPrefabs, result =>
                 {
                     if (result.Outcome == LoadOutcome.Success) OnLoaded(result);

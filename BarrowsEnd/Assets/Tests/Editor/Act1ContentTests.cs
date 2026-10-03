@@ -162,7 +162,7 @@ namespace BarrowsEnd.Tests
             Assert.IsTrue(session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId(BarrowsEndGearAuthor.GatheringStormQuestId), out var quest));
             Assert.AreEqual(1, quest.Objectives.Count);
             Assert.AreEqual(QuestObjectiveType.Kill, quest.Objectives[0].Type);
-            Assert.AreEqual(PalisadeBreachTrigger.RatsDefeatedTimelineKey, quest.Objectives[0].TrackingKey);
+            Assert.AreEqual(EncounterTrigger.PalisadeWonKey, quest.Objectives[0].TrackingKey);
             Assert.AreEqual(1, quest.Objectives[0].TargetCount);
         }
 
@@ -174,7 +174,7 @@ namespace BarrowsEnd.Tests
             var questService = new QuestService(log, session.Timeline);
             questService.StartQuest(quest);
 
-            session.Timeline.Record(PalisadeBreachTrigger.RatsDefeatedTimelineKey, TimelineValue.Flag);
+            session.Timeline.Record(EncounterTrigger.PalisadeWonKey, TimelineValue.Flag);
             questService.RefreshProgress(quest);
 
             Assert.IsTrue(log.TryGetQuest(quest.Id, out var state));

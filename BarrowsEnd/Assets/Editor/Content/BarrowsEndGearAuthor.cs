@@ -51,7 +51,7 @@ namespace BarrowsEnd.Editor
 
         // Task 6.1 (T6.1-D4): Act 1's own quest -- NOT a multi-act quest, so it can't complete prematurely once
         // Act 1's own objective finishes (fact 10's should-fix). One Kill objective, trackingKey matching what
-        // PalisadeBreachTrigger records on the party's actual victory (not a per-rat count -- the trigger records
+        // EncounterTrigger records on the party's actual victory (not a per-rat count -- the trigger records
         // the flag exactly once, so targetCount 1 against HistoricalCount is correct).
         public const string GatheringStormQuestId = "quest-gathering-storm";
         public const string DefeatPalisadeRatsObjectiveId = "defeat-palisade-rats";
@@ -343,7 +343,7 @@ namespace BarrowsEnd.Editor
             SetField(objective, "id", DefeatPalisadeRatsObjectiveId);
             SetField(objective, "displayName", "Clear the giant rats breaching the palisade");
             SetField(objective, "type", QuestObjectiveType.Kill);
-            SetField(objective, "trackingKey", BarrowsEnd.Gate.PalisadeBreachTrigger.RatsDefeatedTimelineKey);
+            SetField(objective, "trackingKey", BarrowsEnd.Gate.EncounterTrigger.PalisadeWonKey);
             SetField(objective, "targetCount", 1);
             SetField(quest, "id", GatheringStormQuestId);
             SetField(quest, "displayName", "The Gathering Storm");

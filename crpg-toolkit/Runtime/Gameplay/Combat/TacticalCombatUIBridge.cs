@@ -51,7 +51,19 @@ namespace CRPG.Gameplay.Combat
             RefreshCurrentCharacter();
         }
 
-        private void OnAbilityChosen(RuntimeEntityId source, AbilityDefinition ability) => targetingGate.Arm(source, ability);
+        private void OnAbilityChosen(RuntimeEntityId source, AbilityDefinition ability)
+        {
+            // A self-targeted ability (Rage, Reckless Attack, ...) has nothing to point at: cast it at once rather
+            // than arming the click gate, which would wait for a target click and reject any creature clicked.
+            if (ability.Targeting.Mode == TargetMode.Self)
+            {
+                targetingGate.Disarm();
+                controller.Scheduler.StartAbility(source, ability, new[] { source });
+                return;
+            }
+
+            targetingGate.Arm(source, ability);
+        }
 
         private void OnEndTurnRequested()
         {

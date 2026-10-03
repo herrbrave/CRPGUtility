@@ -81,6 +81,23 @@ namespace BarrowsEnd.Tests
         }
 
         [UnityTest]
+        public IEnumerator ThePartyCardsFollowHitPointChangesWithoutAnySelectionChange()
+        {
+            yield return null;
+            var memberId = Session.Party.Members[1];
+            Session.Characters.TryGetCharacter(memberId, out var character);
+            character.TryGetResource(BarrowsEnd.Gate.GateSessionServices.HitPoints, out var hp);
+            var startingHp = hp.Current;
+
+            hp.Spend(3); // combat damage never touches Party.Changed
+            yield return null;
+            yield return null;
+
+            var label = Root().Q(name: "party-roster").Q(name: $"party-card-{memberId}").Q<Label>(name: "party-card-hp");
+            Assert.AreEqual($"HP {startingHp - 3} / {hp.Max}", label.text, "the card shows the damage as it lands");
+        }
+
+        [UnityTest]
         public IEnumerator TheHudShowsAllFourPartyMembersWithCorrectNamesAndHp()
         {
             yield return null;

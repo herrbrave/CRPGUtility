@@ -63,13 +63,19 @@ namespace CRPG.Gameplay.Combat
         {
             if (armedAbility == null) return false;
 
-            if (!Physics.Raycast(ray, out var hit, maxRayDistance, hittableMask))
+            // Every hit along the ray, nearest first: a trigger volume (an encounter/dialogue zone) or a prop between
+            // the camera and the creature must not swallow the click, so triggers are ignored and the first hit that
+            // actually belongs to a creature wins. Only if NOTHING creature-shaped is under the pointer does the click
+            // cancel targeting.
+            var hits = Physics.RaycastAll(ray, maxRayDistance, hittableMask, QueryTriggerInteraction.Ignore);
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            CharacterAgent agent = null;
+            foreach (var hit in hits)
             {
-                Disarm();
-                return true;
+                agent = hit.collider.GetComponentInParent<CharacterAgent>();
+                if (agent != null) break;
             }
 
-            var agent = hit.collider.GetComponentInParent<CharacterAgent>();
             if (agent == null)
             {
                 Disarm();

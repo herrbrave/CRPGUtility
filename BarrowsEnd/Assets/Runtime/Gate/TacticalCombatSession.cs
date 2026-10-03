@@ -43,6 +43,8 @@ namespace BarrowsEnd.Gate
         private readonly TurnOrderView turnOrderView;
         private readonly Func<RuntimeEntityId, string> displayNameFor;
         private readonly Action<string> notify;
+        private readonly Action<RuntimeEntityId> rollDeathSave;
+        private readonly Action<RuntimeEntityId> stabilize;
 
         private GameSession session;
         private WorldSpawnService spawner;
@@ -53,6 +55,7 @@ namespace BarrowsEnd.Gate
         private TacticalCombatUIBridge uiBridge;
         private VisualElementRegionHolder abilityBarRegionHolder;
         private VisualElementRegionHolder turnOrderRegionHolder;
+        private UnityEngine.UIElements.Label feedbackLabel;
         private Action<GameEventContext> onCombatEnded;
         private Action<GameEventContext> onAbilityResolved;
         private TacticalPlayerMoveAdapter moveAdapter;
@@ -62,8 +65,11 @@ namespace BarrowsEnd.Gate
 
         public TacticalCombatSession(GateCommandSource commandSource, InputSystemCommandSource inputSource,
             HudRoot hudRoot, AbilityBarView abilityBarView, LayerMask hittableMask,
-            TurnOrderView turnOrderView, Func<RuntimeEntityId, string> displayNameFor, Action<string> notify)
+            TurnOrderView turnOrderView, Func<RuntimeEntityId, string> displayNameFor, Action<string> notify,
+            Action<RuntimeEntityId> rollDeathSave, Action<RuntimeEntityId> stabilize)
         {
+            this.rollDeathSave = rollDeathSave ?? throw new ArgumentNullException(nameof(rollDeathSave));
+            this.stabilize = stabilize ?? throw new ArgumentNullException(nameof(stabilize));
             this.turnOrderView = turnOrderView ?? throw new ArgumentNullException(nameof(turnOrderView));
             this.displayNameFor = displayNameFor ?? throw new ArgumentNullException(nameof(displayNameFor));
             this.notify = notify;
@@ -75,6 +81,13 @@ namespace BarrowsEnd.Gate
         }
 
         public bool IsActive => controller != null;
+
+        /// <summary>True when a new encounter could start right now (none active, session bound) -- lets a trigger
+        /// check BEFORE it spawns hostiles.</summary>
+        public bool CanStart => !IsActive && session != null;
+
+        /// <summary>Whose turn it is right now, or null when no encounter is active.</summary>
+        public RuntimeEntityId? CurrentTurnId => controller?.EncounterService.Encounter?.CurrentTurn?.Id;
 
         /// <summary>Called alongside every <see cref="GateSessionServices.Rebind"/> (boot and after a load) so
         /// this session's own session-scoped references never go stale -- mirrors every other consumer's own
@@ -95,17 +108,26 @@ namespace BarrowsEnd.Gate
         /// BEFORE <see cref="CombatEncounterService.EndCombat"/> runs, since the encounter's own Combatants list
         /// is already cleared by the time CombatEnded actually fires (confirmed against the shipped sample's own
         /// win/loss-detection comment).</summary>
-        public void StartEncounter(IReadOnlyList<(RuntimeEntityId Id, DefinitionId Faction)> combatants, DefinitionId hostileFaction,
-            BehaviorSetDefinition hostileBrain, Action<bool> onEncounterEnded = null)
+        /// <returns>True if the encounter actually started; false (nothing changed) if one is already active or
+        /// the session/ruleset is not ready -- a caller must not treat its encounter as fired on false.</returns>
+        public bool StartEncounter(IReadOnlyList<(RuntimeEntityId Id, DefinitionId Faction)> combatants, DefinitionId hostileFaction,
+            BehaviorSetDefinition hostileBrain, Action<bool> onEncounterEnded = null) =>
+            StartEncounter(combatants, hostileFaction, _ => hostileBrain, onEncounterEnded);
+
+        /// <param name="brainFor">The behavior set driving each hostile combatant (so an encounter can mix enemy
+        /// types). <paramref name="hostileNameFor"/> supplies turn-order display names; null falls back to "Hostile N".</param>
+        public bool StartEncounter(IReadOnlyList<(RuntimeEntityId Id, DefinitionId Faction)> combatants, DefinitionId hostileFaction,
+            Func<RuntimeEntityId, BehaviorSetDefinition> brainFor, Action<bool> onEncounterEnded = null,
+            Func<RuntimeEntityId, string> hostileNameFor = null)
         {
-            if (IsActive || session == null) return;
+            if (IsActive || session == null) return false;
             this.onEncounterEnded = onEncounterEnded;
 
             var positions = new LiveCharacterPositionProvider();
             if (!session.RulesDatabase.TryResolve<ResourceDefinition>(new DefinitionId(MovementResourceId), out var movementDefinition))
             {
                 Debug.LogError("[TacticalCombatSession] resource-movement is missing -- run Barrows End/Content/Author Gear And Ruleset.");
-                return;
+                return false;
             }
 
             foreach (var (id, _) in combatants) GrantMovement(id);
@@ -115,7 +137,7 @@ namespace BarrowsEnd.Gate
                 if (!session.RulesDatabase.TryResolve<ResourceDefinition>(new DefinitionId(turnResourceId), out var turnResource))
                 {
                     Debug.LogError($"[TacticalCombatSession] {turnResourceId} is missing from the ruleset.");
-                    return;
+                    return false;
                 }
                 turnResources.Add(turnResource);
                 foreach (var (id, _) in combatants) GrantTurnResource(id, turnResource.Id, 1);
@@ -129,7 +151,9 @@ namespace BarrowsEnd.Gate
             controller = new TacticalEncounterController(session.Characters, session.EventBus, positions, abilityResolution,
                 movementResolution, spawner.GridNavigation, encounterService, spawner, combatants, useExplicitTurnOrder: true);
 
-            var brain = new UtilityAIDecisionProvider(hostileBrain, session.RulesDatabase, session.Characters, abilityResolution, positions, new SeededRandomSource(session.GetHashCode()));
+            var random = new SeededRandomSource(session.GetHashCode());
+            var brain = new PerCombatantDecisionProvider(brainFor,
+                set => new UtilityAIDecisionProvider(set, session.RulesDatabase, session.Characters, abilityResolution, positions, random));
             aiDriver = new TacticalAiTurnDriver(controller, session.Characters, brain, hostileFaction);
 
             targetingGate = new AbilityTargetingGate(controller.Scheduler, abilityResolution, hittableMask);
@@ -151,17 +175,33 @@ namespace BarrowsEnd.Gate
             abilityBarView.Initialize(abilityBarPresenter, abilityBarRegionHolder.Region);
 
             var names = new Dictionary<RuntimeEntityId, string>();
-            var ratCount = 0;
+            var hostileCount = 0;
             foreach (var (id, faction) in combatants)
-                names[id] = faction == PartyFaction ? displayNameFor(id) ?? "Party member" : $"Giant Rat {++ratCount}";
+            {
+                if (faction == PartyFaction) names[id] = displayNameFor(id) ?? "Party member";
+                else names[id] = hostileNameFor?.Invoke(id) ?? $"Hostile {++hostileCount}";
+            }
             var turnOrderPresenter = new TurnOrderPresenter(controller.EncounterService, names);
             turnOrderRegionHolder ??= new VisualElementRegionHolder(hudRoot.CreateRegion(HudCorner.BottomLeft, 260f));
             turnOrderView.Initialize(turnOrderPresenter, turnOrderRegionHolder.Region, session.EventBus);
+            if (feedbackLabel == null)
+            {
+                feedbackLabel = new UnityEngine.UIElements.Label { pickingMode = UnityEngine.UIElements.PickingMode.Ignore };
+                feedbackLabel.style.whiteSpace = UnityEngine.UIElements.WhiteSpace.Normal;
+                feedbackLabel.style.color = new Color(1f, 0.9f, 0.4f, 1f);
+                feedbackLabel.style.backgroundColor = new Color(0f, 0f, 0f, 0.55f);
+                feedbackLabel.style.paddingLeft = feedbackLabel.style.paddingRight = 8;
+                feedbackLabel.style.paddingTop = feedbackLabel.style.paddingBottom = 4;
+            }
+            turnOrderRegionHolder.Region.Add(feedbackLabel);
+            SetCombatUiShown(true);
+            ShowFeedback("");
 
             uiBridge = new TacticalCombatUIBridge(controller, targetingGate, abilityBarView, session.EventBus, PartyFaction);
 
             onCombatEnded = _ => EndEncounter();
             session.EventBus.Subscribe(GameEvent.CombatEnded, onCombatEnded);
+            return true;
         }
 
         /// <summary>Called every frame from <c>ShellBootstrap.Update</c> -- a no-op when no encounter is active,
@@ -174,6 +214,7 @@ namespace BarrowsEnd.Gate
             if (!IsActive) return;
 
             controller.Tick(deltaTime);
+            RollDeathSaveForDownedPartyTurn();
             if (pendingEndTurn && !controller.Scheduler.IsBusy)
             {
                 pendingEndTurn = false;
@@ -189,14 +230,43 @@ namespace BarrowsEnd.Gate
             session.Characters.TryGetCharacter(id, out var character)
             && character.TryGetResource(new DefinitionId(ActionResourceId), out var action) && action.Current > 0;
 
+        // A downed (dying) party member takes no decision: on their turn the death save rolls itself and the turn
+        // passes, exactly as TacticalAiTurnDriver does for a dying hostile-faction combatant.
+        private void RollDeathSaveForDownedPartyTurn()
+        {
+            if (controller.Scheduler.IsBusy) return;
+            var current = controller.EncounterService.Encounter?.CurrentTurn;
+            if (current == null || current.Faction != PartyFaction) return;
+            if (!IsDowned(current.Id)) return;
+
+            rollDeathSave(current.Id);
+            if (controller.EncounterService.Encounter?.CurrentTurn == current) controller.EncounterService.EndTurn();
+        }
+
+        private bool IsDowned(RuntimeEntityId id) =>
+            session.Characters.TryGetCharacter(id, out var character) && character.DeathSaves != null;
+
+        // One prominent line under the turn order: what just happened (or why a click did nothing). The shell's own
+        // message label is a small muted line in the menu corner that is easy to miss mid-fight.
+        private void ShowFeedback(string message)
+        {
+            if (feedbackLabel == null) return;
+            feedbackLabel.text = message;
+            feedbackLabel.style.display = string.IsNullOrEmpty(message) ? UnityEngine.UIElements.DisplayStyle.None : UnityEngine.UIElements.DisplayStyle.Flex;
+        }
+
         private void OnAbilityResolved(GameEventContext context)
         {
             var current = controller?.EncounterService.Encounter?.CurrentTurn;
             if (current != null && current.Id == context.Source) pendingEndTurn = true;
         }
 
-        private void OnTargetRejected(AbilityDefinition ability, RuntimeEntityId target, AbilityValidationResult result) =>
-            notify?.Invoke(string.IsNullOrEmpty(result.Message) ? $"{ability.DisplayName}: {result.Reason}" : $"{ability.DisplayName}: {result.Message}");
+        private void OnTargetRejected(AbilityDefinition ability, RuntimeEntityId target, AbilityValidationResult result)
+        {
+            var message = string.IsNullOrEmpty(result.Message) ? $"{ability.DisplayName}: {result.Reason}" : $"{ability.DisplayName}: {result.Message}";
+            ShowFeedback(message);
+            notify?.Invoke(message);
+        }
 
         private void GrantMovement(RuntimeEntityId id)
         {
@@ -220,13 +290,28 @@ namespace BarrowsEnd.Gate
             var hostileAlive = false;
             foreach (var combatant in encounter.Combatants)
             {
-                if (combatant.Faction == PartyFaction) partyAlive = true;
+                if (combatant.Faction == PartyFaction) partyAlive |= !IsDowned(combatant.Id); // a downed member is out of the fight, not a survivor
                 else hostileAlive = true;
             }
 
             if (partyAlive && hostileAlive) return;
             lastEncounterPartyWon = partyAlive;
+            if (partyAlive)
+            {
+                foreach (var combatant in encounter.Combatants)
+                    if (combatant.Faction == PartyFaction && IsDowned(combatant.Id)) stabilize(combatant.Id);
+            }
+
             controller.EncounterService.EndCombat();
+        }
+
+        // The ability bar (End Turn!) and the turn-order list live in HUD regions that outlive any one encounter; with
+        // no fight they would sit there offering End Turn beside "No combat in progress".
+        private void SetCombatUiShown(bool shown)
+        {
+            var display = shown ? UnityEngine.UIElements.DisplayStyle.Flex : UnityEngine.UIElements.DisplayStyle.None;
+            if (abilityBarRegionHolder != null) abilityBarRegionHolder.Region.style.display = display;
+            if (turnOrderRegionHolder != null) turnOrderRegionHolder.Region.style.display = display;
         }
 
         private void EndEncounter()
@@ -242,6 +327,7 @@ namespace BarrowsEnd.Gate
             inputSource.TargetingGate = null;
             commandSource.CombatMoveOverride = null;
             abilityBarView.ClearCurrentCharacter();
+            SetCombatUiShown(false);
 
             uiBridge?.Dispose();
             controller?.Dispose();

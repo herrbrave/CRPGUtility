@@ -62,11 +62,8 @@ namespace CRPG.Rules.SRD5
 
             if (natural == 20)
             {
-                character.DeathSaves = null;
-                if (character.TryGetResource(hitPointResourceId, out var hp)) hp.Restore(1);
-                RemoveUnconsciousCondition(character);
+                Stabilize(characterId);
                 combatLog?.Log(new DeathSaveLogEntry(characterId, natural, success: true, 0, 0));
-                eventBus.Publish(new GameEventContext(GameEvent.CreatureStabilized, characterId, characterId));
                 return;
             }
 
@@ -78,6 +75,19 @@ namespace CRPG.Rules.SRD5
 
             if (natural >= 10) RecordSuccess(characterId, character, natural);
             else RecordFailure(characterId, character, 1, natural);
+        }
+
+        /// <summary>Ends a dying character's death saves at 1 hit point, conscious again -- the same outcome a
+        /// natural 20 produces, callable directly (e.g. a composition root stabilising the downed once a fight is
+        /// won). No-ops if the character isn't currently dying.</summary>
+        public void Stabilize(RuntimeEntityId characterId)
+        {
+            if (!characters.TryGetCharacter(characterId, out var character) || character.DeathSaves == null) return;
+
+            character.DeathSaves = null;
+            if (character.TryGetResource(hitPointResourceId, out var hp)) hp.Restore(1);
+            RemoveUnconsciousCondition(character);
+            eventBus.Publish(new GameEventContext(GameEvent.CreatureStabilized, characterId, characterId));
         }
 
         private void OnBeforeDamage(GameEventContext context)

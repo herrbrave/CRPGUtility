@@ -59,6 +59,36 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void StabilizeEndsDeathSavesAtOneHitPointAndClearsUnconsciousness()
+        {
+            var service = CreateService(new TestRandomSource());
+            var damageRandom = new TestRandomSource();
+            damageRandom.EnqueueResult(20);
+            var effect = CreateDamageEffect(1, 20, 0);
+            effect.Apply(new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(damageRandom), combatLog, eventBus));
+            Assert.IsNotNull(character.DeathSaves);
+            var stabilized = false;
+            eventBus.Subscribe(GameEvent.CreatureStabilized, _ => stabilized = true);
+
+            service.Stabilize(characterId);
+
+            Assert.IsNull(character.DeathSaves);
+            Assert.IsFalse(character.HasCondition(Unconscious));
+            Assert.IsTrue(character.TryGetResource(HitPoints, out var hp));
+            Assert.AreEqual(1, hp.Current);
+            Assert.IsTrue(stabilized);
+        }
+
+        [Test]
+        public void StabilizeIsANoOpForACharacterThatIsNotDying()
+        {
+            var service = CreateService(new TestRandomSource());
+            service.Stabilize(characterId);
+            Assert.IsTrue(character.TryGetResource(HitPoints, out var hp));
+            Assert.AreEqual(20, hp.Current);
+        }
+
+        [Test]
         public void MassiveOverkillCausesInstantDeathInsteadOfUnconsciousness()
         {
             CreateService(new TestRandomSource());

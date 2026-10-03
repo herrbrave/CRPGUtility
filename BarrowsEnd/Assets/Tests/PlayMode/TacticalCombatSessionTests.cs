@@ -9,6 +9,7 @@ using BarrowsEnd.Shell;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.InputSystem;
+using CRPG.Quests;
 using CRPG.UI;
 using NUnit.Framework;
 using UnityEngine;
@@ -89,6 +90,13 @@ namespace BarrowsEnd.Tests
             routerType.GetMethod("HandlePointerUp").Invoke(router, new object[] { screen, ray, cam, false });
         }
 
+        private static bool IsShown(VisualElement element)
+        {
+            for (var e = element; e != null; e = e.parent)
+                if (e.style.display == DisplayStyle.None) return false;
+            return true;
+        }
+
         private VisualElement HudRootElement() =>
             UnityEngine.Object.FindFirstObjectByType<HudRoot>().GetComponent<UIDocument>().rootVisualElement;
 
@@ -141,6 +149,10 @@ namespace BarrowsEnd.Tests
             yield return Seconds(2f);
 
             Assert.IsFalse(shell.CombatSession.IsActive, "combat ended after the only hostile died");
+            var endTurnLeft = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "End Turn");
+            Assert.IsTrue(endTurnLeft == null || !IsShown(endTurnLeft), "the combat ability bar (End Turn) is gone once the fight is over");
+            var roundLabel = HudRootElement().Query<Label>().ToList().FirstOrDefault(l => l.text == "No combat in progress");
+            Assert.IsTrue(roundLabel == null || !IsShown(roundLabel), "the turn-order tracker is hidden once the fight is over");
             Assert.IsTrue(partyWon.HasValue && partyWon.Value, "the party won");
 
             // Exploration movement is restored once combat ends.
@@ -148,6 +160,163 @@ namespace BarrowsEnd.Tests
             Click(protagonistAgent.transform.position + new Vector3(-3f, 0f, 0f));
             yield return Seconds(1.5f);
             Assert.Greater(Vector3.Distance(beforeRestoredClick, protagonistAgent.transform.position), 0.5f, "exploration movement works again after combat");
+        }
+
+        private IEnumerator StartFightWithRatAt(Vector3 offset, System.Action<RuntimeEntityId, RuntimeEntityId> ready)
+        {
+            var session = shell.Services.Session;
+            var protagonistId = session.Party.Members[0];
+            var protagonistAgent = GateSessionServices.FindAgent(protagonistId);
+            Assert.IsTrue(session.RulesDatabase.TryResolve<NpcDefinition>(new DefinitionId("npc-giant-rat"), out var ratDefinition));
+            var ratAgent = shell.Services.Spawner.SpawnNpc("combat-test-rat-ai", ratDefinition, protagonistAgent.transform.position + offset, Quaternion.identity);
+
+            var brain = GiantRatBrain.BuildAndRegister(session.RulesDatabase);
+            var combatants = new List<(RuntimeEntityId, DefinitionId)> { (protagonistId, TacticalCombatSession.PartyFaction), (ratAgent.EntityId, HostileFaction) };
+            shell.CombatSession.StartEncounter(combatants, HostileFaction, brain);
+            Assert.IsTrue(shell.CombatSession.IsActive);
+            yield return null;
+            ready(protagonistId, ratAgent.EntityId);
+        }
+
+        private float HitPointsOf(RuntimeEntityId id)
+        {
+            Assert.IsTrue(shell.Services.Session.Characters.TryGetCharacter(id, out var character));
+            Assert.IsTrue(character.TryGetResource(HitPoints, out var hp));
+            return hp.Current;
+        }
+
+        [UnityTest]
+        public IEnumerator AHostileAlreadyInMeleeRangeBitesInsteadOfShufflingItsMovement([ValueSource(nameof(RatOffsets))] float distance)
+        {
+            RuntimeEntityId protagonist = default, rat = default;
+            yield return StartFightWithRatAt(new Vector3(distance, 0f, 0f), (p, r) => { protagonist = p; rat = r; });
+            var before = HitPointsOf(protagonist);
+
+            var endTurn = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "End Turn");
+            Assert.IsNotNull(endTurn, "the ability bar offers End Turn on the party's turn");
+            UiClick.Pointer(endTurn);
+
+            yield return WaitUntil(() => HitPointsOf(protagonist) < before, 10f, $"the rat {distance} units away closed in and bit the protagonist");
+        }
+
+        private static readonly float[] RatOffsets = { 1f, 4f };
+
+        [UnityTest]
+        public IEnumerator SavingIsRefusedWhileCombatIsActive()
+        {
+            yield return StartFightWithRatAt(new Vector3(1f, 0f, 0f), (_, __) => { });
+
+            Assert.IsFalse(shell.SaveNow(), "saving mid-fight would persist a fired encounter with no live encounter behind it");
+            Assert.IsFalse(File.Exists(savePath));
+        }
+
+        [UnityTest]
+        public IEnumerator AWholePartyThatIsDownedLosesTheEncounterInsteadOfStallingForever()
+        {
+            var session = shell.Services.Session;
+            var protagonistId = session.Party.Members[0];
+            Assert.IsTrue(session.Characters.TryGetCharacter(protagonistId, out var protagonist));
+            protagonist.DeathSaves = new DeathSaveState();
+
+            bool? partyWon = null;
+            var protagonistAgent = GateSessionServices.FindAgent(protagonistId);
+            Assert.IsTrue(session.RulesDatabase.TryResolve<NpcDefinition>(new DefinitionId("npc-giant-rat"), out var ratDefinition));
+            var ratAgent = shell.Services.Spawner.SpawnNpc("combat-test-rat-loss", ratDefinition, protagonistAgent.transform.position + new Vector3(1f, 0f, 0f), Quaternion.identity);
+            var combatants = new List<(RuntimeEntityId, DefinitionId)> { (protagonistId, TacticalCombatSession.PartyFaction), (ratAgent.EntityId, HostileFaction) };
+            Assert.IsTrue(shell.CombatSession.StartEncounter(combatants, HostileFaction, GiantRatBrain.BuildAndRegister(session.RulesDatabase), won => partyWon = won));
+
+            yield return WaitUntil(() => partyWon.HasValue, 5f, "the encounter ended");
+            Assert.IsFalse(partyWon.Value, "no conscious party member is left, so the party lost");
+        }
+
+        [UnityTest]
+        public IEnumerator ADownedMemberTakesAutomaticDeathSavesAndIsStabilisedWhenTheFightIsWon()
+        {
+            shell.RecruitCompanion("garrick");
+            yield return null;
+            var session = shell.Services.Session;
+            var protagonistId = session.Party.Members[0];
+            var garrickId = CompanionRoster.IdFor("garrick");
+            Assert.IsTrue(session.Characters.TryGetCharacter(protagonistId, out var protagonist));
+            protagonist.DeathSaves = new DeathSaveState();
+            Assert.IsTrue(protagonist.TryGetResource(HitPoints, out var protagonistHp));
+            protagonistHp.Current = 0;
+
+            var garrickAgent = GateSessionServices.FindAgent(garrickId);
+            Assert.IsTrue(session.RulesDatabase.TryResolve<NpcDefinition>(new DefinitionId("npc-giant-rat"), out var ratDefinition));
+            var ratAgent = shell.Services.Spawner.SpawnNpc("combat-test-rat-stabilise", ratDefinition, garrickAgent.transform.position + new Vector3(1f, 0f, 0f), Quaternion.identity);
+            Assert.IsTrue(session.Characters.TryGetCharacter(ratAgent.EntityId, out var ratCharacter));
+            Assert.IsTrue(ratCharacter.TryGetResource(HitPoints, out var ratHp));
+            ratHp.Current = 1;
+
+            bool? partyWon = null;
+            var combatants = new List<(RuntimeEntityId, DefinitionId)>
+            {
+                (protagonistId, TacticalCombatSession.PartyFaction), (garrickId, TacticalCombatSession.PartyFaction), (ratAgent.EntityId, HostileFaction),
+            };
+            Assert.IsTrue(shell.CombatSession.StartEncounter(combatants, HostileFaction, GiantRatBrain.BuildAndRegister(session.RulesDatabase), won => partyWon = won));
+
+            // The downed protagonist's turn passes by itself; it becomes Garrick's turn, who strikes the rat.
+            var strikeButton = (Button)null;
+            yield return WaitUntil(() => (strikeButton = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "Strike")) != null, 5f, "Garrick's ability bar");
+            UiClick.Pointer(strikeButton);
+            yield return null;
+            Click(ratAgent.transform.position);
+
+            yield return WaitUntil(() => partyWon.HasValue, 5f, "the encounter ended");
+            Assert.IsTrue(partyWon.Value);
+            Assert.IsNull(protagonist.DeathSaves, "the downed protagonist is stabilised once the fight is won");
+            Assert.AreEqual(1, protagonistHp.Current);
+        }
+
+        [Test]
+        public void RefreshingAllActiveQuestsCompletesAQuestWhoseObjectiveWasMetBeforeAnyoneAskedForTheCheck()
+        {
+            var session = shell.Services.Session;
+            Assert.IsTrue(session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId("quest-gathering-storm"), out var quest));
+            session.Timeline.Record(EncounterTrigger.PalisadeWonKey, TimelineValue.Flag); // rats died before the briefing
+            new QuestService(session.Quests, session.Timeline, session.EventBus, session.Inventory).StartQuest(quest);
+            Assert.IsTrue(session.Quests.TryGetQuest(quest.Id, out var state));
+            Assert.AreEqual(QuestStatus.Active, state.Status, "starting a quest records nothing and re-checks nothing by itself");
+
+            shell.RefreshAllActiveQuests();
+
+            Assert.AreEqual(QuestStatus.Completed, state.Status);
+        }
+
+        [UnityTest]
+        public IEnumerator ASelfTargetedAbilityLikeRageCastsAtOnceInsteadOfWaitingForATargetClick()
+        {
+            var session = shell.Services.Session;
+            var protagonistId = session.Party.Members[0];
+            Assert.IsTrue(session.Characters.TryGetCharacter(protagonistId, out var protagonist));
+            protagonist.LearnAbility(new DefinitionId("ability-rage"));
+            protagonist.AddResource(new ResourceState(new DefinitionId("resource-rage-uses"), 2));
+
+            yield return StartFightWithRatAt(new Vector3(1f, 0f, 0f), (_, __) => { });
+
+            Button rage = null;
+            yield return WaitUntil(() => (rage = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "Rage")) != null && rage.enabledSelf, 5f, "an enabled Rage button");
+            UiClick.Pointer(rage);
+
+            yield return WaitUntil(() => protagonist.HasCondition(new DefinitionId("condition-raging")), 5f, "Rage took effect on a single button click");
+        }
+
+        [UnityTest]
+        public IEnumerator AnOutOfRangeStrikeTellsThePlayerWhyNothingHappened()
+        {
+            RuntimeEntityId ratId = default;
+            yield return StartFightWithRatAt(new Vector3(4f, 0f, 0f), (_, r) => ratId = r);
+            Button strike = null;
+            yield return WaitUntil(() => (strike = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "Strike")) != null, 5f, "Strike button");
+            UiClick.Pointer(strike);
+            yield return null;
+            var rat = GateSessionServices.FindAgent(ratId);
+            Click(rat.transform.position);
+            yield return null;
+
+            var feedback = HudRootElement().Query<Label>().ToList().FirstOrDefault(l => l.text != null && l.text.StartsWith("Strike:"));
+            Assert.IsNotNull(feedback, "a rejected click shows a prominent message instead of silently doing nothing");
         }
     }
 }

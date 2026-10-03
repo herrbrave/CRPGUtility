@@ -1,80 +1,29 @@
-using System.Collections.Generic;
-using System.Reflection;
 using CRPG.AI;
 using CRPG.Core;
 
 namespace BarrowsEnd.Gate
 {
-    /// <summary>Task 6.1: the palisade-breach tutorial's hostile AI -- a single "Attack Nearest" behavior (no
-    /// "Close Distance" move behavior: rats spawn already at melee range, per TacticalCombatSession's own
-    /// documented scope cut). Built and registered at runtime via reflection, the exact pattern
-    /// <c>TestProject/Assets/TacticalSlice/Scripts/TacticalSliceBootstrap.cs</c>'s own <c>BuildGoblinBehaviorSet</c>
-    /// already proves works (real `ScriptableObject.CreateInstance` + private-field reflection, then
-    /// <c>RulesDatabase.Register</c> so <see cref="UtilityAIDecisionProvider"/> can resolve <c>behaviorIds</c> by
-    /// DefinitionId at decision time) -- not authored as a design-time asset, since this content has no need to
-    /// be hand-tunable in the Inspector and every other piece of Task 6.1's combat/dialogue content is
-    /// authored from code anyway.</summary>
+    /// <summary>The palisade-breach tutorial's hostile AI: close to melee range, then bite. Built at runtime via
+    /// <see cref="HostileBrainKit"/> (no authored asset -- this content has no need to be hand-tunable) and
+    /// registered so <see cref="UtilityAIDecisionProvider"/> can resolve the behavior ids by DefinitionId.</summary>
     public static class GiantRatBrain
     {
         public const string BehaviorSetId = "behaviorset-giant-rat";
-        private const string AttackBehaviorId = "behavior-giant-rat-attack";
-        private const string CloseBehaviorId = "behavior-giant-rat-close";
 
         // Duplicated from BarrowsEndGearAuthor.RatBiteAbilityId (Editor-only, not reachable from Runtime) --
-        // same "duplicate the id/path string across the Editor/Runtime boundary" convention BarrowsEndTownAuthor's
-        // own GalleryPanelSettingsPath comment already established for this project.
+        // the project's usual Editor/Runtime id-duplication convention.
         private const string RatBiteAbilityId = "ability-rat-bite";
 
-        /// <summary>Idempotent: returns the already-registered set on a second call in the same session (a
-        /// second rat encounter, or a repeat trigger) rather than re-registering and throwing. Takes
-        /// <see cref="IRulesDatabase"/> like every other consumer in this project, downcasting internally to the
-        /// concrete <see cref="RulesDatabase"/> its own <c>Register</c> method needs -- the runtime type is
-        /// always <c>RulesDatabase</c> (confirmed: <c>RulesetSessionFactory.BuildAndValidate</c> is the only
-        /// place a session's RulesDatabase is ever constructed).</summary>
+        /// <summary>Idempotent: returns the already-registered set on a second call in the same session.
+        /// Downcasts to the concrete <see cref="RulesDatabase"/> its own <c>Register</c> needs -- the runtime type
+        /// is always <c>RulesDatabase</c> (<c>RulesetSessionFactory.BuildAndValidate</c> is the only place a
+        /// session's database is constructed).</summary>
         public static BehaviorSetDefinition BuildAndRegister(IRulesDatabase rulesDatabase)
         {
             if (rulesDatabase.TryResolve<BehaviorSetDefinition>(new DefinitionId(BehaviorSetId), out var existing))
                 return existing;
 
-            var concrete = (RulesDatabase)rulesDatabase;
-
-            var close = UnityEngine.ScriptableObject.CreateInstance<BehaviorDefinition>();
-            SetField(close, "id", CloseBehaviorId);
-            SetField(close, "displayName", "Close Distance");
-            SetField(close, "kind", BehaviorKind.Move);
-            SetField(close, "movementResourceId", new DefinitionId(TacticalCombatSession.MovementResourceId));
-            SetField(close, "moveTargetRelation", CRPG.Abilities.TargetRelation.Enemy);
-            SetField(close, "stopDistance", 1.2f);
-            SetField(close, "considerations", new List<Consideration>());
-            concrete.Register(close);
-
-            var attack = UnityEngine.ScriptableObject.CreateInstance<BehaviorDefinition>();
-            SetField(attack, "id", AttackBehaviorId);
-            SetField(attack, "displayName", "Bite Nearest");
-            SetField(attack, "abilityId", new DefinitionId(RatBiteAbilityId));
-            SetField(attack, "considerations", new List<Consideration>());
-            concrete.Register(attack);
-
-            var set = UnityEngine.ScriptableObject.CreateInstance<BehaviorSetDefinition>();
-            SetField(set, "id", BehaviorSetId);
-            SetField(set, "displayName", "Giant Rat");
-            SetField(set, "behaviorIds", new List<DefinitionId> { close.Id, attack.Id });
-            concrete.Register(set);
-
-            return set;
-        }
-
-        private static void SetField(object target, string fieldName, object value)
-        {
-            var type = target.GetType();
-            while (type != null)
-            {
-                var field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-                if (field != null) { field.SetValue(target, value); return; }
-                type = type.BaseType;
-            }
-
-            throw new System.Exception($"Field '{fieldName}' not found on {target.GetType().Name}.");
+            return HostileBrainKit.BuildMeleeSet((RulesDatabase)rulesDatabase, BehaviorSetId, "Giant Rat", RatBiteAbilityId, stopDistance: 1.2f);
         }
     }
 }

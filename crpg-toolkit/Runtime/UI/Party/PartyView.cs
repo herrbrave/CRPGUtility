@@ -117,6 +117,11 @@ namespace CRPG.UI
             container.Add(rosterContainer);
         }
 
+        /// <summary>Rebuilds the roster from the presenter now. The view only refreshes by itself when the party's
+        /// membership/selection changes -- hit points changing (combat damage, healing, a rest) is invisible to it,
+        /// so a host that knows the numbers moved calls this.</summary>
+        public void RefreshNow() => Refresh();
+
         private void Refresh()
         {
             rosterContainer.Clear();
