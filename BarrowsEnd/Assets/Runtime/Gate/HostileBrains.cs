@@ -12,6 +12,7 @@ namespace BarrowsEnd.Gate
             switch (npcDefinitionId)
             {
                 case "npc-giant-rat": return GiantRatBrain.BuildAndRegister(rulesDatabase);
+                case "npc-goblin": return GoblinBrain.BuildAndRegister(rulesDatabase);
                 default: throw new System.ArgumentException($"No hostile brain is defined for '{npcDefinitionId}'.", nameof(npcDefinitionId));
             }
         }

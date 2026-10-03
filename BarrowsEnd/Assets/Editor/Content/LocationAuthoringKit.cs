@@ -1,3 +1,4 @@
+using BarrowsEnd.Gate;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -191,6 +192,73 @@ namespace BarrowsEnd.Editor
             interactable.Configure(anchor, 1.5f);
             var adapter = go.AddComponent<TalkInteractionAdapter>();
             return (go, adapter);
+        }
+
+        /// <summary>A one-shot hostile encounter at <paramref name="cell"/>: the first party member to enter spawns
+        /// <paramref name="count"/> of <paramref name="npcId"/> and starts a tactical fight. <paramref name="progressKey"/>
+        /// is shared by every encounter a quest objective counts together.</summary>
+        public static EncounterTrigger AddEncounterTrigger(GameObject root, string name, Vector2Int cell, string firedKey, string wonKey,
+            string progressKey, string npcId, int count, float radius = 2.5f)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = Centre(cell);
+            var collider = go.AddComponent<SphereCollider>();
+            collider.isTrigger = true;
+            collider.radius = radius;
+            var trigger = go.AddComponent<EncounterTrigger>();
+            SetField(trigger, "firedKey", firedKey);
+            SetField(trigger, "wonKey", wonKey);
+            SetField(trigger, "progressKey", progressKey);
+            SetField(trigger, "npcDefinitionId", npcId);
+            SetField(trigger, "count", count);
+            return trigger;
+        }
+
+        /// <summary>A pick-up-once mushroom patch: box collider + sprite + approach anchor + <see cref="WorldInteractable"/>,
+        /// wiring a <see cref="HarvestInteractionAdapter"/> with a stable serialized <paramref name="nodeId"/>.</summary>
+        public static HarvestInteractionAdapter AddHarvestPoint(GameObject root, string name, Vector2Int cell, Vector2Int approach, Sprite visual, string nodeId)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = Centre(cell);
+
+            var box = go.AddComponent<BoxCollider>();
+            box.size = new Vector3(0.9f, 1f, 0.9f);
+            box.center = new Vector3(0f, 0.5f, 0f);
+
+            var visualGo = new GameObject("Visual");
+            visualGo.transform.SetParent(go.transform, false);
+            visualGo.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+            visualGo.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            var renderer = visualGo.AddComponent<SpriteRenderer>();
+            renderer.sprite = visual;
+            renderer.sortingLayerName = SpriteSortingContract.WorldLayer;
+            visualGo.AddComponent<StaticSpriteSorter>();
+
+            var anchor = new GameObject("Anchor").transform;
+            anchor.SetParent(go.transform, false);
+            anchor.position = Centre(approach);
+
+            var interactable = go.AddComponent<WorldInteractable>();
+            interactable.Configure(anchor, 1.5f);
+            var adapter = go.AddComponent<HarvestInteractionAdapter>();
+            SetField(adapter, "nodeId", nodeId);
+            return adapter;
+        }
+
+        /// <summary>Starts <paramref name="questId"/> the first time a party member enters this volume.</summary>
+        public static QuestStartTrigger AddQuestStartTrigger(GameObject root, string name, Vector2Int cell, string questId, float radius = 3f)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = Centre(cell);
+            var collider = go.AddComponent<SphereCollider>();
+            collider.isTrigger = true;
+            collider.radius = radius;
+            var trigger = go.AddComponent<QuestStartTrigger>();
+            SetField(trigger, "questId", questId);
+            return trigger;
         }
 
         /// <summary>Task 6.0: sets a private/[SerializeReference]-backed field by reflection -- the established

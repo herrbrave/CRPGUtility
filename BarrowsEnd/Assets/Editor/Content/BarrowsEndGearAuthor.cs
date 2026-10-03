@@ -39,6 +39,12 @@ namespace BarrowsEnd.Editor
         public const string GiantRatNpcId = "npc-giant-rat";
         public const string GiantRatBodyOptionId = "body-be-1-0";
         public const string GiantRatFaction = "faction-hostile";
+        public const string GoblinNpcId = "npc-goblin";
+        public const string DescentQuestId = "quest-the-descent";
+        public const string GrumbleQuestId = "quest-grumbles-mushrooms";
+        public const string GrumbleQuestCompleteKey = "grumble-quest-complete";
+        public const string GoblinSlashAbilityId = "ability-goblin-slash";
+        public const string GoblinBodyOptionId = "body-kenney-1-2";
         public const string RatBiteAbilityId = "ability-rat-bite";
 
         // Task 6.1: no party member (protagonist or companion) had ANY combat ability before this task -- found
@@ -326,6 +332,43 @@ namespace BarrowsEnd.Editor
             Save(giantRat);
             content.Add(giantRat);
 
+            // Task 6.2: the Glimmering Caverns' goblin -- SRD5's own Goblin has 7 HP; Slash mirrors the Strike/Bite
+            // shape (one Action, Enemy, 1.5 reach, always-hits d6) so the same turn economy applies.
+            var slash = LoadOrCreate<AbilityDefinition>($"{AbilityDir}/{GoblinSlashAbilityId}.asset");
+            SetField(slash, "id", GoblinSlashAbilityId);
+            SetField(slash, "displayName", "Slash");
+            SetField(slash, "tags", AbilityTag.Attack | AbilityTag.Hostile);
+            SetField(slash, "costs", new List<AbilityCost> { ActionCost(actionResource) });
+            var slashTargeting = new TargetingDefinition();
+            SetField(slashTargeting, "relation", TargetRelation.Enemy);
+            SetField(slashTargeting, "range", 1.5f);
+            SetField(slashTargeting, "requireLineOfSight", false);
+            SetField(slashTargeting, "requireLineOfEffect", false);
+            SetField(slashTargeting, "requireVisibleTarget", true);
+            SetField(slash, "targeting", slashTargeting);
+            var slashDamage = new DamageEffect();
+            SetField(slashDamage, "hitPointResource", hitPoints);
+            SetField(slashDamage, "amount", new DiceExpression(1, 6, 0));
+            SetField(slash, "effects", new List<AbilityEffect> { slashDamage });
+            Save(slash);
+            content.Add(slash);
+
+            var goblin = LoadOrCreate<NpcDefinition>($"{NpcDir}/{GoblinNpcId}.asset");
+            var goblinGrant = (object)new ResourceGrant();
+            SetField(goblinGrant, "resource", hitPoints);
+            SetField(goblinGrant, "maxAmount", 7);
+            SetField(goblin, "id", GoblinNpcId);
+            SetField(goblin, "displayName", "Goblin");
+            SetField(goblin, "faction", new DefinitionId(GiantRatFaction));
+            SetField(goblin, "level", 1);
+            SetField(goblin, "resources", new List<ResourceGrant> { (ResourceGrant)goblinGrant });
+            SetField(goblin, "abilityIds", new List<DefinitionId> { new(GoblinSlashAbilityId) });
+            SetField(goblin, "visualPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCharacterAuthor.SpriteCharacterPath)
+                                              ?? throw new InvalidOperationException($"{BarrowsEndCharacterAuthor.SpriteCharacterPath} is missing -- run the character author first."));
+            SetField(goblin, "appearance", new List<AppearanceEntry> { new(new DefinitionId("layer-body"), new DefinitionId(GoblinBodyOptionId)) });
+            Save(goblin);
+            content.Add(goblin);
+
             // Task 6.1 (T6.1-D4/fact 10): Act 1's own quest, registered here (not a separate script) for the same
             // reason the currency item is -- this method overwrites the ruleset's whole extraContent list on
             // every run, so anything registered elsewhere would be silently wiped the next time it runs. Must be
@@ -351,6 +394,48 @@ namespace BarrowsEnd.Editor
             SetField(quest, "objectives", new List<QuestObjectiveDefinition> { objective });
             Save(quest);
             content.Add(quest);
+
+            // Task 6.2: Act 2's quest -- two Kill objectives counting the shared progress keys the cavern encounters record.
+            var descent = LoadOrCreate<QuestDefinition>($"{NpcDir}/{DescentQuestId}.asset");
+            var patrols = new QuestObjectiveDefinition();
+            SetField(patrols, "id", "clear-upper-patrols");
+            SetField(patrols, "displayName", "Cut down the goblin patrols on the mine tracks");
+            SetField(patrols, "type", QuestObjectiveType.Kill);
+            SetField(patrols, "trackingKey", BarrowsEndCavernsAuthor.UpperClearedProgressKey);
+            SetField(patrols, "targetCount", 2);
+            var barricade = new QuestObjectiveDefinition();
+            SetField(barricade, "id", "break-the-barricade");
+            SetField(barricade, "displayName", "Break the goblin barricade in the water chamber");
+            SetField(barricade, "type", QuestObjectiveType.Kill);
+            SetField(barricade, "trackingKey", BarrowsEndCavernsAuthor.MiddleClearedProgressKey);
+            SetField(barricade, "targetCount", 1);
+            SetField(descent, "id", DescentQuestId);
+            SetField(descent, "displayName", "The Descent");
+            SetField(descent, "description", "The goblins of the Glimmering Caverns have fortified the old mine. Fight your way down the mine tracks and break the barricade guarding the way to the deep.");
+            SetField(descent, "objectives", new List<QuestObjectiveDefinition> { patrols, barricade });
+            Save(descent);
+            content.Add(descent);
+
+            // Task 6.2: Grumble's side quest -- harvest three giant mushrooms, then report back (the turn-in records its own key).
+            var grumble = LoadOrCreate<QuestDefinition>($"{NpcDir}/{GrumbleQuestId}.asset");
+            var harvest = new QuestObjectiveDefinition();
+            SetField(harvest, "id", "harvest-mushrooms");
+            SetField(harvest, "displayName", "Harvest three giant mushrooms for Grumble");
+            SetField(harvest, "type", QuestObjectiveType.Collect);
+            SetField(harvest, "trackingKey", BarrowsEnd.Gate.HarvestInteractionAdapter.SharedKey);
+            SetField(harvest, "targetCount", 3);
+            var report = new QuestObjectiveDefinition();
+            SetField(report, "id", "return-to-grumble");
+            SetField(report, "displayName", "Bring the mushrooms back to Grumble");
+            SetField(report, "type", QuestObjectiveType.TalkTo);
+            SetField(report, "trackingKey", GrumbleQuestCompleteKey);
+            SetField(report, "targetCount", 1);
+            SetField(grumble, "id", GrumbleQuestId);
+            SetField(grumble, "displayName", "Grumble's Mushrooms");
+            SetField(grumble, "description", "Grumble, the Restful Hearth's cook, wants giant mushrooms from the Glimmering Caverns for his stew.");
+            SetField(grumble, "objectives", new List<QuestObjectiveDefinition> { harvest, report });
+            Save(grumble);
+            content.Add(grumble);
 
             var movement = LoadOrCreate<CRPG.Actors.ResourceDefinition>("Assets/Content/Ruleset/resource-movement.asset");
             SetField(movement, "id", BarrowsEnd.Gate.TacticalCombatSession.MovementResourceId);

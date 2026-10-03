@@ -77,6 +77,12 @@ namespace BarrowsEnd.Gate
         {
             if (fired || Session == null || Spawner == null || CombatSession == null || !CombatSession.CanStart) return;
 
+            // During travel the destination scene is loaded ADDITIVELY while the old one is still active, and locations
+            // share world coordinates -- so a trigger in the next level can sit right on the party's path out of this
+            // one. Firing then would spawn the hostiles into the scene about to unload (a fight with vanished enemies)
+            // and burn the encounter for good. Only the active location's triggers may fire; OnTriggerStay retries.
+            if (gameObject.scene != UnityEngine.SceneManagement.SceneManager.GetActiveScene()) return;
+
             var agent = other.GetComponentInParent<CharacterAgent>();
             if (agent == null || !agent.IsBound) return;
             if (!Session.Party.Members.Contains(agent.EntityId)) return; // only a real party member triggers this, not a stray NPC

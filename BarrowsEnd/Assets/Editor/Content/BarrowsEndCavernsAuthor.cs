@@ -28,6 +28,12 @@ namespace BarrowsEnd.Editor
         public const string MiddleFromDeepDestination = "from-deep";
         public const string DeepFromMiddleDestination = "from-middle";
 
+        // Task 6.2: encounter keys. Both Upper patrols record UpperClearedProgressKey so one Kill objective (targetCount 2)
+        // can count them together; the Middle barricade has its own.
+        public const string UpperClearedProgressKey = "act2-upper-patrol-cleared";
+        public const string MiddleClearedProgressKey = "act2-middle-barricade-cleared";
+        public const string GoblinNpcId = "npc-goblin";
+
         private const int UpperWidth = 34, UpperDepth = 26;
         private const int MiddleWidth = 36, MiddleDepth = 28;
         private const int DeepWidth = 34, DeepDepth = 26;
@@ -36,6 +42,8 @@ namespace BarrowsEnd.Editor
         private static readonly (string sheet, int col, int row) CaveFloor = ("cave", 8, 2), CaveDirt = ("cave", 8, 5), CaveWall = ("cave", 9, 0),
             Rock = ("cave", 0, 0), RockB = ("cave", 1, 0), TallColumn = ("cave", 3, 0), CaveWater = ("cave", 0, 10), Mushrooms = ("cave", 0, 3),
             Bones = ("cave", 0, 2), MineRail = ("cave", 10, 16), IronBars = ("cave", 0, 7);
+
+        private static Sprite MushroomSprite() => Tile(Mushrooms).sprite;
 
         [MenuItem("Barrows End/Content/Author Caverns")]
         public static void Author() => Author(overwrite: false);
@@ -83,6 +91,13 @@ namespace BarrowsEnd.Editor
             l.Objects[6, UpperDepth - 6] = Mushrooms; l.Objects[UpperWidth - 7, UpperDepth - 7] = Bones;
 
             var scene = NewLocationScene("CavernUpper", l, out var root, out var grid);
+            // Grumble's giant mushrooms (side quest): two on this level, one in the water chamber.
+            AddHarvestPoint(root, "MushroomsWest", Cell(7, 12), Cell(7, 11), MushroomSprite(), "upper-west");
+            AddHarvestPoint(root, "MushroomsEast", Cell(UpperWidth - 8, 20), Cell(UpperWidth - 8, 19), MushroomSprite(), "upper-east");
+            AddQuestStartTrigger(root, "DescentQuestStart", Cell(gateX, 5), BarrowsEndGearAuthor.DescentQuestId);
+            // Two goblin patrols on the mine-rail strip: the party walks the track north and must cross both.
+            AddEncounterTrigger(root, "GoblinPatrolSouth", Cell(gateX, 10), "encounter-upper-south-triggered", "encounter-upper-south-won", UpperClearedProgressKey, GoblinNpcId, 2);
+            AddEncounterTrigger(root, "GoblinPatrolNorth", Cell(gateX, 17), "encounter-upper-north-triggered", "encounter-upper-north-won", UpperClearedProgressKey, GoblinNpcId, 2);
             AddDestination(root, UpperFromTownDestination, Cell(gateX, 3), grid);
             AddDestination(root, UpperFromMiddleDestination, Cell(gateX, UpperDepth - 4), grid);
             AddTravelPoint(root, "TravelToTown", Cell(gateX, 0), Cell(gateX, 1), BarrowsEndTownAuthor.Path, BarrowsEndTownAuthor.FromCavernsDestination, ArchSprite());
@@ -106,10 +121,15 @@ namespace BarrowsEnd.Editor
             l.Objects[gateX, 0] = null;                                      // south gap: up to Cavern_Upper
             l.Objects[gateX, MiddleDepth - 1] = null;                        // north gap: down to Cavern_Deep
 
+            // The goblins' barricade across the road to the Deep gate: a wall of rock with one gap, so the party funnels through it.
+            for (var x = gateX - 5; x <= gateX + 5; x++) if (x != gateX) l.Objects[x, MiddleDepth - 4] = x % 2 == 0 ? Rock : RockB;
+
             l.Objects[3, 4] = TallColumn; l.Objects[MiddleWidth - 4, 4] = TallColumn;
             l.Objects[3, MiddleDepth - 5] = Rock; l.Objects[MiddleWidth - 4, MiddleDepth - 5] = RockB;
 
             var scene = NewLocationScene("CavernMiddle", l, out var root, out var grid);
+            AddHarvestPoint(root, "MushroomsShore", Cell(8, 6), Cell(8, 5), MushroomSprite(), "middle-shore");
+            AddEncounterTrigger(root, "GoblinBarricade", Cell(gateX, MiddleDepth - 7), "encounter-middle-barricade-triggered", "encounter-middle-barricade-won", MiddleClearedProgressKey, GoblinNpcId, 3);
             AddDestination(root, MiddleFromUpperDestination, Cell(gateX, 3), grid);
             AddDestination(root, MiddleFromDeepDestination, Cell(gateX, MiddleDepth - 4), grid);
             AddTravelPoint(root, "TravelToUpper", Cell(gateX, 0), Cell(gateX, 1), UpperPath, UpperFromMiddleDestination, ArchSprite());

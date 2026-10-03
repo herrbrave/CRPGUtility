@@ -167,6 +167,18 @@ namespace BarrowsEnd.Shell
             controller.RequestEnded += _ => RefreshAllActiveQuests();
         }
 
+        /// <summary>Combat owns the party from the first turn: drop whatever it was in the middle of. Without this a walk
+        /// to a door or arch carried on through the fight and the interaction (travel!) still completed on arrival.</summary>
+        private void HaltPartyForCombat()
+        {
+            GetComponentInChildren<InteractionControllerBehaviour>()?.Controller?.Cancel();
+
+            var session = Services?.Session;
+            if (session == null) return;
+            foreach (var member in session.Party.Members)
+                GateSessionServices.FindAgent(member)?.Motor?.Stop();
+        }
+
         /// <summary>Re-checks every Active quest against the Timeline. Called after a quest starts (earlier
         /// progress may already count) and after every finished interaction.</summary>
         public void RefreshAllActiveQuests()
@@ -240,6 +252,8 @@ namespace BarrowsEnd.Shell
                 var turnOrderView = turnOrderGo.AddComponent<TurnOrderView>();
                 CombatSession = new TacticalCombatSession(commandSource, inputSource, hudRoot, abilityBarView, BarrowsEndLayers.RouterMask,
                     turnOrderView, DisplayNameFor, Say, id => Services.DeathSaves.RollDeathSave(id), id => Services.DeathSaves.Stabilize(id));
+                CombatSession.StartBlocker = () => transitionGate.IsBusy || IsLoading;
+                CombatSession.EncounterStarted += HaltPartyForCombat;
             }
             CombatSession.RebindSession(session, spawner);
 
@@ -551,6 +565,21 @@ namespace BarrowsEnd.Shell
         /// shape and call sites as WireTalkAdapters (boot, every scene load, after a session load).</summary>
         private void WireCombatTriggers(GameSession session)
         {
+            WireQuestNotifications(session);
+            foreach (var trigger in FindObjectsByType<QuestStartTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                trigger.Session = session;
+                trigger.RequestStartQuest = RequestStartQuest;
+            }
+
+            foreach (var node in FindObjectsByType<HarvestInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                node.Session = session;
+                node.RequestQuestRefresh = RefreshAllActiveQuests;
+                node.Notify = Say;
+                node.RefreshState();
+            }
+
             foreach (var trigger in FindObjectsByType<EncounterTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
                 trigger.Session = session;
@@ -561,6 +590,41 @@ namespace BarrowsEnd.Shell
                 trigger.RequestDefeat = HandlePartyDefeated;
                 trigger.RefreshFiredState();
             }
+        }
+
+        // BarrowsEnd has no quest log UI yet, so a quest's life shows up as a one-line message. Re-subscribed on every
+        // session (boot, load) because each session has its own event bus.
+        private IGameEventBus questNotificationBus;
+        private Action<GameEventContext> onQuestStarted, onQuestObjectiveCompleted, onQuestCompleted;
+
+        private void WireQuestNotifications(GameSession session)
+        {
+            if (questNotificationBus != null)
+            {
+                questNotificationBus.Unsubscribe(GameEvent.QuestStarted, onQuestStarted);
+                questNotificationBus.Unsubscribe(GameEvent.QuestObjectiveCompleted, onQuestObjectiveCompleted);
+                questNotificationBus.Unsubscribe(GameEvent.QuestCompleted, onQuestCompleted);
+            }
+
+            questNotificationBus = session.EventBus;
+            onQuestStarted = ctx => Say($"Quest started: {QuestName(session, ctx)}");
+            onQuestCompleted = ctx => Say($"Quest complete: {QuestName(session, ctx)}");
+            onQuestObjectiveCompleted = ctx =>
+            {
+                var objective = ctx.Data.TryGetValue("ObjectiveId", out var id) ? id as string : null;
+                var name = session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId((string)ctx.Data["QuestId"]), out var quest)
+                    ? quest.Objectives.FirstOrDefault(o => o.Id == objective)?.DisplayName : null;
+                Say($"Objective complete: {name ?? objective}");
+            };
+            questNotificationBus.Subscribe(GameEvent.QuestStarted, onQuestStarted);
+            questNotificationBus.Subscribe(GameEvent.QuestObjectiveCompleted, onQuestObjectiveCompleted);
+            questNotificationBus.Subscribe(GameEvent.QuestCompleted, onQuestCompleted);
+        }
+
+        private static string QuestName(GameSession session, GameEventContext ctx)
+        {
+            var id = ctx.Data.TryGetValue("QuestId", out var value) ? value as string : null;
+            return id != null && session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId(id), out var quest) ? quest.DisplayName : id;
         }
 
         /// <summary>Task 6.1 (T6.1-D4): DialogueContext.RequestStartQuest's real target -- resolves the quest by

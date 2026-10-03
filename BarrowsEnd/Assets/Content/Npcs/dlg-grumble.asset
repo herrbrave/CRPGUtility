@@ -15,30 +15,262 @@ MonoBehaviour:
   id: dlg-grumble
   displayName: 
   startNodeId:
-    low: 1395392478895305581
-    high: -4391986797102003939
+    low: -6323722110665936724
+    high: 5054668000972821584
   nodes:
-  - rid: 4304781063743864950
-  - rid: 4304781063743864951
+  - rid: 2954408717933871104
+  - rid: 2954408717933871105
+  - rid: 2954408717933871106
+  - rid: 2954408717933871107
+  - rid: 2954408717933871108
+  - rid: 2954408717933871109
+  - rid: 2954408717933871110
+  - rid: 2954408717933871111
+  - rid: 2954408717933871112
+  - rid: 2954408717933871113
+  - rid: 2954408717933871114
+  - rid: 2954408717933871115
+  - rid: 2954408717933871116
+  - rid: 2954408717933871117
+  - rid: 2954408717933871118
+  - rid: 2954408717933871119
   references:
     version: 2
     RefIds:
-    - rid: 4304781063743864950
+    - rid: 2954408717933871104
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -6323722110665936724
+          high: 5054668000972821584
+        editorPosition: {x: 0, y: 0}
+        timelineKey: grumble-quest-complete
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId:
+          low: 2898197624354271118
+          high: -8576316623184438116
+        falseNodeId:
+          low: -1647818949833183136
+          high: 1247994379009120836
+    - rid: 2954408717933871105
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
-          low: 1395392478895305581
-          high: -4391986797102003939
+          low: 2898197624354271118
+          high: -8576316623184438116
+        editorPosition: {x: 0, y: 0}
+        speakerName: Grumble
+        text: Best mushroom stew in the valley, thanks to you. Eat up -- the Hearth is always open.
+        nextNodeId:
+          low: 6114180659835385954
+          high: -8637442658214050479
+    - rid: 2954408717933871106
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -1647818949833183136
+          high: 1247994379009120836
+        editorPosition: {x: 0, y: 0}
+        timelineKey: grumble-quest-accepted
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId:
+          low: -4924003636135421064
+          high: -2599455356589128057
+        falseNodeId:
+          low: 1246035623010004667
+          high: 5044773420837539558
+    - rid: 2954408717933871107
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -4924003636135421064
+          high: -2599455356589128057
+        editorPosition: {x: 0, y: 0}
+        timelineKey: mushroom-harvested
+        secondTimelineKey: 
+        conditionType: 4
+        threshold: 3
+        trueNodeId:
+          low: -6834942902365421045
+          high: -7150200445702264185
+        falseNodeId:
+          low: 6684452403280987058
+          high: -9078687390032257894
+    - rid: 2954408717933871108
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 6684452403280987058
+          high: -9078687390032257894
+        editorPosition: {x: 0, y: 0}
+        speakerName: Grumble
+        text: Three giant mushrooms, that's all I ask. They grow down in the caverns -- the mine tracks and around the water.
+        nextNodeId:
+          low: 6114180659835385954
+          high: -8637442658214050479
+    - rid: 2954408717933871109
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -6834942902365421045
+          high: -7150200445702264185
+        editorPosition: {x: 0, y: 0}
+        speakerName: Grumble
+        text: Now THAT is a mushroom! Here, take this for your trouble -- and a little something to patch yourselves up.
+        nextNodeId:
+          low: 5021339053335833588
+          high: -8951316234318967686
+    - rid: 2954408717933871110
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 5021339053335833588
+          high: -8951316234318967686
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 2954408717933871120
+        nextNodeId:
+          low: -6261121720932795997
+          high: -6559407699225543383
+    - rid: 2954408717933871111
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -6261121720932795997
+          high: -6559407699225543383
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 2954408717933871121
+        nextNodeId:
+          low: -8332947562543900480
+          high: 217800877950773779
+    - rid: 2954408717933871112
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -8332947562543900480
+          high: 217800877950773779
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 2954408717933871122
+        nextNodeId:
+          low: 6114180659835385954
+          high: -8637442658214050479
+    - rid: 2954408717933871113
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 1246035623010004667
+          high: 5044773420837539558
+        editorPosition: {x: 0, y: 0}
+        timelineKey: palisade-rats-defeated
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId:
+          low: 8414103608967391244
+          high: -7868159666045931793
+        falseNodeId:
+          low: -4546754229365921330
+          high: 7236300844087193289
+    - rid: 2954408717933871114
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -4546754229365921330
+          high: 7236300844087193289
         editorPosition: {x: 0, y: 0}
         speakerName: Grumble
         text: You look like the sort who could brave the caverns for me. Giant mushrooms down there, real delicacies -- ask me again once you've made some progress.
         nextNodeId:
           low: 6114180659835385954
           high: -8637442658214050479
-    - rid: 4304781063743864951
+    - rid: 2954408717933871115
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 8414103608967391244
+          high: -7868159666045931793
+        editorPosition: {x: 0, y: 0}
+        speakerName: Grumble
+        text: You made it past the rats -- good. Bring me three giant mushrooms from down in the caverns and I'll make it worth your while.
+        nextNodeId:
+          low: -9151982364083661662
+          high: 7058742024438728507
+    - rid: 2954408717933871116
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -9151982364083661662
+          high: 7058742024438728507
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 2954408717933871123
+        nextNodeId:
+          low: -7970445487616708975
+          high: -5592565822499836722
+    - rid: 2954408717933871117
+      type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -7970445487616708975
+          high: -5592565822499836722
+        editorPosition: {x: 0, y: 0}
+        action:
+          rid: 2954408717933871124
+        nextNodeId:
+          low: 6450283999182586962
+          high: 841970053442091365
+    - rid: 2954408717933871118
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 6450283999182586962
+          high: 841970053442091365
+        editorPosition: {x: 0, y: 0}
+        speakerName: Grumble
+        text: Mind the goblins. Mushrooms don't taste right with an arrow in them.
+        nextNodeId:
+          low: 6114180659835385954
+          high: -8637442658214050479
+    - rid: 2954408717933871119
       type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
           low: 6114180659835385954
           high: -8637442658214050479
         editorPosition: {x: 0, y: 0}
+    - rid: 2954408717933871120
+      type: {class: GiveItemAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        item: {fileID: 11400000, guid: 7470d55fd2628304d9b326f6eb573ac6, type: 2}
+        quantity: 50
+    - rid: 2954408717933871121
+      type: {class: GiveItemAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        item: {fileID: 11400000, guid: 3d15df98086795046928ff9933e9c8b3, type: 2}
+        quantity: 1
+    - rid: 2954408717933871122
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: grumble-quest-complete
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1
+    - rid: 2954408717933871123
+      type: {class: RecordEventAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        key: grumble-quest-accepted
+        valueKind: 0
+        numberValue: 0
+        textValue: 
+        amount: 1
+    - rid: 2954408717933871124
+      type: {class: StartQuestAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        questKey: quest-grumbles-mushrooms

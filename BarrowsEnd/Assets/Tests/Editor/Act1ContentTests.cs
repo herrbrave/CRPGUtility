@@ -145,6 +145,102 @@ namespace BarrowsEnd.Tests
             Assert.IsInstanceOf<ChoiceNode>(runner.CurrentNode, "looped back to the same choice");
         }
 
+        // ---- Grumble's mushroom side quest (Task 6.2) ----
+
+        private DialogueRunner GrumbleRunner(out string startedQuest, out PartyState party)
+        {
+            var fighter = new CharacterState(RuntimeEntityId.NewId());
+            session.Characters.Register(fighter);
+            party = new PartyState(new[] { fighter.Id });
+            var dialogue = Load<DialogueDefinition>($"{BarrowsEndGearAuthor.NpcDir}/dlg-grumble.asset");
+            string started = null;
+            var context = CreateMayorContext(fighter.Id, party, session.Characters, session.Timeline, key => started = key);
+            var runner = new DialogueRunner(dialogue, context);
+            startedQuest = started;
+            lastStartedQuest = () => started;
+            return runner;
+        }
+
+        private System.Func<string> lastStartedQuest;
+
+        private static string LineText(DialogueRunner runner) => ((LineNode)runner.CurrentNode).Text;
+
+        [Test]
+        public void GrumbleOnlyHintsAtTheQuestUntilTheRatsAreDefeated()
+        {
+            var runner = GrumbleRunner(out _, out _);
+            StringAssert.Contains("ask me again", LineText(runner));
+            runner.Advance();
+            Assert.IsTrue(runner.IsComplete);
+            Assert.IsNull(lastStartedQuest());
+        }
+
+        [Test]
+        public void GrumbleOffersAndStartsTheMushroomQuestOnceTheRatsAreDefeated()
+        {
+            session.Timeline.Record(EncounterTrigger.PalisadeWonKey, TimelineValue.Flag);
+            var runner = GrumbleRunner(out _, out _);
+            StringAssert.Contains("three giant mushrooms", LineText(runner));
+            runner.Advance(); // offer -> accept actions (auto) -> parting line
+
+            Assert.AreEqual(BarrowsEndGearAuthor.GrumbleQuestId, lastStartedQuest());
+            Assert.IsTrue(session.Timeline.HasOccurred("grumble-quest-accepted"));
+            runner.Advance();
+            Assert.IsTrue(runner.IsComplete);
+        }
+
+        [Test]
+        public void GrumbleReminsAnAcceptedPlayerWhoHasFewerThanThreeMushrooms()
+        {
+            session.Timeline.Record("grumble-quest-accepted", TimelineValue.Flag);
+            session.Timeline.Record(HarvestInteractionAdapter.SharedKey, TimelineValue.Flag);
+            session.Timeline.Record(HarvestInteractionAdapter.SharedKey, TimelineValue.Flag);
+            var runner = GrumbleRunner(out _, out _);
+
+            StringAssert.Contains("Three giant mushrooms", LineText(runner));
+            Assert.IsFalse(session.Timeline.HasOccurred(BarrowsEndGearAuthor.GrumbleQuestCompleteKey));
+        }
+
+        [Test]
+        public void GrumblePaysOutGoldAndAPotionAndRecordsTheCompletionKeyWhenThreeMushroomsAreBrought()
+        {
+            session.Timeline.Record("grumble-quest-accepted", TimelineValue.Flag);
+            for (var i = 0; i < 3; i++) session.Timeline.Record(HarvestInteractionAdapter.SharedKey, TimelineValue.Flag);
+            var runner = GrumbleRunner(out _, out _);
+
+            StringAssert.Contains("THAT is a mushroom", LineText(runner));
+            runner.Advance(); // gold, potion, completion record (all auto) -> end
+
+            Assert.IsTrue(runner.IsComplete);
+            Assert.IsTrue(session.Timeline.HasOccurred(BarrowsEndGearAuthor.GrumbleQuestCompleteKey));
+            var held = session.Inventory.AllItems.ToList();
+            Assert.AreEqual(50, held.Where(i => i.DefinitionId.Value == "item-gold").Sum(i => i.Quantity));
+            Assert.AreEqual(1, held.Count(i => i.DefinitionId.Value == "item-healing-potion"));
+        }
+
+        [Test]
+        public void GrumbleJustThanksAPlayerWhoAlreadyCompletedTheQuestAndNeverPaysTwice()
+        {
+            session.Timeline.Record(BarrowsEndGearAuthor.GrumbleQuestCompleteKey, TimelineValue.Flag);
+            session.Timeline.Record("grumble-quest-accepted", TimelineValue.Flag);
+            for (var i = 0; i < 3; i++) session.Timeline.Record(HarvestInteractionAdapter.SharedKey, TimelineValue.Flag);
+            var runner = GrumbleRunner(out _, out _);
+
+            StringAssert.Contains("Best mushroom stew", LineText(runner));
+            runner.Advance();
+            Assert.IsTrue(runner.IsComplete);
+            Assert.IsEmpty(session.Inventory.AllItems, "no second payout");
+        }
+
+        [Test]
+        public void TheMushroomQuestCountsHarvestsThenTheTurnInKey()
+        {
+            Assert.IsTrue(session.RulesDatabase.TryResolve<QuestDefinition>(new DefinitionId(BarrowsEndGearAuthor.GrumbleQuestId), out var quest));
+            Assert.AreEqual(HarvestInteractionAdapter.SharedKey, quest.Objectives[0].TrackingKey);
+            Assert.AreEqual(3, quest.Objectives[0].TargetCount);
+            Assert.AreEqual(BarrowsEndGearAuthor.GrumbleQuestCompleteKey, quest.Objectives[1].TrackingKey);
+        }
+
         private static int FindOptionIndex(DialogueRunner runner, string textContains)
         {
             var choice = runner.CurrentNode as ChoiceNode;

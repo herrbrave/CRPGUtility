@@ -1312,3 +1312,15 @@ The reviewer verified every claim against source. The draft above is SUPERSEDED 
 8. Throwaway-copy verification, regenerate the real project, live gate with the user.
 
 **Not yet committed.**
+
+## Task 6.2 implementation status
+
+Steps 0-2 committed (b750371). Steps 3-6 implemented and verified in a throwaway copy (EditMode 143/144 with the pre-existing
+`Town_Slice` bake failure, PlayMode 102/102), NOT yet committed: goblin NPC + Slash + `GoblinBrain`; encounters authored in
+`Cavern_Upper` (two patrols sharing `act2-upper-patrol-cleared`) and `Cavern_Middle` (barricade, `act2-middle-barricade-cleared`);
+`quest-the-descent` started by a `QuestStartTrigger` on arrival in the caverns; `HarvestInteractionAdapter` mushroom patches
+(2 Upper, 1 Middle) and Grumble's real quest tree (`quest-grumbles-mushrooms`). The cavern scenes and `dlg-grumble.asset` were
+regenerated in a throwaway copy and copied into the real project (grumble rewritten IN PLACE to keep its GUID).
+Step 7 (the archer) is deliberately NOT done: optional per the review; revisit only if the live gate wants ranged variety.
+Step 8 (the live gate with the user) is next. Combat-time gaps still open (not Task 6.2 scope): companions have no class
+abilities; no quest log UI (progress shows as one-line messages).

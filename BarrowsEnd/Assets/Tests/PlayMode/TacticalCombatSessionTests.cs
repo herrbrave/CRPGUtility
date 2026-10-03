@@ -162,15 +162,15 @@ namespace BarrowsEnd.Tests
             Assert.Greater(Vector3.Distance(beforeRestoredClick, protagonistAgent.transform.position), 0.5f, "exploration movement works again after combat");
         }
 
-        private IEnumerator StartFightWithRatAt(Vector3 offset, System.Action<RuntimeEntityId, RuntimeEntityId> ready)
+        private IEnumerator StartFightWithRatAt(Vector3 offset, System.Action<RuntimeEntityId, RuntimeEntityId> ready, string npcId = "npc-giant-rat")
         {
             var session = shell.Services.Session;
             var protagonistId = session.Party.Members[0];
             var protagonistAgent = GateSessionServices.FindAgent(protagonistId);
-            Assert.IsTrue(session.RulesDatabase.TryResolve<NpcDefinition>(new DefinitionId("npc-giant-rat"), out var ratDefinition));
+            Assert.IsTrue(session.RulesDatabase.TryResolve<NpcDefinition>(new DefinitionId(npcId), out var ratDefinition));
             var ratAgent = shell.Services.Spawner.SpawnNpc("combat-test-rat-ai", ratDefinition, protagonistAgent.transform.position + offset, Quaternion.identity);
 
-            var brain = GiantRatBrain.BuildAndRegister(session.RulesDatabase);
+            var brain = HostileBrains.For(npcId, session.RulesDatabase);
             var combatants = new List<(RuntimeEntityId, DefinitionId)> { (protagonistId, TacticalCombatSession.PartyFaction), (ratAgent.EntityId, HostileFaction) };
             shell.CombatSession.StartEncounter(combatants, HostileFaction, brain);
             Assert.IsTrue(shell.CombatSession.IsActive);
@@ -200,6 +200,20 @@ namespace BarrowsEnd.Tests
         }
 
         private static readonly float[] RatOffsets = { 1f, 4f };
+
+        [UnityTest]
+        public IEnumerator AGoblinClosesInAndSlashesTheParty([ValueSource(nameof(RatOffsets))] float distance)
+        {
+            RuntimeEntityId protagonist = default;
+            yield return StartFightWithRatAt(new Vector3(distance, 0f, 0f), (p, _) => protagonist = p, "npc-goblin");
+            var before = HitPointsOf(protagonist);
+
+            var endTurn = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "End Turn");
+            Assert.IsNotNull(endTurn);
+            UiClick.Pointer(endTurn);
+
+            yield return WaitUntil(() => HitPointsOf(protagonist) < before, 10f, $"the goblin {distance} units away closed in and slashed the protagonist");
+        }
 
         [UnityTest]
         public IEnumerator SavingIsRefusedWhileCombatIsActive()
@@ -257,6 +271,7 @@ namespace BarrowsEnd.Tests
             Assert.IsTrue(shell.CombatSession.StartEncounter(combatants, HostileFaction, GiantRatBrain.BuildAndRegister(session.RulesDatabase), won => partyWon = won));
 
             // The downed protagonist's turn passes by itself; it becomes Garrick's turn, who strikes the rat.
+            yield return WaitUntil(() => shell.CombatSession.CurrentTurnId == garrickId, 5f, "it became Garrick's turn");
             var strikeButton = (Button)null;
             yield return WaitUntil(() => (strikeButton = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "Strike")) != null, 5f, "Garrick's ability bar");
             UiClick.Pointer(strikeButton);
@@ -317,6 +332,28 @@ namespace BarrowsEnd.Tests
 
             var feedback = HudRootElement().Query<Label>().ToList().FirstOrDefault(l => l.text != null && l.text.StartsWith("Strike:"));
             Assert.IsNotNull(feedback, "a rejected click shows a prominent message instead of silently doing nothing");
+        }
+
+        [UnityTest]
+        public IEnumerator StartingCombatHaltsTheWalkAndCancelsThePendingTravelInteraction()
+        {
+            var arch = GameObject.Find("TravelToCaverns");
+            Assert.IsNotNull(arch, "the Town's real arch to the caverns");
+            var heroId = shell.Services.Session.Party.Members[0];
+            var hero = GateSessionServices.FindAgent(heroId);
+            var startScene = SceneManager.GetActiveScene().path;
+            var start = hero.transform.position;
+
+            Click(arch.transform.position); // walk to the arch to travel
+            yield return Seconds(0.6f);
+            Assert.Greater(Vector3.Distance(start, hero.transform.position), 0.5f, "the party is mid-walk toward the arch");
+
+            yield return StartFightWithRatAt(new Vector3(1f, 0f, 0f), (_, __) => { }); // combat starts mid-walk
+
+            var haltedAt = hero.transform.position;
+            yield return Seconds(2f);
+            Assert.Less(Vector3.Distance(haltedAt, hero.transform.position), 0.3f, "combat stopped the walk: the party does not keep going to the arch");
+            Assert.AreEqual(startScene, SceneManager.GetActiveScene().path, "and the pending travel never completed");
         }
     }
 }

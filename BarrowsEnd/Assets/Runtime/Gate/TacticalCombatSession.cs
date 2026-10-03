@@ -84,7 +84,15 @@ namespace BarrowsEnd.Gate
 
         /// <summary>True when a new encounter could start right now (none active, session bound) -- lets a trigger
         /// check BEFORE it spawns hostiles.</summary>
-        public bool CanStart => !IsActive && session != null;
+        public bool CanStart => !IsActive && session != null && (StartBlocker == null || !StartBlocker());
+
+        /// <summary>Returns true while something outside combat owns the party (a scene transition or load in flight);
+        /// an encounter must wait rather than start into a half-moved world.</summary>
+        public Func<bool> StartBlocker { get; set; }
+
+        /// <summary>Raised once an encounter has actually started, so the shell can halt anything the party was in the
+        /// middle of (a walk, an interaction with a door or arch) -- combat owns movement from here on.</summary>
+        public event Action EncounterStarted;
 
         /// <summary>Whose turn it is right now, or null when no encounter is active.</summary>
         public RuntimeEntityId? CurrentTurnId => controller?.EncounterService.Encounter?.CurrentTurn?.Id;
@@ -120,7 +128,7 @@ namespace BarrowsEnd.Gate
             Func<RuntimeEntityId, BehaviorSetDefinition> brainFor, Action<bool> onEncounterEnded = null,
             Func<RuntimeEntityId, string> hostileNameFor = null)
         {
-            if (IsActive || session == null) return false;
+            if (!CanStart) return false;
             this.onEncounterEnded = onEncounterEnded;
 
             var positions = new LiveCharacterPositionProvider();
@@ -201,6 +209,7 @@ namespace BarrowsEnd.Gate
 
             onCombatEnded = _ => EndEncounter();
             session.EventBus.Subscribe(GameEvent.CombatEnded, onCombatEnded);
+            EncounterStarted?.Invoke();
             return true;
         }
 

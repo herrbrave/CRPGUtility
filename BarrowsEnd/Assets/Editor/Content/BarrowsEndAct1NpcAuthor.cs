@@ -205,21 +205,121 @@ namespace BarrowsEnd.Editor
             SetField(elidaAdapter, "panelSettings", panelSettings);
             SetField(elidaAdapter, "dialogue", elidaDialogue);
 
-            var grumbleEnd = new EndNode();
-            SetField(grumbleEnd, "nodeId", Id("grumble-end"));
-            var grumbleLine = new LineNode();
-            SetField(grumbleLine, "nodeId", Id("grumble-line"));
-            SetField(grumbleLine, "speakerName", "Grumble");
-            SetField(grumbleLine, "text", "You look like the sort who could brave the caverns for me. Giant mushrooms down there, real delicacies -- ask me again once you've made some progress.");
-            SetField(grumbleLine, "nextNodeId", Id("grumble-end"));
-            var grumbleDialogue = ScriptableObject.CreateInstance<DialogueDefinition>();
-            SetField(grumbleDialogue, "id", "dlg-grumble");
-            SetField(grumbleDialogue, "startNodeId", Id("grumble-line"));
-            SetField(grumbleDialogue, "nodes", new List<DialogueNode> { grumbleLine, grumbleEnd });
+            var grumbleDialogue = BuildGrumbleDialogue();
             SaveDialogue(grumbleDialogue, "dlg-grumble");
             var (_, grumbleAdapter) = AddTalkPoint(root, "Grumble", Cell(46, 17), Cell(46, 18), ArchSprite());
             SetField(grumbleAdapter, "panelSettings", panelSettings);
             SetField(grumbleAdapter, "dialogue", grumbleDialogue);
+        }
+
+        /// <summary>Task 6.2: Grumble's mushroom side quest. Branch order matters (the review): finished -> accepted -> not
+        /// accepted, so three mushrooms picked before ever accepting still go through the accept step first.</summary>
+        public static DialogueDefinition BuildGrumbleDialogue()
+        {
+            SerializableGuid Id(string seed) => SerializableGuid.FromString(seed);
+            const string Speaker = "Grumble";
+
+            LineNode Line(string id, string text, string next)
+            {
+                var line = new LineNode();
+                SetField(line, "nodeId", Id(id));
+                SetField(line, "speakerName", Speaker);
+                SetField(line, "text", text);
+                SetField(line, "nextNodeId", Id(next));
+                return line;
+            }
+
+            ActionNode Act(string id, DialogueAction action, string next)
+            {
+                var node = new ActionNode();
+                SetField(node, "nodeId", Id(id));
+                SetField(node, "action", action);
+                SetField(node, "nextNodeId", Id(next));
+                return node;
+            }
+
+            DialogueAction Record(string key)
+            {
+                var action = new RecordEventAction();
+                SetField(action, "key", key);
+                return action;
+            }
+
+            DialogueAction Give(string assetPath, int quantity)
+            {
+                var action = new GiveItemAction();
+                SetField(action, "item", AssetDatabase.LoadAssetAtPath<ItemDefinition>(assetPath) ?? throw new System.InvalidOperationException($"{assetPath} is missing."));
+                SetField(action, "quantity", quantity);
+                return action;
+            }
+
+            BranchNode Branch(string id, string key, TimelineConditionType type, double threshold, string whenTrue, string whenFalse)
+            {
+                var branch = new BranchNode();
+                SetField(branch, "nodeId", Id(id));
+                SetField(branch, "timelineKey", key);
+                SetField(branch, "conditionType", type);
+                SetField(branch, "threshold", threshold);
+                SetField(branch, "trueNodeId", Id(whenTrue));
+                SetField(branch, "falseNodeId", Id(whenFalse));
+                return branch;
+            }
+
+            var startQuest = new StartQuestAction();
+            SetField(startQuest, "questKey", BarrowsEndGearAuthor.GrumbleQuestId);
+
+            var end = new EndNode();
+            SetField(end, "nodeId", Id("grumble-end"));
+
+            var nodes = new List<DialogueNode>
+            {
+                Branch("grumble-done-check", BarrowsEndGearAuthor.GrumbleQuestCompleteKey, TimelineConditionType.HasOccurred, 0, "grumble-done-line", "grumble-accepted-check"),
+                Line("grumble-done-line", "Best mushroom stew in the valley, thanks to you. Eat up -- the Hearth is always open.", "grumble-end"),
+                Branch("grumble-accepted-check", "grumble-quest-accepted", TimelineConditionType.HasOccurred, 0, "grumble-enough-check", "grumble-offer-check"),
+                Branch("grumble-enough-check", HarvestInteractionAdapter.SharedKey, TimelineConditionType.CountAtLeast, 3, "grumble-turnin-line", "grumble-reminder-line"),
+                Line("grumble-reminder-line", "Three giant mushrooms, that's all I ask. They grow down in the caverns -- the mine tracks and around the water.", "grumble-end"),
+                Line("grumble-turnin-line", "Now THAT is a mushroom! Here, take this for your trouble -- and a little something to patch yourselves up.", "grumble-turnin-gold"),
+                Act("grumble-turnin-gold", Give(BarrowsEndGearAuthor.GoldPath, 50), "grumble-turnin-potion"),
+                Act("grumble-turnin-potion", Give("Packages/com.crpgtoolkit.core/Rules/SRD5e2014/Content/ItemDefinition_PotionofHealing.asset", 1), "grumble-turnin-record"),
+                Act("grumble-turnin-record", Record(BarrowsEndGearAuthor.GrumbleQuestCompleteKey), "grumble-end"),
+                Branch("grumble-offer-check", EncounterTrigger.PalisadeWonKey, TimelineConditionType.HasOccurred, 0, "grumble-offer-line", "grumble-early-line"),
+                Line("grumble-early-line", "You look like the sort who could brave the caverns for me. Giant mushrooms down there, real delicacies -- ask me again once you've made some progress.", "grumble-end"),
+                Line("grumble-offer-line", "You made it past the rats -- good. Bring me three giant mushrooms from down in the caverns and I'll make it worth your while.", "grumble-accept-record"),
+                Act("grumble-accept-record", Record("grumble-quest-accepted"), "grumble-accept-quest"),
+                Act("grumble-accept-quest", startQuest, "grumble-accept-line"),
+                Line("grumble-accept-line", "Mind the goblins. Mushrooms don't taste right with an arrow in them.", "grumble-end"),
+                end,
+            };
+
+            var dialogue = ScriptableObject.CreateInstance<DialogueDefinition>();
+            SetField(dialogue, "id", "dlg-grumble");
+            SetField(dialogue, "startNodeId", Id("grumble-done-check"));
+            SetField(dialogue, "nodes", nodes);
+            return dialogue;
+        }
+
+        /// <summary>Rewrites <c>dlg-grumble.asset</c> IN PLACE (same asset, same GUID) so the already-baked Town scene
+        /// that references it keeps working -- <see cref="SaveDialogue"/> deletes and recreates, which would orphan the
+        /// reference until the whole Town is re-authored.</summary>
+        [MenuItem("Barrows End/Content/Update Grumble Dialogue In Place")]
+        public static void AuthorGrumbleDialogueInPlace()
+        {
+            var fresh = BuildGrumbleDialogue();
+            var path = $"{BarrowsEndGearAuthor.NpcDir}/dlg-grumble.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<DialogueDefinition>(path);
+            if (existing == null)
+            {
+                AssetDatabase.CreateAsset(fresh, path);
+            }
+            else
+            {
+                fresh.name = existing.name;
+                EditorUtility.CopySerialized(fresh, existing);
+                EditorUtility.SetDirty(existing);
+                Object.DestroyImmediate(fresh);
+            }
+
+            AssetDatabase.SaveAssets();
         }
 
         // ---------------------------------------------------------------------------------------------
