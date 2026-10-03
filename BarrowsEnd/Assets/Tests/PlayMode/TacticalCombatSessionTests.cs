@@ -118,14 +118,19 @@ namespace BarrowsEnd.Tests
             Assert.IsTrue(shell.CombatSession.IsActive);
             yield return null;
 
-            // While combat is active, an ordinary ground click must NOT move anyone -- GateCommandSource.
-            // CombatMoveOverride suppressing PartyExplorationController is this task's own fix for a real hazard
-            // the toolkit's own TacticalPlayerMoveAdapter doc comment names as unsolved by any shipped example
-            // (two independent Move subscribers otherwise both reacting to the same click).
-            var beforeSuppressedClick = protagonistAgent.transform.position;
-            Click(protagonistAgent.transform.position + new Vector3(-3f, 0f, 0f));
+            // While combat is active a ground click moves ONLY the current combatant (through the tactical move
+            // adapter, spending Movement) -- never the exploration controller's whole-party move.
+            var startPosition = protagonistAgent.transform.position;
+            Click(startPosition + new Vector3(-2f, 0f, 0f));
+            yield return WaitUntil(() => Vector3.Distance(startPosition, protagonistAgent.transform.position) > 1.9f, 5f, "the current combatant walked away via the tactical adapter");
+            yield return Seconds(0.3f); // let the scheduler finish the move before issuing the next one
+            Assert.IsTrue(session.Characters.TryGetCharacter(protagonistId, out var protagonist));
+            Assert.IsTrue(protagonist.TryGetResource(new DefinitionId(TacticalCombatSession.MovementResourceId), out var movementLeft));
+            Assert.Less(movementLeft.Current, TacticalCombatSession.MovementPerTurn, "the move spent Movement");
+
+            Click(startPosition); // walk back into Strike range of the rat
+            yield return WaitUntil(() => Vector3.Distance(startPosition, protagonistAgent.transform.position) < 0.3f, 5f, "the combatant walked back");
             yield return Seconds(0.5f);
-            Assert.AreEqual(beforeSuppressedClick, protagonistAgent.transform.position, "exploration movement is suppressed during combat");
 
             var strikeButton = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "Strike");
             Assert.IsNotNull(strikeButton, "the real AbilityBarView shows the protagonist's real Strike ability");

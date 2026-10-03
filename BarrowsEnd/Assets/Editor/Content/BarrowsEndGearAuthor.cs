@@ -65,6 +65,7 @@ namespace BarrowsEnd.Editor
         public const string AbilityDir = "Assets/Content/Abilities";
         public const string RulesetPath = "Assets/Content/Ruleset/BarrowsEndRuleset.asset";
         public const string Srd5ProviderPath = "Packages/com.crpgtoolkit.core/Rules/SRD5e2014/Content/SRD5RulesetProvider.asset";
+        public const string ActionPath = "Packages/com.crpgtoolkit.core/Rules/SRD5e2014/Content/ResourceDefinition_Action.asset";
         public const string HitPointsPath = "Packages/com.crpgtoolkit.core/Rules/SRD5e2014/Content/ResourceDefinition_HitPoints.asset";
 
         public const string HeadSlotId = "slot-head";
@@ -269,11 +270,13 @@ namespace BarrowsEnd.Editor
             // of getting BarrowsEnd's own PhysicsLineOfSightProvider obstruction mask wrong -- e.g. picking up
             // the attacker's/target's own collider as a false obstruction -- for no gameplay benefit at melee
             // range) for zero benefit this task actually needs.
+            var actionResource = AssetDatabase.LoadAssetAtPath<CRPG.Actors.ResourceDefinition>(ActionPath)
+                                 ?? throw new InvalidOperationException($"{ActionPath} is missing.");
             var ratBite = LoadOrCreate<AbilityDefinition>($"{AbilityDir}/{RatBiteAbilityId}.asset");
             SetField(ratBite, "id", RatBiteAbilityId);
             SetField(ratBite, "displayName", "Bite");
             SetField(ratBite, "tags", AbilityTag.Attack | AbilityTag.Hostile);
-            SetField(ratBite, "costs", new List<AbilityCost>()); // Task 6.1: no per-turn resource pool exists yet for any combatant (party or hostile) -- matches the debug abilities' own "no turn loop refills a cost pool" reasoning; item 6's tactical-stack wiring is what would add real action-economy tracking, for every combatant at once, not just this one NPC's own definition.
+            SetField(ratBite, "costs", new List<AbilityCost> { ActionCost(actionResource) }); // Task 6.1: no per-turn resource pool exists yet for any combatant (party or hostile) -- matches the debug abilities' own "no turn loop refills a cost pool" reasoning; item 6's tactical-stack wiring is what would add real action-economy tracking, for every combatant at once, not just this one NPC's own definition.
             var ratTargeting = new TargetingDefinition();
             SetField(ratTargeting, "relation", TargetRelation.Enemy);
             SetField(ratTargeting, "range", 1.5f); // one grid cell's reach
@@ -292,7 +295,7 @@ namespace BarrowsEnd.Editor
             SetField(strike, "id", StrikeAbilityId);
             SetField(strike, "displayName", "Strike");
             SetField(strike, "tags", AbilityTag.Attack);
-            SetField(strike, "costs", new List<AbilityCost>());
+            SetField(strike, "costs", new List<AbilityCost> { ActionCost(actionResource) });
             var strikeTargeting = new TargetingDefinition();
             SetField(strikeTargeting, "relation", TargetRelation.Enemy);
             SetField(strikeTargeting, "range", 1.5f);
@@ -349,6 +352,12 @@ namespace BarrowsEnd.Editor
             Save(quest);
             content.Add(quest);
 
+            var movement = LoadOrCreate<CRPG.Actors.ResourceDefinition>("Assets/Content/Ruleset/resource-movement.asset");
+            SetField(movement, "id", BarrowsEnd.Gate.TacticalCombatSession.MovementResourceId);
+            SetField(movement, "displayName", "Movement");
+            Save(movement);
+            content.Add(movement);
+
             var srd5 = AssetDatabase.LoadAssetAtPath<SRD5RulesetProvider>(Srd5ProviderPath)
                        ?? throw new InvalidOperationException($"{Srd5ProviderPath} is missing.");
             var ruleset = LoadOrCreate<BarrowsEndRulesetProvider>(RulesetPath);
@@ -359,6 +368,14 @@ namespace BarrowsEnd.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log($"[BarrowsEnd] Authored ruleset with {content.Count} extra definitions ({Gear.Length} gear items, {DebugAbilities.Length} debug abilities).");
+        }
+
+        private static AbilityCost ActionCost(CRPG.Actors.ResourceDefinition action)
+        {
+            object cost = new AbilityCost();
+            typeof(AbilityCost).GetField("resource", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(cost, action);
+            typeof(AbilityCost).GetField("amount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(cost, 1);
+            return (AbilityCost)cost;
         }
 
         private static T LoadOrCreate<T>(string path) where T : ScriptableObject

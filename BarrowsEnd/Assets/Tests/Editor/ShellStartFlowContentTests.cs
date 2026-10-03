@@ -87,6 +87,13 @@ namespace BarrowsEnd.Tests
 
                 CollectionAssert.AreEquivalent(result.Plan.Appearance.ToList(), character.Appearance.ToList(), $"{classId}: the chosen look");
                 Assert.IsNotEmpty(character.Features, $"{classId} has its class features");
+                Assert.IsTrue(character.KnowsAbility(new DefinitionId("ability-strike")), $"{classId} knows Strike");
+                foreach (var featureId in character.Features)
+                {
+                    if (!session.RulesDatabase.TryResolve<FeatureDefinition>(featureId, out var feature)) continue;
+                    foreach (var abilityId in feature.GrantedAbilityIds)
+                        Assert.IsTrue(character.KnowsAbility(abilityId), $"{classId} knows {abilityId} (granted by {featureId}), so it is usable rather than greyed out");
+                }
             }
         }
 

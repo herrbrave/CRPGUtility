@@ -45,9 +45,18 @@ namespace CRPG.UI
             var root = document.rootVisualElement;
             root.Clear();
             root.style.flexGrow = 1;
-            root.style.paddingLeft = 24;
-            root.style.paddingTop = 24;
-            root.style.paddingRight = 24;
+            root.style.alignItems = Align.Center;
+            root.style.justifyContent = Justify.Center;
+            root.style.backgroundColor = new Color(0f, 0f, 0f, 0.55f);
+
+            var panel = new VisualElement();
+            panel.AddToClassList("be-panel");
+            panel.AddToClassList("be-part--panel-wood");
+            panel.style.backgroundColor = new Color(0.34f, 0.35f, 0.38f, 1f);
+            panel.style.color = new Color(0.231f, 0.161f, 0.098f, 1f);
+            panel.style.paddingLeft = panel.style.paddingRight = panel.style.paddingTop = panel.style.paddingBottom = 24;
+            root.Add(panel);
+            root = panel;
 
             var title = new Label("Store");
             title.style.fontSize = 28;

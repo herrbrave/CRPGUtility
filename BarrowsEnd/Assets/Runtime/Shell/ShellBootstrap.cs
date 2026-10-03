@@ -203,7 +203,11 @@ namespace BarrowsEnd.Shell
                 var abilityBarGo = new GameObject("AbilityBar");
                 abilityBarGo.transform.SetParent(transform);
                 var abilityBarView = abilityBarGo.AddComponent<AbilityBarView>();
-                CombatSession = new TacticalCombatSession(commandSource, inputSource, hudRoot, abilityBarView, BarrowsEndLayers.RouterMask);
+                var turnOrderGo = new GameObject("TurnOrder");
+                turnOrderGo.transform.SetParent(transform);
+                var turnOrderView = turnOrderGo.AddComponent<TurnOrderView>();
+                CombatSession = new TacticalCombatSession(commandSource, inputSource, hudRoot, abilityBarView, BarrowsEndLayers.RouterMask,
+                    turnOrderView, DisplayNameFor, Say);
             }
             CombatSession.RebindSession(session, spawner);
 

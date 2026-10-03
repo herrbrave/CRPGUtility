@@ -61,6 +61,10 @@ namespace CRPG.UI
             panel.style.borderBottomColor = Color.gray;
             panel.style.borderLeftColor = Color.gray;
             panel.style.borderRightColor = Color.gray;
+            panel.AddToClassList("be-panel");
+            panel.AddToClassList("be-part--panel-wood");
+            panel.style.backgroundColor = new Color(0.34f, 0.35f, 0.38f, 1f);
+            panel.style.color = new Color(0.231f, 0.161f, 0.098f, 1f);
             root.Add(panel);
 
             speakerLabel = new Label { style = { fontSize = 18, unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 4 } };

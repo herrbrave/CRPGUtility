@@ -16,7 +16,9 @@ MonoBehaviour:
   displayName: Bite
   description: 
   tags: 513
-  costs: []
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
   targeting:
     mode: 1
     relation: 2

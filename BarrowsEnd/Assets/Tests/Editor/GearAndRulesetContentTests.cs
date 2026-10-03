@@ -63,8 +63,8 @@ namespace BarrowsEnd.Tests
             Assert.IsNotNull(provider.Srd5);
             // 7 catalogs + head slot + (profile + item) per gear + the currency item (Task 6.0) + the debug abilities
             // + the skeleton NPC + the rat-bite ability + the strike ability + the Giant Rat NPC + the identify
-            // scroll item + the gathering-storm quest (all Task 6.1)
-            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + 1 + BarrowsEndGearAuthor.DebugAbilities.Length + 1 + 1 + 1 + 1 + 1 + 1;
+            // scroll item + the gathering-storm quest (all Task 6.1) + the Movement resource (tactical combat)
+            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + 1 + BarrowsEndGearAuthor.DebugAbilities.Length + 1 + 1 + 1 + 1 + 1 + 1 + 1;
             Assert.AreEqual(expected, provider.ExtraContent.Count);
             Assert.AreEqual(provider.ExtraContent.Count, provider.ExtraContent.Select(c => c.Id.Value).Distinct().Count(), "no duplicate ids");
             Assert.IsTrue(session.RulesDatabase.TryResolve<ResourceDefinition>(HitPoints, out _), "SRD5 content is still there");
@@ -142,7 +142,7 @@ namespace BarrowsEnd.Tests
             Assert.AreEqual("Bite", bite.DisplayName);
             Assert.IsTrue(bite.Tags.HasFlag(AbilityTag.Attack));
             Assert.IsTrue(bite.Tags.HasFlag(AbilityTag.Hostile));
-            Assert.AreEqual(0, bite.Costs.Count, "no turn-resource economy exists yet for any combatant");
+            Assert.AreEqual(1, bite.Costs.Count, "one Action per bite");
             Assert.AreEqual(TargetRelation.Enemy, bite.Targeting.Relation);
             Assert.AreEqual(1.5f, bite.Targeting.Range);
             Assert.IsFalse(bite.Targeting.RequireLineOfSight, "melee-only range makes an obstruction check unnecessary risk for no benefit");
@@ -159,7 +159,7 @@ namespace BarrowsEnd.Tests
             Assert.IsTrue(rules.TryResolve<AbilityDefinition>(new DefinitionId(BarrowsEndGearAuthor.StrikeAbilityId), out var strike));
             Assert.AreEqual("Strike", strike.DisplayName);
             Assert.IsTrue(strike.Tags.HasFlag(AbilityTag.Attack));
-            Assert.AreEqual(0, strike.Costs.Count);
+            Assert.AreEqual(1, strike.Costs.Count, "one Action per Strike");
             Assert.AreEqual(TargetRelation.Enemy, strike.Targeting.Relation);
             Assert.AreEqual(1.5f, strike.Targeting.Range);
             Assert.IsTrue(strike.Targeting.RequireVisibleTarget);

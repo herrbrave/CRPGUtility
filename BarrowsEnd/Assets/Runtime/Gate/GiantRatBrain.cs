@@ -18,6 +18,7 @@ namespace BarrowsEnd.Gate
     {
         public const string BehaviorSetId = "behaviorset-giant-rat";
         private const string AttackBehaviorId = "behavior-giant-rat-attack";
+        private const string CloseBehaviorId = "behavior-giant-rat-close";
 
         // Duplicated from BarrowsEndGearAuthor.RatBiteAbilityId (Editor-only, not reachable from Runtime) --
         // same "duplicate the id/path string across the Editor/Runtime boundary" convention BarrowsEndTownAuthor's
@@ -37,6 +38,16 @@ namespace BarrowsEnd.Gate
 
             var concrete = (RulesDatabase)rulesDatabase;
 
+            var close = UnityEngine.ScriptableObject.CreateInstance<BehaviorDefinition>();
+            SetField(close, "id", CloseBehaviorId);
+            SetField(close, "displayName", "Close Distance");
+            SetField(close, "kind", BehaviorKind.Move);
+            SetField(close, "movementResourceId", new DefinitionId(TacticalCombatSession.MovementResourceId));
+            SetField(close, "moveTargetRelation", CRPG.Abilities.TargetRelation.Enemy);
+            SetField(close, "stopDistance", 1.2f);
+            SetField(close, "considerations", new List<Consideration>());
+            concrete.Register(close);
+
             var attack = UnityEngine.ScriptableObject.CreateInstance<BehaviorDefinition>();
             SetField(attack, "id", AttackBehaviorId);
             SetField(attack, "displayName", "Bite Nearest");
@@ -47,7 +58,7 @@ namespace BarrowsEnd.Gate
             var set = UnityEngine.ScriptableObject.CreateInstance<BehaviorSetDefinition>();
             SetField(set, "id", BehaviorSetId);
             SetField(set, "displayName", "Giant Rat");
-            SetField(set, "behaviorIds", new List<DefinitionId> { attack.Id });
+            SetField(set, "behaviorIds", new List<DefinitionId> { close.Id, attack.Id });
             concrete.Register(set);
 
             return set;

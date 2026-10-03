@@ -42,6 +42,14 @@ namespace BarrowsEnd.Shell
             var maxHitPoints = Mathf.Max(1, die.Count * die.Sides + die.Modifier + modifier);
             character.AddResource(new ResourceState(GateSessionServices.HitPoints, maxHitPoints));
             character.LearnAbility(StrikeAbility);
+
+            // AbilityResolutionService only lets a character use abilities it KNOWS once it knows any (Strike above
+            // made that true), so abilities granted by class features must be learned too or they show greyed out.
+            foreach (var featureId in character.Features)
+            {
+                if (!rules.TryResolve<FeatureDefinition>(featureId, out var feature)) continue;
+                foreach (var abilityId in feature.GrantedAbilityIds) character.LearnAbility(abilityId);
+            }
             return character;
         }
     }

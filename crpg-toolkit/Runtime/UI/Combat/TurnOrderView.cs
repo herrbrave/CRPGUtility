@@ -68,7 +68,6 @@ namespace CRPG.UI
             container.Add(roundLabel);
 
             orderContainer = new VisualElement();
-            orderContainer.style.flexDirection = FlexDirection.Row;
             container.Add(orderContainer);
         }
 
@@ -83,7 +82,9 @@ namespace CRPG.UI
         private static VisualElement BuildPill(TurnOrderEntrySummary entry)
         {
             var pill = new VisualElement();
-            pill.style.marginRight = 8;
+            pill.style.marginBottom = 4;
+            pill.style.flexShrink = 0;
+            if (entry.IsCurrentTurn) pill.style.backgroundColor = new Color(0.9f, 0.8f, 0.2f, 0.25f);
             pill.style.paddingLeft = 8;
             pill.style.paddingRight = 8;
             pill.style.paddingTop = 4;

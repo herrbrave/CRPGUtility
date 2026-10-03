@@ -21,28 +21,28 @@ namespace BarrowsEnd.Gate
     /// <c>TestProject/Assets/TacticalSlice/Scripts/TacticalSliceBootstrap.cs</c> and the shipped
     /// `crpg-toolkit/Samples~/TacticalEncounter` sample -- the only two places in the whole codebase this stack
     /// has ever been wired together before now, both against 3D NavMesh movement, never BarrowsEnd's 2D grid.
-    /// <para><b>Deliberate scope cut, not an oversight:</b> the palisade-breach tutorial fight starts with every
-    /// combatant already at melee range (rats spawn adjacent to the party, matching the "immediate skirmish"
-    /// framing), so this task wires NO movement-during-combat at all -- no <c>TacticalPlayerMoveAdapter</c>, no
-    /// movement resource authored on any combatant. <see cref="BarrowsEnd.Gate.GateCommandSource.CombatMoveOverride"/>
-    /// still suppresses ordinary exploration Move commands while combat is active (a real hazard the toolkit's own
-    /// <c>TacticalPlayerMoveAdapter</c> doc comment names as unsolved by any shipped example: two independent
-    /// Move subscribers -- <c>PartyExplorationController</c> and a tactical adapter -- would otherwise both react
-    /// to the same click), it just has nothing to redirect TO yet. A real move-in-combat capability (needed once
-    /// Act 2/3's ranged/positional encounters exist) is left to whichever later task first needs it.</para>
-    /// <para><see cref="MovementResolutionService"/>/<see cref="TacticalMovementController"/>/
-    /// <see cref="INavMeshService"/> are still constructed and passed through, because
-    /// <see cref="TacticalEncounterController"/>'s constructor requires them regardless -- they simply never do
-    /// anything this task exercises, since nobody has a movement resource to spend.</para></summary>
+    /// <para>Turn economy: each combatant has a per-turn Movement budget (<see cref="MovementPerTurn"/> world
+    /// units, spent by <see cref="TacticalPlayerMoveAdapter"/> for the player and by the hostile brain's Close
+    /// Distance behavior) and acts once -- a resolved ability ends the turn automatically. The Movement resource
+    /// is created at runtime (no authored asset) and granted to every combatant when the encounter starts.
+    /// <see cref="GateCommandSource.CombatMoveOverride"/> redirects ground clicks to the move adapter so they
+    /// can never also drive exploration movement.</para></summary>
     public sealed class TacticalCombatSession
     {
         public static readonly DefinitionId PartyFaction = new("faction-party");
+        public const string MovementResourceId = "resource-movement";
+        public const string ActionResourceId = "resource-action";
+        public const string BonusActionResourceId = "resource-bonus-action";
+        public const int MovementPerTurn = 6;
 
         private readonly GateCommandSource commandSource;
         private readonly InputSystemCommandSource inputSource;
         private readonly HudRoot hudRoot;
         private readonly AbilityBarView abilityBarView;
         private readonly LayerMask hittableMask;
+        private readonly TurnOrderView turnOrderView;
+        private readonly Func<RuntimeEntityId, string> displayNameFor;
+        private readonly Action<string> notify;
 
         private GameSession session;
         private WorldSpawnService spawner;
@@ -52,13 +52,21 @@ namespace BarrowsEnd.Gate
         private AbilityTargetingGate targetingGate;
         private TacticalCombatUIBridge uiBridge;
         private VisualElementRegionHolder abilityBarRegionHolder;
+        private VisualElementRegionHolder turnOrderRegionHolder;
         private Action<GameEventContext> onCombatEnded;
+        private Action<GameEventContext> onAbilityResolved;
+        private TacticalPlayerMoveAdapter moveAdapter;
+        private bool pendingEndTurn;
         private Action<bool> onEncounterEnded;
         private bool lastEncounterPartyWon;
 
         public TacticalCombatSession(GateCommandSource commandSource, InputSystemCommandSource inputSource,
-            HudRoot hudRoot, AbilityBarView abilityBarView, LayerMask hittableMask)
+            HudRoot hudRoot, AbilityBarView abilityBarView, LayerMask hittableMask,
+            TurnOrderView turnOrderView, Func<RuntimeEntityId, string> displayNameFor, Action<string> notify)
         {
+            this.turnOrderView = turnOrderView ?? throw new ArgumentNullException(nameof(turnOrderView));
+            this.displayNameFor = displayNameFor ?? throw new ArgumentNullException(nameof(displayNameFor));
+            this.notify = notify;
             this.commandSource = commandSource ?? throw new ArgumentNullException(nameof(commandSource));
             this.inputSource = inputSource ?? throw new ArgumentNullException(nameof(inputSource));
             this.hudRoot = hudRoot ?? throw new ArgumentNullException(nameof(hudRoot));
@@ -94,7 +102,25 @@ namespace BarrowsEnd.Gate
             this.onEncounterEnded = onEncounterEnded;
 
             var positions = new LiveCharacterPositionProvider();
-            var encounterService = new CombatEncounterService(session.Characters, null, new TurnResourceSet(Array.Empty<ResourceDefinition>()), session.EventBus);
+            if (!session.RulesDatabase.TryResolve<ResourceDefinition>(new DefinitionId(MovementResourceId), out var movementDefinition))
+            {
+                Debug.LogError("[TacticalCombatSession] resource-movement is missing -- run Barrows End/Content/Author Gear And Ruleset.");
+                return;
+            }
+
+            foreach (var (id, _) in combatants) GrantMovement(id);
+            var turnResources = new List<ResourceDefinition> { movementDefinition };
+            foreach (var turnResourceId in new[] { ActionResourceId, BonusActionResourceId })
+            {
+                if (!session.RulesDatabase.TryResolve<ResourceDefinition>(new DefinitionId(turnResourceId), out var turnResource))
+                {
+                    Debug.LogError($"[TacticalCombatSession] {turnResourceId} is missing from the ruleset.");
+                    return;
+                }
+                turnResources.Add(turnResource);
+                foreach (var (id, _) in combatants) GrantTurnResource(id, turnResource.Id, 1);
+            }
+            var encounterService = new CombatEncounterService(session.Characters, null, new TurnResourceSet(turnResources), session.EventBus);
             var factionProvider = new EncounterFactionProvider(encounterService);
             var abilityResolution = new AbilityResolutionService(session.Characters, session.DiceService,
                 eventBus: session.EventBus, positions: positions, rulesDatabase: session.RulesDatabase, factionProvider: factionProvider);
@@ -108,7 +134,13 @@ namespace BarrowsEnd.Gate
 
             targetingGate = new AbilityTargetingGate(controller.Scheduler, abilityResolution, hittableMask);
             inputSource.TargetingGate = targetingGate;
-            commandSource.CombatMoveOverride = _ => { }; // suppress exploration movement for the duration -- see class remarks
+            moveAdapter = new TacticalPlayerMoveAdapter(controller, movementDefinition.Id, PartyFaction);
+            commandSource.CombatMoveOverride = moveAdapter.HandleMove;
+            targetingGate.TargetRejected += OnTargetRejected;
+
+            pendingEndTurn = false;
+            onAbilityResolved = OnAbilityResolved;
+            session.EventBus.Subscribe(GameEvent.AbilityResolved, onAbilityResolved);
 
             // 260f matches HudBootstrap's own RosterWidth/MenuWidth (not the shipped sample's own 420f, which
             // was sized for that sample's own larger reference resolution) -- keeps this region's on-screen
@@ -117,6 +149,14 @@ namespace BarrowsEnd.Gate
             abilityBarRegionHolder ??= new VisualElementRegionHolder(hudRoot.CreateRegion(HudCorner.BottomRight, 260f));
             var abilityBarPresenter = new AbilityBarPresenter(session.Characters, session.RulesDatabase, abilityResolution);
             abilityBarView.Initialize(abilityBarPresenter, abilityBarRegionHolder.Region);
+
+            var names = new Dictionary<RuntimeEntityId, string>();
+            var ratCount = 0;
+            foreach (var (id, faction) in combatants)
+                names[id] = faction == PartyFaction ? displayNameFor(id) ?? "Party member" : $"Giant Rat {++ratCount}";
+            var turnOrderPresenter = new TurnOrderPresenter(controller.EncounterService, names);
+            turnOrderRegionHolder ??= new VisualElementRegionHolder(hudRoot.CreateRegion(HudCorner.BottomLeft, 260f));
+            turnOrderView.Initialize(turnOrderPresenter, turnOrderRegionHolder.Region, session.EventBus);
 
             uiBridge = new TacticalCombatUIBridge(controller, targetingGate, abilityBarView, session.EventBus, PartyFaction);
 
@@ -134,8 +174,41 @@ namespace BarrowsEnd.Gate
             if (!IsActive) return;
 
             controller.Tick(deltaTime);
+            if (pendingEndTurn && !controller.Scheduler.IsBusy)
+            {
+                pendingEndTurn = false;
+                var current = controller.EncounterService.Encounter?.CurrentTurn;
+                if (current != null && !HasActionLeft(current.Id)) controller.EncounterService.EndTurn();
+            }
+
             aiDriver.Tick(deltaTime);
             CheckWinCondition();
+        }
+
+        private bool HasActionLeft(RuntimeEntityId id) =>
+            session.Characters.TryGetCharacter(id, out var character)
+            && character.TryGetResource(new DefinitionId(ActionResourceId), out var action) && action.Current > 0;
+
+        private void OnAbilityResolved(GameEventContext context)
+        {
+            var current = controller?.EncounterService.Encounter?.CurrentTurn;
+            if (current != null && current.Id == context.Source) pendingEndTurn = true;
+        }
+
+        private void OnTargetRejected(AbilityDefinition ability, RuntimeEntityId target, AbilityValidationResult result) =>
+            notify?.Invoke(string.IsNullOrEmpty(result.Message) ? $"{ability.DisplayName}: {result.Reason}" : $"{ability.DisplayName}: {result.Message}");
+
+        private void GrantMovement(RuntimeEntityId id)
+        {
+            if (!session.Characters.TryGetCharacter(id, out var character)) return;
+            var movementId = new DefinitionId(MovementResourceId);
+            if (!character.TryGetResource(movementId, out _)) character.AddResource(new ResourceState(movementId, MovementPerTurn));
+        }
+
+        private void GrantTurnResource(RuntimeEntityId id, DefinitionId resourceId, int max)
+        {
+            if (!session.Characters.TryGetCharacter(id, out var character)) return;
+            if (!character.TryGetResource(resourceId, out _)) character.AddResource(new ResourceState(resourceId, max));
         }
 
         private void CheckWinCondition()
@@ -158,7 +231,14 @@ namespace BarrowsEnd.Gate
 
         private void EndEncounter()
         {
-            if (session != null) session.EventBus.Unsubscribe(GameEvent.CombatEnded, onCombatEnded);
+            if (session != null)
+            {
+                session.EventBus.Unsubscribe(GameEvent.CombatEnded, onCombatEnded);
+                session.EventBus.Unsubscribe(GameEvent.AbilityResolved, onAbilityResolved);
+            }
+            if (targetingGate != null) targetingGate.TargetRejected -= OnTargetRejected;
+            moveAdapter = null;
+            pendingEndTurn = false;
             inputSource.TargetingGate = null;
             commandSource.CombatMoveOverride = null;
             abilityBarView.ClearCurrentCharacter();
