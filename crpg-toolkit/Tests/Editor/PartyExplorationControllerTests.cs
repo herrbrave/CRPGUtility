@@ -104,6 +104,30 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void AMemberTheCanMoveFilterRejectsIsLeftWhereTheyAreWhileTheRestOfTheSelectionMoves()
+        {
+            var fallen = RuntimeEntityId.NewId();
+            var standing = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { fallen, standing }); // both selected
+            var commandSource = new FakeCommandSource();
+            var selectableSource = new FakeSelectableSource();
+            foreach (var member in party.Members) selectableSource.Add(member, Vector3.zero);
+            var controller = new PartyExplorationController(
+                party, new PartyMovementService(new FakeNavMeshService(), selectableSource), new LineFormationSolver(), commandSource,
+                canMove: id => id != fallen);
+
+            var fallenMotor = new FakeMovable();
+            var standingMotor = new FakeMovable();
+            controller.RegisterMotor(fallen, fallenMotor);
+            controller.RegisterMotor(standing, standingMotor);
+
+            commandSource.RaiseMove(new MoveCommand(new Vector3(10f, 0f, 10f), Vector3.forward));
+
+            Assert.IsNull(fallenMotor.LastDestination, "a member who cannot move is not ordered anywhere");
+            Assert.IsNotNull(standingMotor.LastDestination, "the others still go");
+        }
+
+        [Test]
         public void SelectCommandReplaceWithOneCharacterNarrowsSelection()
         {
             var fighter = RuntimeEntityId.NewId();

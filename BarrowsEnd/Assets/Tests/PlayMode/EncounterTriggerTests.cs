@@ -9,6 +9,8 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using UnityEngine.UIElements;
+using CRPG.UI;
 
 namespace BarrowsEnd.Tests
 {
@@ -115,14 +117,76 @@ namespace BarrowsEnd.Tests
             yield return WaitUntil(() => !shell.CombatSession.IsActive, 5f, "the lost encounter ended");
             Assert.AreEqual("The party has fallen...", shell.LastMessage);
 
-            // After the beat the checkpoint reloads into a brand-new session. The restored party stands inside the
-            // trigger volume (that is where it was when the fight began), so the re-armed trigger retries at once.
+            // After the beat the checkpoint reloads into a brand-new session. The restored party stands inside the trigger
+            // volume (that is where it was when the fight began) -- the trigger must NOT re-fire at once (an endless retry
+            // loop at boss difficulty); it waits until the party steps out, then fires when they walk back in.
             yield return WaitUntil(() => shell.Services.Session != session && shell.IsReady && !shell.IsLoading, 15f, "the checkpoint reloaded");
             var reloaded = shell.Services.Session;
-            yield return WaitUntil(() => shell.CombatSession.IsActive, 5f, "the re-armed trigger fired again");
+            yield return new WaitForSeconds(1.0f);
+            Assert.IsFalse(shell.CombatSession.IsActive, "no instant re-fire while the party is still standing in the zone");
+            StringAssert.Contains("Step out and back in", shell.LastMessage);
             Assert.IsTrue(reloaded.Characters.TryGetCharacter(protagonistId, out var restored));
             Assert.IsNull(restored.DeathSaves, "the protagonist is back on their feet for the retry");
+
+            var rearmed = UnityEngine.Object.FindObjectsByType<EncounterTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None).Single();
+            var hero = GateSessionServices.FindAgent(protagonistId);
+            Assert.IsTrue(hero.Motor.Warp(rearmed.transform.position + new Vector3(0f, 0f, -10f)), "a walkable spot well outside the zone"); // step out
+            Physics.SyncTransforms();
+            yield return new WaitForSeconds(0.3f);
+            Assert.IsFalse(shell.CombatSession.IsActive);
+
+            hero.Motor.Warp(rearmed.transform.position); // and back in when ready
+            Physics.SyncTransforms();
+            yield return WaitUntil(() => shell.CombatSession.IsActive, 5f, "the trigger fires again once the party re-enters");
             Assert.AreEqual(3, CharacterAgentsOf("palisade-breach-triggered-"), "a fresh set of hostiles, not the old ones");
+        }
+
+        private static void Set(object target, string field, object value) =>
+            typeof(EncounterTrigger).GetField(field, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(target, value);
+
+        [UnityTest]
+        public IEnumerator ARequiredKeyHoldsTheTriggerAndASpawnAnchorMovesTheHostilesAwayFromTheParty()
+        {
+            var session = shell.Services.Session;
+            var hero = GateSessionServices.FindAgent(session.Party.Members[0]);
+            var start = hero.transform.position;
+
+            var go = new GameObject("GatedBoss");
+            go.transform.position = start;
+            var sphere = go.AddComponent<SphereCollider>();
+            sphere.isTrigger = true;
+            sphere.radius = 2.5f;
+            var anchor = new GameObject("Anchor").transform;
+            anchor.SetParent(go.transform, true);
+            anchor.position = start + new Vector3(7f, 0f, 0f);
+            var trigger = go.AddComponent<EncounterTrigger>();
+            Set(trigger, "firedKey", "anchor-test-fired");
+            Set(trigger, "wonKey", "anchor-test-won");
+            Set(trigger, "npcDefinitionId", "npc-goblin");
+            Set(trigger, "count", 1);
+            Set(trigger, "spawnAnchor", anchor);
+            Set(trigger, "spawnScatter", 0.5f);
+            Set(trigger, "requiredKey", "anchor-test-gate");
+            trigger.Session = session;
+            trigger.Spawner = shell.Services.Spawner;
+            trigger.CombatSession = shell.CombatSession;
+            Physics.SyncTransforms();
+
+            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForFixedUpdate();
+            Assert.IsFalse(shell.CombatSession.IsActive, "the required key has not occurred, so the zone holds fire");
+
+            session.Timeline.Record("anchor-test-gate", TimelineValue.Flag);
+            yield return WaitUntil(() => shell.CombatSession.IsActive, 5f, "the trigger fires once its required key occurs (OnTriggerStay)");
+
+            Assert.IsTrue(shell.Services.Spawner.TryGetCharacterId("anchor-test-fired-1", out var id, out _, out _));
+            var goblin = GateSessionServices.FindAgent(id);
+            Assert.Less(Vector3.Distance(goblin.transform.position, anchor.position), 3.5f, "hostiles spawn around the anchor");
+            Assert.Greater(Vector3.Distance(goblin.transform.position, start), 4f, "not on top of the party");
+
+            var hud = UnityEngine.Object.FindFirstObjectByType<HudRoot>().GetComponent<UIDocument>().rootVisualElement;
+            Assert.IsTrue(hud.Query<Label>().ToList().Any(l => l.text == "Goblin"), "a lone hostile is listed without a ' 1' suffix");
+            UnityEngine.Object.Destroy(go);
         }
 
         private int CharacterAgentsOf(string spawnIdPrefix) =>

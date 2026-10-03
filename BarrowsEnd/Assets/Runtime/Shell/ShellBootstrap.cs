@@ -131,6 +131,11 @@ namespace BarrowsEnd.Shell
 
         public bool IsLoading => loadCoordinator != null && loadCoordinator.IsLoading;
         public string LastMessage { get; private set; } = "";
+
+        /// <summary>Raised after a load (the HUD's Load button, a lost fight's checkpoint reload, Continue) has swapped in a brand-new session,
+        /// so UI bound to the old session's party/characters can rebind. Only the Load button used to do this, which left the party panel
+        /// showing a stale session after every other kind of load.</summary>
+        public event Action SessionRebound;
         public event Action<string> MessageChanged;
 
         /// <summary>Where <see cref="SaveNow"/> writes and <see cref="LoadNow"/> reads. Tests point this at a temp file.</summary>
@@ -235,7 +240,7 @@ namespace BarrowsEnd.Shell
 
             var interactionHost = GetComponentInChildren<InteractionControllerBehaviour>() ?? NewInteractionHost();
             commandSource = new GateCommandSource(inputSource, () => Services?.Session?.Party);
-            Services = new GateSessionServices(commandSource, interactionHost, pathfinding);
+            Services = new GateSessionServices(commandSource, interactionHost, pathfinding) { PartyCanDie = false };
             Services.Rebind(session, spawner);
 
             // Task 6.1: constructed once (never rebuilt on a load, unlike Services -- the HudRoot/AbilityBarView
@@ -572,6 +577,25 @@ namespace BarrowsEnd.Shell
                 trigger.RequestStartQuest = RequestStartQuest;
             }
 
+            foreach (var hint in FindObjectsByType<HintTrigger>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                hint.Session = session;
+                hint.Notify = Say;
+            }
+
+            foreach (var gate in FindObjectsByType<PortcullisGate>(FindObjectsInactive.Include, FindObjectsSortMode.None)) gate.Refresh(session);
+            foreach (var lever in FindObjectsByType<LeverInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                lever.Session = session;
+                lever.RequestQuestRefresh = RefreshAllActiveQuests;
+                lever.Notify = Say;
+                lever.OnPulled = () =>
+                {
+                    foreach (var gate in FindObjectsByType<PortcullisGate>(FindObjectsInactive.Include, FindObjectsSortMode.None)) gate.Refresh(session);
+                };
+                lever.RefreshState();
+            }
+
             foreach (var node in FindObjectsByType<HarvestInteractionAdapter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
                 node.Session = session;
@@ -588,6 +612,7 @@ namespace BarrowsEnd.Shell
                 trigger.RequestQuestRefresh = RefreshAllActiveQuests;
                 trigger.RequestCheckpoint = SaveCheckpoint;
                 trigger.RequestDefeat = HandlePartyDefeated;
+                trigger.Notify = Say;
                 trigger.RefreshFiredState();
             }
         }
@@ -608,7 +633,11 @@ namespace BarrowsEnd.Shell
 
             questNotificationBus = session.EventBus;
             onQuestStarted = ctx => Say($"Quest started: {QuestName(session, ctx)}");
-            onQuestCompleted = ctx => Say($"Quest complete: {QuestName(session, ctx)}");
+            onQuestCompleted = ctx =>
+            {
+                Say($"Quest complete: {QuestName(session, ctx)}");
+                PlayEpilogueFor(session, ctx.Data.TryGetValue("QuestId", out var id) ? id as string : null);
+            };
             onQuestObjectiveCompleted = ctx =>
             {
                 var objective = ctx.Data.TryGetValue("ObjectiveId", out var id) ? id as string : null;
@@ -619,6 +648,13 @@ namespace BarrowsEnd.Shell
             questNotificationBus.Subscribe(GameEvent.QuestStarted, onQuestStarted);
             questNotificationBus.Subscribe(GameEvent.QuestObjectiveCompleted, onQuestObjectiveCompleted);
             questNotificationBus.Subscribe(GameEvent.QuestCompleted, onQuestCompleted);
+        }
+
+        private void PlayEpilogueFor(GameSession session, string questId)
+        {
+            if (string.IsNullOrEmpty(questId) || session.Party.Members.Count == 0) return;
+            foreach (var epilogue in FindObjectsByType<EpilogueTrigger>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                if (epilogue.QuestId == questId) epilogue.Play(session.Party.Members[0]);
         }
 
         private static string QuestName(GameSession session, GameEventContext ctx)
@@ -835,6 +871,13 @@ namespace BarrowsEnd.Shell
             }
             InitializeCamera(session, scene);
             Say("loaded");
+
+            // A reload can drop the party inside an encounter zone (a lost fight's checkpoint always does): no instant
+            // re-fire. After Say("loaded") so the zone's own "step out and back in" message is the one left showing.
+            foreach (var trigger in FindObjectsByType<EncounterTrigger>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                trigger.DisarmUntilPartyLeaves();
+
+            SessionRebound?.Invoke();
         }
 
         public void Say(string message)

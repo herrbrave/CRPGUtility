@@ -58,6 +58,7 @@ namespace BarrowsEnd.Gate
         private UnityEngine.UIElements.Label feedbackLabel;
         private Action<GameEventContext> onCombatEnded;
         private Action<GameEventContext> onAbilityResolved;
+        private Dictionary<RuntimeEntityId, string> combatantNames;
         private TacticalPlayerMoveAdapter moveAdapter;
         private bool pendingEndTurn;
         private Action<bool> onEncounterEnded;
@@ -189,6 +190,7 @@ namespace BarrowsEnd.Gate
                 if (faction == PartyFaction) names[id] = displayNameFor(id) ?? "Party member";
                 else names[id] = hostileNameFor?.Invoke(id) ?? $"Hostile {++hostileCount}";
             }
+            combatantNames = names;
             var turnOrderPresenter = new TurnOrderPresenter(controller.EncounterService, names);
             turnOrderRegionHolder ??= new VisualElementRegionHolder(hudRoot.CreateRegion(HudCorner.BottomLeft, 260f));
             turnOrderView.Initialize(turnOrderPresenter, turnOrderRegionHolder.Region, session.EventBus);
@@ -273,6 +275,8 @@ namespace BarrowsEnd.Gate
         private void OnTargetRejected(AbilityDefinition ability, RuntimeEntityId target, AbilityValidationResult result)
         {
             var message = string.IsNullOrEmpty(result.Message) ? $"{ability.DisplayName}: {result.Reason}" : $"{ability.DisplayName}: {result.Message}";
+            // The toolkit's message names the target by raw id; show who it actually is.
+            if (combatantNames != null && combatantNames.TryGetValue(target, out var targetName)) message = message.Replace(target.ToString(), targetName);
             ShowFeedback(message);
             notify?.Invoke(message);
         }

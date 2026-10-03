@@ -1,4 +1,5 @@
 using BarrowsEnd.Gate;
+using CRPG.Dialogue;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -198,7 +199,8 @@ namespace BarrowsEnd.Editor
         /// <paramref name="count"/> of <paramref name="npcId"/> and starts a tactical fight. <paramref name="progressKey"/>
         /// is shared by every encounter a quest objective counts together.</summary>
         public static EncounterTrigger AddEncounterTrigger(GameObject root, string name, Vector2Int cell, string firedKey, string wonKey,
-            string progressKey, string npcId, int count, float radius = 2.5f)
+            string progressKey, string npcId, int count, float radius = 2.5f,
+            string secondaryNpcId = null, int secondaryCount = 0, Vector2Int? spawnCell = null, string requiredKey = null, float? spawnScatter = null)
         {
             var go = new GameObject(name);
             go.transform.SetParent(root.transform, false);
@@ -212,6 +214,22 @@ namespace BarrowsEnd.Editor
             SetField(trigger, "progressKey", progressKey);
             SetField(trigger, "npcDefinitionId", npcId);
             SetField(trigger, "count", count);
+            if (!string.IsNullOrEmpty(secondaryNpcId))
+            {
+                SetField(trigger, "secondaryNpcDefinitionId", secondaryNpcId);
+                SetField(trigger, "secondaryCount", secondaryCount);
+            }
+
+            if (spawnCell.HasValue)
+            {
+                var anchor = new GameObject("SpawnAnchor").transform;
+                anchor.SetParent(go.transform, false);
+                anchor.position = Centre(spawnCell.Value);
+                SetField(trigger, "spawnAnchor", anchor);
+            }
+
+            if (!string.IsNullOrEmpty(requiredKey)) SetField(trigger, "requiredKey", requiredKey);
+            if (spawnScatter.HasValue) SetField(trigger, "spawnScatter", spawnScatter.Value);
             return trigger;
         }
 
@@ -245,6 +263,99 @@ namespace BarrowsEnd.Editor
             var adapter = go.AddComponent<HarvestInteractionAdapter>();
             SetField(adapter, "nodeId", nodeId);
             return adapter;
+        }
+
+        /// <summary>A pull-once lever (box collider + sprite + approach anchor + WorldInteractable) recording <paramref name="key"/>.</summary>
+        public static LeverInteractionAdapter AddLeverPoint(GameObject root, string name, Vector2Int cell, Vector2Int approach, Sprite visual, string key, Color? tint = null)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = Centre(cell);
+
+            var box = go.AddComponent<BoxCollider>();
+            box.size = new Vector3(0.9f, 1f, 0.9f);
+            box.center = new Vector3(0f, 0.5f, 0f);
+
+            var visualGo = new GameObject("Visual");
+            visualGo.transform.SetParent(go.transform, false);
+            visualGo.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+            visualGo.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            var renderer = visualGo.AddComponent<SpriteRenderer>();
+            renderer.sprite = visual;
+            if (tint.HasValue) renderer.color = tint.Value;
+            renderer.sortingLayerName = SpriteSortingContract.WorldLayer;
+            visualGo.AddComponent<StaticSpriteSorter>();
+
+            var anchor = new GameObject("Anchor").transform;
+            anchor.SetParent(go.transform, false);
+            anchor.position = Centre(approach);
+
+            var interactable = go.AddComponent<WorldInteractable>();
+            interactable.Configure(anchor, 1.5f);
+            var adapter = go.AddComponent<LeverInteractionAdapter>();
+            SetField(adapter, "leverKey", key);
+            SetField(adapter, "visual", visualGo.transform);
+            return adapter;
+        }
+
+        /// <summary>A one-line hint shown the first time a party member enters the volume (silent once <paramref name="unlessKey"/> occurred).</summary>
+        public static HintTrigger AddHintTrigger(GameObject root, string name, Vector2Int cell, string message, string unlessKey, float radius = 2f)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = Centre(cell);
+            var collider = go.AddComponent<SphereCollider>();
+            collider.isTrigger = true;
+            collider.radius = radius;
+            var hint = go.AddComponent<HintTrigger>();
+            SetField(hint, "message", message);
+            SetField(hint, "unlessKey", unlessKey);
+            return hint;
+        }
+
+        /// <summary>A portcullis spanning <paramref name="cells"/> (floor in the baked grid, blocked at runtime until <paramref name="openKey"/>
+        /// occurs). Each cell is a child carrying the bar sprite, no collider.</summary>
+        public static PortcullisGate AddPortcullis(GameObject root, string name, IEnumerable<Vector2Int> cells, Sprite bars, string openKey)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(root.transform, false);
+            foreach (var cell in cells)
+            {
+                var child = new GameObject($"GateCell_{cell.x}_{cell.y}");
+                child.transform.SetParent(go.transform, false);
+                child.transform.position = Centre(cell);
+                var visualGo = new GameObject("Visual");
+                visualGo.transform.SetParent(child.transform, false);
+                visualGo.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+                visualGo.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+                var renderer = visualGo.AddComponent<SpriteRenderer>();
+                renderer.sprite = bars;
+                renderer.sortingLayerName = SpriteSortingContract.WorldLayer;
+                visualGo.AddComponent<StaticSpriteSorter>();
+            }
+
+            var gate = go.AddComponent<PortcullisGate>();
+            SetField(gate, "openKey", openKey);
+            return gate;
+        }
+
+        /// <summary>An invisible, unclickable talk point that plays <paramref name="dialogue"/> when <paramref name="questId"/> completes.</summary>
+        public static EpilogueTrigger AddEpilogue(GameObject root, string name, Vector2Int cell, string questId, DialogueDefinition dialogue, UnityEngine.UIElements.PanelSettings panelSettings)
+        {
+            var go = new GameObject(name);
+            go.SetActive(false); // configure before Awake: WorldInteractable insists on an anchor
+            go.transform.SetParent(root.transform, false);
+            go.transform.position = Centre(cell);
+            var anchor = new GameObject("Anchor").transform;
+            anchor.SetParent(go.transform, false);
+            var adapter = go.AddComponent<TalkInteractionAdapter>();
+            go.GetComponent<WorldInteractable>().Configure(anchor, 1.5f);
+            SetField(adapter, "dialogue", dialogue);
+            SetField(adapter, "panelSettings", panelSettings);
+            var epilogue = go.AddComponent<EpilogueTrigger>();
+            SetField(epilogue, "questId", questId);
+            go.SetActive(true);
+            return epilogue;
         }
 
         /// <summary>Starts <paramref name="questId"/> the first time a party member enters this volume.</summary>

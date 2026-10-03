@@ -25,6 +25,7 @@ namespace CRPG.Exploration
         private readonly float formationSpacing;
         private readonly IPlayerCommandSource commandSource;
         private readonly Dictionary<RuntimeEntityId, IMovable> motors = new();
+        private readonly Func<RuntimeEntityId, bool> canMove;
         private bool disposed;
 
         public PartyExplorationController(
@@ -32,8 +33,10 @@ namespace CRPG.Exploration
             PartyMovementService movementService,
             IFormationSolver formationSolver,
             IPlayerCommandSource commandSource,
-            float formationSpacing = 1.5f)
+            float formationSpacing = 1.5f,
+            Func<RuntimeEntityId, bool> canMove = null)
         {
+            this.canMove = canMove;
             this.party = party;
             this.movementService = movementService;
             this.formationSolver = formationSolver;
@@ -89,7 +92,10 @@ namespace CRPG.Exploration
         {
             if (party.Selected.Count == 0) return;
 
-            var members = party.Members.Where(party.IsSelected).ToList();
+            // A downed or dead member stays where they fell: the filter (null = everyone can move) drops them from the order, and the
+            // rest of the selection still goes.
+            var members = party.Members.Where(m => party.IsSelected(m) && (canMove == null || canMove(m))).ToList();
+            if (members.Count == 0) return;
             var order = new PartyMoveOrder(members, command.Destination, command.Facing, formationSolver, formationSpacing);
             var resolved = movementService.ResolveDestinations(order);
 

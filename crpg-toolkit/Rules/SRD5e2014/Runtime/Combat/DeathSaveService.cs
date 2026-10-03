@@ -21,7 +21,11 @@ namespace CRPG.Rules.SRD5
         private readonly DefinitionId hitPointResourceId;
         private readonly DefinitionId unconsciousConditionId;
         private readonly Func<RuntimeEntityId, bool> usesDeathSaves;
+        private readonly Func<RuntimeEntityId, bool> canDie;
 
+        /// <param name="canDie">Null (the default) means everyone who fails three death saves, or takes lethal overkill, dies -- the
+        /// SRD behavior. When supplied, a character it returns false for NEVER dies: failures stop at two and lethal overkill leaves them
+        /// downed instead, until something stabilises them (a won fight, a natural 20, three successes).</param>
         /// <param name="usesDeathSaves">SRD5.1's death-save loop is a player-character rule -- a monster just
         /// dies at 0 HP (Task 6.1: found live when a real hostile-vs-party encounter first existed in BarrowsEnd
         /// -- a giant rat dropped to 0 HP was going Unconscious and rolling death saves like a PC instead of
@@ -36,8 +40,10 @@ namespace CRPG.Rules.SRD5
             DefinitionId hitPointResourceId,
             DefinitionId unconsciousConditionId = default,
             ICombatLog combatLog = null,
-            Func<RuntimeEntityId, bool> usesDeathSaves = null)
+            Func<RuntimeEntityId, bool> usesDeathSaves = null,
+            Func<RuntimeEntityId, bool> canDie = null)
         {
+            this.canDie = canDie;
             this.characters = characters;
             this.diceService = diceService;
             this.eventBus = eventBus;
@@ -114,7 +120,7 @@ namespace CRPG.Rules.SRD5
             var overkill = context.Data.TryGetValue("Overkill", out var overkillValue) && overkillValue is int amount ? amount : 0;
             var maxHitPoints = character.TryGetResource(hitPointResourceId, out var hp) ? hp.Max : 0;
 
-            if (maxHitPoints > 0 && overkill >= maxHitPoints)
+            if (maxHitPoints > 0 && overkill >= maxHitPoints && CanDie(context.Target))
             {
                 eventBus.Publish(new GameEventContext(GameEvent.CreatureDied, context.Source, context.Target));
                 return;
@@ -124,6 +130,8 @@ namespace CRPG.Rules.SRD5
                 character.ApplyCondition(new ConditionInstance(unconsciousConditionId, context.Source, context.Target));
             character.DeathSaves = new DeathSaveState();
         }
+
+        private bool CanDie(RuntimeEntityId id) => canDie == null || canDie(id);
 
         private void RecordSuccess(RuntimeEntityId characterId, CharacterState character, int? naturalRoll = null)
         {
@@ -143,6 +151,14 @@ namespace CRPG.Rules.SRD5
             character.DeathSaves.Failures += count;
             var deathSaves = character.DeathSaves;
             combatLog?.Log(new DeathSaveLogEntry(characterId, naturalRoll ?? 0, success: false, deathSaves.Successes, deathSaves.Failures));
+
+            if (deathSaves.Failures >= 3 && !CanDie(characterId))
+            {
+                // A character that cannot die (a campaign with no permadeath for its party) stays downed at the brink: two failures
+                // is as far as the count goes, so the fight can still be lost but nobody is ever permanently gone.
+                deathSaves.Failures = 2;
+                return;
+            }
 
             if (deathSaves.Failures >= 3)
             {

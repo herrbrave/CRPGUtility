@@ -33,6 +33,10 @@ namespace BarrowsEnd.Gate
         [SerializeField] private string secondaryNpcDefinitionId = "";
         [SerializeField] private int secondaryCount;
         [FormerlySerializedAs("ratSpawnScatter")] [SerializeField] private float spawnScatter = 2.5f;
+        [Tooltip("Optional: hostiles spawn around this point instead of the trigger's own centre (a boss's ritual circle).")]
+        [SerializeField] private Transform spawnAnchor;
+        [Tooltip("Optional Timeline key that must have occurred before this can fire (e.g. a gate opened by a lever).")]
+        [SerializeField] private string requiredKey = "";
 
         public GameSession Session { get; set; }
         public WorldSpawnService Spawner { get; set; }
@@ -48,10 +52,14 @@ namespace BarrowsEnd.Gate
         /// <summary>Tells the shell the party was wiped; the shell reloads the checkpoint.</summary>
         public Action RequestDefeat { get; set; }
 
+        /// <summary>Shows the player a one-line message (wired to the shell's Say).</summary>
+        public Action<string> Notify { get; set; }
+
         public string FiredKey => firedKey;
         public string WonKey => wonKey;
 
         private bool fired;
+        private bool awaitingExit;
 
         private void OnEnable() => RefreshFiredState();
 
@@ -68,6 +76,42 @@ namespace BarrowsEnd.Gate
             if (gameObject.activeSelf == hasFired) gameObject.SetActive(!hasFired);
         }
 
+        /// <summary>After a load (a lost fight's checkpoint reload puts the party back INSIDE the zone) the trigger would
+        /// re-fire at once, trapping the player in a retry loop. If any party member is inside, hold fire until the whole
+        /// party has stepped out; the player chooses when to go back in.</summary>
+        public void DisarmUntilPartyLeaves()
+        {
+            if (fired || Session == null || !AnyPartyMemberInside()) return;
+
+            awaitingExit = true;
+            Notify?.Invoke("The danger remains. Step out and back in when you are ready.");
+        }
+
+        private void Update()
+        {
+            if (awaitingExit && !AnyPartyMemberInside()) awaitingExit = false;
+        }
+
+        private bool AnyPartyMemberInside()
+        {
+            if (Session == null) return false;
+
+            var sphere = GetComponent<SphereCollider>();
+            var scale = Mathf.Max(transform.lossyScale.x, transform.lossyScale.z);
+            var reach = (sphere != null ? sphere.radius * scale : 2.5f) + 0.75f;
+            foreach (var member in Session.Party.Members)
+            {
+                var agent = GateSessionServices.FindAgent(member);
+                if (agent == null) continue;
+
+                var delta = agent.transform.position - transform.position;
+                delta.y = 0f;
+                if (delta.magnitude <= reach) return true;
+            }
+
+            return false;
+        }
+
         private void OnTriggerEnter(Collider other) => TryFire(other);
 
         // A party member standing in the volume while another encounter finishes must still trigger this one.
@@ -75,7 +119,8 @@ namespace BarrowsEnd.Gate
 
         private void TryFire(Collider other)
         {
-            if (fired || Session == null || Spawner == null || CombatSession == null || !CombatSession.CanStart) return;
+            if (fired || awaitingExit || Session == null || Spawner == null || CombatSession == null || !CombatSession.CanStart) return;
+            if (!string.IsNullOrEmpty(requiredKey) && !Session.Timeline.HasOccurred(requiredKey)) return;
 
             // During travel the destination scene is loaded ADDITIVELY while the old one is still active, and locations
             // share world coordinates -- so a trigger in the next level can sit right on the party's path out of this
@@ -129,7 +174,7 @@ namespace BarrowsEnd.Gate
                 for (var i = 0; i < hostileCount; i++, index++)
                 {
                     var offset = new Vector3((float)(random.NextDouble() * 2 - 1), 0f, (float)(random.NextDouble() * 2 - 1)) * spawnScatter;
-                    var spot = transform.position + offset;
+                    var spot = (spawnAnchor != null ? spawnAnchor.position : transform.position) + offset;
                     if (Spawner.GridNavigation != null && Spawner.GridNavigation.TrySamplePositionAvoiding(spot, out var sampled, spawnScatter * 2f, claimed))
                         spot = sampled;
                     claimed.Add(spot);
@@ -137,7 +182,7 @@ namespace BarrowsEnd.Gate
                     var hostileAgent = Spawner.SpawnNpc($"{firedKey}-{index + 1}", definition, spot, Quaternion.identity);
                     combatants.Add((hostileAgent.EntityId, hostileFaction));
                     brains[hostileAgent.EntityId] = brain;
-                    names[hostileAgent.EntityId] = $"{definition.DisplayName} {i + 1}";
+                    names[hostileAgent.EntityId] = hostileCount == 1 ? definition.DisplayName : $"{definition.DisplayName} {i + 1}";
                 }
             }
 

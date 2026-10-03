@@ -40,7 +40,14 @@ namespace BarrowsEnd.Editor
         public const string GiantRatBodyOptionId = "body-be-1-0";
         public const string GiantRatFaction = "faction-hostile";
         public const string GoblinNpcId = "npc-goblin";
+        public const string SkeletonThrallNpcId = "npc-skeleton-thrall";
+        public const string ThrallClawAbilityId = "ability-thrall-claw";
+        public const string NecromancerNpcId = "npc-necromancer";
+        public const string BoneStaffAbilityId = "ability-bone-staff";
+        public const string NecroticBoltAbilityId = "ability-necrotic-bolt";
+        public const string NecromancerBodyOptionId = "body-kenney-0-3";
         public const string DescentQuestId = "quest-the-descent";
+        public const string DeepDarkQuestId = "quest-the-deep-dark";
         public const string GrumbleQuestId = "quest-grumbles-mushrooms";
         public const string GrumbleQuestCompleteKey = "grumble-quest-complete";
         public const string GoblinSlashAbilityId = "ability-goblin-slash";
@@ -395,6 +402,46 @@ namespace BarrowsEnd.Editor
             Save(quest);
             content.Add(quest);
 
+            // Task 6.3: Act 3's undead. A skeleton thrall (claw), and the necromancer boss (24 HP, a bone staff in melee and a
+            // ranged necrotic bolt) -- all one Action, always-hits d6/d8 like every other attack in the campaign.
+            var thrallClaw = AuthorEnemyAttack(ThrallClawAbilityId, "Claw", 6, 1.5f, actionResource, hitPoints);
+            var boneStaff = AuthorEnemyAttack(BoneStaffAbilityId, "Bone Staff", 6, 1.5f, actionResource, hitPoints);
+            var necroticBolt = AuthorEnemyAttack(NecroticBoltAbilityId, "Necrotic Bolt", 8, 6f, actionResource, hitPoints);
+            content.Add(thrallClaw);
+            content.Add(boneStaff);
+            content.Add(necroticBolt);
+            content.Add(AuthorEnemyNpc(SkeletonThrallNpcId, "Skeleton Thrall", 9, SkeletonBodyOptionId, hitPoints, ThrallClawAbilityId));
+            content.Add(AuthorEnemyNpc(NecromancerNpcId, "Necromancer", 24, NecromancerBodyOptionId, hitPoints, BoneStaffAbilityId, NecroticBoltAbilityId));
+
+            // Task 6.3: Act 3's quest -- thralls, the lever, the necromancer. Completing it is the main-quest completion.
+            var deepDark = LoadOrCreate<QuestDefinition>($"{NpcDir}/{DeepDarkQuestId}.asset");
+            QuestObjectiveDefinition Objective(string id, string name, QuestObjectiveType type, string key, int target)
+            {
+                var o = new QuestObjectiveDefinition();
+                SetField(o, "id", id);
+                SetField(o, "displayName", name);
+                SetField(o, "type", type);
+                SetField(o, "trackingKey", key);
+                SetField(o, "targetCount", target);
+                return o;
+            }
+
+            var goldReward = new QuestItemReward();
+            SetField(goldReward, "item", AssetDatabase.LoadAssetAtPath<ItemDefinition>(GoldPath));
+            SetField(goldReward, "quantity", 200);
+            SetField(deepDark, "id", DeepDarkQuestId);
+            SetField(deepDark, "displayName", "The Deep Dark");
+            SetField(deepDark, "description", "Beneath the goblin barricade the stone runs older and colder. Something in the Deep Dark is raising the dead. Clear its thralls, open the way to its ritual chamber, and put the necromancer down.");
+            SetField(deepDark, "objectives", new List<QuestObjectiveDefinition>
+            {
+                Objective("cut-down-thralls", "Cut down the skeleton thralls roaming the Deep Dark", QuestObjectiveType.Kill, BarrowsEndCavernsAuthor.ThrallClearedProgressKey, 2),
+                Objective("pull-the-lever", "Find the lever that raises the portcullis", QuestObjectiveType.Interact, BarrowsEndCavernsAuthor.DeepLeverKey, 1),
+                Objective("defeat-the-necromancer", "Defeat the necromancer", QuestObjectiveType.Kill, BarrowsEndCavernsAuthor.NecromancerDefeatedKey, 1),
+            });
+            SetField(deepDark, "rewards", new List<QuestItemReward> { goldReward });
+            Save(deepDark);
+            content.Add(deepDark);
+
             // Task 6.2: Act 2's quest -- two Kill objectives counting the shared progress keys the cavern encounters record.
             var descent = LoadOrCreate<QuestDefinition>($"{NpcDir}/{DescentQuestId}.asset");
             var patrols = new QuestObjectiveDefinition();
@@ -453,6 +500,47 @@ namespace BarrowsEnd.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log($"[BarrowsEnd] Authored ruleset with {content.Count} extra definitions ({Gear.Length} gear items, {DebugAbilities.Length} debug abilities).");
+        }
+
+        private static AbilityDefinition AuthorEnemyAttack(string id, string displayName, int sides, float range, CRPG.Actors.ResourceDefinition action, CRPG.Actors.ResourceDefinition hitPoints)
+        {
+            var ability = LoadOrCreate<AbilityDefinition>($"{AbilityDir}/{id}.asset");
+            SetField(ability, "id", id);
+            SetField(ability, "displayName", displayName);
+            SetField(ability, "tags", AbilityTag.Attack | AbilityTag.Hostile);
+            SetField(ability, "costs", new List<AbilityCost> { ActionCost(action) });
+            var targeting = new TargetingDefinition();
+            SetField(targeting, "relation", TargetRelation.Enemy);
+            SetField(targeting, "range", range);
+            SetField(targeting, "requireLineOfSight", false);
+            SetField(targeting, "requireLineOfEffect", false);
+            SetField(targeting, "requireVisibleTarget", true);
+            SetField(ability, "targeting", targeting);
+            var damage = new DamageEffect();
+            SetField(damage, "hitPointResource", hitPoints);
+            SetField(damage, "amount", new DiceExpression(1, sides, 0));
+            SetField(ability, "effects", new List<AbilityEffect> { damage });
+            Save(ability);
+            return ability;
+        }
+
+        private static NpcDefinition AuthorEnemyNpc(string id, string displayName, int maxHp, string bodyOptionId, CRPG.Actors.ResourceDefinition hitPoints, params string[] abilityIds)
+        {
+            var npc = LoadOrCreate<NpcDefinition>($"{NpcDir}/{id}.asset");
+            var grant = (object)new ResourceGrant();
+            SetField(grant, "resource", hitPoints);
+            SetField(grant, "maxAmount", maxHp);
+            SetField(npc, "id", id);
+            SetField(npc, "displayName", displayName);
+            SetField(npc, "faction", new DefinitionId(GiantRatFaction));
+            SetField(npc, "level", 1);
+            SetField(npc, "resources", new List<ResourceGrant> { (ResourceGrant)grant });
+            SetField(npc, "abilityIds", abilityIds.Select(a => new DefinitionId(a)).ToList());
+            SetField(npc, "visualPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(BarrowsEndCharacterAuthor.SpriteCharacterPath)
+                                          ?? throw new InvalidOperationException($"{BarrowsEndCharacterAuthor.SpriteCharacterPath} is missing -- run the character author first."));
+            SetField(npc, "appearance", new List<AppearanceEntry> { new(new DefinitionId("layer-body"), new DefinitionId(bodyOptionId)) });
+            Save(npc);
+            return npc;
         }
 
         private static AbilityCost ActionCost(CRPG.Actors.ResourceDefinition action)

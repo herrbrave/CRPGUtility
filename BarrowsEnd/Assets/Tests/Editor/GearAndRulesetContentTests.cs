@@ -64,8 +64,8 @@ namespace BarrowsEnd.Tests
             Assert.IsNotNull(provider.Srd5);
             // 7 catalogs + head slot + (profile + item) per gear + the currency item (Task 6.0) + the debug abilities
             // + the skeleton NPC + the rat-bite ability + the strike ability + the Giant Rat NPC + the identify
-            // scroll item + the gathering-storm quest (all Task 6.1) + the Movement resource (tactical combat) + the goblin NPC and its Slash ability + the Descent quest + Grumble's quest (Task 6.2)
-            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + 1 + BarrowsEndGearAuthor.DebugAbilities.Length + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
+            // scroll item + the gathering-storm quest (all Task 6.1) + the Movement resource (tactical combat) + the goblin NPC and its Slash ability + the Deep Dark quest + the Descent quest + Grumble's quest (Task 6.2) + thrall, necromancer and their three attacks (Task 6.3)
+            var expected = BarrowsEndCatalogAuthor.Specs.Length + 1 + BarrowsEndGearAuthor.Gear.Length * 2 + 1 + BarrowsEndGearAuthor.DebugAbilities.Length + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 5 + 1;
             Assert.AreEqual(expected, provider.ExtraContent.Count);
             Assert.AreEqual(provider.ExtraContent.Count, provider.ExtraContent.Select(c => c.Id.Value).Distinct().Count(), "no duplicate ids");
             Assert.IsTrue(session.RulesDatabase.TryResolve<ResourceDefinition>(HitPoints, out _), "SRD5 content is still there");
@@ -128,6 +128,32 @@ namespace BarrowsEnd.Tests
             Assert.AreEqual(2, quest.Objectives[0].TargetCount, "both Upper patrols");
             Assert.AreEqual(BarrowsEndCavernsAuthor.MiddleClearedProgressKey, quest.Objectives[1].TrackingKey);
             Assert.AreEqual(1, quest.Objectives[1].TargetCount);
+        }
+
+        [Test]
+        public void TheUndeadResolveWithHitPointsHostileFactionAndActionCostingAttacks()
+        {
+            var rules = session.RulesDatabase;
+            foreach (var (npcId, hp, abilities) in new[]
+            {
+                (BarrowsEndGearAuthor.SkeletonThrallNpcId, 9, new[] { BarrowsEndGearAuthor.ThrallClawAbilityId }),
+                (BarrowsEndGearAuthor.NecromancerNpcId, 24, new[] { BarrowsEndGearAuthor.BoneStaffAbilityId, BarrowsEndGearAuthor.NecroticBoltAbilityId }),
+            })
+            {
+                Assert.IsTrue(rules.TryResolve<NpcDefinition>(new DefinitionId(npcId), out var npc), npcId);
+                Assert.AreEqual(BarrowsEndGearAuthor.GiantRatFaction, npc.Faction.Value, $"{npcId} is hostile like every encounter spawn");
+                Assert.AreEqual(hp, npc.Resources.Single().MaxAmount, npcId);
+                Assert.IsNotNull(npc.VisualPrefab);
+                CollectionAssert.AreEqual(abilities, npc.AbilityIds.Select(a => a.Value).ToList(), $"{npcId} knows exactly its attacks (an unknown ability is rejected at cast time)");
+                var bodies = Load<SpriteLayerCatalog>(BarrowsEndCatalogAuthor.CatalogPath(BarrowsEndCatalogAuthor.Specs.First(s => s.ShortName == "body")));
+                Assert.IsTrue(bodies.Options.Any(o => o.optionId.Value == npc.Appearance[0].option.Value), $"{npcId}'s body option exists in the catalog");
+            }
+
+            Assert.IsTrue(rules.TryResolve<AbilityDefinition>(new DefinitionId(BarrowsEndGearAuthor.NecroticBoltAbilityId), out var bolt));
+            Assert.AreEqual(6f, bolt.Targeting.Range, "the bolt is a ranged attack");
+            Assert.AreEqual(1, bolt.Costs.Count, "one Action");
+            Assert.IsTrue(rules.TryResolve<AbilityDefinition>(new DefinitionId(BarrowsEndGearAuthor.BoneStaffAbilityId), out var staff));
+            Assert.AreEqual(1.5f, staff.Targeting.Range);
         }
 
         [Test]

@@ -81,6 +81,28 @@ namespace BarrowsEnd.Tests
         }
 
         [UnityTest]
+        public IEnumerator ThePartyPanelRebindsToTheNewSessionAfterALoadThatDidNotComeFromTheHudButton()
+        {
+            yield return null;
+            var memberId = Session.Party.Members[1];
+            Assert.IsTrue(shell.SaveNow());
+            Session.Characters.TryGetCharacter(memberId, out var before);
+            before.TryGetResource(BarrowsEnd.Gate.GateSessionServices.HitPoints, out var hpBefore);
+            var full = hpBefore.Current;
+            hpBefore.Spend(5); // damage the OLD session after the save
+
+            var oldSession = shell.Services.Session;
+            shell.LoadNow(); // the same call a lost fight's checkpoint reload makes -- not the HUD's own Load button
+            yield return WaitUntil(() => shell.Services.Session != oldSession && shell.IsReady && !shell.IsLoading, 20f, "the save loaded");
+            yield return Seconds(0.4f);
+
+            var roster = Root().Q(name: "party-roster");
+            Assert.AreEqual(4, roster.Children().Count(), "every member still has a card");
+            var label = roster.Q(name: $"party-card-{memberId}").Q<Label>(name: "party-card-hp");
+            Assert.AreEqual($"HP {full} / {full}", label.text, "the card shows the loaded session's hit points, not the stale pre-load session's");
+        }
+
+        [UnityTest]
         public IEnumerator ThePartyCardsFollowHitPointChangesWithoutAnySelectionChange()
         {
             yield return null;

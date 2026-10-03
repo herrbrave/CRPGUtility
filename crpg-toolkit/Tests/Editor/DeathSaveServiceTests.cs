@@ -80,6 +80,44 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void ACharacterThatCannotDieStaysDownedAtTwoFailuresInsteadOfDyingOnTheThird()
+        {
+            var service = new DeathSaveService(registry, new DiceService(new TestRandomSource()), eventBus, HitPoints, Unconscious, combatLog,
+                canDie: id => id != characterId);
+            var died = false;
+            eventBus.Subscribe(GameEvent.CreatureDied, _ => died = true);
+            character.DeathSaves = new DeathSaveState { Failures = 2 };
+            character.ApplyCondition(new ConditionInstance(Unconscious, characterId, characterId));
+
+            var damageRandom = new TestRandomSource();
+            damageRandom.EnqueueResult(1);
+            var effect = CreateDamageEffect(1, 4, 0);
+            effect.Apply(new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(damageRandom), combatLog, eventBus)); // a hit on the downed: a failure
+
+            Assert.IsFalse(died, "no permadeath for a character that cannot die");
+            Assert.IsNotNull(character.DeathSaves, "still downed");
+            Assert.AreEqual(2, character.DeathSaves.Failures, "the count stops at two");
+        }
+
+        [Test]
+        public void LethalOverkillLeavesACharacterThatCannotDieDownedInsteadOfDead()
+        {
+            var service = new DeathSaveService(registry, new DiceService(new TestRandomSource()), eventBus, HitPoints, Unconscious, combatLog,
+                canDie: id => id != characterId);
+            var died = false;
+            eventBus.Subscribe(GameEvent.CreatureDied, _ => died = true);
+
+            var damageRandom = new TestRandomSource();
+            damageRandom.EnqueueResult(40); // 20 overkill against 20 max HP would normally kill outright
+            var effect = CreateDamageEffect(1, 40, 0);
+            effect.Apply(new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(damageRandom), combatLog, eventBus));
+
+            Assert.IsFalse(died);
+            Assert.IsNotNull(character.DeathSaves, "downed, not dead");
+            Assert.IsTrue(character.HasCondition(Unconscious));
+        }
+
+        [Test]
         public void StabilizeIsANoOpForACharacterThatIsNotDying()
         {
             var service = CreateService(new TestRandomSource());

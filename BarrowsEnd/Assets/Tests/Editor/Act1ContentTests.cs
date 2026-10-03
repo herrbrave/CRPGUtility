@@ -145,6 +145,23 @@ namespace BarrowsEnd.Tests
             Assert.IsInstanceOf<ChoiceNode>(runner.CurrentNode, "looped back to the same choice");
         }
 
+        [Test]
+        public void MayorThaddeusCongratulatesInsteadOfBriefingOnceTheNecromancerIsDead()
+        {
+            session.Timeline.Record("necromancer-defeated", TimelineValue.Flag);
+            var fighter = new CharacterState(RuntimeEntityId.NewId());
+            session.Characters.Register(fighter);
+            var party = new PartyState(new[] { fighter.Id });
+            var dialogue = Load<DialogueDefinition>($"{BarrowsEndGearAuthor.NpcDir}/dlg-mayor-thaddeus.asset");
+            string startedQuest = null;
+            var runner = new DialogueRunner(dialogue, CreateMayorContext(fighter.Id, party, session.Characters, session.Timeline, key => startedQuest = key));
+
+            StringAssert.Contains("Deep Dark is quiet", ((LineNode)runner.CurrentNode).Text);
+            runner.Advance();
+            Assert.IsTrue(runner.IsComplete);
+            Assert.IsNull(startedQuest, "no briefing, no quest, after the victory");
+        }
+
         // ---- Grumble's mushroom side quest (Task 6.2) ----
 
         private DialogueRunner GrumbleRunner(out string startedQuest, out PartyState party)

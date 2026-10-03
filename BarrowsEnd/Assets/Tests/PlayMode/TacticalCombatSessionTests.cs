@@ -201,6 +201,26 @@ namespace BarrowsEnd.Tests
 
         private static readonly float[] RatOffsets = { 1f, 4f };
 
+        private static readonly float[] NecromancerOffsets = { 4f, 10f };
+
+        [UnityTest]
+        public IEnumerator TheNecromancerShootsFromRangeAndClosesToShootingDistanceWhenFar([ValueSource(nameof(NecromancerOffsets))] float distance)
+        {
+            RuntimeEntityId hero = default, necromancer = default;
+            yield return StartFightWithRatAt(new Vector3(distance, 0f, 0f), (p, r) => { hero = p; necromancer = r; }, "npc-necromancer");
+            var necroAgent = GateSessionServices.FindAgent(necromancer);
+            var before = HitPointsOf(hero);
+
+            var endTurn = HudRootElement().Query<Button>().ToList().FirstOrDefault(b => b.text == "End Turn");
+            Assert.IsNotNull(endTurn);
+            UiClick.Pointer(endTurn);
+
+            yield return WaitUntil(() => HitPointsOf(hero) < before, 12f, $"the necromancer {distance} units away hurt the hero");
+            var gap = Vector3.Distance(necroAgent.transform.position, GateSessionServices.FindAgent(hero).transform.position);
+            if (distance <= 6f) Assert.AreEqual(distance, gap, 0.6f, "in bolt range it shoots instead of walking up to melee");
+            else Assert.LessOrEqual(gap, 5.7f, "out of range it first closes to its shooting distance, then shoots");
+        }
+
         [UnityTest]
         public IEnumerator AGoblinClosesInAndSlashesTheParty([ValueSource(nameof(RatOffsets))] float distance)
         {

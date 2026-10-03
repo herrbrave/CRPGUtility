@@ -174,6 +174,38 @@ namespace CRPG.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator AClickUnderATriggerVolumeMovesToTheGroundNotToTheVolumesSurface()
+        {
+            var cameraGo = new GameObject("Camera");
+            spawned.Add(cameraGo);
+            var camera = CreateTopDownCamera(cameraGo);
+            CreateGroundPlane();
+
+            // An encounter/quest zone: a big trigger sphere sitting on the ground. It must never swallow a world click --
+            // its surface is not a place to walk to, and it has no interactable of its own.
+            var zone = new GameObject("Zone");
+            zone.transform.position = Origin;
+            var sphere = zone.AddComponent<SphereCollider>();
+            sphere.isTrigger = true;
+            sphere.radius = 3f;
+            spawned.Add(zone);
+            yield return WaitForColliders();
+
+            var router = CreateRouter(new FakeSelectableSource(), new FakePointerCaptureProvider());
+            MoveCommand? received = null;
+            router.Move += cmd => received = cmd;
+
+            var localPoint = new Vector3(1f, 0f, 1f);
+            var screenPos = camera.WorldToScreenPoint(Origin + localPoint);
+            var ray = RayFromAbove(localPoint);
+            router.HandlePointerDown(screenPos, ray);
+            router.HandlePointerUp(screenPos, ray, camera, shiftHeld: false);
+
+            Assert.IsTrue(received.HasValue);
+            Assert.AreEqual(0f, received.Value.Destination.y, 0.01f, "the move target is on the ground (y 0), not on the sphere's surface");
+        }
+
+        [UnityTest]
         public IEnumerator CancelRaisesCancel()
         {
             var router = CreateRouter(new FakeSelectableSource(), new FakePointerCaptureProvider());

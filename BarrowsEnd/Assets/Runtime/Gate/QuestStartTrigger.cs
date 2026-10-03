@@ -23,6 +23,10 @@ namespace BarrowsEnd.Gate
         {
             if (Session == null || RequestStartQuest == null) return;
 
+            // Same rule as EncounterTrigger: locations share world coordinates and the next level loads additively while the
+            // party is still leaving this one, so only the ACTIVE location's volumes may act.
+            if (gameObject.scene != UnityEngine.SceneManagement.SceneManager.GetActiveScene()) return;
+
             var agent = other.GetComponentInParent<CharacterAgent>();
             if (agent == null || !agent.IsBound || !Session.Party.Members.Contains(agent.EntityId)) return;
 

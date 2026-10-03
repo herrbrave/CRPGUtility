@@ -164,7 +164,9 @@ namespace CRPG.Gameplay
         {
             if (TargetingGate != null && TargetingGate.TryConsume(ray)) return;
 
-            if (!Physics.Raycast(ray, out var hit, maxRayDistance, hittableMask)) return;
+            // Trigger volumes (encounter / quest zones) are not clickable world: ignoring them keeps a click on the ground
+            // under one a real ground click, and keeps an interactable inside one reachable.
+            if (!Physics.Raycast(ray, out var hit, maxRayDistance, hittableMask, QueryTriggerInteraction.Ignore)) return;
 
             // Interactable/selectable tier. A CharacterAgent is checked first -- a selectable character always
             // resolves as Select, never Interact, even if a WorldInteractable also happened to sit on the same

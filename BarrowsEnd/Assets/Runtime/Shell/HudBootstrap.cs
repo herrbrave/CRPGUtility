@@ -48,12 +48,12 @@ namespace BarrowsEnd.Shell
         private void OnEnable()
         {
             hudRoot = GetComponent<HudRoot>();
-            if (bootstrap != null) bootstrap.MessageChanged += OnMessage;
+            if (bootstrap != null) { bootstrap.MessageChanged += OnMessage; bootstrap.SessionRebound += OnSessionRebound; }
         }
 
         private void OnDisable()
         {
-            if (bootstrap != null) bootstrap.MessageChanged -= OnMessage;
+            if (bootstrap != null) { bootstrap.MessageChanged -= OnMessage; bootstrap.SessionRebound -= OnSessionRebound; }
         }
 
         private void OnDestroy() => dragOverlay?.Dispose();
@@ -178,19 +178,20 @@ namespace BarrowsEnd.Shell
             panel.Add(messageLabel);
         }
 
-        private void OnLoadClicked()
+        private void OnLoadClicked() => bootstrap.LoadNow();
+
+        // Every kind of load (this menu's Load, a lost fight's checkpoint reload, Continue) swaps in a brand-new session. The party panel
+        // must rebind to it whichever way it came about -- otherwise it keeps showing the old session's members and hit points.
+        private void OnSessionRebound()
         {
-            bootstrap.LoadNow(outcome =>
-            {
-                if (outcome != CRPG.Saving.LoadOutcome.Success) return;
+            if (!built) return;
 
-                // A brand-new PartyPresenter, not a mutated existing one -- see the class doc comment for why.
-                var newPresenter = BuildPresenter(bootstrap.Services.Session);
-                partyView.Rebind(newPresenter);
-                presenter = newPresenter;
+            // A brand-new PartyPresenter, not a mutated existing one -- see the class doc comment for why.
+            var newPresenter = BuildPresenter(bootstrap.Services.Session);
+            partyView.Rebind(newPresenter);
+            presenter = newPresenter;
 
-                dollBootstrap?.OnLoadCompleted();
-            });
+            dollBootstrap?.OnLoadCompleted();
         }
 
         private static VisualElement MenuRow(VisualElement parent)

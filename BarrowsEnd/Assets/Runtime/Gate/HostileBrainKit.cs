@@ -42,6 +42,45 @@ namespace BarrowsEnd.Gate
             return set;
         }
 
+        /// <summary>A unit that prefers to shoot: close to <paramref name="stopDistance"/> of the nearest enemy, shoot the
+        /// <paramref name="rangedAbilityId"/> from anywhere in <paramref name="rangedRange"/>, and fall back to the melee
+        /// ability when something is adjacent. Any legal attack (>= 0.86) outscores Move (<= 0.6); when adjacent, melee (0.95+)
+        /// outscores the bolt (0.9-). There is no retreat or kiting -- Move only closes the distance. Both abilities must be in the
+        /// NPC's own <c>abilityIds</c> (an unknown ability is rejected at cast time).</summary>
+        public static BehaviorSetDefinition BuildRangedSet(RulesDatabase rulesDatabase, string setId, string displayName,
+            string meleeAbilityId, string rangedAbilityId, float rangedRange, float stopDistance)
+        {
+            var close = Create(rulesDatabase, $"{setId}-close", "Close Distance", BehaviorKind.Move);
+            SetField(close, "movementResourceId", new DefinitionId(TacticalCombatSession.MovementResourceId));
+            SetField(close, "moveTargetRelation", TargetRelation.Enemy);
+            SetField(close, "stopDistance", stopDistance);
+            SetField(close, "considerations", new List<Consideration>
+            {
+                DistanceConsideration(new AnimationCurve(new Keyframe(0f, 0.6f), new Keyframe(20f, 0.1f))),
+            });
+
+            var melee = Create(rulesDatabase, $"{setId}-melee", $"{displayName} Melee", BehaviorKind.UseAbility);
+            SetField(melee, "abilityId", new DefinitionId(meleeAbilityId));
+            SetField(melee, "considerations", new List<Consideration>
+            {
+                DistanceConsideration(new AnimationCurve(new Keyframe(0f, 1f), new Keyframe(MeleeRange, 0.95f))),
+            });
+
+            var ranged = Create(rulesDatabase, $"{setId}-ranged", $"{displayName} Ranged", BehaviorKind.UseAbility);
+            SetField(ranged, "abilityId", new DefinitionId(rangedAbilityId));
+            SetField(ranged, "considerations", new List<Consideration>
+            {
+                DistanceConsideration(new AnimationCurve(new Keyframe(0f, 0.9f), new Keyframe(rangedRange, 0.86f))),
+            });
+
+            var set = ScriptableObject.CreateInstance<BehaviorSetDefinition>();
+            SetField(set, "id", setId);
+            SetField(set, "displayName", displayName);
+            SetField(set, "behaviorIds", new List<DefinitionId> { close.Id, melee.Id, ranged.Id });
+            rulesDatabase.Register(set);
+            return set;
+        }
+
         private static BehaviorDefinition Create(RulesDatabase rulesDatabase, string id, string displayName, BehaviorKind kind)
         {
             var behavior = ScriptableObject.CreateInstance<BehaviorDefinition>();

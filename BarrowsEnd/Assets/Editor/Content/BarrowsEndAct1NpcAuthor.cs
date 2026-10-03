@@ -52,7 +52,7 @@ namespace BarrowsEnd.Editor
         // Mayor Thaddeus -- the main quest, simplified per the master plan's D1 (no tempo_points/compound-AND).
         // ---------------------------------------------------------------------------------------------
 
-        private static void AuthorMayorThaddeus(GameObject root, UnityEngine.UIElements.PanelSettings panelSettings)
+        private static DialogueDefinition BuildMayorDialogue()
         {
             SerializableGuid Id(string seed) => SerializableGuid.FromString(seed);
 
@@ -112,10 +112,53 @@ namespace BarrowsEnd.Editor
             SetField(briefing, "text", "I see the new mercenary squad has finally arrived. The caverns beneath Barrow's End are crawling with hostiles. Are you properly equipped to handle this, or are you just here to waste my time?");
             SetField(briefing, "nextNodeId", Id("mayor-choice"));
 
+            // Task 6.3: once the necromancer is dead the briefing tree is moot -- Thaddeus congratulates instead. The start node is a
+            // BranchNode on the boss's own won key (quest completion records no key of its own).
+            var victoryLine = new LineNode();
+            SetField(victoryLine, "nodeId", Id("mayor-victory-line"));
+            SetField(victoryLine, "speakerName", "Mayor Thaddeus");
+            SetField(victoryLine, "text", "The Deep Dark is quiet, and Barrow's End still stands. I did not think any squad could do it. The town owes you more than gold -- you will always have a bed at the Restful Hearth.");
+            SetField(victoryLine, "nextNodeId", Id("mayor-end"));
+            var victoryCheck = new BranchNode();
+            SetField(victoryCheck, "nodeId", Id("mayor-victory-check"));
+            SetField(victoryCheck, "timelineKey", BarrowsEndCavernsAuthor.NecromancerDefeatedKey);
+            SetField(victoryCheck, "conditionType", TimelineConditionType.HasOccurred);
+            SetField(victoryCheck, "trueNodeId", Id("mayor-victory-line"));
+            SetField(victoryCheck, "falseNodeId", Id("mayor-briefing"));
+
             var dialogue = ScriptableObject.CreateInstance<DialogueDefinition>();
             SetField(dialogue, "id", "dlg-mayor-thaddeus");
-            SetField(dialogue, "startNodeId", Id("mayor-briefing"));
-            SetField(dialogue, "nodes", new List<DialogueNode> { briefing, choice, readyCheck, startQuest, questGiven, notReady, exposition, end });
+            SetField(dialogue, "startNodeId", Id("mayor-victory-check"));
+            SetField(dialogue, "nodes", new List<DialogueNode> { victoryCheck, victoryLine, briefing, choice, readyCheck, startQuest, questGiven, notReady, exposition, end });
+            return dialogue;
+        }
+
+        /// <summary>Rewrites <c>dlg-mayor-thaddeus.asset</c> IN PLACE (same asset, same GUID): the baked Town scene references it, and
+        /// <see cref="SaveDialogue"/> deletes and recreates, which would orphan the reference and silently make the Mayor unclickable.</summary>
+        [MenuItem("Barrows End/Content/Update Mayor Dialogue In Place")]
+        public static void AuthorMayorDialogueInPlace()
+        {
+            var fresh = BuildMayorDialogue();
+            var path = $"{BarrowsEndGearAuthor.NpcDir}/dlg-mayor-thaddeus.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<DialogueDefinition>(path);
+            if (existing == null)
+            {
+                AssetDatabase.CreateAsset(fresh, path);
+            }
+            else
+            {
+                fresh.name = existing.name;
+                EditorUtility.CopySerialized(fresh, existing);
+                EditorUtility.SetDirty(existing);
+                Object.DestroyImmediate(fresh);
+            }
+
+            AssetDatabase.SaveAssets();
+        }
+
+        private static void AuthorMayorThaddeus(GameObject root, UnityEngine.UIElements.PanelSettings panelSettings)
+        {
+            var dialogue = BuildMayorDialogue();
             SaveDialogue(dialogue, "dlg-mayor-thaddeus");
 
             var (_, adapter) = AddTalkPoint(root, "MayorThaddeus", Cell(9, 17), Cell(9, 18), ArchSprite());

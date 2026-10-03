@@ -15,21 +15,52 @@ MonoBehaviour:
   id: dlg-mayor-thaddeus
   displayName: 
   startNodeId:
-    low: -6116595504972208326
-    high: -961846010939578399
+    low: 8269282300806021563
+    high: -4175527919279972250
   nodes:
-  - rid: 4304781063743864917
-  - rid: 4304781063743864918
-  - rid: 4304781063743864919
-  - rid: 4304781063743864920
-  - rid: 4304781063743864921
-  - rid: 4304781063743864922
-  - rid: 4304781063743864923
-  - rid: 4304781063743864924
+  - rid: 2954408721239769088
+  - rid: 2954408721239769089
+  - rid: 2954408721239769090
+  - rid: 2954408721239769091
+  - rid: 2954408721239769092
+  - rid: 2954408721239769093
+  - rid: 2954408721239769094
+  - rid: 2954408721239769095
+  - rid: 2954408721239769096
+  - rid: 2954408721239769097
   references:
     version: 2
     RefIds:
-    - rid: 4304781063743864917
+    - rid: 2954408721239769088
+      type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 8269282300806021563
+          high: -4175527919279972250
+        editorPosition: {x: 0, y: 0}
+        timelineKey: necromancer-defeated
+        secondTimelineKey: 
+        conditionType: 0
+        threshold: 0
+        trueNodeId:
+          low: 6851099070375954371
+          high: 7223058082028297833
+        falseNodeId:
+          low: -6116595504972208326
+          high: -961846010939578399
+    - rid: 2954408721239769089
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 6851099070375954371
+          high: 7223058082028297833
+        editorPosition: {x: 0, y: 0}
+        speakerName: Mayor Thaddeus
+        text: The Deep Dark is quiet, and Barrow's End still stands. I did not think any squad could do it. The town owes you more than gold -- you will always have a bed at the Restful Hearth.
+        nextNodeId:
+          low: -6674083795254070407
+          high: -8775704770207652925
+    - rid: 2954408721239769090
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
@@ -41,7 +72,7 @@ MonoBehaviour:
         nextNodeId:
           low: -3542742179009036045
           high: -8333625937336966343
-    - rid: 4304781063743864918
+    - rid: 2954408721239769091
       type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
@@ -67,7 +98,7 @@ MonoBehaviour:
           secondTimelineKey: 
           conditionType: 0
           threshold: 0
-    - rid: 4304781063743864919
+    - rid: 2954408721239769092
       type: {class: BranchNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
@@ -84,7 +115,7 @@ MonoBehaviour:
         falseNodeId:
           low: -1004834837973872468
           high: 6807351834014827338
-    - rid: 4304781063743864920
+    - rid: 2954408721239769093
       type: {class: ActionNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
@@ -92,11 +123,11 @@ MonoBehaviour:
           high: 6198857277735619603
         editorPosition: {x: 0, y: 0}
         action:
-          rid: 4304781063743864925
+          rid: 2954408721239769098
         nextNodeId:
           low: -8836070445625988595
           high: -4279305738254098879
-    - rid: 4304781063743864921
+    - rid: 2954408721239769094
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
@@ -108,7 +139,7 @@ MonoBehaviour:
         nextNodeId:
           low: -6674083795254070407
           high: -8775704770207652925
-    - rid: 4304781063743864922
+    - rid: 2954408721239769095
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
@@ -120,7 +151,7 @@ MonoBehaviour:
         nextNodeId:
           low: -6674083795254070407
           high: -8775704770207652925
-    - rid: 4304781063743864923
+    - rid: 2954408721239769096
       type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
@@ -132,14 +163,14 @@ MonoBehaviour:
         nextNodeId:
           low: -3542742179009036045
           high: -8333625937336966343
-    - rid: 4304781063743864924
+    - rid: 2954408721239769097
       type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         nodeId:
           low: -6674083795254070407
           high: -8775704770207652925
         editorPosition: {x: 0, y: 0}
-    - rid: 4304781063743864925
+    - rid: 2954408721239769098
       type: {class: StartQuestAction, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
       data:
         questKey: quest-gathering-storm

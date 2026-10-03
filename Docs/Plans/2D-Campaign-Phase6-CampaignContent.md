@@ -1315,8 +1315,8 @@ The reviewer verified every claim against source. The draft above is SUPERSEDED 
 
 ## Task 6.2 implementation status
 
-Steps 0-2 committed (b750371). Steps 3-6 implemented and verified in a throwaway copy (EditMode 143/144 with the pre-existing
-`Town_Slice` bake failure, PlayMode 102/102), NOT yet committed: goblin NPC + Slash + `GoblinBrain`; encounters authored in
+Steps 0-2 committed (b750371); steps 3-6 committed (9bd7bae) after live-gate fixes (EditMode 143/144 with the pre-existing
+`Town_Slice` bake failure, PlayMode 104/104): goblin NPC + Slash + `GoblinBrain`; encounters authored in
 `Cavern_Upper` (two patrols sharing `act2-upper-patrol-cleared`) and `Cavern_Middle` (barricade, `act2-middle-barricade-cleared`);
 `quest-the-descent` started by a `QuestStartTrigger` on arrival in the caverns; `HarvestInteractionAdapter` mushroom patches
 (2 Upper, 1 Middle) and Grumble's real quest tree (`quest-grumbles-mushrooms`). The cavern scenes and `dlg-grumble.asset` were
@@ -1324,3 +1324,128 @@ regenerated in a throwaway copy and copied into the real project (grumble rewrit
 Step 7 (the archer) is deliberately NOT done: optional per the review; revisit only if the live gate wants ranged variety.
 Step 8 (the live gate with the user) is next. Combat-time gaps still open (not Task 6.2 scope): companions have no class
 abilities; no quest log UI (progress shows as one-line messages).
+
+
+---
+
+# Task 6.3: Act 3 — The Deep Dark
+
+**Status: Opus-reviewed (6 blockers, all folded in below); awaiting user approval. Task 6.2 is committed (b750371, 9bd7bae).**
+
+Gate: a live playthrough from the Middle level's Deep gate through Cavern_Deep — undead thralls fought, the portcullis
+opened, the necromancer boss defeated, the Deep Dark quest completed, and a visible "the campaign is won" ending —
+i.e. the full title-to-victory path Phase 7's long playthrough will dry-run.
+
+## What 6.0-6.2 left us (to verify in review, not assume)
+
+- `Cavern_Deep` is a shell: 34x26, one south gap back to Middle, bones/rock decor, two `IronBars` props flanking a
+  "reserved boss approach" at `(gateX +/- 3, DeepDepth-6)`, no encounters, no quest, no boss.
+- Proven encounter stack: data-driven `EncounterTrigger` (fires only when its scene is active; checkpoint save before
+  fire; reload on defeat), per-NPC brains via `HostileBrains`/`HostileBrainKit` (Close Distance + attack with Distance
+  considerations), turn economy (Movement 6, Action 1, Bonus 1; a resolved ability ends the turn when no Action left),
+  `StartEncounter` returns bool and waits for travel/load, combat start halts the party and cancels interactions.
+- `npc-skeleton` exists (13 HP, `faction-undead`, body `body-be-0-0`, NO abilities) as a Phase 2 gate-scene fixture.
+- Doors: `UseDoorInteractionAdapter` toggles freely (`IsAvailable` is always true; no lock/key concept); `TileDoor`
+  wires a door tile to the grid. Nothing in BarrowsEnd opens or closes terrain from a game event.
+- `CombatEncounter.AddCombatant` exists, but nothing in the tactical stack adds a combatant mid-fight (reinforcements).
+- `AbilityResolutionService` has TargetMode values for areas (Sphere/Cone/Line...), but no BarrowsEnd or sample content
+  uses an area ability and the AI decision provider shows no area handling -- unverified whether AoE actually resolves.
+- Quests are Timeline-key driven (`quest-the-descent` shows the pattern: shared progress keys, `QuestStartTrigger` on
+  arrival, `RefreshAllActiveQuests` after interactions/encounters, one-line `Say` notifications). No quest log UI.
+- Known carried-in gaps: companions have no class abilities; no archer; combat HUD is functional-not-pretty.
+
+## Decisions (T6.3-)
+
+- **T6.3-D1 (undead):** new `npc-skeleton-thrall` (rename NOT of `npc-skeleton`, which stays the Phase 2 fixture): ~9 HP,
+  `faction-hostile` (same faction the encounter spawns every hostile under), a `ability-thrall-claw` d6 melee attack
+  costing an Action, body `body-be-0-0`. `HostileBrains` gets a thrall case.
+- **T6.3-D2 (Cavern_Deep layout, authored via `BarrowsEndCavernsAuthor.AuthorDeep`):** south entry hall (a thrall patrol),
+  a river of `CaveWater` crossing the level with a bridge gap, a side alcove holding the lever, a second thrall patrol
+  before the arena, and the boss arena at the north end behind a portcullis. Bones/stonework decor. All encounters are
+  `EncounterTrigger`s with their own fired/won keys and a shared `act3-thrall-cleared` progress key.
+- **T6.3-D3 (portcullis, the genuinely new mechanic):** a lever (`LeverInteractionAdapter`, modeled on
+  `HarvestInteractionAdapter`: serialized id, per-lever Timeline key `deep-lever-pulled`, hides/animates once used,
+  quest refresh) removes a blocking gate. The gate is a `PortcullisGate` component that unblocks its grid cells through
+  the same walkability mechanism `TileDoor` uses (open question for review: what is that mechanism and can cells be
+  re-blocked/unblocked at runtime without rebaking, and does a reload/checkpoint restore it from the persisted key?).
+  The gate re-derives open/closed from the lever's Timeline key whenever the scene is wired (boot, load, travel), like
+  `HarvestInteractionAdapter.RefreshState`.
+- **T6.3-D4 (the boss):** `npc-necromancer`: ~24 HP, `ability-necrotic-bolt` (ranged-ish single target d8; range ~6, Action),
+  `ability-bone-staff` melee fallback; encountered with 2 thralls. **Scope decision for review:** true AoE and mid-fight
+  summoning are both unproven here. Default plan = NO AoE and NO summon: the "party synergy" flavour comes from the
+  thrall screen + a boss with a ranged attack that the party must close on, plus a scripted phase: when the necromancer
+  drops below half HP, two more thralls spawn and join the turn order. If `AddCombatant` mid-fight is cheap and safe,
+  keep the phase; otherwise cut it and just add the extra thralls to the opening wave.
+- **T6.3-D5 (quest + ending):** `quest-the-deep-dark` started on arrival in Cavern_Deep: Kill (thrall patrols, shared
+  key, count 2), Interact (pull the lever, key `deep-lever-pulled`), Kill (defeat the necromancer, key
+  `necromancer-defeated`). Completing it is the main-quest completion: a visible ending (a modal "The Deep Dark is
+  silent. The necromancer's thralls crumble..." panel using the existing dialogue/panel machinery, with a return-to-
+  title option), plus a post-victory branch in Mayor Thaddeus's tree (the main quest is done; gold reward). **Open question
+  for review:** is an ending panel in scope here or does it belong to Phase 7?
+- **T6.3-D6 (what is NOT in scope):** area-of-effect abilities, summoning outside the one scripted phase, a quest log UI,
+  companion class abilities, loot/XP, new music, an archer.
+
+## Risks
+
+1. **The Deep level has to be reachable and fair at party level 1**: no healing between the Upper fights and the boss
+   other than potions from Fendrick. Needs live tuning at the gate; the plan must not assume the numbers.
+2. **Runtime terrain change (the portcullis) is the one thing no earlier task did**: wrong mechanism = party walks through
+   a "closed" gate, or the gate stays shut after the lever, or it resets wrongly on save/load/checkpoint-reload.
+3. **Scene-overlap triggers (found live in 6.2)**: Deep loads additively at Middle's world coordinates during travel. The
+   active-scene guard covers `EncounterTrigger`; any NEW trigger type (lever, quest start, portcullis) must apply the same rule.
+4. **A boss lost = instant retry loop** (checkpoint reload puts the party back inside the trigger, which re-fires at once);
+   at boss difficulty that may need a grace period or a spawn offset.
+5. **Verification caveats from 6.1/6.2**: author in a throwaway copy then copy scenes/assets back; give new scripts
+   referenced from scenes explicit `.meta` GUIDs before authoring; add tests that reach content the way a player does
+   (real travel, real clicks, prior-fight history), not by booting straight into the level.
+
+## Task breakdown (tests first, per file -- high-level)
+
+1. Thrall content: `npc-skeleton-thrall` + claw ability + brain; ruleset registration; content-count test.
+2. `LeverInteractionAdapter` + `PortcullisGate`: unit/PlayMode tests for open/closed derived from the Timeline key, reload
+   and checkpoint behavior, walkability actually changing (a real path query before/after).
+3. `AuthorDeep`: layout, water/bridge, two thrall patrols, lever alcove, portcullis, arena; Reset Caverns; reachability tests
+   incl. real travel from Middle.
+4. Necromancer content + brain (ranged hold-distance behavior) + the arena encounter (+ optional half-HP reinforcement).
+5. `quest-the-deep-dark`, arrival `QuestStartTrigger`, ending panel + Thaddeus post-victory branch.
+6. Boss-retry tuning (grace/offset) if the live gate shows the instant-retry loop is bad.
+7. Throwaway-copy full verification, regenerate the real project, live gate with the user.
+
+
+## Opus review record (Task 6.3) -- blockers found and the revisions they force
+
+The reviewer verified every claim against source. The draft above is SUPERSEDED where it conflicts with this section.
+
+**Blockers (all accepted):**
+- **B1/B2 portcullis state.** `TileDoor.Start` always closes its cells and `OnSceneLoaded` fires before scene `Start`s, so a door-style gate shows the wrong state after travel-back or a cross-scene load; a same-scene load keeps the runtime grid (the scene is not reloaded), so the Timeline key alone cannot re-close it. Fix: `PortcullisGate` has NO unconditional state in `Start`; it resolves its grid lazily (`WalkabilityGridProvider.FindInScene(gameObject.scene)`), defaults closed in `Awake`, and `Refresh(session)` sets open OR closed both ways from `HasOccurred("deep-lever-pulled")`, called from `WireCombatTriggers` (the `HarvestInteractionAdapter.RefreshState` pattern). Tests: travel Deep->Middle->Deep after the lever (stays open); same-scene load of a pre-lever save (closes again); cross-scene load (open).
+- **B3 spawn on the wrong side of a barrier.** `TrySamplePositionAvoiding` is nearest-walkable with no connectivity check, so a patrol near the closed gate can spawn in the sealed arena and soft-lock the fight. Fix: keep every trigger >= 2*scatter cells from the gate cells and add a path-planned reachability test per Deep encounter.
+- **B4 sphere through walls + boss spawns on the party.** Place the arena trigger >= radius+1 cells inside the arena; add an optional `spawnAnchor` (cell/transform) to `EncounterTrigger` so hostiles spawn around the ritual circle; optional `requiredKey` so the arena cannot fire before the gate is open.
+- **B5 world clicks hit trigger volumes.** `PlayerCommandRouter` raycast has default trigger behaviour (`m_QueriesHitTriggers: 1`, `RouterMask` includes Default), so a lever near an active sphere is unclickable and combat move clicks inside the arena sphere go to its surface. Only `AbilityTargetingGate` was fixed in 6.2. Fix (toolkit, tests first): `QueryTriggerInteraction.Ignore` at `PlayerCommandRouter.cs:167`; fallback rule: no sphere within radius+1 of the lever, an arch or an NPC.
+- **B6 Thaddeus rewrite orphans the Town reference.** `SaveDialogue` deletes/recreates (new GUID). Use the Grumble in-place pattern (`CopySerialized` into the existing asset); the new start node is a `BranchNode` on `necromancer-defeated`; if gold is paid use the quest's `rewards` (granted once) rather than a repeating `GiveItemAction`.
+
+**Should-fix (accepted):** `QuestStartTrigger` and any new trigger type get the active-scene guard; additive-overlap audit -- no Deep volume within radius+1 of (18.5, 26.5) (Middle's arch approach) and none overlapping Middle's GoblinBarricade sphere area at (18.5, 21.5); boss-retry loop is confirmed and deliberate: grace = after a checkpoint reload, disarm triggers a party member stands inside and re-arm once no member is within radius (distance poll, not `OnTriggerExit`), `Say("Step back into the arena when you are ready")`, update `EncounterTriggerTests`; extend `AddEncounterTrigger` for the secondary NPC fields (boss + 2 thralls) and suppress the " 1" suffix for single-count names; `HostileBrains.For` throws on unknown ids AFTER the checkpoint, so add thrall + necromancer cases and a test; ranged AI works as built (range check works; `requireLineOfSight` is silently ignored with no provider -- accept or pass a `PhysicsLineOfSightProvider`); needs a new `HostileBrainKit.BuildRangedSet` with curves: staff range 1.5 (0->1.0, 1.5->0.95), bolt range 6 (0->0.9, 6->0.86), Close (Move) stop 5 (0->0.6, 20->0.1) -- both abilities in the NPC's `abilityIds`; Reset Caverns regenerates all three levels -- add a Deep-only regeneration/copy-back; new scripts referenced from scenes need explicit `.meta` GUIDs first; portcullis implementation: paint the gate cells as floor and give `PortcullisGate` its own sprite children (no colliders) blocking cells via `grid.SetBlocked`/a runtime `GridWalkabilityBlocker` (NOT a cave Door tile -- its prefab adds `UseDoorInteractionAdapter`, which any click toggles); ending: `ConversationController` builds standalone from (dialogue, context, PanelSettings) so an ending component inside Cavern_Deep holds the epilogue dialogue + `gallery-panel-settings`, wired in `WireCombatTriggers`, opened on `QuestCompleted` for `quest-the-deep-dark` (fires only on the transition); prefer `QuestDefinition.rewards` for gold; count test goes up by 6 (thrall, claw, necromancer, bolt, staff, quest) and everything registers in `BarrowsEndGearAuthor.extraContent` (an unregistered NPC in a checkpoint breaks the defeat reload); add Deep to the bake-warning/reachability tests.
+
+**Open questions answered:** AoE and mid-fight summoning stay OUT (AoE is not implemented in resolution or AI: `Validate`/`Execute` never read `Targeting.Mode`, the AI skips abilities with `MaxTargets != 1`; reinforcements are feasible but ~40-60 lines + tests, so the extra thralls go in the opening wave via `secondaryNpcDefinitionId`). A minimal ending (epilogue conversation + Thaddeus post-victory branch) is IN scope; return-to-title is Phase 7 (there is no Core-scene reboot path).
+
+### Revised task breakdown (supersedes the one above)
+0. Hardening, tests first: `PlayerCommandRouter` ignores triggers (toolkit); `QuestStartTrigger` active-scene guard; `EncounterTrigger` `spawnAnchor`, optional `requiredKey`, re-arm-after-exit grace (update `EncounterTriggerTests`), suffix-free single names; `AddEncounterTrigger` secondary params.
+1. Thrall + necromancer content: NPCs, claw/bolt/staff, registration, count test, `HostileBrains` cases, `BuildRangedSet`; EditMode decision tests (distance 1 -> staff, 4 -> bolt, 10 -> Move).
+2. `PortcullisGate` + `LeverInteractionAdapter` + wiring (B1/B2); PlayMode tests: path query before/after the lever, travel away and back, same-scene and cross-scene load.
+3. `AuthorDeep` + verification: placement rules (B3/B4/B5 + overlap audit), Deep-only regeneration and copy-back, Deep in the bake/reachability tests, per-encounter path-planned spawn tests, a real Middle->Deep travel test.
+4. Arena encounter (boss + 2 thralls at the anchor) and `quest-the-deep-dark` (rewards gold entry, arrival `QuestStartTrigger`).
+5. Ending: epilogue component in Deep; Thaddeus in-place rewrite gated on `necromancer-defeated`.
+6. Gate: throwaway-copy verification, regenerate the real project, live gate (balance tuning there). No reinforcement phase.
+
+**Not yet committed.**
+
+## Task 6.3 implementation status
+
+Steps 0-5 implemented and verified in throwaway copies (BarrowsEnd EditMode 149/150 with the pre-existing `Town_Slice` bake failure;
+PlayMode green across all fixtures, run in two halves because the full suite now exceeds a single 10-minute batch; toolkit
+`PointerCommandTests` 17/17), NOT yet committed. Done: toolkit click router ignores trigger volumes; `EncounterTrigger` spawn anchor /
+required key / post-load re-arm grace / single-name display; `QuestStartTrigger` scene guard; skeleton thrall, necromancer, three
+attacks, ranged brain; `LeverInteractionAdapter` + `PortcullisGate` (both-ways refresh, tested across same-scene load and travel);
+`Cavern_Deep` regenerated (entry hall, two thrall patrols, river with a bridge, lever, portcullis, boss arena with spawn anchor);
+`quest-the-deep-dark` (200 gold reward) started on arrival; `EpilogueTrigger` ending conversation; Thaddeus post-victory branch
+(in place); `DeepCavernContentTests` pins the review's placement rules against the authored scene. Step 6 (live gate + balance
+tuning with the user) is next.

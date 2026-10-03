@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-epilogue
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-epilogue
+  displayName: 
+  startNodeId:
+    low: 8739672316135207214
+    high: -6731729156296494057
+  nodes:
+  - rid: 2954408722827837442
+  - rid: 2954408722827837443
+  - rid: 2954408722827837444
+  - rid: 2954408722827837445
+  - rid: 2954408722827837446
+  references:
+    version: 2
+    RefIds:
+    - rid: 2954408722827837442
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 8739672316135207214
+          high: -6731729156296494057
+        editorPosition: {x: 0, y: 0}
+        speakerName: Narrator
+        text: The necromancer falls, and with a long dry rattle the thralls crumble back into dust.
+        nextNodeId:
+          low: 5159471087248722001
+          high: -7596680350364665787
+    - rid: 2954408722827837443
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 5159471087248722001
+          high: -7596680350364665787
+        editorPosition: {x: 0, y: 0}
+        speakerName: Narrator
+        text: Silence settles over the Deep Dark -- the old silence, not the hungry one. Far above, Barrow's End will sleep tonight.
+        nextNodeId:
+          low: -5788534925383793184
+          high: 7655867986874063456
+    - rid: 2954408722827837444
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -5788534925383793184
+          high: 7655867986874063456
+        editorPosition: {x: 0, y: 0}
+        speakerName: Narrator
+        text: Your squad climbs toward the light. The Gathering Storm has broken, and the town still stands.
+        nextNodeId:
+          low: 1282403662289016144
+          high: 879932088540476847
+    - rid: 2954408722827837445
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 1282403662289016144
+          high: 879932088540476847
+        editorPosition: {x: 0, y: 0}
+        speakerName: Narrator
+        text: THE END. Thank you for playing Barrow's End. You are free to keep exploring.
+        nextNodeId:
+          low: -1477860034922151838
+          high: -7638689323814442004
+    - rid: 2954408722827837446
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -1477860034922151838
+          high: -7638689323814442004
+        editorPosition: {x: 0, y: 0}

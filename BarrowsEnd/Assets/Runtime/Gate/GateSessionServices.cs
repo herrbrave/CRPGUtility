@@ -79,7 +79,8 @@ namespace BarrowsEnd.Gate
             // just dies outright at 0 HP, its real SRD5.1 behavior, found live once a real hostile-vs-party
             // encounter first existed in BarrowsEnd (DeathSaveService.cs's own doc comment has the full story).
             DeathSaves = new DeathSaveService(session.Characters, session.DiceService, session.EventBus, HitPoints, Unconscious,
-                usesDeathSaves: id => session.Party.Members.Contains(id));
+                usesDeathSaves: id => session.Party.Members.Contains(id),
+                canDie: id => PartyCanDie || !session.Party.Members.Contains(id));
             Equipment = new EquipmentService(session.Characters, session.RulesDatabase, session.Inventory, session.EventBus);
 
             subscribedBus = session.EventBus;
@@ -87,7 +88,10 @@ namespace BarrowsEnd.Gate
             subscribedBus.Subscribe(GameEvent.CreatureDied, onDied);
 
             var movement = new PartyMovementService(pathfinding, new SceneSelectableSource());
-            exploration = new PartyExplorationController(session.Party, movement, new WedgeFormationSolver(), commandSource);
+            // Downed (dying) and dead members cannot be walked around. The party has no permadeath, so a fight's end stabilises the downed;
+            // a member at 0 hit points here is either mid-fight (combat owns movement) or dead from before that rule (revived by a rest).
+            exploration = new PartyExplorationController(session.Party, movement, new WedgeFormationSolver(), commandSource,
+                canMove: id => CanMove(session, id));
             foreach (var member in session.Party.Members)
             {
                 var agent = FindAgent(member);
@@ -95,6 +99,17 @@ namespace BarrowsEnd.Gate
             }
 
             interactionHost?.Initialize(commandSource, session.Party, session);
+        }
+
+        /// <summary>The Phase 2 debug gate scene keeps SRD permadeath (its tests kill and remove members); the campaign shell turns this off:
+        /// a downed member there stays downed until the fight ends, never dies for good.</summary>
+        public bool PartyCanDie { get; set; } = true;
+
+        private static bool CanMove(GameSession session, RuntimeEntityId id)
+        {
+            if (!session.Characters.TryGetCharacter(id, out var character)) return true;
+            if (character.DeathSaves != null) return false;
+            return !character.TryGetResource(HitPoints, out var hp) || hp.Current > 0;
         }
 
         private void Teardown()
