@@ -38,6 +38,40 @@ namespace CRPG.Inventory
 
         public IEnumerable<ItemInstance> AllItems => itemsById.Values;
 
+        /// <summary>How many of an item the party carries in the SHARED inventory (equipped copies do not count), summed across every stack.</summary>
+        public int CountShared(DefinitionId definitionId)
+        {
+            var total = 0;
+            foreach (var item in ItemsInSharedInventory)
+            {
+                if (item.DefinitionId == definitionId) total += item.Quantity;
+            }
+
+            return total;
+        }
+
+        /// <summary>Removes <paramref name="amount"/> of an item from the shared inventory, taking from as many stacks as needed and deleting emptied ones. All or nothing: false (and nothing changes) when the party
+        /// does not have that many, or the amount is negative; removing zero is a no-op that succeeds.</summary>
+        public bool TryRemoveShared(DefinitionId definitionId, int amount)
+        {
+            if (amount < 0) return false;
+            if (amount == 0) return true;
+            if (CountShared(definitionId) < amount) return false;
+
+            var remaining = amount;
+            foreach (var item in ItemsInSharedInventory.Where(i => i.DefinitionId == definitionId).ToList())
+            {
+                if (remaining <= 0) break;
+
+                var take = System.Math.Min(item.Quantity, remaining);
+                item.Quantity -= take;
+                remaining -= take;
+                if (item.Quantity <= 0) RemoveItem(item.InstanceId);
+            }
+
+            return true;
+        }
+
         public IEnumerable<ItemInstance> ItemsInSharedInventory =>
             itemsById.Values.Where(item => !GetLocation(item.InstanceId).IsEquipped);
 

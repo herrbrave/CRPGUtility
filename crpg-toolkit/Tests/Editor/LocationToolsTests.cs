@@ -71,7 +71,7 @@ namespace CRPG.Tests.EditMode
             NpcSpawnPointDrawer.SelectNpc(so, "spawnPoints.Array.data[0]");
             Assert.AreSame(npcAsset, Selection.activeObject, "the NPC button selects the NpcDefinition so its inspector (appearance creator, stats) opens");
             Selection.activeObject = null;
-            Assert.AreEqual(3, element.Query<PropertyField>().ToList().Count, "Spawn id, NPC, Anchor");
+            Assert.AreEqual(5, (element.Query<PropertyField>().ToList().Count - element.Q("spawn-routine").Query<PropertyField>().ToList().Count), "Spawn id, NPC, Anchor, Dialogue, Store (the routine section has its own fields)");
             var status = element.Q<Label>("spawn-status");
             Assert.Greater(status.style.color.value.g, 0.5f, "not the red of an Error (the test scene has no NavMesh, so the row is at most a yellow off-surface Warning)");
             if (status.style.color.value.r > 0.9f && status.style.color.value.g < 0.8f) StringAssert.Contains("walkable", status.tooltip);

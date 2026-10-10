@@ -30,6 +30,10 @@ namespace CRPG.Gameplay.Interactions
         /// <summary>The adapter's in-progress execution handle, if it hasn't already finished synchronously.</summary>
         public IInteractionExecution Execution { get; internal set; }
 
+        /// <summary>The NPC this request froze the ambient routine of (RuntimeEntityId.None = none), so ending the
+        /// request resumes exactly that one.</summary>
+        internal RuntimeEntityId SuspendedAmbientNpc { get; set; } = RuntimeEntityId.None;
+
         /// <summary>Accumulated simulated time spent in Approaching, for the approach-timeout guard.</summary>
         public float ElapsedApproachSeconds { get; internal set; }
     }

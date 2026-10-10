@@ -59,12 +59,12 @@ namespace CRPG.Editor.Location
 
                 if (npc != null)
                 {
-                    var dialogue = LocationNpcAccess.ResolveDialogue(npc);
+                    var dialogue = LocationNpcAccess.SpawnDialogue(spawn);
                     EditorGUI.BeginChangeCheck();
                     var picked = (DialogueDefinition)EditorGUILayout.ObjectField("Dialogue", dialogue, typeof(DialogueDefinition), false);
-                    if (EditorGUI.EndChangeCheck()) LocationNpcAccess.AssignDialogue(npc, picked);
-                    if (LocationNpcAccess.HasDanglingDialogue(npc)) EditorGUILayout.HelpBox($"Dialogue id '{npc.DialogueId.Value}' has no asset.", MessageType.Warning);
-                    if (GUILayout.Button(dialogue != null ? "Open dialogue graph" : "Create dialogue and open graph")) LocationNpcAccess.OpenDialogue(npc);
+                    if (EditorGUI.EndChangeCheck()) LocationNpcAccess.AssignDialogue(spawn, picked);
+                    if (dialogue == null && npc.DialogueId.IsValid) EditorGUILayout.HelpBox($"No dialogue on this spawn point. The NPC's id '{npc.DialogueId.Value}' only works if the game's ruleset registers it.", MessageType.Info);
+                    if (GUILayout.Button(dialogue != null ? "Open dialogue graph" : "Create dialogue and open graph")) LocationNpcAccess.OpenDialogue(spawn);
                 }
             }
 

@@ -30,8 +30,10 @@ namespace CRPG.Inventory
         public int GetSellPrice(StoreInventoryState store, DefinitionId itemId) =>
             RoundPrice(rulesDatabase.Resolve<ItemDefinition>(itemId).BaseValue * store.SellPriceMultiplier);
 
-        public int GetCurrencyTotal() =>
-            partyInventory.ItemsInSharedInventory.Where(item => item.DefinitionId == currencyItemId).Sum(item => item.Quantity);
+        /// <summary>The item this service treats as money (it must never be offered for sale as an ordinary item).</summary>
+        public DefinitionId CurrencyItemId => currencyItemId;
+
+        public int GetCurrencyTotal() => partyInventory.CountShared(currencyItemId);
 
         /// <returns>False without side effects if the item isn't listed, is out of stock, or the party can't afford it.</returns>
         public bool TryBuy(StoreInventoryState store, DefinitionId itemId, int quantity = 1)
@@ -63,23 +65,7 @@ namespace CRPG.Inventory
 
         private static int RoundPrice(float value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);
 
-        private bool TrySpendCurrency(int amount)
-        {
-            if (GetCurrencyTotal() < amount) return false;
-
-            var remaining = amount;
-            foreach (var item in partyInventory.ItemsInSharedInventory.Where(i => i.DefinitionId == currencyItemId).ToList())
-            {
-                if (remaining <= 0) break;
-
-                var take = Math.Min(item.Quantity, remaining);
-                item.Quantity -= take;
-                remaining -= take;
-                if (item.Quantity <= 0) partyInventory.RemoveItem(item.InstanceId);
-            }
-
-            return true;
-        }
+        private bool TrySpendCurrency(int amount) => partyInventory.TryRemoveShared(currencyItemId, amount);
 
         private void AddCurrency(int amount)
         {

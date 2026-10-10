@@ -11,6 +11,9 @@ namespace CRPG.Dialogue
         [SerializeField] private ItemDefinition item;
         [SerializeField] private int quantity = 1;
 
+        public ItemDefinition Item => item;
+        public int Quantity => quantity;
+
         public override void Execute(DialogueContext context)
         {
             var instance = new ItemInstance(RuntimeEntityId.NewId(), item.Id, quantity);

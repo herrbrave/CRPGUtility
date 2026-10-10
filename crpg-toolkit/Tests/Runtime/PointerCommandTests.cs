@@ -589,6 +589,61 @@ namespace CRPG.Tests.PlayMode
             public IInteractionExecution BeginExecute(RuntimeEntityId performer, System.Action<InteractionExecutionResult> onFinished) => null;
         }
 
+        private IEnumerator ClickOnTalkable(System.Action<WorldInteractable> configure, System.Action<RuntimeEntityId, WorldInteractable, SelectCommand?, InteractCommand?> assertResult)
+        {
+            var cameraGo = new GameObject("Camera");
+            spawned.Add(cameraGo);
+            var camera = CreateTopDownCamera(cameraGo);
+            CreateGroundPlane();
+
+            var (go, agentId) = CreateBoundSelectable(Vector3.zero);
+            go.SetActive(false);
+            var anchorGo = new GameObject("Anchor") { transform = { position = go.transform.position } };
+            spawned.Add(anchorGo);
+            go.AddComponent<FakeInteractionAdapter>();
+            var interactable = go.AddComponent<WorldInteractable>();
+            interactable.Configure(anchorGo.transform, 1.5f);
+            configure(interactable);
+            go.SetActive(true);
+            yield return WaitForColliders();
+
+            var router = CreateRouter(new FakeSelectableSource(), new FakePointerCaptureProvider());
+            SelectCommand? select = null;
+            InteractCommand? interact = null;
+            router.Select += cmd => select = cmd;
+            router.Interact += cmd => interact = cmd;
+
+            var screenPos = camera.WorldToScreenPoint(Origin);
+            var ray = RayFromAbove(Vector3.zero);
+            router.HandlePointerDown(screenPos, ray);
+            router.HandlePointerUp(screenPos, ray, camera, shiftHeld: false);
+
+            assertResult(agentId, interactable, select, interact);
+        }
+
+        [UnityTest]
+        public IEnumerator AClickOnACharacterWhoseInteractableTakesClicksOverSelectionResolvesAsInteractWithTheInteractablesId()
+        {
+            yield return ClickOnTalkable(i => i.ConfigureForCharacter(i.transform, 1.8f), (agentId, interactable, select, interact) =>
+            {
+                Assert.IsFalse(select.HasValue, "not a Select");
+                Assert.IsTrue(interact.HasValue);
+                Assert.AreEqual(interactable.EntityId, interact.Value.Target, "the interactable's id: InteractionController finds its target by it, not by the character's id");
+                Assert.AreNotEqual(agentId, interact.Value.Target);
+            });
+        }
+
+        [UnityTest]
+        public IEnumerator AnUnconfiguredOrDisabledTalkableCharacterIsStillJustSelected()
+        {
+            // flag on, but no usable interactable: a click must not silently do nothing.
+            yield return ClickOnTalkable(i => { i.ConfigureForCharacter(i.transform, 1.8f); i.enabled = false; }, (agentId, interactable, select, interact) =>
+            {
+                Assert.IsTrue(select.HasValue, "a disabled interactable is ignored: Select");
+                Assert.IsFalse(interact.HasValue);
+            });
+        }
+
         [UnityTest]
         public IEnumerator AClickOnAnObjectThatIsBothSelectableAndInteractableResolvesAsSelectNeverInteract()
         {

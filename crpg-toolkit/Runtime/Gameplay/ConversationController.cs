@@ -26,6 +26,7 @@ namespace CRPG.Gameplay
         private readonly DialogueContext context;
         private readonly DialogueRunner runner;
         private readonly PanelSettings panelSettings;
+        private readonly bool plainStyle;
 
         private GameObject uiGo;
         private DialogueView dialogueView;
@@ -45,13 +46,25 @@ namespace CRPG.Gameplay
         public DialogueView CurrentDialogueView => dialogueView;
         public StoreView CurrentStoreView => storeView;
 
-        public ConversationController(DialogueDefinition dialogue, DialogueContext context, PanelSettings panelSettings)
+        public ConversationController(DialogueDefinition dialogue, DialogueContext context, PanelSettings panelSettings, bool plainStyle = false)
         {
             this.context = context;
             this.panelSettings = panelSettings;
+            this.plainStyle = plainStyle;
             runner = new DialogueRunner(dialogue, context);
             modalScope = UIToolkitPointerCapture.BeginModal();
-            AdvancePresentation();
+            try
+            {
+                AdvancePresentation();
+            }
+            catch
+            {
+                // A view that cannot be built must not leave the modal pointer lease held: every world click would be swallowed from then on.
+                ended = true;
+                TearDownCurrentView();
+                modalScope.Dispose();
+                throw;
+            }
         }
 
         public void Cancel()
@@ -69,11 +82,7 @@ namespace CRPG.Gameplay
         {
             if (ended) return;
 
-            if (context.ConsumeStoreOpenRequest())
-            {
-                OpenStoreView();
-                return;
-            }
+            if (TryOpenRequestedStore()) return;
 
             if (runner.IsComplete)
             {
@@ -85,6 +94,27 @@ namespace CRPG.Gameplay
             }
 
             OpenDialogueView();
+        }
+
+        // True when the conversation had asked for the store and it is now showing. An Open Store action in a conversation that has no store wired (the presenter would throw) is skipped with a warning.
+        private bool TryOpenRequestedStore()
+        {
+            if (!context.ConsumeStoreOpenRequest()) return false;
+            if (context.Store != null)
+            {
+                OpenStoreView();
+                return true;
+            }
+
+            Debug.LogWarning("[ConversationController] the dialogue asked to open a store but this conversation has none; skipping it.");
+            return false;
+        }
+
+        // The player drove the dialogue one step; if that step reached an Open Store action (the runner then settled on whatever follows it, which the view is now showing), swap to the shop.
+        private void HandleDialogueViewDriven()
+        {
+            if (ended || dialogueView == null) return;
+            TryOpenRequestedStore();
         }
 
         private void EnsureUiGameObject()
@@ -99,6 +129,7 @@ namespace CRPG.Gameplay
             if (dialogueView != null)
             {
                 dialogueView.Completed -= HandleDialogueViewCompleted;
+                dialogueView.Driven -= HandleDialogueViewDriven;
                 dialogueView = null;
             }
 
@@ -122,7 +153,8 @@ namespace CRPG.Gameplay
 
             dialogueView = uiGo.AddComponent<DialogueView>();
             dialogueView.Completed += HandleDialogueViewCompleted;
-            dialogueView.Initialize(new DialoguePresenter(runner, context));
+            dialogueView.Driven += HandleDialogueViewDriven;
+            dialogueView.Initialize(new DialoguePresenter(runner, context), plainStyle);
         }
 
         private void HandleDialogueViewCompleted() => AdvancePresentation();
@@ -135,7 +167,7 @@ namespace CRPG.Gameplay
             var storeService = new StoreService(context.RulesDatabase, context.PartyInventory, context.CurrencyItemId);
             storeView = uiGo.AddComponent<StoreView>();
             storeView.Closed += HandleStoreClosed;
-            storeView.Initialize(new StorePresenter(context.Store, context.PartyInventory, context.RulesDatabase, storeService));
+            storeView.Initialize(new StorePresenter(context.Store, context.PartyInventory, context.RulesDatabase, storeService), plainStyle);
         }
 
         private void HandleStoreClosed() => AdvancePresentation();

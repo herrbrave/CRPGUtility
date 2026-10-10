@@ -180,6 +180,50 @@ namespace CRPG.Tests.PlayMode
         }
 
         [Test]
+        public void AnOpenStoreActionReachedMidConversation_OpensTheShop_AndLeavingResumesTheDialogue()
+        {
+            // Line -> (player continues) -> Open Store -> Line -> End: the shop must open when the player's Continue reaches the action, not only when the graph STARTS with it.
+            var end = CreateEnd("end");
+            var after = CreateLine("after", "Anything else?", "end");
+            var openStore = CreateOpenStoreNode("open", "after");
+            var hello = CreateLine("start", "Welcome.", "open");
+            var dialogue = CreateDialogue("start", hello, openStore, after, end);
+
+            CreateController(dialogue);
+            Assert.IsNotNull(controller.CurrentDialogueView);
+            Assert.IsNull(controller.CurrentStoreView);
+
+            typeof(CRPG.UI.DialogueView).GetMethod("OnContinueClicked", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(controller.CurrentDialogueView, null);
+
+            Assert.IsNotNull(controller.CurrentStoreView, "the Continue reached the Open Store action");
+            Assert.IsNull(controller.CurrentDialogueView);
+
+            controller.CurrentStoreView.Leave();
+            Assert.IsNotNull(controller.CurrentDialogueView, "back to the dialogue, at the line after the shop");
+            Assert.IsNull(controller.CurrentStoreView);
+        }
+
+        [Test]
+        public void AnOpenStoreActionInAConversationWithNoStore_IsSkippedWithAWarning_NotAnException()
+        {
+            var characters = new CharacterRegistry();
+            var fighter = new CharacterState(RuntimeEntityId.NewId());
+            characters.Register(fighter);
+            var noStoreContext = new DialogueContext(RuntimeEntityId.NewId(), new PartyState(new[] { fighter.Id }), characters, new RulesDatabase(), new Timeline(),
+                new PartyInventoryState(), new DiceService(new SeededRandomSource(1)));   // no store wired
+
+            var end = CreateEnd("end");
+            var thanks = CreateLine("thanks", "No shop here, friend.", "end");
+            var dialogue = CreateDialogue("start", CreateOpenStoreNode("start", "thanks"), thanks, end);
+
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("asked to open a store but this conversation has none"));
+            controller = new ConversationController(dialogue, noStoreContext, panelSettings);
+
+            Assert.IsNull(controller.CurrentStoreView, "no store screen");
+            Assert.IsNotNull(controller.CurrentDialogueView, "the dialogue carried on to the next line");
+        }
+
+        [Test]
         public void CancelTearsDownAndFiresCancelledNeverCompleted()
         {
             var end = CreateEnd("end");

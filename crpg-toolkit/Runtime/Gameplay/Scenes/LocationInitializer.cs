@@ -36,6 +36,7 @@ namespace CRPG.Gameplay.Scenes
 
                 foreach (var storePoint in content.Stores) PrepareStore(storePoint, session);
                 foreach (var lootPoint in content.LootContainers) PrepareLootContainer(lootPoint, session);
+                foreach (var spawnPoint in content.SpawnPoints) NpcStores.Ensure(spawnPoint, session);
             }
             catch (Exception)
             {
@@ -88,6 +89,7 @@ namespace CRPG.Gameplay.Scenes
         {
             foreach (var storePoint in content.Stores) PrepareStore(storePoint, session);
             foreach (var lootPoint in content.LootContainers) PrepareLootContainer(lootPoint, session);
+            foreach (var spawnPoint in content.SpawnPoints) NpcStores.Ensure(spawnPoint, session);   // an NPC's shop must exist BEFORE SaveService.RestoreStores, or depleted stock reseeds
         }
 
         private static void PrepareStore(StoreContentPoint storePoint, GameSession session)

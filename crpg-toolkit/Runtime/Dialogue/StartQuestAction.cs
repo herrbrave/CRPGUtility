@@ -15,6 +15,9 @@ namespace CRPG.Dialogue
     {
         [SerializeField] private string questKey;
 
+        /// <summary>The authored quest key: the quest's <c>DefinitionId</c>.</summary>
+        public string QuestKey => questKey;
+
         public override void Execute(DialogueContext context) => context.RequestStartQuest?.Invoke(questKey);
     }
 }

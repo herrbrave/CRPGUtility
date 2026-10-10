@@ -173,6 +173,18 @@ namespace CRPG.Gameplay
             // object (this phase deliberately keeps the two apart: interactable targets are static world
             // objects, not characters).
             var agent = hit.collider.GetComponentInParent<CharacterAgent>();
+
+            // The one opt-in exception: a character whose WorldInteractable asks to be clicked as an interaction (a talkable NPC).
+            if (agent != null)
+            {
+                var talkable = hit.collider.GetComponentInParent<WorldInteractable>();
+                if (talkable != null && talkable.isActiveAndEnabled && talkable.IsConfigured && talkable.TakesClickOverSelection)
+                {
+                    Interact?.Invoke(new InteractCommand(talkable.EntityId));
+                    return;
+                }
+            }
+
             if (agent != null)
             {
                 var mode = shiftHeld ? SelectionMode.Toggle : SelectionMode.Replace;

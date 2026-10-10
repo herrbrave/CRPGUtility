@@ -15,6 +15,8 @@ namespace CRPG.Dialogue
     {
         [SerializeField] private string companionKey;
 
+        public string CompanionKey => companionKey;
+
         public override void Execute(DialogueContext context) => context.RequestRecruit?.Invoke(companionKey);
     }
 }

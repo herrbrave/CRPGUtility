@@ -15,9 +15,13 @@ namespace CRPG.Gameplay
     public enum FacingPriority
     {
         Motion = 0,
-        Interaction = 1,
-        CommittedAction = 2,
-        Terminal = 3,
+
+        /// <summary>An NPC's ambient routine turning to its work spot. Above plain motion, below everything a
+        /// player or a fight can ask for, and its own tier so one system's ClearFacing never wipes another's request.</summary>
+        Ambient = 1,
+        Interaction = 2,
+        CommittedAction = 3,
+        Terminal = 4,
     }
 
     /// <summary>

@@ -15,6 +15,15 @@ namespace CRPG.Gameplay.Scenes
         public string SpawnId;
         public NpcDefinition Definition;
         public Transform Anchor;
+
+        [Tooltip("What this NPC does when nothing else is asking: stand, wander an area, or walk a loop of work stops.")]
+        public CRPG.Gameplay.Ambient.NpcRoutineSpec Routine = new();
+
+        [Tooltip("What this NPC says when the party talks to it. Empty = it does not talk (unless its NpcDefinition has a DialogueId the ruleset registers).")]
+        public CRPG.Dialogue.DialogueDefinition Dialogue;
+
+        [Tooltip("What this NPC sells. No listings = no shop. The dialogue opens the shop with an Open Store action.")]
+        public NpcStoreSpec Store = new();
     }
 
     /// <summary>A merchant reachable through this location's own TalkInteractionAdapter. StoreId must be
@@ -36,6 +45,33 @@ namespace CRPG.Gameplay.Scenes
 
         /// <summary>-1 (StoreInventoryState.AddListing's own default) means unlimited stock.</summary>
         public int Quantity = -1;
+    }
+
+    /// <summary>The shop of one NPC, authored on its <see cref="NpcSpawnPoint"/>: the stock it starts with and its price multipliers. The runtime store lives in the session under <see cref="ResolveId"/> (the
+    /// spawn id unless <see cref="StoreId"/> is set) and keeps its depleted stock across location unloads and saves; see <see cref="NpcStores"/>.</summary>
+    [System.Serializable]
+    public sealed class NpcStoreSpec
+    {
+        [Tooltip("Empty = the spawn id. Ids are unique across the whole save (they share the session's stores with the store talk points).")]
+        public string StoreId;
+        public List<StoreListingSeed> Listings = new();
+        [Tooltip("What the party pays: the item's base value times this.")]
+        public float BuyMultiplier = 1f;
+        [Tooltip("What the shop pays for the party's items: the item's base value times this.")]
+        public float SellMultiplier = 0.5f;
+
+        public bool HasStore => Listings != null && Listings.Count > 0;
+
+        public string ResolveId(string spawnId) => string.IsNullOrEmpty(StoreId) ? spawnId : StoreId;
+
+        /// <summary>Back to the default (no shop). Used when a new spawn point is added next to an existing one.</summary>
+        public void Reset()
+        {
+            StoreId = null;
+            Listings = new List<StoreListingSeed>();
+            BuyMultiplier = 1f;
+            SellMultiplier = 0.5f;
+        }
     }
 
     /// <summary>A lootable container reachable through this location's own LootInteractionAdapter. ContainerId

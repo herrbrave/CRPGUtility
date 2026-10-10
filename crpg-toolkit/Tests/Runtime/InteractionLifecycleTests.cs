@@ -255,7 +255,12 @@ namespace CRPG.Tests.PlayMode
             // requesting: issue a REAL move in the opposite direction. Motion-priority facing only engages from
             // genuine velocity, and Motion is the LOWEST tier -- if Interaction were still held (it outranks
             // Motion), this real movement's own facing would never be allowed to win.
-            var oppositeDestination = performerGo.transform.position + (performerGo.transform.position - interactable.InteractionPoint).normalized * 5f;
+            // Horizontal only: the performer ends within a few centimetres of the anchor, so the raw difference vector can be mostly vertical
+            // (a destination metres above the ground, off the NavMesh) and the "opposite" move then barely turns the character.
+            var away = performerGo.transform.position - interactable.InteractionPoint;
+            away.y = 0f;
+            if (away.sqrMagnitude < 0.0001f) away = -performerGo.transform.forward;
+            var oppositeDestination = performerGo.transform.position + away.normalized * 5f;
             agent.Motor.SetDestination(oppositeDestination);
 
             var elapsedTurn = 0f;
@@ -290,6 +295,64 @@ namespace CRPG.Tests.PlayMode
             Assert.IsNull(controller.CurrentRequest); // synchronous completion already ended it
 
             controller.Dispose();
+        }
+
+        // ---------------------------------------------------------------- in-range approach completion (talkable characters)
+
+        [Test]
+        public void ACharacterTargetCompletesTheApproachInRangeEvenThoughTheMotorNeverReportsArrival()
+        {
+            var session = NewSession();
+            var party = session.Party;
+            var (performerGo, _, movable) = CreatePerformerNoFacing(session, party, new Vector3(10f, 0f, 0f));
+            var (go, interactable, adapter) = CreateTarget(Vector3.zero);
+            interactable.ConfigureForCharacter(go.transform, 1.8f);
+            adapter.CompleteSynchronously = true;
+
+            var commandSource = new FakeCommandSource();
+            var controller = new InteractionController(commandSource, party, session);
+            commandSource.RaiseInteract(interactable.EntityId);
+            Assert.AreEqual(InteractionPhase.Approaching, controller.CurrentRequest.Phase);
+
+            controller.Tick(0.1f);
+            Assert.AreEqual(0, adapter.BeginExecuteCallCount, "still far away");
+
+            performerGo.transform.position = new Vector3(1.5f, 0f, 0f);   // within range; the fake motor still says Pending
+            Assert.AreEqual(MoveStatus.Pending, movable.Snapshot.Status);
+            controller.Tick(0.1f);
+
+            Assert.AreEqual(1, adapter.BeginExecuteCallCount, "in range completes the approach");
+            Assert.AreEqual(MoveStatus.Cancelled, movable.Snapshot.Status, "the performer was stopped (not left pushing against the NPC)");
+            controller.Dispose();
+        }
+
+        [Test]
+        public void AnOrdinaryTargetStillWaitsForTheMotorEvenWhenInRange()
+        {
+            var session = NewSession();
+            var party = session.Party;
+            var (performerGo, _, _) = CreatePerformerNoFacing(session, party, new Vector3(10f, 0f, 0f));
+            var (_, interactable, adapter) = CreateTarget(Vector3.zero);
+
+            var commandSource = new FakeCommandSource();
+            var controller = new InteractionController(commandSource, party, session);
+            commandSource.RaiseInteract(interactable.EntityId);
+            performerGo.transform.position = new Vector3(1f, 0f, 0f);
+            controller.Tick(0.1f);
+
+            Assert.AreEqual(0, adapter.BeginExecuteCallCount, "default behaviour unchanged: the motor must report arrival");
+            controller.Dispose();
+        }
+
+        [Test]
+        public void TheCharacterRangeIsNeverShorterThanTwoAgentRadiiPlusAMargin()
+        {
+            var (go, interactable, _) = CreateTarget(Vector3.zero, range: 0.4f);
+            Assert.AreEqual(0.4f, interactable.InteractionRange, "an ordinary target keeps its authored range");
+            interactable.ConfigureForCharacter(go.transform, 0.4f);
+            Assert.AreEqual(WorldInteractable.MinCharacterRange, interactable.InteractionRange, "a character target is clamped");
+            interactable.ConfigureForCharacter(go.transform, 2.5f);
+            Assert.AreEqual(2.5f, interactable.InteractionRange);
         }
 
         // ---------------------------------------------------------------- 3: cancel during Approaching

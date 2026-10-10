@@ -102,3 +102,7 @@ __pycache__/
 Blender/**/renders/_*.png
 BarrowsEnd_Logs/
 Blender/Characters/Goblin1/generated/
+
+# Consumer game batch-run logs
+ConsumerGame_Logs/
+ConsumerGame/ConsumerGame_Logs/

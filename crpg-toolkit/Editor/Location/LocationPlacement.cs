@@ -94,10 +94,77 @@ namespace CRPG.Editor.Location
             element.FindPropertyRelative("SpawnId").stringValue = id;   // InsertArrayElementAtIndex copies the previous element: every field is set
             element.FindPropertyRelative("Definition").objectReferenceValue = definition;
             element.FindPropertyRelative("Anchor").objectReferenceValue = anchor.transform;
+            ResetRoutine(element.FindPropertyRelative("Routine"));   // the copy brought the previous NPC's routine, stops and all
+            element.FindPropertyRelative("Dialogue").objectReferenceValue = null;   // ... and its dialogue
+            ResetStore(element.FindPropertyRelative("Store"));                       // ... and its shop
             serialized.ApplyModifiedProperties();
 
             Undo.CollapseUndoOperations(group);
             return id;
+        }
+
+        /// <summary>Puts a serialized <see cref="CRPG.Gameplay.Ambient.NpcRoutineSpec"/> back to its defaults (Stand, no references). A freshly inserted array element is a COPY of the previous one, so every code path that adds a
+        /// spawn point through a SerializedProperty must call this, or the new NPC walks the previous NPC's stops.</summary>
+        public static void ResetRoutine(SerializedProperty routine)
+        {
+            if (routine == null) return;
+            routine.FindPropertyRelative("Kind").enumValueIndex = 0;
+            routine.FindPropertyRelative("AreaCentre").objectReferenceValue = null;
+            routine.FindPropertyRelative("AreaRadius").floatValue = 6f;
+            routine.FindPropertyRelative("PauseMin").floatValue = 2f;
+            routine.FindPropertyRelative("PauseMax").floatValue = 6f;
+            routine.FindPropertyRelative("Stops").ClearArray();
+            routine.FindPropertyRelative("Seed").intValue = 0;
+        }
+
+        /// <summary>Puts a serialized <see cref="CRPG.Gameplay.Scenes.NpcStoreSpec"/> back to its defaults (no shop). Same reason as <see cref="ResetRoutine"/>: a freshly inserted element is a copy of the previous one.</summary>
+        public static void ResetStore(SerializedProperty store)
+        {
+            if (store == null) return;
+            store.FindPropertyRelative("StoreId").stringValue = "";
+            store.FindPropertyRelative("Listings").ClearArray();
+            store.FindPropertyRelative("BuyMultiplier").floatValue = 1f;
+            store.FindPropertyRelative("SellMultiplier").floatValue = 0.5f;
+        }
+
+        /// <summary>Adds a work stop to the routine of spawn point <paramref name="spawnIndex"/> (one Undo step): a new scene transform two metres in front of the NPC's anchor, beside it, appended to the stop list. The designer
+        /// then drags it where the NPC should work. Returns the new transform.</summary>
+        public static Transform AddStop(LocationContent location, int spawnIndex)
+        {
+            if (location == null) throw new ArgumentNullException(nameof(location));
+            var serialized = new SerializedObject(location);
+            serialized.Update();
+            var points = serialized.FindProperty("spawnPoints");
+            if (spawnIndex < 0 || spawnIndex >= points.arraySize) throw new ArgumentOutOfRangeException(nameof(spawnIndex));
+
+            var element = points.GetArrayElementAtIndex(spawnIndex);
+            var anchor = element.FindPropertyRelative("Anchor").objectReferenceValue as Transform;
+            if (anchor == null || EditorUtility.IsPersistent(anchor)) throw new InvalidOperationException("The spawn point needs a scene anchor before it can have stops.");
+
+            var stops = element.FindPropertyRelative("Routine").FindPropertyRelative("Stops");
+            var spawnId = element.FindPropertyRelative("SpawnId").stringValue;
+
+            Undo.IncrementCurrentGroup();
+            Undo.SetCurrentGroupName("Add work stop");
+            var group = Undo.GetCurrentGroup();
+
+            var stop = new GameObject($"Stop_{spawnId}_{stops.arraySize + 1}");
+            SceneManager.MoveGameObjectToScene(stop, anchor.gameObject.scene);
+            Undo.RegisterCreatedObjectUndo(stop, "Create work stop");
+            if (anchor.parent != null) Undo.SetTransformParent(stop.transform, anchor.parent, "Create work stop");
+            stop.transform.SetPositionAndRotation(anchor.position + anchor.forward * 2f, anchor.rotation);
+
+            stops.InsertArrayElementAtIndex(stops.arraySize);
+            var entry = stops.GetArrayElementAtIndex(stops.arraySize - 1);   // a copy of the previous stop: set every field
+            entry.FindPropertyRelative("Point").objectReferenceValue = stop.transform;
+            entry.FindPropertyRelative("Action").enumValueIndex = 0;
+            entry.FindPropertyRelative("Seconds").floatValue = 2f;
+            entry.FindPropertyRelative("CueId").FindPropertyRelative("value").stringValue = "";
+            entry.FindPropertyRelative("Prop").objectReferenceValue = null;
+            serialized.ApplyModifiedProperties();
+
+            Undo.CollapseUndoOperations(group);
+            return stop.transform;
         }
 
         /// <summary>Removes the spawn point at <paramref name="index"/> (one Undo step); with <paramref name="deleteAnchor"/> also its anchor, unless another entry still uses it or it is an asset.</summary>

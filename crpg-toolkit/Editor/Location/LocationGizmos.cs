@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CRPG.Actors;
+using CRPG.Gameplay.Ambient;
 using CRPG.Gameplay.Scenes;
 using UnityEditor;
 using UnityEngine;
@@ -50,7 +51,77 @@ namespace CRPG.Editor.Location
                 }
 
                 DrawNpc(point.Anchor.position, point.Anchor.rotation, HeightOf(point.Definition), bad ? new Color(0.95f, 0.25f, 0.2f) : new Color(0.25f, 0.9f, 0.4f), $"{point.SpawnId} ({name})", pulse);
+                DrawRoutine(point);
             }
+        }
+
+        /// <summary>A colour for one NPC's routine overlay, stable per spawn id so the wander circle and stop path of an NPC match each other and differ from the next NPC's. (The marker itself is green/red for data errors, so it cannot carry this.)</summary>
+        public static Color RoutineColour(string spawnId)
+        {
+            var hash = NpcRoutines.Seed(spawnId, 0);
+            return Color.HSVToRGB(((uint)hash % 360u) / 360f, 0.55f, 1f);
+        }
+
+        /// <summary>True when the selection is this NPC's anchor, wander centre or one of its stops (or a child of one): its routine is drawn strong, every other one faint.</summary>
+        public static bool IsRoutineSelected(NpcSpawnPoint point)
+        {
+            var selected = Selection.transforms;
+            if (selected == null || selected.Length == 0) return false;
+
+            bool Hit(Transform t) => t != null && selected.Any(sel => sel == t || sel.IsChildOf(t));
+            if (Hit(point.Anchor)) return true;
+            var routine = point.Routine;
+            if (routine == null) return false;
+            if (Hit(routine.AreaCentre)) return true;
+            return routine.Stops != null && routine.Stops.Any(stop => stop != null && Hit(stop.Point));
+        }
+
+        private static void DrawRoutine(NpcSpawnPoint point)
+        {
+            var routine = point.Routine;
+            if (routine == null || !routine.IsActive) return;
+
+            var strong = IsRoutineSelected(point);
+            var colour = RoutineColour(point.SpawnId);
+            colour.a = strong ? 1f : 0.3f;
+            var previous = Handles.color; var previousZ = Handles.zTest;
+            Handles.zTest = CompareFunction.Always;
+            Handles.color = colour;
+
+            if (routine.Kind == NpcRoutineKind.Wander)
+            {
+                var centre = routine.AreaCentre != null ? routine.AreaCentre.position : point.Anchor.position;
+                Handles.DrawWireDisc(centre, Vector3.up, routine.AreaRadius, strong ? 3f : 1.5f);
+                var fill = colour; fill.a = strong ? 0.1f : 0.04f;
+                Handles.color = fill;
+                Handles.DrawSolidDisc(centre, Vector3.up, routine.AreaRadius);
+                if (strong) Handles.Label(centre + Vector3.up * 0.2f, $"{point.SpawnId}: wander {routine.AreaRadius:0.#} m", LabelStyle());
+            }
+            else if (routine.Kind == NpcRoutineKind.WorkLoop && routine.Stops != null)
+            {
+                var stops = routine.Stops.Where(stop => stop != null && stop.Point != null).ToList();
+                for (var j = 0; j < stops.Count; j++)
+                {
+                    var here = stops[j].Point;
+                    var unit = HandleUtility.GetHandleSize(here.position);
+                    Handles.color = colour;
+                    Handles.DrawWireDisc(here.position, Vector3.up, Mathf.Max(0.35f, unit * 0.12f), strong ? 3f : 1.5f);
+                    var forward = here.forward; forward.y = 0f;
+                    if (forward.sqrMagnitude > 0.001f) Handles.DrawLine(here.position, here.position + forward.normalized * Mathf.Max(0.8f, unit * 0.35f), strong ? 3f : 1.5f);
+
+                    if (stops.Count > 1 || j == 0)
+                    {
+                        var next = stops[(j + 1) % stops.Count].Point;
+                        if (next != here) Handles.DrawDottedLine(here.position + Vector3.up * 0.05f, next.position + Vector3.up * 0.05f, 4f);
+                    }
+
+                    if (strong) Handles.Label(here.position + Vector3.up * 0.4f, $"{j + 1}: {stops[j].Action}{(stops[j].CueId.IsValid ? " (" + stops[j].CueId + ")" : "")}", LabelStyle());
+                }
+
+                if (stops.Count > 0) Handles.DrawDottedLine(point.Anchor.position, stops[0].Point.position, 2f);
+            }
+
+            Handles.color = previous; Handles.zTest = previousZ;
         }
 
         private static GUIStyle LabelStyle()

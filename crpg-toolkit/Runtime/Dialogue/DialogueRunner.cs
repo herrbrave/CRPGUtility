@@ -124,7 +124,7 @@ namespace CRPG.Dialogue
                 switch (CurrentNode)
                 {
                     case BranchNode branch:
-                        CurrentNode = ResolveNode(branch.Evaluate(context.Timeline) ? branch.TrueNodeId : branch.FalseNodeId, $"BranchNode '{branch.NodeId}'");
+                        CurrentNode = ResolveNode(branch.Evaluate(context) ? branch.TrueNodeId : branch.FalseNodeId, $"BranchNode '{branch.NodeId}'");
                         continue;
                     case ActionNode action:
                         action.Action?.Execute(context);

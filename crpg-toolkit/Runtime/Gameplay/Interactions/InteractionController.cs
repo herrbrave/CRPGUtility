@@ -61,6 +61,7 @@ namespace CRPG.Gameplay.Interactions
 
             var request = new InteractionRequest(performer, target);
             CurrentRequest = request;
+            SuspendAmbient(request);
 
             if (HorizontalDistance(performerAgent.transform.position, target.InteractionPoint) <= target.InteractionRange)
             {
@@ -72,6 +73,7 @@ namespace CRPG.Gameplay.Interactions
             if (moveResult.Status != MoveStatus.Pending && moveResult.Status != MoveStatus.Moving)
             {
                 CurrentRequest = null; // rejected outright -- nothing was ever claimed
+                ResumeAmbient(request);
                 return;
             }
 
@@ -125,6 +127,13 @@ namespace CRPG.Gameplay.Interactions
             if (request.ElapsedApproachSeconds > approachTimeoutSeconds)
             {
                 EndCurrentRequest(InteractionOutcome.ApproachTimedOut);
+                return;
+            }
+
+            // A target the performer can never reach exactly (a character) completes the approach in range, whatever the motor reports.
+            if (target.CompleteApproachInRange && HorizontalDistance(performerAgent.transform.position, target.InteractionPoint) <= target.InteractionRange)
+            {
+                ArriveAndBeginTurning(request, performerAgent, target);
                 return;
             }
 
@@ -247,7 +256,27 @@ namespace CRPG.Gameplay.Interactions
                 if (request.FacingClaimed) performerAgent.Facing?.ClearFacing(FacingPriority.Interaction);
             }
 
+            ResumeAmbient(request);
             RequestEnded?.Invoke(outcome);
+        }
+
+        // A wandering NPC must stand still from the moment the party starts walking to it (the approach point is
+        // fixed when the order is given), not only once the conversation opens.
+        private void SuspendAmbient(InteractionRequest request)
+        {
+            var npc = request.Target != null ? request.Target.GetComponentInParent<CharacterAgent>() : null;
+            if (npc == null || !npc.IsBound) return;
+
+            request.SuspendedAmbientNpc = npc.EntityId;
+            session.Ambient.Suspend(npc.EntityId, request);
+        }
+
+        private void ResumeAmbient(InteractionRequest request)
+        {
+            if (!request.SuspendedAmbientNpc.IsValid) return;
+
+            session.Ambient.Resume(request.SuspendedAmbientNpc, request);
+            request.SuspendedAmbientNpc = RuntimeEntityId.None;
         }
 
         private bool IsEligiblePerformer(CharacterAgent agent) =>

@@ -26,9 +26,18 @@ namespace CRPG.UI
         /// <summary>Fired once the conversation reaches its End node, after the final content is shown.</summary>
         public event System.Action Completed;
 
-        public void Initialize(DialoguePresenter dialoguePresenter)
+        /// <summary>Fired after the player drove the conversation one step (Continue, a choice, a roll) and the new content is shown: the owner can react to what that step set in motion (an Open Store action
+        /// reached in the middle of a conversation). Not fired for the step that completed the conversation.</summary>
+        public event System.Action Driven;
+
+        private bool plainStyle;
+
+        /// <param name="plainStyle">False (default) keeps the look a game's own USS skin paints over (Barrow's End). True is a self-contained dark panel with light text, for a game with no skin: the default
+        /// look is mid-grey with dark text, which only reads well under that skin.</param>
+        public void Initialize(DialoguePresenter dialoguePresenter, bool plainStyle = false)
         {
             presenter = dialoguePresenter;
+            this.plainStyle = plainStyle;
             document = GetComponent<UIDocument>();
             BuildLayout();
             Refresh();
@@ -65,6 +74,21 @@ namespace CRPG.UI
             panel.AddToClassList("be-part--panel-wood");
             panel.style.backgroundColor = new Color(0.34f, 0.35f, 0.38f, 1f);
             panel.style.color = new Color(0.231f, 0.161f, 0.098f, 1f);
+            if (plainStyle)
+            {
+                panel.style.backgroundColor = new Color(0.10f, 0.11f, 0.14f, 0.94f);
+                panel.style.color = new Color(0.94f, 0.91f, 0.85f, 1f);
+                var edge = new Color(0.62f, 0.55f, 0.40f, 1f);
+                panel.style.borderTopColor = edge;
+                panel.style.borderBottomColor = edge;
+                panel.style.borderLeftColor = edge;
+                panel.style.borderRightColor = edge;
+                panel.style.borderTopLeftRadius = 6;
+                panel.style.borderTopRightRadius = 6;
+                panel.style.borderBottomLeftRadius = 6;
+                panel.style.borderBottomRightRadius = 6;
+            }
+
             root.Add(panel);
 
             speakerLabel = new Label { style = { fontSize = 18, unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 4 } };
@@ -100,6 +124,7 @@ namespace CRPG.UI
             if (presenter.IsAtLine)
             {
                 var continueButton = new Button(OnContinueClicked) { text = "Continue" };
+                StyleButton(continueButton);
                 newResponseArea.Add(continueButton);
             }
             else if (presenter.IsAtChoice)
@@ -109,12 +134,14 @@ namespace CRPG.UI
                     var optionIndex = choice.OptionIndex;
                     var choiceButton = new Button(() => OnChoiceClicked(optionIndex)) { text = choice.Text };
                     choiceButton.style.marginBottom = 4;
+                    StyleButton(choiceButton);
                     newResponseArea.Add(choiceButton);
                 }
             }
             else if (presenter.IsAtCheck)
             {
                 var rollButton = new Button(OnRollClicked) { text = "Roll" };
+                StyleButton(rollButton);
                 newResponseArea.Add(rollButton);
             }
 
@@ -124,11 +151,25 @@ namespace CRPG.UI
             responseArea = newResponseArea;
         }
 
+        // The plain style's buttons: a dark fill with the panel's light text (the default button is light grey, on which the inherited light text would vanish).
+        private void StyleButton(Button button)
+        {
+            if (!plainStyle) return;
+            button.style.backgroundColor = new Color(0.22f, 0.24f, 0.30f, 1f);
+            button.style.color = new Color(0.94f, 0.91f, 0.85f, 1f);
+            var edge = new Color(0.62f, 0.55f, 0.40f, 1f);
+            button.style.borderTopColor = edge;
+            button.style.borderBottomColor = edge;
+            button.style.borderLeftColor = edge;
+            button.style.borderRightColor = edge;
+        }
+
         private void OnContinueClicked()
         {
             HideResult();
             presenter.Advance();
             Refresh();
+            if (!presenter.IsComplete) Driven?.Invoke();
         }
 
         private void OnChoiceClicked(int optionIndex)
@@ -136,6 +177,7 @@ namespace CRPG.UI
             HideResult();
             presenter.ChooseOption(optionIndex);
             Refresh();
+            if (!presenter.IsComplete) Driven?.Invoke();
         }
 
         private void OnRollClicked()

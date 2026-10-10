@@ -43,6 +43,8 @@ namespace CRPG.UI
             var summaries = new List<OwnedItemSummary>();
             foreach (var item in partyInventory.ItemsInSharedInventory)
             {
+                if (item.DefinitionId == storeService.CurrencyItemId) continue;   // the party's money is not an item to sell (a 0-value coin would sell, and delete, every coin it has)
+
                 var name = rulesDatabase.TryResolve<ItemDefinition>(item.DefinitionId, out var definition) ? definition.DisplayName : item.DefinitionId.ToString();
                 var price = storeService.GetSellPrice(store, item.DefinitionId) * item.Quantity;
                 summaries.Add(new OwnedItemSummary(item.InstanceId, name, item.Quantity, price));

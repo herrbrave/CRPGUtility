@@ -25,8 +25,12 @@ namespace CRPG.UI
         /// conversation store hand-off -- StoreView previously had no way to close at all.</summary>
         public event Action Closed;
 
-        public void Initialize(StorePresenter storePresenter)
+        private bool plainStyle;
+
+        /// <param name="plainStyle">True shows a self-contained dark panel with light text (a game with no USS skin); false keeps the default look that a game's own skin paints over (Barrow's End).</param>
+        public void Initialize(StorePresenter storePresenter, bool plainStyle = false)
         {
+            this.plainStyle = plainStyle;
             presenter = storePresenter;
             document = GetComponent<UIDocument>();
             BuildLayout();
@@ -54,6 +58,11 @@ namespace CRPG.UI
             panel.AddToClassList("be-part--panel-wood");
             panel.style.backgroundColor = new Color(0.34f, 0.35f, 0.38f, 1f);
             panel.style.color = new Color(0.231f, 0.161f, 0.098f, 1f);
+            if (plainStyle)
+            {
+                panel.style.backgroundColor = new Color(0.10f, 0.11f, 0.14f, 0.94f);
+                panel.style.color = new Color(0.94f, 0.91f, 0.85f, 1f);
+            }
             panel.style.paddingLeft = panel.style.paddingRight = panel.style.paddingTop = panel.style.paddingBottom = 24;
             root.Add(panel);
             root = panel;
@@ -85,6 +94,7 @@ namespace CRPG.UI
             columns.Add(sellContainer);
 
             var leaveButton = new Button(Leave) { text = "Leave" };
+            StyleButton(leaveButton);
             leaveButton.style.marginTop = 24;
             leaveButton.style.width = 160;
             leaveButton.style.height = 32;
@@ -124,6 +134,19 @@ namespace CRPG.UI
             current = replacement;
         }
 
+        // The plain style's buttons: a dark fill with the panel's light text (the default button is light grey, on which inherited light text vanishes).
+        private void StyleButton(Button button)
+        {
+            if (!plainStyle) return;
+            button.style.backgroundColor = new Color(0.22f, 0.24f, 0.30f, 1f);
+            button.style.color = new Color(0.94f, 0.91f, 0.85f, 1f);
+            var edge = new Color(0.62f, 0.55f, 0.40f, 1f);
+            button.style.borderTopColor = edge;
+            button.style.borderBottomColor = edge;
+            button.style.borderLeftColor = edge;
+            button.style.borderRightColor = edge;
+        }
+
         private VisualElement BuildBuyRow(StoreListingSummary listing)
         {
             var row = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 6, alignItems = Align.Center } };
@@ -134,6 +157,7 @@ namespace CRPG.UI
             row.Add(label);
 
             var buyButton = new Button(() => OnBuyClicked(listing.ItemId)) { text = "Buy" };
+            StyleButton(buyButton);
             buyButton.SetEnabled(listing.IsUnlimited || listing.RemainingQuantity > 0);
             row.Add(buyButton);
 
@@ -149,6 +173,7 @@ namespace CRPG.UI
             row.Add(label);
 
             var sellButton = new Button(() => OnSellClicked(owned.InstanceId)) { text = "Sell" };
+            StyleButton(sellButton);
             row.Add(sellButton);
 
             return row;

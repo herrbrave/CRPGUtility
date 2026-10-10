@@ -80,6 +80,41 @@ namespace CRPG.Editor.Location
             serialized.ApplyModifiedProperties();
         }
 
+        // ---- spawn-point level: the dialogue THIS NPC says in THIS place (NpcSpawnPoint.Dialogue). It works at runtime with no registration step, which the NpcDefinition.DialogueId path needs.
+
+        /// <summary>The dialogue assigned to the spawn point itself, or null.</summary>
+        public static DialogueDefinition SpawnDialogue(SpawnRef spawn) => spawn.Point.Dialogue;
+
+        /// <summary>Stores the dialogue on the spawn point (null clears it), as one Undo step.</summary>
+        public static void AssignDialogue(SpawnRef spawn, DialogueDefinition dialogue)
+        {
+            var serialized = new SerializedObject(spawn.Location);
+            serialized.Update();
+            Undo.IncrementCurrentGroup();   // its own step, not folded into whatever edit came just before
+            Undo.SetCurrentGroupName("Assign dialogue");
+            serialized.FindProperty("spawnPoints").GetArrayElementAtIndex(spawn.Index).FindPropertyRelative("Dialogue").objectReferenceValue = dialogue;
+            serialized.ApplyModifiedProperties();
+        }
+
+        /// <summary>The spawn point's dialogue, creating a new empty <c>dlg-&lt;spawnId&gt;</c> asset beside the NPC asset (and assigning it to the spawn point) when it has none.</summary>
+        public static DialogueDefinition CreateDialogue(SpawnRef spawn)
+        {
+            if (spawn.Point.Dialogue != null) return spawn.Point.Dialogue;
+
+            var shortName = string.IsNullOrEmpty(spawn.Point.SpawnId) ? "npc" : spawn.Point.SpawnId;
+            var dialogue = NewDialogueAsset(spawn.Point.Definition, shortName);
+            AssignDialogue(spawn, dialogue);
+            return dialogue;
+        }
+
+        /// <summary>Opens the spawn point's dialogue in the dialogue graph window, creating it first when there is none.</summary>
+        public static void OpenDialogue(SpawnRef spawn)
+        {
+            var dialogue = CreateDialogue(spawn);
+            EditorGUIUtility.PingObject(dialogue);
+            DialogueGraphWindow.Open(dialogue);
+        }
+
         /// <summary>The NPC's dialogue, creating a new empty <c>dlg-&lt;npc&gt;</c> asset beside the NPC asset (and assigning it) when it has none. An NPC that already has one gets that one back.</summary>
         public static DialogueDefinition CreateDialogue(NpcDefinition npc)
         {
@@ -90,6 +125,15 @@ namespace CRPG.Editor.Location
             var shortName = raw.StartsWith(NpcPrefix) ? raw.Substring(NpcPrefix.Length) : raw;
             if (string.IsNullOrEmpty(shortName)) shortName = npc.name.ToLowerInvariant().Replace(' ', '-');
 
+            var created = NewDialogueAsset(npc, shortName);
+            AssignDialogue(npc, created);
+            return created;
+        }
+
+        // A new empty dialogue asset with a unique readable id (dlg-<shortName>, then -2, -3 ...), saved beside the NPC asset (or under Assets).
+        private static DialogueDefinition NewDialogueAsset(NpcDefinition npc, string shortName)
+        {
+
             var taken = new HashSet<string>(AssetDatabase.FindAssets("t:DialogueDefinition").Select(g => AssetDatabase.LoadAssetAtPath<DialogueDefinition>(AssetDatabase.GUIDToAssetPath(g))).Where(a => a != null).Select(a => a.Id.Value));
             var id = DialoguePrefix + shortName;
             for (var n = 2; taken.Contains(id); n++) id = $"{DialoguePrefix}{shortName}-{n}";
@@ -97,13 +141,12 @@ namespace CRPG.Editor.Location
             var dialogue = ScriptableObject.CreateInstance<DialogueDefinition>();
             var serialized = new SerializedObject(dialogue);
             serialized.FindProperty("id").stringValue = id;
-            serialized.FindProperty("displayName").stringValue = npc.DisplayName;
+            serialized.FindProperty("displayName").stringValue = npc != null ? npc.DisplayName : shortName;
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
-            var npcPath = AssetDatabase.GetAssetPath(npc);
+            var npcPath = npc != null ? AssetDatabase.GetAssetPath(npc) : null;
             var folder = string.IsNullOrEmpty(npcPath) ? "Assets" : Path.GetDirectoryName(npcPath).Replace('\\', '/');
             AssetDatabase.CreateAsset(dialogue, AssetDatabase.GenerateUniqueAssetPath($"{folder}/{id}.asset"));
-            AssignDialogue(npc, dialogue);
             AssetDatabase.SaveAssets();
             return dialogue;
         }

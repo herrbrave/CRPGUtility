@@ -56,6 +56,17 @@ namespace CRPG.Presentation.Animation
 
         public CharacterPresentationState PresentationState => presentationState;
 
+        /// <summary>Looks a cue up in the bound profile (false when there is no profile or no such cue), so a caller
+        /// can tell a looping pose from a one-shot and read its clip length before asking for it.</summary>
+        public bool TryGetCue(DefinitionId cueId, out AnimationCueClip entry)
+        {
+            entry = null;
+            return profile != null && profile.TryGetCue(cueId, out entry);
+        }
+
+        /// <summary>The bound profile's stance locomotion for a stance id (see CharacterAnimationProfile).</summary>
+        public bool HasStanceLocomotion(DefinitionId stanceId) => profile != null && profile.TryGetStanceLocomotion(stanceId, out _, out _);
+
         /// <summary>Whether BindPresentation has bound a live driver graph right now.</summary>
         public bool IsPresentationBound => driver.IsBound;
 

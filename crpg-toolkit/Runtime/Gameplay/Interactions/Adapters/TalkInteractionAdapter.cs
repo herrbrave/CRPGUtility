@@ -21,6 +21,21 @@ namespace CRPG.Gameplay.Interactions.Adapters
         [SerializeField] private DialogueDefinition dialogue;
         [SerializeField] private PanelSettings panelSettings;
 
+        /// <summary>The dialogue to run. The serialized field is the authoring path; this is for composition roots that attach the adapter in code (see NpcDialogues).</summary>
+        public DialogueDefinition Dialogue { get => dialogue; set => dialogue = value; }
+
+        /// <summary>The panel settings the conversation's UIDocument uses. Same dual role as <see cref="Dialogue"/>.</summary>
+        public PanelSettings PanelSettings { get => panelSettings; set => panelSettings = value; }
+
+        /// <summary>True shows the conversation in the self-contained dark panel (a game with no USS skin); false keeps the default look a skin paints over.</summary>
+        public bool PlainStyle { get; set; }
+
+        /// <summary>A conversation began: the performer who is talking. Fires before the first line is shown.</summary>
+        public event Action<RuntimeEntityId> ConversationStarted;
+
+        /// <summary>A conversation ended, however it ended (completed, cancelled by a superseding order or Escape, scene unload, or it failed to start). Never fires without a matching <see cref="ConversationStarted"/>.</summary>
+        public event Action<RuntimeEntityId> ConversationEnded;
+
         public PartyState Party { get; set; }
         public ICharacterRegistry Characters { get; set; }
         public IRulesDatabase RulesDatabase { get; set; }
@@ -60,27 +75,42 @@ namespace CRPG.Gameplay.Interactions.Adapters
 
         public IInteractionExecution BeginExecute(RuntimeEntityId performer, Action<InteractionExecutionResult> onFinished)
         {
-            conversationOpen = true;
-
             var context = new DialogueContext(performer, Party, Characters, RulesDatabase, Timeline, Inventory, DiceService, SkillCheckRule,
                 store: Store, currencyItemId: CurrencyItemId, restService: RestService, requestSave: RequestSave,
                 requestRecruit: RequestRecruit, requestStartQuest: RequestStartQuest);
-            var controller = new ConversationController(dialogue, context, panelSettings);
 
-            return new Execution(this, controller, onFinished);
+            // Open only once the controller really exists: a conversation that throws while starting (a bad start node, a view that cannot be built)
+            // must not leave this NPC permanently "in conversation". The controller releases its own modal scope on a failed start.
+            conversationOpen = true;
+            ConversationController controller;
+            try
+            {
+                ConversationStarted?.Invoke(performer);
+                controller = new ConversationController(dialogue, context, panelSettings, PlainStyle);
+            }
+            catch
+            {
+                conversationOpen = false;
+                ConversationEnded?.Invoke(performer);
+                throw;
+            }
+
+            return new Execution(this, controller, performer, onFinished);
         }
 
         private sealed class Execution : IInteractionExecution
         {
             private readonly TalkInteractionAdapter owner;
             private readonly ConversationController controller;
+            private readonly RuntimeEntityId performer;
             private readonly Action<InteractionExecutionResult> onFinished;
             private bool ended;
 
-            public Execution(TalkInteractionAdapter owner, ConversationController controller, Action<InteractionExecutionResult> onFinished)
+            public Execution(TalkInteractionAdapter owner, ConversationController controller, RuntimeEntityId performer, Action<InteractionExecutionResult> onFinished)
             {
                 this.owner = owner;
                 this.controller = controller;
+                this.performer = performer;
                 this.onFinished = onFinished;
                 controller.Completed += HandleCompleted;
             }
@@ -93,6 +123,7 @@ namespace CRPG.Gameplay.Interactions.Adapters
                 controller.Completed -= HandleCompleted;
                 owner.conversationOpen = false;
 
+                owner.ConversationEnded?.Invoke(performer);
                 onFinished(InteractionExecutionResult.Succeeded);
             }
 
@@ -104,6 +135,7 @@ namespace CRPG.Gameplay.Interactions.Adapters
                 controller.Completed -= HandleCompleted;
                 owner.conversationOpen = false;
                 controller.Cancel();
+                owner.ConversationEnded?.Invoke(performer);
 
                 // Deliberately does NOT invoke onFinished -- the controller already knows this request is
                 // ending (that's why Cancel was called) and isn't expecting a result from it anymore.

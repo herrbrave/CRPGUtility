@@ -70,6 +70,13 @@ namespace CRPG.Gameplay
         /// NpcDefinition asset reference.</summary>
         public bool TryGetFaction(RuntimeEntityId character, out DefinitionId factionId) => factionsByCharacter.TryGetValue(character, out factionId);
 
+        /// <summary>Changes the standing faction of a spawned character (a recruit leaves the villagers for the party's faction). An invalid id clears it.</summary>
+        public void SetFaction(RuntimeEntityId character, DefinitionId factionId)
+        {
+            if (factionId.IsValid) factionsByCharacter[character] = factionId;
+            else factionsByCharacter.Remove(character);
+        }
+
         public bool TryGetSpawnId(RuntimeEntityId character, out string spawnId)
         {
             foreach (var pair in recordsBySpawnId)

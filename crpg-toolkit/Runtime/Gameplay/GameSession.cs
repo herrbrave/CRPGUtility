@@ -55,6 +55,10 @@ namespace CRPG.Gameplay
         public IReadOnlyDictionary<string, StoreInventoryState> Stores => stores;
         public IReadOnlyDictionary<string, LootContainerState> LootContainers => lootContainers;
 
+        /// <summary>Who has asked which NPC to stop its ambient routine (an interaction approaching it, ...).
+        /// Per session, so a routine never needs to know about the system that suspends it.</summary>
+        public CRPG.Gameplay.Ambient.AmbientSuspension Ambient { get; } = new();
+
         public bool IsDisposed { get; private set; }
 
         /// <summary>Whether new player commands should currently be admitted. Real pause/turn-gating is a

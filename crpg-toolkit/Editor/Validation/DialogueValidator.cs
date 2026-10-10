@@ -19,14 +19,63 @@ namespace CRPG.Editor.Validation
             var results = new List<ValidationResult>();
             var assetPath = AssetDatabase.GetAssetPath(definition);
 
+            // A null entry in the node list (a node type that was renamed or deleted) would crash every check below: report it and stop.
+            for (var i = 0; i < definition.Nodes.Count; i++)
+            {
+                if (definition.Nodes[i] != null) continue;
+                results.Add(new ValidationResult(ValidationSeverity.Error, assetPath, $"Nodes[{i}]",
+                    $"Node {i} is missing (its node type no longer exists, or it was never assigned).",
+                    "Delete the empty node entry from the dialogue."));
+                return results;
+            }
+
             var nodesById = new Dictionary<SerializableGuid, DialogueNode>();
             ValidateNoDuplicateNodeIds(definition, assetPath, nodesById, results);
             ValidateStartNode(definition, assetPath, nodesById, results);
             ValidateNoDanglingReferences(definition, assetPath, nodesById, results);
             ValidateReachability(definition, assetPath, nodesById, results);
             ValidateNoInescapableAutoCycle(definition, assetPath, nodesById, results);
+            ValidateActionsAssigned(definition, assetPath, results);
 
             return results;
+        }
+
+        /// <summary>An ActionNode with no action would throw the moment the runner executes it.</summary>
+        private static void ValidateActionsAssigned(DialogueDefinition definition, string assetPath, List<ValidationResult> results)
+        {
+            foreach (var node in definition.Nodes)
+            {
+                if (node is ActionNode { Action: null } action)
+                {
+                    results.Add(new ValidationResult(ValidationSeverity.Error, assetPath, $"ActionNode '{action.NodeId}'.Action",
+                        "The action node has no action assigned.",
+                        "Assign an action, or remove the node and link its neighbours directly."));
+                }
+                else if (node is ActionNode { Action: StartQuestAction { QuestKey: null or "" } } quest)
+                {
+                    results.Add(new ValidationResult(ValidationSeverity.Error, assetPath, $"ActionNode '{quest.NodeId}'.Action",
+                        "The start-quest action has no quest key (nothing would start).",
+                        "Type the quest's id (the QuestDefinition's DefinitionId)."));
+                }
+                else if (node is ActionNode { Action: SpendItemAction { Item: null } } spend)
+                {
+                    results.Add(new ValidationResult(ValidationSeverity.Error, assetPath, $"ActionNode '{spend.NodeId}'.Action",
+                        "The spend-item action has no item assigned.",
+                        "Assign the item to spend (gold for an inn)."));
+                }
+                else if (node is BranchNode { Source: BranchSource.PartyItemCount, Item: null } branch)
+                {
+                    results.Add(new ValidationResult(ValidationSeverity.Error, assetPath, $"BranchNode '{branch.NodeId}'.Item",
+                        "The branch asks about an item the party carries but has no item assigned (it would always be false).",
+                        "Assign the item, or switch the branch back to a Timeline query."));
+                }
+                else if (node is ActionNode { Action: GiveItemAction { Item: null } } give)
+                {
+                    results.Add(new ValidationResult(ValidationSeverity.Error, assetPath, $"ActionNode '{give.NodeId}'.Action",
+                        "The give-item action has no item assigned (it would throw when the conversation reaches it).",
+                        "Assign the item to give."));
+                }
+            }
         }
 
         private static void ValidateNoDuplicateNodeIds(DialogueDefinition definition, string assetPath, Dictionary<SerializableGuid, DialogueNode> nodesById, List<ValidationResult> results)

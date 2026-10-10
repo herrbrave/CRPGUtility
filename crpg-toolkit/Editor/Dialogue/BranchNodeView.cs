@@ -6,6 +6,9 @@ namespace CRPG.Editor.Dialogue
     {
         public BranchNodeView(SerializedProperty nodeProperty, DialogueGraphView owner) : base(nodeProperty, "Branch", owner)
         {
+            AddField("source", "Asks");
+            AddField("item", "Item (PartyItemCount)");
+            AddField("quantity", "At least (PartyItemCount)");
             AddField("timelineKey", "Timeline Key");
             AddField("secondTimelineKey", "Second Key (OccurredBefore)");
             AddField("conditionType", "Condition");
