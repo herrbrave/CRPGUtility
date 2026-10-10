@@ -88,10 +88,25 @@ namespace CRPG.Gameplay.Combat
         /// death-save roll by whichever turn driver owns it) until it either stabilizes or genuinely dies.
         /// Only on a real CreatureDied does this tear the live agent down and drop the encounter's own turn
         /// slot for it.</summary>
-        private void OnCreatureDied(GameEventContext context)
+        private void OnCreatureDied(GameEventContext context) => Defeat(context.Target);
+
+        /// <summary>Takes a combatant out of the fight for good: the spawn is marked defeated (its agent is torn down, or handed to its defeat presentation) and the encounter drops its
+        /// turn slot. This is exactly what a real <see cref="GameEvent.CreatureDied"/> does -- exposed so a ruleset WITHOUT death (Fate's "Taken Out": the attacker narrates what happens
+        /// next) can end a combatant's part in the encounter without publishing CreatureDied. Idempotent; a no-op once this controller is disposed.</summary>
+        public void Defeat(RuntimeEntityId id)
         {
-            worldSpawnService.MarkDefeated(context.Target);
-            EncounterService.Encounter?.RemoveCombatant(context.Target);
+            if (disposed) return;
+            Defeat(worldSpawnService, EncounterService, id);
+        }
+
+        /// <summary>The same teardown for a caller that runs combat on a bare <see cref="CombatEncounterService"/> and never builds a controller (Fate's ConsumerGame does).</summary>
+        public static void Defeat(WorldSpawnService worldSpawnService, CombatEncounterService encounterService, RuntimeEntityId id)
+        {
+            if (worldSpawnService == null) throw new ArgumentNullException(nameof(worldSpawnService));
+            if (encounterService == null) throw new ArgumentNullException(nameof(encounterService));
+
+            worldSpawnService.MarkDefeated(id);
+            encounterService.Encounter?.RemoveCombatant(id);
         }
 
         public void Tick(float deltaTime) => Scheduler.Tick(deltaTime);

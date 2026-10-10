@@ -50,7 +50,7 @@ namespace BarrowsEnd.Gate
         [SerializeField] private int seed = 12345;
 
         private GameSessionHost host;
-        private GateCommandSource commandSource;
+        private PartyCommandFilter commandSource;
         private GridPathfindingService pathfinding;
         private SessionLoadCoordinator loadCoordinator;
         private readonly SessionConsumerRegistry consumers = new();
@@ -98,7 +98,7 @@ namespace BarrowsEnd.Gate
             if (session.Party.Members.Count > 0) session.Party.Select(session.Party.Members[0]);
 
             var interactionHost = GetComponentInChildren<InteractionControllerBehaviour>() ?? CreateInteractionHost();
-            commandSource = new GateCommandSource(inputSource, () => Services?.Session?.Party);
+            commandSource = new PartyCommandFilter(inputSource, () => Services?.Session?.Party);
             loadCoordinator = new SessionLoadCoordinator(gridPathfinding: pathfinding);
 
             Services = new GateSessionServices(commandSource, interactionHost, pathfinding);

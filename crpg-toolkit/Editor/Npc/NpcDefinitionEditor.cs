@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using CRPG.Actors;
 using UnityEditor;
@@ -20,6 +22,8 @@ namespace CRPG.Editor.Npc
         private ObjectField classField;
         private ObjectField backgroundField;
         private IntegerField templateLevelField;
+        private VisualElement extensionHost;
+        private readonly List<IDisposable> extensionDisposables = new();
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -33,10 +37,57 @@ namespace CRPG.Editor.Npc
             root.Add(Section("Features & Abilities", "featureIds", "abilityIds", "spellcastingStatId"));
             root.Add(Section("Equipment", "startingItemIds"));
             root.Add(Section("Appearance", "appearance"));
+
+            // a project's appearance creator (see INpcAppearanceEditor) goes right after the raw data; it follows the NPC's visual prefab, so it is rebuilt when that changes
+            extensionHost = new VisualElement { name = "appearance-extensions" };
+            root.Add(extensionHost);
+            RebuildAppearanceExtensions();
+            root.TrackPropertyValue(serializedObject.FindProperty("visualPrefab"), _ => RebuildAppearanceExtensions());
+
             root.Add(BuildTemplateSection());
 
             return root;
         }
+
+        /// <summary>Asks every <see cref="INpcAppearanceEditor"/> in the project whether it handles this NPC and (re)builds their elements. A faulty creator is logged and skipped, never fatal.</summary>
+        public void RebuildAppearanceExtensions()
+        {
+            ReleaseAppearanceExtensions();
+            extensionHost?.Clear();
+            if (extensionHost == null || target == null) return;
+
+            var npc = (NpcDefinition)target;
+            foreach (var type in TypeCache.GetTypesDerivedFrom<INpcAppearanceEditor>())
+            {
+                if (type.IsAbstract || type.IsInterface || type.GetConstructor(Type.EmptyTypes) == null) continue;
+                try
+                {
+                    var handler = (INpcAppearanceEditor)Activator.CreateInstance(type);
+                    if (!handler.Handles(npc)) continue;
+                    var element = handler.Create(serializedObject);
+                    if (element == null) continue;
+                    extensionHost.Add(element);
+                    if (element is IDisposable disposable) extensionDisposables.Add(disposable);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);   // one broken creator must not take the whole inspector down with it
+                }
+            }
+        }
+
+        private void ReleaseAppearanceExtensions()
+        {
+            foreach (var disposable in extensionDisposables)
+            {
+                try { disposable.Dispose(); }
+                catch (Exception ex) { Debug.LogException(ex); }
+            }
+
+            extensionDisposables.Clear();
+        }
+
+        private void OnDisable() => ReleaseAppearanceExtensions();
 
         private VisualElement Section(string title, params string[] propertyNames)
         {

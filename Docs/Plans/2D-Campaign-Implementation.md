@@ -1,8 +1,12 @@
-# CRPG 2D Campaign — Implementation Plan (DRAFT v2, post-Opus review)
+# CRPG 2D Campaign — Implementation Plan (v2, post-Opus review; Phases 0-6 complete, project paused as a proof of concept)
 
-> Status: pre-implementation planning only. Per the user's explicit instruction, no code work starts until
-> this plan is approved. This document does not authorize implementation, committing, or scene/asset
-> authoring yet.
+> **PROJECT STATUS (2026-10-03): PAUSED as a completed proof of concept.** Phases 0-6 are done and committed; the campaign is playable
+> title to ending (Act 1 Town, Act 2 caverns, Act 3 Deep Dark boss, epilogue). Phase 7 (the timed 30-60 minute playable pass) was not run.
+> The goal was to prove a 2D tile-and-sprite game works on the toolkit and to shake out bugs, and both were achieved. This document and the
+> per-phase docs are kept so the project can be resumed; start with the "Phase 6 close-out" at the end of
+> `2D-Campaign-Phase6-CampaignContent.md` (commits, decisions, known gaps, lessons, how to resume).
+>
+> _Original header (planning-era, kept for history):_ pre-implementation planning only; no code work was to start until the plan was approved.
 >
 > **v2 note:** v1 claimed "two seams, `IMovable`/`INavMeshService`, zero changes elsewhere" and got an Opus
 > review that didn't survive contact with the actual source — five direct NavMesh bypasses (two of which hard-
@@ -403,6 +407,8 @@ Covered by Task 4.1's layout above — listed here only for the asset/USS pass o
 
 ## Phase 6 — Campaign content & story
 
+**Status: DONE (2026-10-03).** See `2D-Campaign-Phase6-CampaignContent.md` and its close-out.
+
 Requires Task 0.2's NavMesh-bypass decision to be resolved or scoped around before any multi-map travel, door,
 or save/load-reposition content is built. Once the story is ready: dialogue trees, quests, encounter placement,
 map layout, save points — built as consumer-local bootstraps/content-authoring scripts in the new sibling
@@ -410,6 +416,8 @@ project, the same way Oakhaven/ConsumerGame were. Scoped into its own tasks once
 known.
 
 ## Phase 7 — Gate: 30-60 minute playable pass
+
+**Status: NOT RUN (project paused as a finished proof of concept).** Recommended first step if resumed: a scripted title-to-ending smoke test, then the timed human pass.
 
 Live human review checkpoint: full playthrough start to finish, confirm movement/combat/dialogue/quests/saves
 all work in the 2D presentation (including whatever Task 0.2 scoped in or out), confirm the re-skinned HUD

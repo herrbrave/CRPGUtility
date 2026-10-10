@@ -1,12 +1,13 @@
 using System;
 using CRPG.Actors;
 using CRPG.Core;
-using UnityEngine;
+using CRPG.Presentation;
 
 namespace CRPG.Presentation.Sprites
 {
     /// <summary>
-    /// Maps the game event bus onto a <see cref="SpriteCueState"/> for one character. Pure C# (no MonoBehaviour), so it is testable against
+    /// Maps the game event bus onto a <see cref="SpriteCueState"/> for one character: <see cref="CombatCueEventBinding"/> (which holds every rule, documented there)
+    /// with the sprite cue state's methods as the callbacks. Pure C# (no MonoBehaviour), so it is testable against
     /// the REAL damage and death-save machinery. Everything filters on <c>context.Target == character</c>:
     /// <list type="bullet">
     /// <item><c>AfterDamage</c> -> hit (it fires for zero-damage hits too -- the event carries no amount);</item>
@@ -25,79 +26,18 @@ namespace CRPG.Presentation.Sprites
     /// </summary>
     public sealed class SpriteCueEventBinding : IDisposable
     {
-        private readonly RuntimeEntityId character;
-        private readonly IGameEventBus bus;
-        private readonly ICharacterRegistry characters;
-        private readonly DefinitionId hitPointResourceId;
-        private readonly SpriteCueState state;
-        private bool disposed;
+        private readonly CombatCueEventBinding inner;
 
         public SpriteCueEventBinding(RuntimeEntityId character, IGameEventBus bus, ICharacterRegistry characters, DefinitionId hitPointResourceId, SpriteCueState state)
         {
-            this.character = character;
-            this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-            this.characters = characters;
-            this.hitPointResourceId = hitPointResourceId;
-            this.state = state ?? throw new ArgumentNullException(nameof(state));
-
-            bus.Subscribe(GameEvent.AfterDamage, OnAfterDamage);
-            bus.Subscribe(GameEvent.CreatureDroppedToZeroHP, OnDroppedToZero);
-            bus.Subscribe(GameEvent.CreatureDied, OnDied);
-            bus.Subscribe(GameEvent.CreatureStabilized, OnPossiblyRecovered);
-            bus.Subscribe(GameEvent.ConditionRemoved, OnPossiblyRecovered);
+            if (state == null) throw new ArgumentNullException(nameof(state));
+            inner = new CombatCueEventBinding(character, bus, characters, hitPointResourceId, state.PlayHit, state.Down, state.Die, state.Recover);
         }
 
-        public void Dispose()
-        {
-            if (disposed) return;
-            disposed = true;
-            bus.Unsubscribe(GameEvent.AfterDamage, OnAfterDamage);
-            bus.Unsubscribe(GameEvent.CreatureDroppedToZeroHP, OnDroppedToZero);
-            bus.Unsubscribe(GameEvent.CreatureDied, OnDied);
-            bus.Unsubscribe(GameEvent.CreatureStabilized, OnPossiblyRecovered);
-            bus.Unsubscribe(GameEvent.ConditionRemoved, OnPossiblyRecovered);
-        }
+        public void Dispose() => inner.Dispose();
 
-        /// <summary>Whether a character should APPEAR down at the moment its view binds (a save restored while unconscious): it has
-        /// death-save state, or -- with a configured hit-point id -- 0 HP (three successful saves leave DeathSaves null, HP 0 and the
-        /// Unconscious condition applied, so death-save state alone would miss it).</summary>
-        public static bool IsDownAtBind(RuntimeEntityId character, ICharacterRegistry characters, DefinitionId hitPointResourceId)
-        {
-            if (characters == null || !characters.TryGetCharacter(character, out var state)) return false;
-            if (state.DeathSaves != null) return true;
-            return hitPointResourceId.IsValid && state.TryGetResource(hitPointResourceId, out var hp) && hp.Current <= 0;
-        }
-
-        private void OnAfterDamage(GameEventContext context) => Handle(context, () => state.PlayHit());
-        private void OnDroppedToZero(GameEventContext context) => Handle(context, () => state.Down());
-        private void OnDied(GameEventContext context) => Handle(context, () => state.Die());
-
-        private void OnPossiblyRecovered(GameEventContext context) => Handle(context, () =>
-        {
-            if (HasHitPointsAboveZero()) state.Recover();
-        });
-
-        private void Handle(GameEventContext context, Action action)
-        {
-            if (disposed || context.Target != character) return;
-
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                // Never let a presentation subscriber fault gameplay; and never touch a UnityEngine.Object member from here.
-                Debug.LogException(ex);
-            }
-        }
-
-        private bool HasHitPointsAboveZero()
-        {
-            if (!hitPointResourceId.IsValid || characters == null) return false;
-            return characters.TryGetCharacter(character, out var characterState)
-                   && characterState.TryGetResource(hitPointResourceId, out var hp)
-                   && hp.Current > 0;
-        }
+        /// <summary>See <see cref="CombatCueEventBinding.IsDownAtBind"/>.</summary>
+        public static bool IsDownAtBind(RuntimeEntityId character, ICharacterRegistry characters, DefinitionId hitPointResourceId) =>
+            CombatCueEventBinding.IsDownAtBind(character, characters, hitPointResourceId);
     }
 }

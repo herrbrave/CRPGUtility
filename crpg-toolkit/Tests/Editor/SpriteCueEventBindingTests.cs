@@ -81,6 +81,12 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void ANullCueStateIsRejectedAtConstruction()
+        {
+            Assert.Throws<System.ArgumentNullException>(() => new SpriteCueEventBinding(id, eventBus, registry, HitPoints, null));
+        }
+
+        [Test]
         public void AfterDamageOnTheCharacterFlashes()
         {
             Publish(GameEvent.AfterDamage, id);

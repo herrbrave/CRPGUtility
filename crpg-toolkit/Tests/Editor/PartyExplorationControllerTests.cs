@@ -127,6 +127,96 @@ namespace CRPG.Tests.EditMode
             Assert.IsNotNull(standingMotor.LastDestination, "the others still go");
         }
 
+        private sealed class RecordingSolver : IFormationSolver
+        {
+            public readonly List<Vector3> Facings = new();
+
+            public IReadOnlyList<Vector3> Solve(Vector3 destination, Vector3 facing, int memberCount, float spacing)
+            {
+                Facings.Add(facing);
+                var points = new List<Vector3>();
+                for (var i = 0; i < memberCount; i++) points.Add(destination + Vector3.right * i);
+                return points;
+            }
+        }
+
+        private static (PartyExplorationController Controller, FakeCommandSource Source, RecordingSolver Solver, FakeSelectableSource Positions) CreateDeriving(
+            PartyState party, Func<RuntimeEntityId, bool> canMove = null, bool derive = true)
+        {
+            var commandSource = new FakeCommandSource();
+            var positions = new FakeSelectableSource();
+            var solver = new RecordingSolver();
+            var controller = new PartyExplorationController(party, new PartyMovementService(new FakeNavMeshService(), positions), solver, commandSource,
+                canMove: canMove, facingSource: derive ? positions : null);
+            foreach (var member in party.Members) controller.RegisterMotor(member, new FakeMovable());
+            return (controller, commandSource, solver, positions);
+        }
+
+        [Test]
+        public void WithAFacingSourceAPartySentWestIsOrderedToFaceWestNotWorldForward()
+        {
+            var a = RuntimeEntityId.NewId();
+            var b = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { a, b });
+            var (controller, source, solver, positions) = CreateDeriving(party);
+            positions.Add(a, new Vector3(10f, 0f, 1f));
+            positions.Add(b, new Vector3(10f, 0f, -1f));
+
+            source.RaiseMove(new MoveCommand(new Vector3(0f, 0f, 0f), Vector3.forward));
+
+            Assert.AreEqual(1, solver.Facings.Count);
+            Assert.Less(Vector3.Distance(solver.Facings[0], Vector3.left), 0.001f, "from the party centre (10,0,0) to (0,0,0) is west");
+            Assert.AreEqual(solver.Facings[0], controller.LastOrderFacing);
+        }
+
+        [Test]
+        public void TheCentreIsTheOrderedMembersOnlyNotUnselectedOnesOrOnesTheCanMoveFilterDrops()
+        {
+            var a = RuntimeEntityId.NewId();
+            var unselected = RuntimeEntityId.NewId();
+            var fallen = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { a, unselected, fallen });
+            party.SelectMany(new[] { a, fallen });
+            var (_, source, solver, positions) = CreateDeriving(party, canMove: id => id != fallen);
+            positions.Add(a, Vector3.zero);
+            positions.Add(unselected, new Vector3(500f, 0f, 0f));
+            positions.Add(fallen, new Vector3(100f, 0f, 0f));   // asymmetric on purpose: an average over everyone would be (200, 0, 0) and point nowhere near +Z
+
+            source.RaiseMove(new MoveCommand(new Vector3(0f, 0f, 10f), Vector3.right));
+
+            Assert.Less(Vector3.Distance(solver.Facings[0], Vector3.forward), 0.001f, "only the one ordered member counts: straight along +Z");
+        }
+
+        [Test]
+        public void AnOrderTooShortToHaveADirectionKeepsTheCommandFacingAndTheLastDerivedOne()
+        {
+            var a = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { a });
+            var (controller, source, solver, positions) = CreateDeriving(party);
+            positions.Add(a, Vector3.zero);
+            source.RaiseMove(new MoveCommand(new Vector3(0f, 0f, 5f), Vector3.right));
+            var derived = controller.LastOrderFacing;
+
+            source.RaiseMove(new MoveCommand(new Vector3(0.02f, 0f, 0.02f), Vector3.right));   // a click on the party's own feet
+
+            Assert.AreEqual(Vector3.right, solver.Facings[1], "no direction to derive: the command's own facing is used");
+            Assert.AreEqual(derived, controller.LastOrderFacing, "LastOrderFacing only ever records a derived direction, so a stopped party does not snap to world forward");
+        }
+
+        [Test]
+        public void WithoutAFacingSourceTheCommandFacingPassesThroughUnchangedAndLastOrderFacingStaysZero()
+        {
+            var a = RuntimeEntityId.NewId();
+            var party = new PartyState(new[] { a });
+            var (controller, source, solver, positions) = CreateDeriving(party, derive: false);
+            positions.Add(a, new Vector3(10f, 0f, 0f));
+
+            source.RaiseMove(new MoveCommand(Vector3.zero, Vector3.forward));
+
+            Assert.AreEqual(Vector3.forward, solver.Facings[0]);
+            Assert.AreEqual(Vector3.zero, controller.LastOrderFacing);
+        }
+
         [Test]
         public void SelectCommandReplaceWithOneCharacterNarrowsSelection()
         {

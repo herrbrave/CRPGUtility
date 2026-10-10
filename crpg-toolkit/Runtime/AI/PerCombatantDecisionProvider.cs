@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using CRPG.Core;
-using CRPG.AI;
 
-namespace BarrowsEnd.Gate
+namespace CRPG.AI
 {
-    /// <summary>Routes each hostile's turn decision to the utility brain of ITS OWN behavior set, so one encounter
-    /// can mix enemy types (a melee grunt that closes in and an archer that keeps its distance) under one
-    /// <see cref="CRPG.Gameplay.Combat.TacticalAiTurnDriver"/>. Providers are built lazily, one per distinct set.</summary>
+    /// <summary>
+    /// Routes each combatant's turn decision to the decision provider of ITS OWN <see cref="BehaviorSetDefinition"/>, so one encounter can mix enemy types (grunts, archers, a shaman, a
+    /// boss) under the single <c>TacticalAiTurnDriver</c> the encounter has. Providers are built lazily, once per distinct behaviour set, by <c>createProvider</c> (typically a
+    /// <see cref="UtilityAIDecisionProvider"/>, optionally wrapped). A combatant with no behaviour set (the callback returns null) gets no decision.
+    /// </summary>
     public sealed class PerCombatantDecisionProvider : ITurnDecisionProvider
     {
         private readonly Func<RuntimeEntityId, BehaviorSetDefinition> brainFor;

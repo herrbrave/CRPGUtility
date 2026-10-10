@@ -57,6 +57,10 @@ namespace CRPG.Core
         ItemEquipped,
         ItemUnequipped,
 
-        AnimationCueChanged
+        AnimationCueChanged,
+
+        /// <summary>A heal restored hit points to its target (<c>HealEffect</c>). <c>Data["Amount"]</c> is the amount ACTUALLY restored (an int, capped at the target's maximum),
+        /// so a subscriber can tell whether the target was at 0 before it (current minus amount). Appended last: nothing serialises or switches on the enum's values.</summary>
+        AfterHeal
     }
 }

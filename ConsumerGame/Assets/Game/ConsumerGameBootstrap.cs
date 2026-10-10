@@ -276,6 +276,7 @@ namespace CRPG.Consumer.Game
             }
 
             worldSpawnService = result.WorldSpawnService;
+            conflictService.Rebind(worldSpawnService);
             hud.SetStatus("Loaded.");
         }
     }

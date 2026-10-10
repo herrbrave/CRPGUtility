@@ -69,6 +69,40 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void PublishesAfterHealWithTheAmountActuallyRestoredAfterTheCombatLogEntry()
+        {
+            var (registry, source, target) = SetUpTarget();   // 5 / 20
+            var random = new TestRandomSource();
+            random.EnqueueResults(8, 8);
+            var bus = new GameEventBus();
+            var log = new CombatLog();
+            var seen = new System.Collections.Generic.List<GameEventContext>();
+            var logCountWhenPublished = -1;
+            bus.Subscribe(GameEvent.AfterHeal, ctx => { seen.Add(ctx); logCountWhenPublished = log.Entries.Count; });
+            var effect = CreateEffect(1, 8, 0);
+
+            effect.Apply(new AbilityExecutionContext(source, new[] { target }, registry, new DiceService(random), log, bus));   // 5 -> 13
+            effect.Apply(new AbilityExecutionContext(source, new[] { target }, registry, new DiceService(random), log, bus));   // 13 -> 20 (only 7 of the 8 fit)
+
+            Assert.AreEqual(2, seen.Count);
+            Assert.AreEqual(target, seen[0].Target);
+            Assert.AreEqual(source, seen[0].Source);
+            Assert.AreEqual(8, seen[0].Data["Amount"]);
+            Assert.AreEqual(7, seen[1].Data["Amount"], "the amount actually restored, not the roll");
+            Assert.AreEqual(2, logCountWhenPublished, "published after the roll was logged, so the log is complete whatever a subscriber does");
+        }
+
+        [Test]
+        public void HealingWithNoEventBusStillWorks()
+        {
+            var (registry, source, target) = SetUpTarget();
+            var random = new TestRandomSource();
+            random.EnqueueResult(3);
+
+            Assert.DoesNotThrow(() => CreateEffect(1, 8, 0).Apply(new AbilityExecutionContext(source, new[] { target }, registry, new DiceService(random), new CombatLog())));
+        }
+
+        [Test]
         public void RestoreNeverExceedsMax()
         {
             var (registry, source, target) = SetUpTarget();

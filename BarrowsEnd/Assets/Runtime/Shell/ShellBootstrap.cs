@@ -81,7 +81,7 @@ namespace BarrowsEnd.Shell
         private WorldTransitionGate transitionGate;
         private SceneTravelRunner runner;
         private SessionLoadCoordinator loadCoordinator;
-        private GateCommandSource commandSource;
+        private PartyCommandFilter commandSource;
         private CreatorResult protagonist;
         private bool continueRequested;
 
@@ -239,7 +239,7 @@ namespace BarrowsEnd.Shell
             SpawnParty(session, spawner, coreScene, effectiveMembers);
 
             var interactionHost = GetComponentInChildren<InteractionControllerBehaviour>() ?? NewInteractionHost();
-            commandSource = new GateCommandSource(inputSource, () => Services?.Session?.Party);
+            commandSource = new PartyCommandFilter(inputSource, () => Services?.Session?.Party);
             Services = new GateSessionServices(commandSource, interactionHost, pathfinding) { PartyCanDie = false };
             Services.Rebind(session, spawner);
 

@@ -42,6 +42,151 @@ namespace CRPG.Tests.EditMode
             return effect;
         }
 
+        private static HealEffect CreateHealEffect(int count, int sides, int modifier)
+        {
+            var effect = new HealEffect();
+            var hp = TestDefinitionFactory.CreateResourceDefinition("resource-hp", "Hit Points");
+            TestDefinitionFactory.SetPrivateField(effect, "hitPointResource", hp);
+            TestDefinitionFactory.SetPrivateField(effect, "amount", new DiceExpression(count, sides, modifier));
+            return effect;
+        }
+
+        private DeathSaveService CreateReviving(System.Func<RuntimeEntityId, bool> usesDeathSaves = null) =>
+            new(registry, new DiceService(new TestRandomSource()), eventBus, HitPoints, Unconscious, combatLog, usesDeathSaves: usesDeathSaves, reviveOnHeal: true);
+
+        private void Heal(int rolled)
+        {
+            var random = new TestRandomSource();
+            random.EnqueueResult(rolled);
+            CreateHealEffect(1, 20, 0).Apply(new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(random), combatLog, eventBus));
+        }
+
+        private void GoDown(bool dying)
+        {
+            character.TryGetResource(HitPoints, out var hp);
+            hp.Current = 0;
+            character.DeathSaves = dying ? new DeathSaveState() : null;   // null + Unconscious + 0 HP = stable
+            character.ApplyCondition(new ConditionInstance(Unconscious, RuntimeEntityId.None, characterId));
+        }
+
+        [Test]
+        public void AHealOnADyingCharacterEndsTheDeathSavesAndWakesThemAtTheHealedAmountNotOneHitPoint()
+        {
+            CreateReviving();
+            GoDown(dying: true);
+            var stabilized = 0;
+            eventBus.Subscribe(GameEvent.CreatureStabilized, _ => stabilized++);
+
+            Heal(rolled: 6);
+
+            Assert.IsNull(character.DeathSaves);
+            Assert.IsFalse(character.HasCondition(Unconscious));
+            character.TryGetResource(HitPoints, out var hp);
+            Assert.AreEqual(6, hp.Current, "the heal's own amount: reviving must not set hit points");
+            Assert.AreEqual(1, stabilized, "the recovered cue (CreatureStabilized with HP above 0) fires exactly once");
+        }
+
+        [Test]
+        public void AHealOnACharacterStableAtZeroWakesThemToo()
+        {
+            CreateReviving();
+            GoDown(dying: false);   // three successes: DeathSaves cleared, still 0 HP and Unconscious
+            var stabilized = 0;
+            eventBus.Subscribe(GameEvent.CreatureStabilized, _ => stabilized++);
+
+            Heal(rolled: 3);
+
+            Assert.IsFalse(character.HasCondition(Unconscious));
+            Assert.AreEqual(1, stabilized);
+        }
+
+        [Test]
+        public void EveryUnconsciousInstanceIsRemovedNotJustTheFirst()
+        {
+            CreateReviving();
+            GoDown(dying: true);
+            character.ApplyCondition(new ConditionInstance(Unconscious, RuntimeEntityId.None, characterId));
+
+            Heal(rolled: 4);
+
+            Assert.IsFalse(character.HasCondition(Unconscious));
+        }
+
+        [Test]
+        public void ARollOfZeroLeavesTheCharacterDownBecauseNobodyIsAboveZeroHitPoints()
+        {
+            CreateReviving();
+            GoDown(dying: true);
+            var random = new TestRandomSource();
+            random.EnqueueResult(1);
+            var stabilized = 0;
+            eventBus.Subscribe(GameEvent.CreatureStabilized, _ => stabilized++);
+
+            CreateHealEffect(1, 4, -1).Apply(new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(random), combatLog, eventBus));
+
+            Assert.IsNotNull(character.DeathSaves);
+            Assert.IsTrue(character.HasCondition(Unconscious));
+            Assert.AreEqual(0, stabilized);
+        }
+
+        [Test]
+        public void AHealthyCharacterAsleepForAnotherReasonIsNotWokenByAHeal()
+        {
+            CreateReviving();
+            character.TryGetResource(HitPoints, out var hp);
+            hp.Current = 10;
+            character.ApplyCondition(new ConditionInstance(Unconscious, RuntimeEntityId.None, characterId));   // a Sleep-style effect: HP above 0, no death saves
+            var stabilized = 0;
+            eventBus.Subscribe(GameEvent.CreatureStabilized, _ => stabilized++);
+
+            Heal(rolled: 4);
+
+            Assert.IsTrue(character.HasCondition(Unconscious), "only a character who was at 0 HP is revived by a heal");
+            Assert.AreEqual(0, stabilized);
+        }
+
+        [Test]
+        public void ReviveOnHealIsOffByDefault()
+        {
+            CreateService(new TestRandomSource());   // the original constructor shape: no reviveOnHeal
+            GoDown(dying: true);
+
+            Heal(rolled: 6);
+
+            Assert.IsNotNull(character.DeathSaves, "opt-in: existing consumers see no change");
+            Assert.IsTrue(character.HasCondition(Unconscious));
+        }
+
+        [Test]
+        public void ACharacterWhoDoesNotUseDeathSavesIsUntouchedByTheReviveHandler()
+        {
+            CreateReviving(usesDeathSaves: id => id != characterId);
+            character.TryGetResource(HitPoints, out var hp);
+            hp.Current = 0;
+            character.ApplyCondition(new ConditionInstance(Unconscious, RuntimeEntityId.None, characterId));
+
+            Heal(rolled: 5);
+
+            Assert.IsTrue(character.HasCondition(Unconscious));
+        }
+
+        [Test]
+        public void ARealLethalHitFollowedByARealHealRoundTripsBackToStanding()
+        {
+            CreateReviving();
+            var damageRandom = new TestRandomSource();
+            damageRandom.EnqueueResult(20);
+            CreateDamageEffect(1, 20, 0).Apply(new AbilityExecutionContext(RuntimeEntityId.NewId(), new[] { characterId }, registry, new DiceService(damageRandom), combatLog, eventBus));
+            Assert.IsNotNull(character.DeathSaves, "dropped and dying");
+
+            Heal(rolled: 9);
+
+            Assert.IsNull(character.DeathSaves);
+            Assert.IsFalse(character.HasCondition(Unconscious));
+            character.TryGetResource(HitPoints, out var hp);
+            Assert.AreEqual(9, hp.Current);
+        }
+
         [Test]
         public void DroppingToZeroStartsDeathSavesInsteadOfInstantRemoval()
         {

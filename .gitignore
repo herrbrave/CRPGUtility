@@ -61,6 +61,10 @@ TestProject/*.csproj
 # Throwaway scratch Unity projects (e.g. the Task 5.3 clean-install verification harness)
 /_scratch/
 
+# Blender auto-save-previous-version backups
+*.blend1
+*.blend2
+
 # One-off root-level scratch/debug output from live verification sessions
 /build_result*.txt
 /console_*.txt
@@ -70,3 +74,31 @@ TestProject/*.csproj
 /shot*_response.txt
 /names.txt
 /statuses.txt
+
+# Viking Raid (3D quick game): Unity generated + paid Synty art (licence forbids redistribution; reimport via Viking Raid/0. Import Synty Packages)
+VikingRaid/Library/
+VikingRaid/Temp/
+VikingRaid/Obj/
+VikingRaid/Build/
+VikingRaid/Builds/
+VikingRaid/Logs/
+VikingRaid/UserSettings/
+VikingRaid/.vs/
+VikingRaid/*.sln
+VikingRaid/*.slnx
+VikingRaid/*.csproj
+VikingRaid/Assets/Synty/
+VikingRaid/Assets/Synty.meta
+# meshes derived from the Synty Sidekick humans (Blender outfits, the human master prefab): never commit or redistribute
+VikingRaid/Assets/Appearance/SidekickHumans/
+VikingRaid/Assets/Appearance/SidekickHumans.meta
+VikingRaid/Assets/Resources/Synty*
+/thirdpartyassets/
+VikingRaid_Logs/
+
+# Python bytecode, Blender scratch renders, BE batch-run logs, AI-generated source meshes (licence not reviewed)
+__pycache__/
+*.pyc
+Blender/**/renders/_*.png
+BarrowsEnd_Logs/
+Blender/Characters/Goblin1/generated/

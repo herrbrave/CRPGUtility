@@ -22,7 +22,12 @@ namespace CRPG.AI
         private readonly IRandomSource randomSource;
         private readonly ConsiderationInputRegistry inputRegistry;
         private readonly ICombatLog combatLog;
+        private readonly float scoreFloor;
 
+        /// <param name="scoreFloor">A candidate must score STRICTLY ABOVE this to be considered. The default (negative infinity) keeps the
+        /// original behaviour: the best candidate is returned even when it scores 0, so a behaviour authored with no considerations (which scores 0)
+        /// still acts. Pass 0 to treat a zero score as a veto ("the target is already down"): when nothing legal scores above it the provider returns null
+        /// (no decision) instead of, say, attacking a downed target because it was the only legal one left.</param>
         public UtilityAIDecisionProvider(
             BehaviorSetDefinition behaviorSet,
             IRulesDatabase rulesDatabase,
@@ -31,8 +36,10 @@ namespace CRPG.AI
             IPositionProvider positions,
             IRandomSource randomSource,
             ConsiderationInputRegistry inputRegistry = null,
-            ICombatLog combatLog = null)
+            ICombatLog combatLog = null,
+            float scoreFloor = float.NegativeInfinity)
         {
+            this.scoreFloor = scoreFloor;
             this.behaviorSet = behaviorSet;
             this.rulesDatabase = rulesDatabase;
             this.characters = characters;
@@ -75,7 +82,7 @@ namespace CRPG.AI
                     var score = ScoreCandidate(behavior, context, target);
                     trace.Add(new UtilityDecisionTraceEntry(behavior.DisplayName, target, score));
 
-                    if (score > bestScore)
+                    if (score > scoreFloor && score > bestScore)
                     {
                         bestScore = score;
                         bestBehaviorName = behavior.DisplayName;
@@ -111,7 +118,7 @@ namespace CRPG.AI
                 var score = ScoreCandidate(behavior, context, target);
                 trace.Add(new UtilityDecisionTraceEntry(behavior.DisplayName, target, score));
 
-                if (score > bestScore)
+                if (score > scoreFloor && score > bestScore)
                 {
                     bestScore = score;
                     bestBehaviorName = behavior.DisplayName;

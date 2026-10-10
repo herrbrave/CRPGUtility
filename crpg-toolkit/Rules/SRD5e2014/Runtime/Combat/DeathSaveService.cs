@@ -23,6 +23,11 @@ namespace CRPG.Rules.SRD5
         private readonly Func<RuntimeEntityId, bool> usesDeathSaves;
         private readonly Func<RuntimeEntityId, bool> canDie;
 
+        /// <param name="reviveOnHeal">False (the default) leaves the original behaviour: a heal restores hit points and nothing else, so a dying or unconscious
+        /// character stays down until something else clears it. True subscribes to <see cref="GameEvent.AfterHeal"/>: a heal that brings a character from 0 hit points
+        /// above 0 ends its death saves, removes every Unconscious condition and publishes <see cref="GameEvent.CreatureStabilized"/> (the "recovered" cue the sprite and
+        /// model bindings already listen to). SRD5.1: any healing at 0 hit points ends dying. Only characters at 0 before the heal are revived, so a healthy creature
+        /// that is unconscious for another reason (a sleep effect) is not woken; and only characters that <paramref name="usesDeathSaves"/> covers.</param>
         /// <param name="canDie">Null (the default) means everyone who fails three death saves, or takes lethal overkill, dies -- the
         /// SRD behavior. When supplied, a character it returns false for NEVER dies: failures stop at two and lethal overkill leaves them
         /// downed instead, until something stabilises them (a won fight, a natural 20, three successes).</param>
@@ -41,7 +46,8 @@ namespace CRPG.Rules.SRD5
             DefinitionId unconsciousConditionId = default,
             ICombatLog combatLog = null,
             Func<RuntimeEntityId, bool> usesDeathSaves = null,
-            Func<RuntimeEntityId, bool> canDie = null)
+            Func<RuntimeEntityId, bool> canDie = null,
+            bool reviveOnHeal = false)
         {
             this.canDie = canDie;
             this.characters = characters;
@@ -54,6 +60,7 @@ namespace CRPG.Rules.SRD5
 
             eventBus.Subscribe(GameEvent.BeforeDamage, OnBeforeDamage);
             eventBus.Subscribe(GameEvent.CreatureDroppedToZeroHP, OnCreatureDroppedToZeroHP);
+            if (reviveOnHeal) eventBus.Subscribe(GameEvent.AfterHeal, OnAfterHeal);
         }
 
         /// <summary>Call once at the start of a dying character's turn. A flat 1d20, no modifiers or
@@ -94,6 +101,23 @@ namespace CRPG.Rules.SRD5
             if (character.TryGetResource(hitPointResourceId, out var hp)) hp.Restore(1);
             RemoveUnconsciousCondition(character);
             eventBus.Publish(new GameEventContext(GameEvent.CreatureStabilized, characterId, characterId));
+        }
+
+        private void OnAfterHeal(GameEventContext context)
+        {
+            if (!characters.TryGetCharacter(context.Target, out var character)) return;
+            if (usesDeathSaves != null && !usesDeathSaves(context.Target)) return;
+            if (!character.TryGetResource(hitPointResourceId, out var hp) || hp.Current <= 0) return;
+
+            var restored = context.Data.TryGetValue("Amount", out var amount) && amount is int restoredAmount ? restoredAmount : 0;
+            var wasAtZero = hp.Current - restored <= 0;
+            var dying = character.DeathSaves != null;
+            var stableAtZero = wasAtZero && unconsciousConditionId.IsValid && character.HasCondition(unconsciousConditionId);
+            if (!dying && !stableAtZero) return;
+
+            character.DeathSaves = null;
+            if (unconsciousConditionId.IsValid) character.RemoveConditions(c => c.ConditionId == unconsciousConditionId);
+            eventBus.Publish(new GameEventContext(GameEvent.CreatureStabilized, context.Source, context.Target));
         }
 
         private void OnBeforeDamage(GameEventContext context)

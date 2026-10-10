@@ -49,6 +49,99 @@ namespace CRPG.Tests.EditMode
             return new UtilityAIDecisionProvider(behaviorSet, rulesDatabase, characters, abilityResolution, positions, new SeededRandomSource(1));
         }
 
+        private UtilityAIDecisionProvider CreateProvider(BehaviorSetDefinition behaviorSet, float scoreFloor)
+        {
+            var abilityResolution = new AbilityResolutionService(characters, new DiceService(new SeededRandomSource(1)));
+            return new UtilityAIDecisionProvider(behaviorSet, rulesDatabase, characters, abilityResolution, positions, new SeededRandomSource(1), scoreFloor: scoreFloor);
+        }
+
+        /// <summary>One legal attack on a target the consideration scores 0 for (the "target is already down" veto), as a behaviour set.</summary>
+        private (BehaviorSetDefinition Set, RuntimeEntityId Target) VetoedAttackSet()
+        {
+            var ability = TestDefinitionFactory.CreateAbilityDefinition("ability-attack", "Attack", TargetRelation.Enemy, range: 100f);
+            rulesDatabase.Register(ability);
+            var veto = TestDefinitionFactory.CreateConsideration("TargetResourcePercent:resource-hp", AnimationCurve.Linear(0f, 0f, 1f, 1f)); // 0% HP -> 0
+            var behavior = TestDefinitionFactory.CreateBehaviorDefinition("behavior-attack", "Attack", ability.Id, veto);
+            rulesDatabase.Register(behavior);
+            var set = TestDefinitionFactory.CreateBehaviorSetDefinition("behaviorset-goblin", "Goblin", behavior.Id);
+            rulesDatabase.Register(set);
+            return (set, CreateTarget(currentHp: 0, maxHp: 20, new Vector3(1f, 0f, 0f)));
+        }
+
+        [Test]
+        public void ByDefaultAZeroScoredDecisionIsStillReturnedWhenItIsTheOnlyLegalOne()
+        {
+            var (set, target) = VetoedAttackSet();
+
+            var decision = CreateProvider(set).GetDecision(new TurnContext(self, new[] { target }, System.Array.Empty<RuntimeEntityId>()));
+
+            Assert.IsNotNull(decision, "today's behaviour, kept so authored behaviours with no considerations (score 0) still act");
+            Assert.AreEqual(0f, decision.Score);
+        }
+
+        [Test]
+        public void AScoreFloorOfZeroTurnsTheOnlyLegalVetoedAttackIntoNoDecision()
+        {
+            var (set, target) = VetoedAttackSet();
+
+            var decision = CreateProvider(set, scoreFloor: 0f).GetDecision(new TurnContext(self, new[] { target }, System.Array.Empty<RuntimeEntityId>()));
+
+            Assert.IsNull(decision, "a downed target the only consideration vetoed must not be attacked just because nothing else was legal");
+        }
+
+        [Test]
+        public void AScoreFloorOfZeroStillLetsAPositiveCandidateWinOverAVetoedOne()
+        {
+            var ability = TestDefinitionFactory.CreateAbilityDefinition("ability-attack", "Attack", TargetRelation.Enemy, range: 100f);
+            rulesDatabase.Register(ability);
+            var favourHp = TestDefinitionFactory.CreateConsideration("TargetResourcePercent:resource-hp", AnimationCurve.Linear(0f, 0f, 1f, 1f));
+            var behavior = TestDefinitionFactory.CreateBehaviorDefinition("behavior-attack", "Attack", ability.Id, favourHp);
+            rulesDatabase.Register(behavior);
+            var set = TestDefinitionFactory.CreateBehaviorSetDefinition("behaviorset-goblin", "Goblin", behavior.Id);
+            rulesDatabase.Register(set);
+            var downed = CreateTarget(currentHp: 0, maxHp: 20, new Vector3(1f, 0f, 0f));
+            var standing = CreateTarget(currentHp: 10, maxHp: 20, new Vector3(2f, 0f, 0f));
+
+            var decision = CreateProvider(set, scoreFloor: 0f).GetDecision(new TurnContext(self, new[] { downed, standing }, System.Array.Empty<RuntimeEntityId>()));
+
+            Assert.IsNotNull(decision);
+            Assert.AreEqual(standing, decision.Targets[0]);
+            Assert.Greater(decision.Score, 0f);
+        }
+
+        [Test]
+        public void AScoreFloorAlsoVetoesAMoveThatScoresZero()
+        {
+            selfCharacter.AddResource(new ResourceState(MovementResourceId, max: 6));
+            var veto = TestDefinitionFactory.CreateConsideration("Distance", AnimationCurve.Linear(0f, 0f, 10f, 0f)); // always 0
+            var move = TestDefinitionFactory.CreateMoveBehaviorDefinition("behavior-move", "Move", MovementResourceId, TargetRelation.Enemy, stopDistance: 1f, veto);
+            rulesDatabase.Register(move);
+            var set = TestDefinitionFactory.CreateBehaviorSetDefinition("behaviorset-mover", "Mover", move.Id);
+            rulesDatabase.Register(set);
+            var target = CreateTarget(currentHp: 20, maxHp: 20, new Vector3(5f, 0f, 0f));
+            var context = new TurnContext(self, new[] { target }, System.Array.Empty<RuntimeEntityId>());
+
+            Assert.IsNotNull(CreateProvider(set).GetDecision(context), "default: a zero-scored move is still chosen");
+            Assert.IsNull(CreateProvider(set, scoreFloor: 0f).GetDecision(context));
+        }
+
+        [Test]
+        public void ADecisionExactlyAtTheFloorIsVetoedAndOneAboveItIsNot()
+        {
+            var ability = TestDefinitionFactory.CreateAbilityDefinition("ability-attack", "Attack", TargetRelation.Enemy, range: 100f);
+            rulesDatabase.Register(ability);
+            var half = TestDefinitionFactory.CreateConsideration("TargetResourcePercent:resource-hp", AnimationCurve.Linear(0f, 0.5f, 1f, 0.5f)); // always 0.5
+            var behavior = TestDefinitionFactory.CreateBehaviorDefinition("behavior-attack", "Attack", ability.Id, half);
+            rulesDatabase.Register(behavior);
+            var set = TestDefinitionFactory.CreateBehaviorSetDefinition("behaviorset-goblin", "Goblin", behavior.Id);
+            rulesDatabase.Register(set);
+            var target = CreateTarget(currentHp: 10, maxHp: 20, new Vector3(1f, 0f, 0f));
+            var context = new TurnContext(self, new[] { target }, System.Array.Empty<RuntimeEntityId>());
+
+            Assert.IsNull(CreateProvider(set, scoreFloor: 0.5f).GetDecision(context), "strictly above the floor");
+            Assert.IsNotNull(CreateProvider(set, scoreFloor: 0.49f).GetDecision(context));
+        }
+
         [Test]
         public void PicksTheHigherScoringTargetWhenFavoringLowTargetHealth()
         {

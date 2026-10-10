@@ -23,13 +23,14 @@ namespace CRPG.Editor.Validation
     /// error."</summary>
     public sealed class ValidationResult
     {
-        public ValidationResult(ValidationSeverity severity, string assetPath, string field, string message, string fix)
+        public ValidationResult(ValidationSeverity severity, string assetPath, string field, string message, string fix, UnityEngine.Object context = null)
         {
             Severity = severity;
             AssetPath = assetPath;
             Field = field;
             Message = message;
             Fix = fix;
+            Context = context;
         }
 
         public ValidationSeverity Severity { get; }
@@ -37,6 +38,9 @@ namespace CRPG.Editor.Validation
         public string Field { get; }
         public string Message { get; }
         public string Fix { get; }
+
+        /// <summary>The object the finding is about (a scene object or an asset), so a UI can select or ping it. Optional.</summary>
+        public UnityEngine.Object Context { get; }
 
         public override string ToString() => $"[{Severity}] {AssetPath} ({Field}): {Message} -- {Fix}";
     }

@@ -23,8 +23,9 @@ namespace BarrowsEnd.Gate
     /// builds a fresh one against the new session -- one call at start-up and one after each successful load.
     /// <para>Deliberately the ONE <see cref="ISessionConsumer"/> for the gate (rather than one per service): the services are built and
     /// discarded together, so a single rebuild is simpler and cannot get out of step with itself.</para>
-    /// <para>Engine gaps this works around, in glue rather than in the toolkit (recorded in the Task 2.7 plan): <c>HealEffect</c> and
-    /// <c>CharacterState.RemoveCondition</c> publish nothing, so <see cref="HealAndStand"/> publishes ConditionRemoved itself;
+    /// <para>Engine gaps this works around, in glue rather than in the toolkit (recorded in the Task 2.7 plan): <c>HealEffect</c> only restored hit
+    /// points and <c>CharacterState.RemoveCondition</c> publishes nothing, so <see cref="HealAndStand"/> publishes ConditionRemoved itself (HealEffect now publishes AfterHeal and the
+    /// toolkit's DeathSaveService can revive on it with reviveOnHeal; this debug gate scene keeps its own full-heal path);
     /// <c>DeathSaveService</c> only advances on damage or an explicit roll (there is no turn loop here), hence <see cref="RollDeathSave"/>;
     /// nothing outside <c>TacticalEncounterController</c> calls <c>MarkDefeated</c>, so this subscribes CreatureDied to it.</para>
     /// </summary>

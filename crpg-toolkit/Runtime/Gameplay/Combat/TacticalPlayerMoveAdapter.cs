@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Gameplay.Actions;
+using UnityEngine;
 
 namespace CRPG.Gameplay.Combat
 {
@@ -23,13 +24,33 @@ namespace CRPG.Gameplay.Combat
         private readonly TacticalEncounterController controller;
         private readonly DefinitionId movementResourceId;
         private readonly DefinitionId playerFaction;
+        private readonly Func<RuntimeEntityId, bool> canMove;
+        private readonly Func<RuntimeEntityId, Vector3, (Vector3 Destination, string Refusal)> adjustDestination;
+        private readonly bool provokesReactions;
 
-        public TacticalPlayerMoveAdapter(TacticalEncounterController controller, DefinitionId movementResourceId, DefinitionId playerFaction)
+        /// <param name="canMove">Optional: false for the current-turn combatant refuses the click silently (a downed hero). Null: everyone can.</param>
+        /// <param name="adjustDestination">Optional: may change the clicked destination or refuse it (a non-null Refusal is raised on <see cref="MoveRefused"/> and nothing starts).
+        /// See <see cref="NavMeshDestinationAdjuster"/>. Runs after the agent/motor check, so no refusal message is ever shown when there is nobody to move.</param>
+        /// <param name="provokesReactions">True (the default) hands every other live combatant to the scheduler as a potential reactor, so walking through an enemy's threatened area
+        /// can provoke an opportunity attack (the move stops at each crossing). False hands none: the move never stops for, or provokes, a reaction.</param>
+        public TacticalPlayerMoveAdapter(
+            TacticalEncounterController controller,
+            DefinitionId movementResourceId,
+            DefinitionId playerFaction,
+            Func<RuntimeEntityId, bool> canMove = null,
+            Func<RuntimeEntityId, Vector3, (Vector3 Destination, string Refusal)> adjustDestination = null,
+            bool provokesReactions = true)
         {
             this.controller = controller ?? throw new ArgumentNullException(nameof(controller));
             this.movementResourceId = movementResourceId;
             this.playerFaction = playerFaction;
+            this.canMove = canMove;
+            this.adjustDestination = adjustDestination;
+            this.provokesReactions = provokesReactions;
         }
+
+        /// <summary>Raised with the refusal text when <c>adjustDestination</c> turned a click down ("You cannot go there.").</summary>
+        public event Action<string> MoveRefused;
 
         /// <summary>Void-signature wrapper so this can be subscribed directly as
         /// <c>inputSource.Move += adapter.HandleMove</c> -- see <see cref="TryHandleMove"/> for the inspectable
@@ -51,8 +72,17 @@ namespace CRPG.Gameplay.Combat
 
             var agent = FindAgent(current.Id);
             if (agent?.Motor == null) return null;
+            if (canMove != null && !canMove(current.Id)) return null;
 
-            return controller.Scheduler.StartMove(current.Id, agent.Motor, movementResourceId, command.Destination, OtherLiveCombatants(encounter, current.Id));
+            var destination = command.Destination;
+            if (adjustDestination != null)
+            {
+                var adjusted = adjustDestination(current.Id, destination);
+                if (adjusted.Refusal != null) { MoveRefused?.Invoke(adjusted.Refusal); return null; }
+                destination = adjusted.Destination;
+            }
+
+            return controller.Scheduler.StartMove(current.Id, agent.Motor, movementResourceId, destination, provokesReactions ? OtherLiveCombatants(encounter, current.Id) : null);
         }
 
         private static IReadOnlyList<RuntimeEntityId> OtherLiveCombatants(CRPG.Combat.CombatEncounter encounter, RuntimeEntityId exclude)

@@ -190,6 +190,74 @@ namespace CRPG.Tests.PlayMode
             controller.Dispose();
         }
 
+        /// <summary>The seam a ruleset without death uses (Fate's "Taken Out"): the same teardown a real CreatureDied gets, with no CreatureDied published.</summary>
+        [Test]
+        public void DefeatMarksTheSpawnDefeatedAndRemovesItFromTheEncounterWithoutPublishingCreatureDied()
+        {
+            var hero = SpawnCombatant("hero", HeroesFaction);
+            var goblin = SpawnCombatant("goblin", GoblinsFaction);
+            var controller = CreateController((hero, HeroesFaction), (goblin, GoblinsFaction));
+            var died = 0;
+            session.EventBus.Subscribe(GameEvent.CreatureDied, _ => died++);
+
+            controller.Defeat(goblin);
+
+            Assert.IsTrue(worldSpawnService.TryGetCharacterId("goblin", out _, out _, out var defeated));
+            Assert.IsTrue(defeated);
+            Assert.IsFalse(EncounterContains(controller, goblin));
+            Assert.IsTrue(EncounterContains(controller, hero), "only the defeated combatant leaves");
+            Assert.AreEqual(0, died, "non-lethal: nobody died");
+
+            controller.Dispose();
+        }
+
+        [Test]
+        public void DefeatingTheSameCombatantTwiceIsHarmless()
+        {
+            var hero = SpawnCombatant("hero", HeroesFaction);
+            var goblin = SpawnCombatant("goblin", GoblinsFaction);
+            var controller = CreateController((hero, HeroesFaction), (goblin, GoblinsFaction));
+
+            controller.Defeat(goblin);
+            Assert.DoesNotThrow(() => controller.Defeat(goblin));
+
+            Assert.IsFalse(EncounterContains(controller, goblin));
+            controller.Dispose();
+        }
+
+        [Test]
+        public void DefeatAfterDisposeDoesNothing()
+        {
+            var hero = SpawnCombatant("hero", HeroesFaction);
+            var goblin = SpawnCombatant("goblin", GoblinsFaction);
+            var controller = CreateController((hero, HeroesFaction), (goblin, GoblinsFaction));
+            var encounter = controller.EncounterService.Encounter;
+            controller.Dispose();
+
+            controller.Defeat(goblin);
+
+            Assert.IsTrue(worldSpawnService.TryGetCharacterId("goblin", out _, out _, out var defeated));
+            Assert.IsFalse(defeated, "a disposed controller no longer owns the encounter");
+            Assert.IsNotNull(encounter);
+        }
+
+        [Test]
+        public void TheStaticDefeatDoesTheSameForACallerThatHasNoController()
+        {
+            var hero = SpawnCombatant("hero", HeroesFaction);
+            var goblin = SpawnCombatant("goblin", GoblinsFaction);
+            var controller = CreateController((hero, HeroesFaction), (goblin, GoblinsFaction));
+
+            TacticalEncounterController.Defeat(worldSpawnService, controller.EncounterService, goblin);
+
+            Assert.IsTrue(worldSpawnService.TryGetCharacterId("goblin", out _, out _, out var defeated));
+            Assert.IsTrue(defeated);
+            Assert.IsFalse(EncounterContains(controller, goblin));
+            Assert.Throws<System.ArgumentNullException>(() => TacticalEncounterController.Defeat(null, controller.EncounterService, goblin));
+
+            controller.Dispose();
+        }
+
         private static bool EncounterContains(TacticalEncounterController controller, RuntimeEntityId id)
         {
             foreach (var combatant in controller.EncounterService.Encounter.Combatants)

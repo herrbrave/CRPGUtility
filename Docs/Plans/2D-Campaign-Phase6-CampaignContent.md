@@ -160,8 +160,7 @@ Phase 7's 30-60 minute playthrough gate on real content instead of the Phase 3 p
 
 ## Review record
 
-Not yet Opus-reviewed — this master doc sets the phase's scope/decisions; per D4, the first thing to get its own
-detailed plan + Opus review is Task 6.0.
+Master doc only: each task got its own detailed plan + Opus review before implementation (Tasks 6.0-6.3, recorded below).
 
 **Not committed.**
 
@@ -1181,14 +1180,14 @@ touching the user's live Editor session. The real project's `Town.unity`/`Core.u
 pre-Task-6.1 content until the authoring scripts are actually run against the real project (Task 5.3's own
 documented lesson: verifying the code in a throwaway copy is not the same as the real asset being regenerated).
 
-**Not yet committed.**
+**Committed** (see the close-out at the end of this document for the commit list).
 
 
 ---
 
 # Task 6.2: Act 2 — The Descent
 
-**Status: Opus-reviewed (8 blockers, all folded in below); awaiting user approval. Task 6.1 is committed (d15b8c8 + 5834a7d).**
+**Status: Opus-reviewed (8 blockers, all folded in below); approved and implemented. Task 6.1 is committed (d15b8c8 + 5834a7d).**
 
 Gate: a live playthrough from the Town through Cavern_Upper and Cavern_Middle — goblin encounters fought and won with
 the tactical stack, the Act 2 quest advancing, Grumble's mushroom side quest accepted, completed and turned in.
@@ -1311,7 +1310,7 @@ The reviewer verified every claim against source. The draft above is SUPERSEDED 
 7. Archer (LOS provider + per-NPC brain), optional.
 8. Throwaway-copy verification, regenerate the real project, live gate with the user.
 
-**Not yet committed.**
+**Committed** (see the close-out at the end of this document for the commit list).
 
 ## Task 6.2 implementation status
 
@@ -1330,7 +1329,7 @@ abilities; no quest log UI (progress shows as one-line messages).
 
 # Task 6.3: Act 3 — The Deep Dark
 
-**Status: Opus-reviewed (6 blockers, all folded in below); awaiting user approval. Task 6.2 is committed (b750371, 9bd7bae).**
+**Status: Opus-reviewed (6 blockers, all folded in below); approved and implemented. Task 6.2 is committed (b750371, 9bd7bae).**
 
 Gate: a live playthrough from the Middle level's Deep gate through Cavern_Deep — undead thralls fought, the portcullis
 opened, the necromancer boss defeated, the Deep Dark quest completed, and a visible "the campaign is won" ending —
@@ -1436,7 +1435,7 @@ The reviewer verified every claim against source. The draft above is SUPERSEDED 
 5. Ending: epilogue component in Deep; Thaddeus in-place rewrite gated on `necromancer-defeated`.
 6. Gate: throwaway-copy verification, regenerate the real project, live gate (balance tuning there). No reinforcement phase.
 
-**Not yet committed.**
+**Committed** (see the close-out at the end of this document for the commit list).
 
 ## Task 6.3 implementation status
 
@@ -1449,3 +1448,73 @@ attacks, ranged brain; `LeverInteractionAdapter` + `PortcullisGate` (both-ways r
 `quest-the-deep-dark` (200 gold reward) started on arrival; `EpilogueTrigger` ending conversation; Thaddeus post-victory branch
 (in place); `DeepCavernContentTests` pins the review's placement rules against the authored scene. Step 6 (live gate + balance
 tuning with the user) is next.
+
+---
+
+# Phase 6 close-out (2026-10-03)
+
+**Outcome: Phase 6 content complete, and the whole 2D campaign is PAUSED here as a finished proof of concept** (the user's call: the goal
+was to prove a 2D game works on the toolkit, which it does, and to find bugs, which it did). Phase 7 (the timed 30-60 minute playable
+pass) was NOT run. Nothing is broken or half-done: the campaign is playable title to ending and every task is committed.
+
+## Commits
+
+| Task | Commits |
+|---|---|
+| 6.0 shared foundation (new dialogue actions, real Town + 3 cavern shells, NPC pattern) | `cc38dd3` |
+| 6.1 Act 1 (10 NPCs, recruiting, vendors, palisade tutorial fight) | `d15b8c8`, follow-ups `5834a7d` |
+| 6.2 Act 2 (goblins, cavern encounters, Descent quest, mushroom side quest) | `b750371`, `9bd7bae` |
+| 6.3 Act 3 (Deep level, lever + portcullis, necromancer boss, ending) + live-gate fixes | `76e028d` |
+
+## What shipped
+
+- Town (10 NPCs, recruiting Garrick/Elara/Silas, vendors, Elida rest/save, Mayor Thaddeus briefing + post-victory line, Grumble's quest).
+- Three cavern levels: Upper (two goblin patrols on the mine track, mushroom patches), Middle (goblin barricade, water chamber), Deep (thrall
+  patrols, river with a bridge, lever, portcullis, necromancer arena).
+- Tactical combat on the 2D grid: turn order, Movement/Action/Bonus Action economy, click-to-move, ability bar (including self-targeted
+  abilities like Rage), downed/death-save handling, AI with Distance-curve brains (melee and ranged), defeat -> pre-encounter checkpoint reload.
+- Quests driven by Timeline keys (`quest-gathering-storm`, `quest-the-descent`, `quest-the-deep-dark` + `quest-grumbles-mushrooms`), one-line
+  progress messages, an epilogue conversation on completing the Deep Dark.
+- Toolkit additions (all tested): recruit/start-quest/rest/save dialogue actions, skinned dialogue/store panels, `TacticalCombatUIBridge`
+  self-targeted abilities, `AbilityTargetingGate` and `PlayerCommandRouter` ignoring trigger volumes, `DeathSaveService.Stabilize` and `canDie`,
+  `PartyExplorationController` `canMove` filter, `PartyView.RefreshNow`, `TurnOrderView` vertical list.
+
+## Design decisions made along the way (revisit if the project resumes)
+
+- **No permadeath for the party** (`GateSessionServices.PartyCanDie = false` in the campaign shell; the Phase 2 debug gate scene keeps SRD
+  permadeath). A member who fails three death saves stays downed until the fight ends and is stabilised at 1 HP. A wiped party reloads a
+  checkpoint written just before the encounter; the trigger then waits until the party steps out and back in.
+- Area-of-effect abilities and summoning are NOT implemented (AoE does not resolve in toolkit ability resolution and the AI skips multi-target
+  abilities); the boss fight uses a ranged single-target bolt plus thralls in the opening wave instead.
+- The ending is a narrator conversation; there is no return-to-title because the Core scene has no reboot path.
+
+## Known gaps and open items
+
+- `LocationSceneContentTests.EveryLocationsBakeIsFreshSoNoPaintedChangeIsLeftUnbaked` fails because `Town_Slice` is unbaked (pre-dates Phase 6):
+  re-bake it ("Barrows End > Location > Bake Selected Location") or retire the Phase 3 demo slices.
+- `BarrowsEnd/Assets/Content/Npcs/dlg-elida.asset` shows editor-node-position-only churn; deliberately left out of every commit.
+- Companions only have Strike (class abilities are a later "class work" task); no archer enemy; no quest log UI; placeholder visuals (a gold-tinted
+  column for the lever, Kenney bodies for the goblins/thralls/necromancer); balance only lightly tuned.
+- A party member who died under the old permadeath rule in an old save stays at 0 HP until a rest.
+- The full BarrowsEnd PlayMode suite no longer fits one 10-minute batch (run it in halves by fixture name); Unity occasionally crashes an import
+  worker mid-run and writes no results (just retry).
+
+## Lessons (each bug below passed every automated test before a human playthrough found it)
+
+1. Locations share world coordinates and the next scene loads additively while travelling: every trigger/volume must check its own scene is the
+   active one (the Middle barricade fired on the walk out of the Upper level, spawning goblins into a scene about to unload).
+2. Test through the real path (real travel, real clicks, prior-fight history), not by booting straight into a level.
+3. Trigger volumes swallow raycasts unless the cast uses `QueryTriggerInteraction.Ignore` (Strike clicks and ground clicks were landing on them).
+4. Any UI bound to a session must rebind on EVERY kind of load, not just its own button.
+5. A conversation left open leaks `UIToolkitPointerCapture.modalDepth` into later tests: cancel it when its scene tears down.
+6. Hit points and other state do not refresh UI by themselves.
+7. The utility AI needs Distance consideration curves, or Move always outscores Attack and hostiles never bite.
+8. When a combat starts, in-flight walks and interactions (travel!) must be cancelled, and encounters must wait for scene transitions.
+
+## How to resume
+
+- Phase 7 is the next step: first a scripted title-to-ending smoke test (New Game, recruit, travel, fight, lever, boss, epilogue) to dry-run what the
+  human pass would otherwise rediscover, then the timed 30-60 minute human playthrough described in the master plan.
+- Verification recipe (see the project memory `project_crpg_unity_verification_setup`): author scenes/assets in a throwaway `BarrowsEnd_verify` copy
+  and copy them back; give any new script referenced from a scene an explicit `.meta` GUID first; rewrite dialogue assets in place so the Town
+  keeps its GUID reference.

@@ -29,8 +29,16 @@ namespace CRPG.Abilities
                 if (!target.TryGetResource(hitPointResource.Id, out var hp)) continue;
 
                 var roll = context.DiceService.Roll(new RollRequest(scaledAmount, RollPurpose.Generic, source: context.Source, target: targetId));
-                hp.Restore(Mathf.RoundToInt((float)roll.Total));
+                var restored = hp.Restore(Mathf.RoundToInt((float)roll.Total));
                 context.CombatLog?.Log(new RollLogEntry(roll));
+
+                // after the log entry, so the log is complete whatever a subscriber does (the bus has no exception isolation)
+                if (context.EventBus != null)
+                {
+                    var healed = new GameEventContext(GameEvent.AfterHeal, context.Source, targetId);
+                    healed.Data["Amount"] = restored;
+                    context.EventBus.Publish(healed);
+                }
             }
         }
     }

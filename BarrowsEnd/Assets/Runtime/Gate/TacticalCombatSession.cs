@@ -25,7 +25,7 @@ namespace BarrowsEnd.Gate
     /// units, spent by <see cref="TacticalPlayerMoveAdapter"/> for the player and by the hostile brain's Close
     /// Distance behavior) and acts once -- a resolved ability ends the turn automatically. The Movement resource
     /// is created at runtime (no authored asset) and granted to every combatant when the encounter starts.
-    /// <see cref="GateCommandSource.CombatMoveOverride"/> redirects ground clicks to the move adapter so they
+    /// <see cref="PartyCommandFilter.CombatMoveOverride"/> redirects ground clicks to the move adapter so they
     /// can never also drive exploration movement.</para></summary>
     public sealed class TacticalCombatSession
     {
@@ -35,7 +35,7 @@ namespace BarrowsEnd.Gate
         public const string BonusActionResourceId = "resource-bonus-action";
         public const int MovementPerTurn = 6;
 
-        private readonly GateCommandSource commandSource;
+        private readonly PartyCommandFilter commandSource;
         private readonly InputSystemCommandSource inputSource;
         private readonly HudRoot hudRoot;
         private readonly AbilityBarView abilityBarView;
@@ -64,7 +64,7 @@ namespace BarrowsEnd.Gate
         private Action<bool> onEncounterEnded;
         private bool lastEncounterPartyWon;
 
-        public TacticalCombatSession(GateCommandSource commandSource, InputSystemCommandSource inputSource,
+        public TacticalCombatSession(PartyCommandFilter commandSource, InputSystemCommandSource inputSource,
             HudRoot hudRoot, AbilityBarView abilityBarView, LayerMask hittableMask,
             TurnOrderView turnOrderView, Func<RuntimeEntityId, string> displayNameFor, Action<string> notify,
             Action<RuntimeEntityId> rollDeathSave, Action<RuntimeEntityId> stabilize)

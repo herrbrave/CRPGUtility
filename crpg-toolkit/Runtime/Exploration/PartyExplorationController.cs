@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CRPG.Core;
+using CRPG.Gameplay;
 using CRPG.Navigation;
 using CRPG.Party;
+using UnityEngine;
 
 namespace CRPG.Exploration
 {
@@ -26,6 +28,7 @@ namespace CRPG.Exploration
         private readonly IPlayerCommandSource commandSource;
         private readonly Dictionary<RuntimeEntityId, IMovable> motors = new();
         private readonly Func<RuntimeEntityId, bool> canMove;
+        private readonly ISelectableSource facingSource;
         private bool disposed;
 
         public PartyExplorationController(
@@ -34,8 +37,10 @@ namespace CRPG.Exploration
             IFormationSolver formationSolver,
             IPlayerCommandSource commandSource,
             float formationSpacing = 1.5f,
-            Func<RuntimeEntityId, bool> canMove = null)
+            Func<RuntimeEntityId, bool> canMove = null,
+            ISelectableSource facingSource = null)
         {
+            this.facingSource = facingSource;
             this.canMove = canMove;
             this.party = party;
             this.movementService = movementService;
@@ -46,6 +51,10 @@ namespace CRPG.Exploration
             commandSource.Select += HandleSelect;
             commandSource.Move += HandleMove;
         }
+
+        /// <summary>The facing the last order actually used when it was DERIVED from the party's travel direction (see the <c>facingSource</c> constructor parameter); zero until one was.
+        /// A game can turn stopped members to it so a halted party all looks the way it was sent. Never updated by an order too short to have a direction.</summary>
+        public Vector3 LastOrderFacing { get; private set; }
 
         /// <summary>Raised once per member per <see cref="HandleMove"/> call with the truthful outcome of
         /// that member's move request -- <see cref="FormationResolutionOutcome.Unreachable"/> synthesizes
@@ -88,6 +97,31 @@ namespace CRPG.Exploration
             }
         }
 
+        /// <summary>The router cannot know where the party is, so it sends <c>Vector3.forward</c> as the facing of every ground click and leaves deriving the real one to whoever consumes it
+        /// (nobody did: a wedge always pointed along world +Z). With a <c>facingSource</c>, the facing is the flat direction from the centre of the members being ordered (selected, and allowed
+        /// to move) to the destination. Without one, or when the order is shorter than 0.1 m, nothing is derived and the command's own facing stands.</summary>
+        private bool TryDeriveFacing(IReadOnlyList<RuntimeEntityId> members, Vector3 destination, out Vector3 facing)
+        {
+            facing = default;
+            if (facingSource == null) return false;
+
+            var sum = Vector3.zero;
+            var found = 0;
+            foreach (var entity in facingSource.GetSelectables())
+            {
+                if (!members.Contains(entity.Id)) continue;
+                sum += entity.WorldPosition;
+                found++;
+            }
+
+            if (found == 0) return false;
+            var direction = destination - sum / found;
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.01f) return false;
+            facing = direction.normalized;
+            return true;
+        }
+
         private void HandleMove(MoveCommand command)
         {
             if (party.Selected.Count == 0) return;
@@ -96,7 +130,9 @@ namespace CRPG.Exploration
             // rest of the selection still goes.
             var members = party.Members.Where(m => party.IsSelected(m) && (canMove == null || canMove(m))).ToList();
             if (members.Count == 0) return;
-            var order = new PartyMoveOrder(members, command.Destination, command.Facing, formationSolver, formationSpacing);
+            var facing = command.Facing;
+            if (TryDeriveFacing(members, command.Destination, out var derived)) { facing = derived; LastOrderFacing = derived; }
+            var order = new PartyMoveOrder(members, command.Destination, facing, formationSolver, formationSpacing);
             var resolved = movementService.ResolveDestinations(order);
 
             foreach (var assignment in resolved)
