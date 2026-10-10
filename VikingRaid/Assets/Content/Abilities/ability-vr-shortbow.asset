@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: ability-vr-shortbow
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: ability-vr-shortbow
+  displayName: Shortbow
+  description: A crooked shortbow.
+  tags: 537
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  targeting:
+    mode: 1
+    relation: 2
+    minTargets: 1
+    maxTargets: 1
+    range: 12
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 0
+    requireVisibleTarget: 1
+  effects:
+  - rid: 2954408751538634772
+  spellLevel: 0
+  prepareSeconds: 0
+  recoverSeconds: 1.4
+  animationCueId:
+    value: anim-shoot
+  references:
+    version: 2
+    RefIds:
+    - rid: 2954408751538634772
+      type: {class: AttackRollEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        governingStatId:
+          value: stat-dexterity
+        onHit:
+          rid: 2954408751538634773
+    - rid: 2954408751538634773
+      type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+        amount:
+          count: 1
+          sides: 6
+          modifier: 3
+        damageTypeId:
+          value: 
+        scalesWithCasterLevel: 0
+        extraDiceCountPerSlotLevel: 0

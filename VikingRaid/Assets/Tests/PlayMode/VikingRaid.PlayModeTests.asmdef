@@ -1,0 +1,35 @@
+{
+  "name": "VikingRaid.PlayModeTests",
+  "rootNamespace": "VikingRaid.Tests",
+  "references": [
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "CRPG.Core",
+    "CRPG.Actors",
+    "CRPG.Gameplay",
+    "CRPG.Navigation",
+    "CRPG.Presentation",
+    "VikingRaid.Game",
+    "VikingRaid.Village",
+    "VikingRaid.Appearance",
+    "Unity.AI.Navigation",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime",
+    "CRPG.Party",
+    "CRPG.UI",
+    "CRPG.Combat",
+    "CRPG.Abilities",
+    "CRPG.Rules",
+    "CRPG.Rules.SRD5",
+    "CRPG.AI",
+    "CRPG.Exploration",
+    "CRPG.Camera",
+    "CRPG.InputSystem",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "autoReferenced": false
+}

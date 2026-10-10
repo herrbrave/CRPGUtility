@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca970b19186da5041adba787d6f2fdaf, type: 3}
+  m_Name: npc-vr-goblin-archer-f
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.NpcDefinition
+  id: npc-vr-goblin-archer-f
+  displayName: Goblin Archer
+  description: 
+  faction:
+    value: faction-goblins
+  dialogueId:
+    value: 
+  level: 1
+  abilityScores:
+  - statId:
+      value: stat-strength
+    score: 8
+  - statId:
+      value: stat-dexterity
+    score: 14
+  - statId:
+      value: stat-constitution
+    score: 10
+  - statId:
+      value: stat-intelligence
+    score: 10
+  - statId:
+      value: stat-wisdom
+    score: 10
+  - statId:
+      value: stat-charisma
+    score: 8
+  proficiencies: []
+  resources:
+  - resource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+    maxAmount: 9
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    maxAmount: 1
+  - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}
+    maxAmount: 1
+  - resource: {fileID: 11400000, guid: 0e044852363362d44be2ee8ef0b053b8, type: 2}
+    maxAmount: 1
+  - resource: {fileID: 11400000, guid: 7455854626bb7104cbf05f8341c16ecc, type: 2}
+    maxAmount: 6
+  featureIds:
+  - value: feature-vr-armor-2
+  abilityIds:
+  - value: ability-vr-shortbow
+  - value: ability-vr-goblin-dagger
+  spellcastingStatId:
+    value: 
+  startingItemIds: []
+  visualPrefab: {fileID: 9003087987310382789, guid: 777faa5e88777bd4baf02eed03587e51, type: 3}
+  appearance: []

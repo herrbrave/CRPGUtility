@@ -1,0 +1,27 @@
+{
+  "name": "VikingRaid.Village",
+  "rootNamespace": "VikingRaid.Village",
+  "references": [
+    "CRPG.Core",
+    "CRPG.Rules",
+    "CRPG.Rules.SRD5",
+    "CRPG.Actors",
+    "CRPG.Combat",
+    "CRPG.Gameplay",
+    "CRPG.Navigation",
+    "CRPG.Party",
+    "CRPG.Exploration",
+    "CRPG.InputSystem",
+    "CRPG.Camera",
+    "VikingRaid.Game"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,259 @@
+{
+    "grips": [
+        {
+            "key": "Hero_Bjorn|SM_Wep_Sword_02",
+            "euler": {
+                "x": 330.0,
+                "y": 120.0,
+                "z": 330.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 12.047507286071777,
+            "notes": "attack tip-vs-forearm mean 41 max 53; idle tip (fwd 0.62, up -0.50); flat-vs-palm 0.13"
+        },
+        {
+            "key": "Hero_Bjorn|SM_Wep_Shield_01",
+            "euler": {
+                "x": 270.0,
+                "y": 90.0,
+                "z": 0.0
+            },
+            "offset": {
+                "x": -0.014252550899982452,
+                "y": 0.01836463436484337,
+                "z": 0.008822580799460411
+            },
+            "cost": 4.06559419631958,
+            "notes": "face-out 0.96, long-along-forearm 0.99"
+        },
+        {
+            "key": "Hero_Ulf|SM_Wep_Axe_02",
+            "euler": {
+                "x": 60.0,
+                "y": 60.0,
+                "z": 330.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 5.198245048522949,
+            "notes": "attack tip-vs-forearm mean 37 max 73; idle tip (fwd 0.42, up -0.80); flat-vs-palm 0.07"
+        },
+        {
+            "key": "Hero_Astrid|SM_Wep_Spear_02",
+            "euler": {
+                "x": 300.0,
+                "y": 180.0,
+                "z": 330.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 4.969915390014648,
+            "notes": "attack tip-vs-forearm mean 51 max 67; idle tip (fwd 0.98, up 0.04); flat-vs-palm 0.09"
+        },
+        {
+            "key": "Goblin_Grunt_A|SM_Wep_Club_01",
+            "euler": {
+                "x": 60.0,
+                "y": 120.0,
+                "z": 180.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 2.3647661209106445,
+            "notes": "attack tip-vs-forearm mean 33 max 45; idle tip (fwd 0.72, up -0.39); flat-vs-palm 0.01"
+        },
+        {
+            "key": "Goblin_Grunt_B|SM_Wep_Dagger_01",
+            "euler": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": 120.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 2.364757776260376,
+            "notes": "attack tip-vs-forearm mean 33 max 45; idle tip (fwd 0.72, up -0.39); flat-vs-palm 0.01"
+        },
+        {
+            "key": "Goblin_Grunt_C|SM_Wep_Cleaver_01",
+            "euler": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": 120.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 2.364757776260376,
+            "notes": "attack tip-vs-forearm mean 33 max 45; idle tip (fwd 0.72, up -0.39); flat-vs-palm 0.01"
+        },
+        {
+            "key": "Goblin_Warrior_A|SM_Wep_Sword_01",
+            "euler": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": 120.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 2.364757776260376,
+            "notes": "attack tip-vs-forearm mean 33 max 45; idle tip (fwd 0.72, up -0.39); flat-vs-palm 0.01"
+        },
+        {
+            "key": "Goblin_Warrior_A|SM_Wep_Shield_01",
+            "euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 90.0
+            },
+            "offset": {
+                "x": 0.07963885366916656,
+                "y": -0.016559075564146042,
+                "z": -0.006648659706115723
+            },
+            "cost": 3.752460479736328,
+            "notes": "face-out 0.97, long-along-forearm 0.99"
+        },
+        {
+            "key": "Goblin_Warrior_B|SM_Wep_Cleaver_02",
+            "euler": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": 120.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 2.364757776260376,
+            "notes": "attack tip-vs-forearm mean 33 max 45; idle tip (fwd 0.72, up -0.39); flat-vs-palm 0.01"
+        },
+        {
+            "key": "Goblin_Warrior_B|SM_Wep_Shield_02",
+            "euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 180.0
+            },
+            "offset": {
+                "x": 0.1178392767906189,
+                "y": -0.018134189769625664,
+                "z": -0.035552978515625
+            },
+            "cost": 3.752460479736328,
+            "notes": "face-out 0.97, long-along-forearm 0.99"
+        },
+        {
+            "key": "Goblin_Warrior_C|SM_Wep_Axe_01",
+            "euler": {
+                "x": 0.0,
+                "y": 30.0,
+                "z": 120.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 2.364757776260376,
+            "notes": "attack tip-vs-forearm mean 33 max 45; idle tip (fwd 0.72, up -0.39); flat-vs-palm 0.01"
+        },
+        {
+            "key": "Goblin_Warrior_C|SM_Wep_Shield_03",
+            "euler": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 180.0
+            },
+            "offset": {
+                "x": 0.13043071329593658,
+                "y": -0.024818822741508484,
+                "z": 0.0005481690168380737
+            },
+            "cost": 3.752460479736328,
+            "notes": "face-out 0.97, long-along-forearm 0.99"
+        },
+        {
+            "key": "Goblin_Shaman|SM_Wep_Staff_01",
+            "euler": {
+                "x": 0.0,
+                "y": 60.0,
+                "z": 300.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 9.797398567199707,
+            "notes": "attack tip-vs-forearm mean 52 max 72; idle tip (fwd 0.70, up -0.07); flat-vs-palm 0.16"
+        },
+        {
+            "key": "Goblin_Troll|SM_Wep_Club_04",
+            "euler": {
+                "x": 0.0,
+                "y": 240.0,
+                "z": 330.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 7.865117073059082,
+            "notes": "attack tip-vs-forearm mean 34 max 43; idle tip (fwd 0.88, up -0.47); flat-vs-palm 0.15"
+        },
+        {
+            "key": "Goblin_King|SM_Wep_Sword_02",
+            "euler": {
+                "x": 60.0,
+                "y": 60.0,
+                "z": 330.0
+            },
+            "offset": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "cost": 5.198240280151367,
+            "notes": "attack tip-vs-forearm mean 37 max 73; idle tip (fwd 0.42, up -0.80); flat-vs-palm 0.07"
+        },
+        {
+            "key": "Goblin_King|SM_Wep_Shield_02",
+            "euler": {
+                "x": 270.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "offset": {
+                "x": 0.11571773886680603,
+                "y": -0.06525346636772156,
+                "z": -0.00015626195818185806
+            },
+            "cost": 4.065583229064941,
+            "notes": "face-out 0.96, long-along-forearm 0.99"
+        }
+    ]
+}

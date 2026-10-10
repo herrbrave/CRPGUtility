@@ -1,0 +1,217 @@
+{
+  "name": "Sunken Shrine of the Stag Lord",
+  "units": "meters",
+  "up_axis": "Z",
+  "bounds": {
+    "width": 40,
+    "depth": 32,
+    "min": [-16.5, -19.5],
+    "max": [23.5, 12.5],
+    "note": "Origin (0,0) = center of the central water pool. +X = east (map right), +Y = north (map top). Source image ~1024x763 px mapped at ~0.039 m/px (X) and ~0.042 m/px (Y); isometric skew flattened by eye."
+  },
+  "elevation_tiers": {
+    "ground": 0.0,
+    "upper_deck": 3.0,
+    "lower_pit": -3.0
+  },
+  "zones": [
+    {
+      "id": "entrance_clearing",
+      "label": "Forest Entrance Clearing",
+      "kind": "exterior",
+      "center": [-9.0, 7.1],
+      "size": [14, 8],
+      "shape": "irregular",
+      "elevation_tier": "ground",
+      "neighbors": ["goblin_cave_camp", "pool_cavern"],
+      "features": ["pine trees", "grass clearing", "dirt path", "waterfall", "stream", "fallen log bridge", "tree stump", "cliff walls", "rocks"]
+    },
+    {
+      "id": "goblin_cave_camp",
+      "label": "Upper Goblin Cave Camp",
+      "kind": "natural_cave",
+      "center": [9.0, 7.6],
+      "size": [22, 7],
+      "shape": "irregular",
+      "elevation_tier": "ground",
+      "neighbors": ["entrance_clearing", "wobbly_bridge"],
+      "features": ["rock cliff walls", "nest/bedding pit", "stacked crates", "small glowing pool", "bone/nest debris", "spiky dead brush", "dirt floor"]
+    },
+    {
+      "id": "pool_cavern",
+      "label": "Central Water Pool Cavern",
+      "kind": "water_feature",
+      "center": [-0.4, 0.4],
+      "size": [9, 7],
+      "shape": "circular",
+      "elevation_tier": "ground",
+      "neighbors": ["entrance_clearing", "west_hall", "north_gallery", "central_hall"],
+      "features": ["glowing blue-green pool", "rocky cave rim", "earthen shore", "floor drain/grate near west exit", "scattered debris"]
+    },
+    {
+      "id": "west_hall",
+      "label": "West Ruined Hall",
+      "kind": "built_room",
+      "center": [-10.5, -1.3],
+      "size": [12, 6],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["pool_cavern", "west_watchtower", "patrol_corridor"],
+      "features": ["glowing blue braziers", "arched doorway", "crumbling stone walls", "hanging roots", "rubble"]
+    },
+    {
+      "id": "west_watchtower",
+      "label": "West Watchtower",
+      "kind": "built_room",
+      "center": [-14.4, -7.6],
+      "size": [4, 5],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["west_hall", "ritual_cavern"],
+      "features": ["tall stone tower walls", "wooden door", "hanging lantern (warm glow)", "narrow stair/landing"]
+    },
+    {
+      "id": "patrol_corridor",
+      "label": "Patrol Corridor",
+      "kind": "built_room",
+      "center": [-7.4, -5.9],
+      "size": [5, 5],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["west_hall", "central_hall"],
+      "features": ["barred gate", "barrel", "flagstone floor", "low broken walls"]
+    },
+    {
+      "id": "central_hall",
+      "label": "Central Font Hall",
+      "kind": "built_room",
+      "center": [-0.8, -5.9],
+      "size": [9, 6],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["pool_cavern", "patrol_corridor", "east_corridor", "crypt_hall"],
+      "features": ["stone pedestal/font", "barred gate", "cracked flagstones", "rubble"]
+    },
+    {
+      "id": "north_gallery",
+      "label": "North Gallery",
+      "kind": "built_room",
+      "center": [4.3, 2.1],
+      "size": [5, 6],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["pool_cavern", "upper_deck"],
+      "features": ["glowing blue braziers", "stone pillars", "doorways"]
+    },
+    {
+      "id": "upper_deck",
+      "label": "Upper Deck Room",
+      "kind": "built_room",
+      "center": [10.5, 1.3],
+      "size": [10, 5],
+      "shape": "rectangular",
+      "elevation_tier": "upper_deck",
+      "neighbors": ["north_gallery", "stair_connector", "wobbly_bridge"],
+      "features": ["glowing blue braziers", "spike pit/floor spikes", "raised balcony edge", "wall niches"]
+    },
+    {
+      "id": "stair_connector",
+      "label": "Grand Stair",
+      "kind": "vertical_connector",
+      "center": [10.5, -3.2],
+      "size": [3, 4],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["upper_deck", "east_corridor"],
+      "features": ["stone staircase", "side walls", "blue brazier at landing"]
+    },
+    {
+      "id": "east_corridor",
+      "label": "East Corridor",
+      "kind": "built_room",
+      "center": [8.5, -5.5],
+      "size": [10, 4],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["central_hall", "stair_connector", "boss_lair", "stag_shrine"],
+      "features": ["glowing blue braziers", "arched doorway", "barrel", "wooden door"]
+    },
+    {
+      "id": "wobbly_bridge",
+      "label": "Wobbly Bridge over the Pit",
+      "kind": "vertical_connector",
+      "center": [18.5, 2.7],
+      "size": [4, 4],
+      "shape": "rectangular",
+      "elevation_tier": "lower_pit",
+      "neighbors": ["goblin_cave_camp", "upper_deck", "boss_lair"],
+      "features": ["rickety wooden bridge/steps", "wooden railings", "open pit below", "rope/plank supports"]
+    },
+    {
+      "id": "boss_lair",
+      "label": "Boss Lair and Forge",
+      "kind": "built_room",
+      "center": [17.6, -2.8],
+      "size": [10, 7],
+      "shape": "irregular",
+      "elevation_tier": "ground",
+      "neighbors": ["east_corridor", "wobbly_bridge"],
+      "features": ["forge/fire glow", "anvil", "orange braziers", "rubble/bone pile", "wooden door", "barrels"]
+    },
+    {
+      "id": "stag_shrine",
+      "label": "Stag Lord Shrine",
+      "kind": "built_room",
+      "center": [12.5, -9.7],
+      "size": [7, 7],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["east_corridor", "crypt_hall", "south_ward"],
+      "features": ["stag statue/altar", "raised dais with steps", "gothic arched walls", "blue brazier"]
+    },
+    {
+      "id": "crypt_hall",
+      "label": "Crypt Hall",
+      "kind": "built_room",
+      "center": [5.1, -11.8],
+      "size": [10, 7],
+      "shape": "irregular",
+      "elevation_tier": "ground",
+      "neighbors": ["central_hall", "stag_shrine", "south_ward", "crypt_gate_passage"],
+      "features": ["glowing blue braziers", "burial niches/sarcophagus alcoves", "crumbling partition walls", "wooden planks/debris", "arched doorways"]
+    },
+    {
+      "id": "south_ward",
+      "label": "South Ward",
+      "kind": "built_room",
+      "center": [9.0, -16.6],
+      "size": [9, 4],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["crypt_hall", "stag_shrine"],
+      "features": ["blue brazier", "wooden barricades", "broken crates", "flooded floor patch"]
+    },
+    {
+      "id": "crypt_gate_passage",
+      "label": "Crypt Gate Passage",
+      "kind": "built_room",
+      "center": [-0.4, -16.4],
+      "size": [5, 4],
+      "shape": "rectangular",
+      "elevation_tier": "ground",
+      "neighbors": ["ritual_cavern", "crypt_hall"],
+      "features": ["barred gate", "heavy wooden door", "hanging roots", "wall shelves/racks"]
+    },
+    {
+      "id": "ritual_cavern",
+      "label": "Torchlit Well Cavern",
+      "kind": "natural_cave",
+      "center": [-8.2, -13.9],
+      "size": [14, 8],
+      "shape": "irregular",
+      "elevation_tier": "ground",
+      "neighbors": ["west_watchtower", "crypt_gate_passage"],
+      "features": ["dark well/sinkhole", "standing iron torches (warm yellow)", "rock cave walls", "dirt path", "stalactites"]
+    }
+  ]
+}

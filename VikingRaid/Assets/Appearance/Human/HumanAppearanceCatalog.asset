@@ -1,0 +1,3728 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14107fd162d2d6b4db719551b95b8742, type: 3}
+  m_Name: HumanAppearanceCatalog
+  m_EditorClassIdentifier: VikingRaid.Appearance::VikingRaid.Appearance.ModelAppearanceCatalog
+  slots:
+  - id: face
+    title: Face
+    tab: Face
+    required: 1
+    defaultOptionId: face-human-01
+    noneTitle: 
+    options:
+    - id: face-human-01
+      title: Face 01
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 0a13259e2e1801346bbd6f1d2d581325, type: 3}
+      - {fileID: 919132149155446097, guid: b94380d9b7732f54987c0849050c67f1, type: 3}
+      - {fileID: 919132149155446097, guid: 9393e37b4db411c469d7c274c232a8ad, type: 3}
+      - {fileID: 919132149155446097, guid: 85f91315d25021247afb11c268d86b31, type: 3}
+      - {fileID: 919132149155446097, guid: bf55b78dd7cc7d44dbe8276efeab9954, type: 3}
+      - {fileID: 919132149155446097, guid: daa1e3cf2e5b6d54d8159df90eaefe04, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-02
+      title: Face 02
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 18becb00e36a85444a319c40e28c9236, type: 3}
+      - {fileID: 919132149155446097, guid: 539dfc0fbaa8b0d47a4c5e2097590bd3, type: 3}
+      - {fileID: 919132149155446097, guid: b7c706ad07feede40b7e539ef83ab18e, type: 3}
+      - {fileID: 919132149155446097, guid: c60e39464d6f4c245b71f13fa5004e52, type: 3}
+      - {fileID: 919132149155446097, guid: 54dc27122ce15b44f929d20045955a3f, type: 3}
+      - {fileID: 919132149155446097, guid: f9c8f56677c5ae647aa1411249295d4d, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-03
+      title: Face 03
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: bdc5c95e81046f642924f65e32597887, type: 3}
+      - {fileID: 919132149155446097, guid: 9557bf43a5e834a458511ed4229c75a8, type: 3}
+      - {fileID: 919132149155446097, guid: 3d08e284bda9aac4a8a9d895aabb0335, type: 3}
+      - {fileID: 919132149155446097, guid: d9b920e196bab22429a6a7f1069c1c7e, type: 3}
+      - {fileID: 919132149155446097, guid: 2bea61fbf7c798646b5ce0b8b7bf06e8, type: 3}
+      - {fileID: 919132149155446097, guid: 55255e875a8d6fd4cbc114a6b74e5f1f, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-04
+      title: Face 04
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 37f7219133d34024ea132adf232c3a9a, type: 3}
+      - {fileID: 919132149155446097, guid: b7fb4660c1e9e8648b069ea2ed6d0f05, type: 3}
+      - {fileID: 919132149155446097, guid: 738ab0d7f3d0df747a08c9ec73e6c50c, type: 3}
+      - {fileID: 919132149155446097, guid: f30b9611640168b43a34d8e20654780b, type: 3}
+      - {fileID: 919132149155446097, guid: d156bced7fbf12d45908b4c53af980e3, type: 3}
+      - {fileID: 919132149155446097, guid: 2f58b5f2036323c4abb0d61050a67338, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-05
+      title: Face 05
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 6f79f6d471bc2f04a95835effb5aa754, type: 3}
+      - {fileID: 919132149155446097, guid: 5d0ef7116fe622d40814acf184a86cf9, type: 3}
+      - {fileID: 919132149155446097, guid: 86266642994d5c24ebfbee7723356886, type: 3}
+      - {fileID: 919132149155446097, guid: ae4aab63a924ab64eaf89e5d25636dd2, type: 3}
+      - {fileID: 919132149155446097, guid: 33c1243b8a975f547bae99bdd36bc747, type: 3}
+      - {fileID: 919132149155446097, guid: 5038fa070907be94da53672555ed78a6, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-06
+      title: Face 06
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 6e1237f85d86c87409e54fdd5b45e268, type: 3}
+      - {fileID: 919132149155446097, guid: 0472cfaa741f52d4091424b48ac8474b, type: 3}
+      - {fileID: 919132149155446097, guid: d95d20a2f0d040f469551a2e860010b6, type: 3}
+      - {fileID: 919132149155446097, guid: f5bb33a185a2ceb47ad3e9ef708fe972, type: 3}
+      - {fileID: 919132149155446097, guid: ceb37d2e273b29f40920414ccf0e4399, type: 3}
+      - {fileID: 919132149155446097, guid: 27224c325d1bd274fbfc511b1c812c8f, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-07
+      title: Face 07
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 266641c7ddf7446478c208cfb65002e9, type: 3}
+      - {fileID: 919132149155446097, guid: 58c276938bab7d845846514d70e98c33, type: 3}
+      - {fileID: 919132149155446097, guid: 01e087ee577dbf247b3080fed69a2edb, type: 3}
+      - {fileID: 919132149155446097, guid: cf7684e9f28bf6241835e00cb266e0d6, type: 3}
+      - {fileID: 919132149155446097, guid: bf2fd37c8da39584ca616aa5110c1b65, type: 3}
+      - {fileID: 919132149155446097, guid: 0eec516792d59d54591466b1fb661bbf, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-08
+      title: Face 08
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 19066391520863f45885e1461656db9d, type: 3}
+      - {fileID: 919132149155446097, guid: 373dbd34fd99cf4498e5fe87d71e0013, type: 3}
+      - {fileID: 919132149155446097, guid: 767fc3ee56643374cad5c6b4989b2223, type: 3}
+      - {fileID: 919132149155446097, guid: 32b873197a18c52408279f13eca0b0c2, type: 3}
+      - {fileID: 919132149155446097, guid: a9e791ace5c3a9543946108d2432b1f7, type: 3}
+      - {fileID: 919132149155446097, guid: 55681cb200edfab4cbd3b8b039da85b5, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-09
+      title: Face 09
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: 590d4c1fdeb0ae745923b3386018f078, type: 3}
+      - {fileID: 919132149155446097, guid: 2024677bc0d799f4f9a2b7e7be93ba1a, type: 3}
+      - {fileID: 919132149155446097, guid: 5287dcdf8b6c0e746a3c74f11f541430, type: 3}
+      - {fileID: 919132149155446097, guid: 55bc22c82844be94c938e2d4b30e343f, type: 3}
+      - {fileID: 919132149155446097, guid: bc875ffbc1784ce4a8307d93f6d24501, type: 3}
+      - {fileID: 919132149155446097, guid: 4c792f0e0c599054f94eab56254bda87, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: face-human-10
+      title: Face 10
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 7eadea74e22ac9f498597ee4898b9c25, type: 3}
+      - {fileID: 919132149155446097, guid: af016b82c7fcece43af1714c5653c64a, type: 3}
+      - {fileID: 919132149155446097, guid: b4b6edefeb11f8d43ab98d1be86893e6, type: 3}
+      - {fileID: 919132149155446097, guid: b005a7422f4d71842ae80386a96264a8, type: 3}
+      - {fileID: 919132149155446097, guid: a1a815db660de84498ec636d1e176718, type: 3}
+      - {fileID: 919132149155446097, guid: dd872faa95b9d9946afe9ecb834e3d95, type: 3}
+      - {fileID: 919132149155446097, guid: a8e830ba3d6202c45b4ee0d6c35fe519, type: 3}
+      - {fileID: 919132149155446097, guid: 90d67a867e2c89c448f27ca1ee1cdb4f, type: 3}
+      - {fileID: 919132149155446097, guid: 03a31e0436ef92a4199404660c1f2d75, type: 3}
+      - {fileID: 919132149155446097, guid: d4eb5381f2322b64eb9f267c631ea317, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+  - id: hair
+    title: Hair
+    tab: Face
+    required: 0
+    defaultOptionId: 
+    noneTitle: 
+    options:
+    - id: hair-human-01
+      title: Human 01
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: ceeafe601971958489599f2dfed71a69, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-02
+      title: Human 02
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 208fe4ca5de456a4889ea863186ad320, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-03
+      title: Human 03
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 9b688a593b6ebb044924724b126ed864, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-04
+      title: Human 04
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: db3d070615bd2f4428ef7cba31781dd2, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-05
+      title: Human 05
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: cab96fcd0df2678498a06f7c47b7a9cc, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-06
+      title: Human 06
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 5f6361a50b8dad4429425b7023df7c6c, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-07
+      title: Human 07
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: c794c824cd41393479711473bd2fd618, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-08
+      title: Human 08
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 191200add06df454ba2668a62a3651c6, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-09
+      title: Human 09
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: f527de337d02e2d40ae4378234f4499d, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-human-10
+      title: Human 10
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 92f793d48e467ef428696b7b1180e4f7, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-01
+      title: Viking Hair 01
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 8937834484037276033, guid: 80aa7fc0fa0b434458c8989e9c226c01, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-01-alt
+      title: Viking Hair 01 Alt
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 6730044760519016776, guid: 067c07b21ce6bec40adcec1f31e2b1fb, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-02
+      title: Viking Hair 02
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 3291551503201903156, guid: e4c72fec65a3bbc40a68f37e4c8d1fa9, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-03
+      title: Viking Hair 03
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 786989060592509523, guid: 6c53a463c7b74694fb6ec0efd77fbbf8, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-03-alt
+      title: Viking Hair 03 alt
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 5610048484857501855, guid: 4b357f9d09772e245817cf872a8d068e, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-04
+      title: Viking Hair 04
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 9020987708807792721, guid: 880f02ade2ed38043a9aa54f2741600f, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-04-alt
+      title: Viking Hair 04 Alt
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 8675086714046041873, guid: 316eb49c6abb48c44b5df2a4d298b710, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-05
+      title: Viking Hair 05
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 7977929071506090974, guid: 1dacdab8ab956b943a6aaa386f1ef694, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-06
+      title: Viking Hair 06
+      kind: 1
+      childName: 
+      prefab: {fileID: 1243273084309729856, guid: bb24263686fcbd04a8761d6ed8af7867, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-07
+      title: Viking Hair 07
+      kind: 1
+      childName: 
+      prefab: {fileID: 7875295468648726491, guid: e7ac744aceaf1c84a8a724fc26166bec, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-08
+      title: Viking Hair 08
+      kind: 1
+      childName: 
+      prefab: {fileID: 3316043329612373250, guid: 9a95fc583739510418e999862d1c3c4f, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-viking-hair-09
+      title: Viking Hair 09
+      kind: 1
+      childName: 
+      prefab: {fileID: 5096167507154882557, guid: 76a6b94952efe2341b3fa6e72f83dc79, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-war-camp-hair-01
+      title: War Camp Hair 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 8604807525824020366, guid: 358e75285050aec4a93fb5640b486e97, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-war-camp-hair-02
+      title: War Camp Hair 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 7046912465220683913, guid: c845e8e0ed18b3745b50a4be3a7b7f75, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-war-camp-hair-03
+      title: War Camp Hair 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 8152634918725183250, guid: 32674fc3ff757fa459d31846834b6e66, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-war-camp-hair-04
+      title: War Camp Hair 04
+      kind: 1
+      childName: 
+      prefab: {fileID: 6533413198959969532, guid: 1c7685acb764a3c44b352603932ae560, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-war-camp-hair-05
+      title: War Camp Hair 05
+      kind: 1
+      childName: 
+      prefab: {fileID: 7244794735956737432, guid: 16a55c52413635d4fa289f69981a051e, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-war-camp-hair-06
+      title: War Camp Hair 06
+      kind: 1
+      childName: 
+      prefab: {fileID: 897613536614593494, guid: 5ada7467e74417a4fa922ad9dee20f9b, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-war-camp-hair-07
+      title: War Camp Hair 07
+      kind: 1
+      childName: 
+      prefab: {fileID: 7617336986562387646, guid: df5a7aabf1da9da4c9bc94ee63ddb6f0, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-04
+      title: Generic Hair 04
+      kind: 1
+      childName: 
+      prefab: {fileID: 5359095326366316309, guid: 6acd4702716c64b49bd8504d04baea3b, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-05
+      title: Generic Hair 05
+      kind: 1
+      childName: 
+      prefab: {fileID: 3331492727679041586, guid: 460174f6fb6cdb841bd0f562d9221ac3, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-06
+      title: Generic Hair 06
+      kind: 1
+      childName: 
+      prefab: {fileID: 4248136288128711640, guid: 6599356a61fd47a4eaaeed1ac887d65a, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-07
+      title: Generic Hair 07
+      kind: 1
+      childName: 
+      prefab: {fileID: 1090390649989844869, guid: d30df5bb55089ad4a989b1473c7a2293, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-08
+      title: Generic Hair 08
+      kind: 1
+      childName: 
+      prefab: {fileID: 1213043109083764429, guid: d8091c7a2d9d8f2448b954f8720e99d5, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-09
+      title: Generic Hair 09
+      kind: 1
+      childName: 
+      prefab: {fileID: 3051544637601550317, guid: 69ac49a48a29c9448ac5a507d38a3301, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-09-alt
+      title: Generic Hair 09 alt
+      kind: 1
+      childName: 
+      prefab: {fileID: 1816054855935763832, guid: 260657d29bfb17c47841ae7a62fcf3f4, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-10
+      title: Generic Hair 10
+      kind: 1
+      childName: 
+      prefab: {fileID: 1272386763867106638, guid: 515a24c6c0ff2404782d8d7c7de093af, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-hair-11
+      title: Generic Hair 11
+      kind: 1
+      childName: 
+      prefab: {fileID: 593454656204496684, guid: 8f87914eee5a99b4381f0a1c7fdcd158, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-bun-01
+      title: Generic Bun 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 3852699928726874806, guid: dda2c20e3e6bd714abb300e4c84e2be4, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: hair-generic-ponytail-01
+      title: Generic Ponytail 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 7623271299947270949, guid: e19492d4a3b52dd408b1e4d76a214e42, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+  - id: facialhair
+    title: Facial hair
+    tab: Face
+    required: 0
+    defaultOptionId: 
+    noneTitle: 
+    options:
+    - id: facialhair-human-01
+      title: Human 01
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: f2ecf0ddc8ce49c44ba53ea35111bbdd, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-02
+      title: Human 02
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 4c78d2f2f83bbd648812ffb8b06fa6f4, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-03
+      title: Human 03
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 129626b6c04e0f14eb6cdde9162c0eaa, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-04
+      title: Human 04
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: b31f948695140974aa02e53460a35d60, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-05
+      title: Human 05
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 4e5a9d0f8a3ec284b9fd7ace6d28a40c, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-06
+      title: Human 06
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: dfe4fb875ae3fa1498e575ecc02d3d78, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-07
+      title: Human 07
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: c8a2cddcc62e3fe43b23fdeb5fbde230, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-08
+      title: Human 08
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 4b4e9061cdc9fc6408b62d7cdaaa3932, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-09
+      title: Human 09
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 31e6f9d482c6a79438dbd22bb6e9162f, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-human-10
+      title: Human 10
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 517627e8e15ae5b45bfe0c3e4881df91, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-viking-beard-01
+      title: Viking Beard 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 2008986270621128558, guid: 30e983a675b7e5c48bbafdc905211d7c, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-viking-beard-02
+      title: Viking Beard 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 7775856150537106869, guid: 9431e5399e9db8045bb866c8a5413229, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-viking-beard-03
+      title: Viking Beard 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 8748524040955538534, guid: f2790110413285e4088de64015e08217, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-viking-beard-04
+      title: Viking Beard 04
+      kind: 1
+      childName: 
+      prefab: {fileID: 6102948121093852781, guid: 767e3750ee5fb5f40bca81b9fc78ba03, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-viking-beard-05
+      title: Viking Beard 05
+      kind: 1
+      childName: 
+      prefab: {fileID: 4251617812071901270, guid: d1620f3190e789844b4cc7fe11321c2e, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-war-camp-beard-01
+      title: War Camp Beard 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 9084620144797494280, guid: 58e5e9e532d6d274dbdd7137d9f70ee9, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-war-camp-beard-02
+      title: War Camp Beard 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 2944231946675445880, guid: 5c52fc198c116c246943ab74feaec585, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-generic-beard-01
+      title: Generic Beard 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 3252513830353061635, guid: 5552d13d2d0636b4b84403bca027f0c0, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-generic-beard-02
+      title: Generic Beard 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 5381899529043745372, guid: 2c3db847c027ff04f9f95cf539c047de, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-generic-chops-01
+      title: Generic Chops 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 4158117797329843660, guid: 1d06f16f48b790548b778a5bdf7a69d6, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: facialhair-generic-moustache-01
+      title: Generic Moustache 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 4609227968844860818, guid: 6b5f1a42b82110e49988de1ad2a41fd9, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+  - id: outfit
+    title: Outfit
+    tab: Outfit
+    required: 1
+    defaultOptionId: outfit-bare
+    noneTitle: 
+    options:
+    - id: outfit-bare
+      title: Bare
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: bfd664514da041243b22a6ab9a6b103e, type: 3}
+      - {fileID: 919132149155446097, guid: 780ef39007ccf884880e4cfa638acd1c, type: 3}
+      - {fileID: 919132149155446097, guid: 255f26f6a974cc44b856d737b3b9d4af, type: 3}
+      - {fileID: 919132149155446097, guid: 19f56a996d96174438dd264b28b3f117, type: 3}
+      - {fileID: 919132149155446097, guid: cca8b8751cbb90f489b164f90027eecb, type: 3}
+      - {fileID: 919132149155446097, guid: 5d1dc8955dd7bf24a8e69edc0e21d454, type: 3}
+      - {fileID: 919132149155446097, guid: 91d860e42297ca44fbcb714158c2ba5b, type: 3}
+      - {fileID: 919132149155446097, guid: 77d92666cdb799f45a06ecca4b8c0fcd, type: 3}
+      - {fileID: 919132149155446097, guid: 353c718dd5e9a234fb9292852df9eacb, type: 3}
+      - {fileID: 919132149155446097, guid: b3ee2f840da91ab4f9088f5358b9aadc, type: 3}
+      - {fileID: 919132149155446097, guid: ae7d339ec0046c245bf096797ce16606, type: 3}
+      - {fileID: 919132149155446097, guid: f470578e834137242b2460a5f5e8d157, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: outfit-tunic
+      title: Viking Tunic
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: ae632bb3945effd4e9666c773a585303, type: 3}
+      - {fileID: 919132149155446097, guid: d7c31c995d75bda41942dc79a9d94508, type: 3}
+      - {fileID: 919132149155446097, guid: 4655978f2de132f448add3bbd7623365, type: 3}
+      - {fileID: 919132149155446097, guid: 3940295210554294b8dc37bf1221174f, type: 3}
+      - {fileID: 919132149155446097, guid: e97eae7725f6d5940a879ba9cb0571c7, type: 3}
+      - {fileID: 919132149155446097, guid: 5d1dc8955dd7bf24a8e69edc0e21d454, type: 3}
+      - {fileID: 919132149155446097, guid: 91d860e42297ca44fbcb714158c2ba5b, type: 3}
+      - {fileID: 919132149155446097, guid: 64024b6bde4f3fe438b76a082d8a2df8, type: 3}
+      - {fileID: 919132149155446097, guid: 72341fb5654601e47b3a0d08d0223a93, type: 3}
+      - {fileID: 919132149155446097, guid: 732b77e4418936b4ea019c1fef9e658d, type: 3}
+      - {fileID: 919132149155446097, guid: 7da350c10a356cf46bfc40b98beb1d8f, type: 3}
+      - {fileID: 919132149155446097, guid: afe0f572fb0870c43a3101f8e4ab1b0b, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: outfit-civilian
+      title: Civilian
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 0c9fc5209c25468478ba0531015c5428, type: 3}
+      - {fileID: 919132149155446097, guid: 9bdc22ad5227563468a9197cb1778bcf, type: 3}
+      - {fileID: 919132149155446097, guid: ae5186e75d318094da8b4308050c3302, type: 3}
+      - {fileID: 919132149155446097, guid: edb7b20871af70c4298b7ce7d29b7e73, type: 3}
+      - {fileID: 919132149155446097, guid: 58604617b86eac840a1c5ed9da54c6ac, type: 3}
+      - {fileID: 919132149155446097, guid: 566bc01b6577d2b4584f99396ef33d49, type: 3}
+      - {fileID: 919132149155446097, guid: c87a6126c204cb243985402c396ebea1, type: 3}
+      - {fileID: 919132149155446097, guid: 3346edc1bee8691459f38e699d81019c, type: 3}
+      - {fileID: 919132149155446097, guid: 51602091e0e9df84f8d4bbd9be3c5e39, type: 3}
+      - {fileID: 919132149155446097, guid: 51046de0960c7984b8a08740cbf6f9c6, type: 3}
+      - {fileID: 919132149155446097, guid: 732b55cb1221f8245a085ab204947938, type: 3}
+      - {fileID: 919132149155446097, guid: 0242bc9e56d2bdf45b9624ac2715011b, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: outfit-knight
+      title: Knight
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 0d0a6c9c28b90b84486bf4c5a7bee2e4, type: 3}
+      - {fileID: 919132149155446097, guid: ddf71f1a10ea4d64d8b51e54c883c683, type: 3}
+      - {fileID: 919132149155446097, guid: 1481084a60edeb24e8a21ba8141a197c, type: 3}
+      - {fileID: 919132149155446097, guid: 351dac6fc5e04be48966363516a5e569, type: 3}
+      - {fileID: 919132149155446097, guid: 00f48eab6ee8abf44a71719868122171, type: 3}
+      - {fileID: 919132149155446097, guid: 3b2af2ed2f58f094ca0d5c349f9014bb, type: 3}
+      - {fileID: 919132149155446097, guid: 210b56fc9d0cfd841a83e0d9ffb4916e, type: 3}
+      - {fileID: 919132149155446097, guid: ef7471101347b43449c8afa04da273dc, type: 3}
+      - {fileID: 919132149155446097, guid: 1f9b01be76d963b46b11ac1a1d5a9c54, type: 3}
+      - {fileID: 919132149155446097, guid: 36fb872bbf253494cbca95da2459ccf1, type: 3}
+      - {fileID: 919132149155446097, guid: d2e7595cea84f104f8ba610b04c401c9, type: 3}
+      - {fileID: 919132149155446097, guid: fb07b39ad34900a46b392203e2670b90, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+  - id: shoulders
+    title: Shoulders
+    tab: Outfit
+    required: 0
+    defaultOptionId: 
+    noneTitle: 
+    options:
+    - id: shoulders-knight
+      title: Knight
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: 3149d18bc23e5a54cab3b9dd0451fdf6, type: 3}
+      - {fileID: 919132149155446097, guid: 635b5b7bb7989c24290e80ffceb39a6e, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: shoulders-civilian
+      title: Civilian
+      kind: 5
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 919132149155446097, guid: fb08826e7328c3747ba7fe778be0b942, type: 3}
+      - {fileID: 919132149155446097, guid: 2fb6faae86020dc44b2fd6c62bffbf8f, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: shoulders-viking-fur-01
+      title: Viking Fur 01
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 1126715777616798365, guid: 123a0d6956207c84eb192590d0df5d2d, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: shoulders-viking-fur-02
+      title: Viking Fur 02
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 6773605969667432015, guid: 2c10d11f1ae7f0e4496aa3161295d00b, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: shoulders-viking-fur-03
+      title: Viking Fur 03
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 3691129762643251925, guid: 89f46477bdf39054e86ca767d2530a1b, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: shoulders-viking-fur-04
+      title: Viking Fur 04
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 1352717142204006984, guid: 3948a594840556a4ab65053e84f6b38c, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: shoulders-war-camp-collar-01
+      title: War Camp Collar 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 5371529025109559926, guid: b028a7a9bf61a4b4781313b71931ccf1, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.042322285, y: -0.005855389, z: -0.001319645}
+      - shape: defaultHeavy
+        offset: {x: -0.045505706, y: 0.0070809033, z: -0.04009987}
+      - shape: defaultSkinny
+        offset: {x: 0.0023767995, y: 0.0040173796, z: 0.00000008415838}
+  - id: headwear
+    title: Headwear
+    tab: Gear
+    required: 0
+    defaultOptionId: 
+    noneTitle: 
+    options:
+    - id: headwear-viking-helmet-01
+      title: Viking Helmet 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 1883492765425166919, guid: 2f20629c57dbb2b4a93e88fbd7f5f5d8, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-helmet-02
+      title: Viking Helmet 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 8610681555181355139, guid: 439c72130f1f6a949bfac449652b729a, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-helmet-03
+      title: Viking Helmet 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 3722252809271611962, guid: bdba34d67a1335e439c26114e1f5ccf1, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-helmet-04
+      title: Viking Helmet 04
+      kind: 1
+      childName: 
+      prefab: {fileID: 7550342569829555143, guid: 180825a780ecec641899f28bf4ce911e, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-helmet-horns-01
+      title: Viking Helmet Horns 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 3754734444059425968, guid: bc05fe1ad4da70648b18327911abd2f7, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-helmet-horns-02
+      title: Viking Helmet Horns 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 3220132475908303267, guid: d99254a90fc3277409ea0b87e37cc71b, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-helmet-horns-03
+      title: Viking Helmet Horns 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 3743835713248962246, guid: 38c2fbf4fe0382c4988f7ab25f6e29e2, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-helmet-wings-01
+      title: Viking Helmet Wings 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 7352748091844039017, guid: f4c789eaf6773594185f895518b8a718, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-wolf-01
+      title: Viking Wolf 01
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 2492410651472021343, guid: 253d4495ece05cb4d85ff988e3055d51, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-bear-01
+      title: Viking Bear 01
+      kind: 8
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: ead525b95bd62544d855e95552ce8318, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts:
+      - {fileID: 4998903867887313218, guid: df62e5f946035774b80f789a204eda40, type: 3}
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-crown-01
+      title: Viking Crown 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 642058586756715594, guid: b5f7d775dde6c0a4c9f6ae3c9606ed8e, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-crown-01-alt
+      title: Viking Crown 01 Alt
+      kind: 1
+      childName: 
+      prefab: {fileID: 5186243557038242679, guid: fcf193ff147d1e64a971fa4e77ac594f, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-crown-02
+      title: Viking Crown 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 135927200718144538, guid: 88c117435db695645851cf1712154900, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-viking-crown-03
+      title: Viking Crown 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 4193462539615257144, guid: f80db60f9096d8a42ab62334015889bb, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-hat-01
+      title: War Camp Hat 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 6037314690199155116, guid: f0ddfdd62fe3a954c8b0e2e513d60483, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-hat-02
+      title: War Camp Hat 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 7720069476553598316, guid: af4d0c167e0bd3946bee1331a13deb8b, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-hat-03
+      title: War Camp Hat 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 6150541883098545727, guid: d29d42464a84ecf4baf8a9f8b8768973, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-hat-04
+      title: War Camp Hat 04
+      kind: 1
+      childName: 
+      prefab: {fileID: 3327732825784721055, guid: b691f46afdacc9b4f811586e4f8b58ca, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-hat-05
+      title: War Camp Hat 05
+      kind: 1
+      childName: 
+      prefab: {fileID: 829908746644538657, guid: d6021367db165da41a204fdf60f9227b, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-hat-06
+      title: War Camp Hat 06
+      kind: 1
+      childName: 
+      prefab: {fileID: 3701071953276076078, guid: 2031a05bdc216f24abf62cc1db9e39be, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-hat-07
+      title: War Camp Hat 07
+      kind: 1
+      childName: 
+      prefab: {fileID: 5205288055630141696, guid: d1a37d146ebf6cb468cd91434a75a00f, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-helmet-01
+      title: War Camp Helmet 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 1216838653545561675, guid: 598854eaf4bed8f419735a0e80fdc327, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-helmet-02
+      title: War Camp Helmet 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 4925064485402647688, guid: 0259b4a6292921f418a1063e3a6cf1e2, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-crown-01
+      title: War Camp Crown 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 3273137585325094359, guid: 3170f1f42122ccb4bacc976734698ea6, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-crown-02
+      title: War Camp Crown 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 6644648918825555294, guid: 68962f3e580c89542a5ef001c1270c73, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-crown-03
+      title: War Camp Crown 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 7924844389922300356, guid: 9453ce0d960cc39449ed7defd6d20d3b, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-crown-04
+      title: War Camp Crown 04
+      kind: 1
+      childName: 
+      prefab: {fileID: 2791915901726272662, guid: 5640d033efe7a4542941ac9d385b5ab9, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: headwear-war-camp-crown-05
+      title: War Camp Crown 05
+      kind: 1
+      childName: 
+      prefab: {fileID: 1493181348011740519, guid: f5ef0ee1c2f1ddb448edcbe7984f916b, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+  - id: faceware
+    title: Face wear
+    tab: Gear
+    required: 0
+    defaultOptionId: 
+    noneTitle: 
+    options:
+    - id: faceware-viking-eyepatch-01
+      title: Viking Eyepatch 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 3057827663433269958, guid: 9e5bb94bd1b579b4aa8ca0a85d7c462f, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: faceware-war-camp-eye-patch-01
+      title: War Camp Eye Patch 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 4353387015225537231, guid: e37648ab798c5264a9c2ea870884316a, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: faceware-war-camp-goggles-01
+      title: War Camp Goggles 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 1704750261522655439, guid: 9a797032e8cc662458c25e6b26baaf28, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: faceware-war-camp-mask-01
+      title: War Camp Mask 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 3688214152695736027, guid: 6a3e2050526e22b4a8a639658e6bcead, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: faceware-war-camp-mask-02
+      title: War Camp Mask 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 8083352833880630974, guid: 0118d2e500b1f604b8aa2c451a2470a2, type: 3}
+      bone: head
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 90, y: 269.99887, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+  - id: cloak
+    title: Cloak
+    tab: Gear
+    required: 0
+    defaultOptionId: 
+    noneTitle: 
+    options:
+    - id: cloak-viking-cape-01
+      title: Viking Cape 01
+      kind: 2
+      childName: 
+      prefab: {fileID: 6484404136419029523, guid: 53a5e0c9c2bb412408a8fc25224a7934, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.0030039689, y: 0.031830404, z: 0.005685882}
+      - shape: defaultHeavy
+        offset: {x: 0.0067010256, y: 0.10725051, z: -0.012183132}
+      - shape: defaultSkinny
+        offset: {x: -0.00045293593, y: -0.0081423195, z: -0.007475674}
+    - id: cloak-viking-cape-02
+      title: Viking Cape 02
+      kind: 2
+      childName: 
+      prefab: {fileID: 8961368760138533862, guid: 33a237732fb67254597cd8e0c3c320b9, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.0030039689, y: 0.031830404, z: 0.005685882}
+      - shape: defaultHeavy
+        offset: {x: 0.0067010256, y: 0.10725051, z: -0.012183132}
+      - shape: defaultSkinny
+        offset: {x: -0.00045293593, y: -0.0081423195, z: -0.007475674}
+    - id: cloak-war-camp-cape-01
+      title: War Camp Cape 01
+      kind: 2
+      childName: 
+      prefab: {fileID: 833693867333503893, guid: 5fc1e39927f51904fb690c313e91855e, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.021699619, y: 0.0643937, z: 0.026017843}
+      - shape: defaultHeavy
+        offset: {x: 0.02490749, y: 0.107343554, z: 0.0027435024}
+      - shape: defaultSkinny
+        offset: {x: 0.040218245, y: -0.018162984, z: 0.004682143}
+    - id: cloak-war-camp-cape-02
+      title: War Camp Cape 02
+      kind: 2
+      childName: 
+      prefab: {fileID: 4602912147316148264, guid: 0d5c952426a43254b99a9ab26b9b4bdc, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.021699619, y: 0.0643937, z: 0.026017843}
+      - shape: defaultHeavy
+        offset: {x: 0.02490749, y: 0.107343554, z: 0.0027435024}
+      - shape: defaultSkinny
+        offset: {x: 0.040218245, y: -0.018162984, z: 0.004682143}
+    - id: cloak-war-camp-cape-03
+      title: War Camp Cape 03
+      kind: 2
+      childName: 
+      prefab: {fileID: 1025406053452918064, guid: 0396ffcab804b724bb3f638e1b7ab4d0, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.021699619, y: 0.0643937, z: 0.026017843}
+      - shape: defaultHeavy
+        offset: {x: 0.02490749, y: 0.107343554, z: 0.0027435024}
+      - shape: defaultSkinny
+        offset: {x: 0.040218245, y: -0.018162984, z: 0.004682143}
+    - id: cloak-war-camp-cape-04
+      title: War Camp Cape 04
+      kind: 2
+      childName: 
+      prefab: {fileID: 2826583103492856864, guid: 102c1a6deec414247a24dfe409ef7f91, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.021699619, y: 0.0643937, z: 0.026017843}
+      - shape: defaultHeavy
+        offset: {x: 0.02490749, y: 0.107343554, z: 0.0027435024}
+      - shape: defaultSkinny
+        offset: {x: 0.040218245, y: -0.018162984, z: 0.004682143}
+    - id: cloak-war-camp-cape-05
+      title: War Camp Cape 05
+      kind: 2
+      childName: 
+      prefab: {fileID: 8379806679169592071, guid: a471629cce063584a9d38b0db20cf5fb, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.012739915, y: 0.04239524, z: 0.0037666315}
+      - shape: defaultHeavy
+        offset: {x: 0.04832203, y: 0.10410762, z: -0.004553848}
+      - shape: defaultSkinny
+        offset: {x: -0.0008732429, y: -0.009820211, z: -0.000035861936}
+  - id: gear
+    title: Gear
+    tab: Gear
+    required: 0
+    defaultOptionId: 
+    noneTitle: 
+    options:
+    - id: gear-viking-pouch-01
+      title: Viking Pouch 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 2203049468675097581, guid: 6c04ee596780c7246ba3323ab603e7c2, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.00020012332, y: 0.006482348, z: 0.00058417657}
+      - shape: defaultHeavy
+        offset: {x: 0.027233865, y: 0.09277341, z: -0.11394347}
+      - shape: defaultSkinny
+        offset: {x: -0.0004944773, y: -0.01058104, z: 0.014171677}
+    - id: gear-viking-pouch-02
+      title: Viking Pouch 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 6386589793729978354, guid: 356644e30bb75ca41b4320c596e20cdb, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.0015427638, y: 0.0024749772, z: -0.0006451946}
+      - shape: defaultHeavy
+        offset: {x: 0.018245056, y: -0.04111326, z: 0.13482027}
+      - shape: defaultSkinny
+        offset: {x: 0.0012447191, y: 0.00049487833, z: -0.010357479}
+    - id: gear-war-camp-bags-01
+      title: War Camp Bags 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 2980006262964237901, guid: 085ddff12a258b0419bf5a3a68d5ff73, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.00751459, y: 0.00018554268, z: 0.009967141}
+      - shape: defaultHeavy
+        offset: {x: 0.00008747644, y: -0.048308454, z: 0.11445497}
+      - shape: defaultSkinny
+        offset: {x: 0.00011046325, y: 0.002967255, z: -0.018887267}
+    - id: gear-war-camp-bags-02
+      title: War Camp Bags 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 7056801608605009072, guid: 42dfebdc1df93ac4fa9fceb1805dc96e, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.001559087, y: 0.0011384106, z: -0.00086355314}
+      - shape: defaultHeavy
+        offset: {x: 0.009823695, y: -0.033028975, z: 0.12919763}
+      - shape: defaultSkinny
+        offset: {x: 0.0015749368, y: 0.00045328503, z: -0.012047576}
+    - id: gear-war-camp-bags-03
+      title: War Camp Bags 03
+      kind: 1
+      childName: 
+      prefab: {fileID: 3674547165478284592, guid: 9f79806cc6edca5469083148cf108e38, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.0008435637, y: -0.0009046984, z: -0.00019056768}
+      - shape: defaultHeavy
+        offset: {x: 0.24064353, y: -0.13945776, z: -0.10081067}
+      - shape: defaultSkinny
+        offset: {x: 0.0006365899, y: 0.0013291646, z: -0.00024798323}
+    - id: gear-war-camp-bags-04
+      title: War Camp Bags 04
+      kind: 1
+      childName: 
+      prefab: {fileID: 622724822378542843, guid: 586ada899397edf41a1e7232e92c8c45, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.0014439258, y: 0.0028971727, z: -0.0006004175}
+      - shape: defaultHeavy
+        offset: {x: 0.016165532, y: -0.025872963, z: 0.13042295}
+      - shape: defaultSkinny
+        offset: {x: 0.0013568655, y: -0.00022319902, z: -0.010798012}
+    - id: gear-war-camp-bags-05
+      title: War Camp Bags 05
+      kind: 1
+      childName: 
+      prefab: {fileID: 9172774868225767765, guid: aa3f7b659fd31a641b412d2d261b55fe, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.0010399064, y: 0.0027128025, z: -0.0007505089}
+      - shape: defaultHeavy
+        offset: {x: 0.00076380523, y: 0.0004061102, z: -0.14428915}
+      - shape: defaultSkinny
+        offset: {x: 0.0012872403, y: -0.0011782188, z: 0.015417087}
+    - id: gear-war-camp-backpack-01
+      title: War Camp Backpack 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 1936017167018848404, guid: a0676d4f7749fe94bae0d6a9a528655a, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.004191898, y: 0.039939914, z: -0.00027227163}
+      - shape: defaultHeavy
+        offset: {x: 0.0017042205, y: 0.13684036, z: 0.02371156}
+      - shape: defaultSkinny
+        offset: {x: -0.0007463363, y: -0.007568271, z: 0.00016239921}
+    - id: gear-war-camp-backpack-02
+      title: War Camp Backpack 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 2400298101265855222, guid: 62236e0043d8fbc4ab9f06d884a5d2a0, type: 3}
+      bone: spine_03
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 89.5941, y: 269.83377, z: 359.83377}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: 0.0014646036, y: 0.03847367, z: 0.004140333}
+      - shape: defaultHeavy
+        offset: {x: -0.0032442245, y: 0.13274269, z: 0.015223629}
+      - shape: defaultSkinny
+        offset: {x: -0.0017243883, y: -0.007973948, z: -0.000513745}
+    - id: gear-war-camp-bottle-01
+      title: War Camp Bottle 01
+      kind: 1
+      childName: 
+      prefab: {fileID: 8101201156853245541, guid: 25c55fd3c8cc6f74384a12d6ecf3ab7c, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.0013142547, y: 0.003001051, z: 0.00045333424}
+      - shape: defaultHeavy
+        offset: {x: 0.006406908, y: -0.014906919, z: -0.13425739}
+      - shape: defaultSkinny
+        offset: {x: 0.0013625302, y: -0.0008169584, z: 0.01275095}
+    - id: gear-war-camp-bottle-02
+      title: War Camp Bottle 02
+      kind: 1
+      childName: 
+      prefab: {fileID: 3041490354050622140, guid: 9e50fa6174d79264983b6d1dab2524d2, type: 3}
+      bone: pelvis
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 270, y: 90, z: 0}
+      localScale: {x: 0.935, y: 0.935, z: 0.935}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets:
+      - shape: defaultBuff
+        offset: {x: -0.0010304234, y: 0.0020712195, z: -0.0005314839}
+      - shape: defaultHeavy
+        offset: {x: 0.0023109866, y: -0.008035521, z: -0.14223088}
+      - shape: defaultSkinny
+        offset: {x: 0.0013822148, y: -0.0007363927, z: 0.014983052}
+  - id: look
+    title: Look
+    tab: Colour
+    required: 1
+    defaultOptionId: look-starter-1
+    noneTitle: 
+    options:
+    - id: look-starter-1
+      title: Starter 1
+      kind: 4
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: be6a3c9ccc7268245ba1d9880cc23b78, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: look-starter-2
+      title: Starter 2
+      kind: 4
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: da641484dd64a9840aceb1d4784a0efe, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: look-starter-3
+      title: Starter 3
+      kind: 4
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: 1efa51a237ff22943bc800f0410db9ca, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: look-starter-4
+      title: Starter 4
+      kind: 4
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 2100000, guid: fc6d288e7f157cb4199ba16c2e4f79a2, type: 2}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+  - id: build
+    title: Build
+    tab: Colour
+    required: 1
+    defaultOptionId: build-default
+    noneTitle: 
+    options:
+    - id: build-default
+      title: Default
+      kind: 6
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes: []
+      cells: []
+      buildOffsets: []
+    - id: build-buff
+      title: Buff
+      kind: 6
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes:
+      - shape: defaultBuff
+        weight: 100
+      cells: []
+      buildOffsets: []
+    - id: build-heavy
+      title: Heavy
+      kind: 6
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes:
+      - shape: defaultHeavy
+        weight: 100
+      cells: []
+      buildOffsets: []
+    - id: build-skinny
+      title: Skinny
+      kind: 6
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 0
+      parts: []
+      blendShapes:
+      - shape: defaultSkinny
+        weight: 100
+      cells: []
+      buildOffsets: []
+  - id: skin
+    title: Skin
+    tab: Colour
+    required: 0
+    defaultOptionId: 
+    noneTitle: From look
+    options:
+    - id: skin-pale
+      title: Pale
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4289250280
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4289250280
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4289250280
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4289250280
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4289250280
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4289250280
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4289250280
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4290567679
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4290567679
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4290567679
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4290567679
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4290567679
+      buildOffsets: []
+    - id: skin-fair
+      title: Fair
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4287146457
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4287146457
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4287146457
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4287146457
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4287146457
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4287146457
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4287146457
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4288463859
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4288463859
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4288463859
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4288463859
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4288463859
+      buildOffsets: []
+    - id: skin-light
+      title: Light
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4285765836
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4285765836
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4285765836
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4285765836
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4285765836
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4285765836
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4285765836
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4287083238
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4287083238
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4287083238
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4287083238
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4287083238
+      buildOffsets: []
+    - id: skin-tan
+      title: Tan
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4284976059
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4284976059
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4284976059
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4284976059
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4284976059
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4284976059
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4284976059
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4286293461
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4286293461
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4286293461
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4286293461
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4286293461
+      buildOffsets: []
+    - id: skin-bronze
+      title: Bronze
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4283594148
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4283594148
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4283594148
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4283594148
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4283594148
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4283594148
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4283594148
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4284911550
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4284911550
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4284911550
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4284911550
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4284911550
+      buildOffsets: []
+    - id: skin-brown
+      title: Brown
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4282013829
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4282013829
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4282013829
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4282013829
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4282013829
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4282013829
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4282013829
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4283331231
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4283331231
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4283331231
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4283331231
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4283331231
+      buildOffsets: []
+    - id: skin-dark
+      title: Dark
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4281155682
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4281155682
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4281155682
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4281155682
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4281155682
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4281155682
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4281155682
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4282473084
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4282473084
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4282473084
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4282473084
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4282473084
+      buildOffsets: []
+    - id: skin-deep
+      title: Deep
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4280232259
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 2
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4280232259
+      - x: 4
+        y: 4
+        colour:
+          serializedVersion: 2
+          rgba: 4280232259
+      - x: 2
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4280232259
+      - x: 4
+        y: 6
+        colour:
+          serializedVersion: 2
+          rgba: 4280232259
+      - x: 2
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4280232259
+      - x: 4
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4280232259
+      - x: 0
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4281549661
+      - x: 0
+        y: 11
+        colour:
+          serializedVersion: 2
+          rgba: 4281549661
+      - x: 2
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4281549661
+      - x: 4
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4281549661
+      - x: 2
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4281549661
+      buildOffsets: []
+  - id: haircolour
+    title: Hair colour
+    tab: Colour
+    required: 0
+    defaultOptionId: 
+    noneTitle: From look
+    options:
+    - id: haircolour-black
+      title: Black
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4279571733
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4279571733
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4279571733
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4279571733
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4279571733
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4282402379
+      buildOffsets: []
+    - id: haircolour-dark-brown
+      title: Dark brown
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4279508266
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4279508266
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4279508266
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4279508266
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4279508266
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4282145402
+      buildOffsets: []
+    - id: haircolour-brown
+      title: Brown
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4280232501
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4280232501
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4280232501
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4280232501
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4280232501
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4283528344
+      buildOffsets: []
+    - id: haircolour-auburn
+      title: Auburn
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4279773787
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4279773787
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4279773787
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4279773787
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4279773787
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4282015912
+      buildOffsets: []
+    - id: haircolour-ginger
+      title: Ginger
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4280041358
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4280041358
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4280041358
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4280041358
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4280041358
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4282811611
+      buildOffsets: []
+    - id: haircolour-blond
+      title: Blond
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4282290872
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4282290872
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4282290872
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4282290872
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4282290872
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4287287272
+      buildOffsets: []
+    - id: haircolour-grey
+      title: Grey
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4286216055
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4286216055
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4286216055
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4286216055
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4286216055
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4291347652
+      buildOffsets: []
+    - id: haircolour-white
+      title: White
+      kind: 7
+      childName: 
+      prefab: {fileID: 0}
+      bone: 
+      localPosition: {x: 0, y: 0, z: 0}
+      localEuler: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+      material: {fileID: 0}
+      swatch:
+        serializedVersion: 2
+        rgba: 4292467161
+      parts: []
+      blendShapes: []
+      cells:
+      - x: 12
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4292467161
+      - x: 14
+        y: 8
+        colour:
+          serializedVersion: 2
+          rgba: 4292467161
+      - x: 12
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4292467161
+      - x: 14
+        y: 10
+        colour:
+          serializedVersion: 2
+          rgba: 4292467161
+      - x: 12
+        y: 2
+        colour:
+          serializedVersion: 2
+          rgba: 4294506744
+      buildOffsets: []
+  paletteFamily: []
+  masterPrefab: {fileID: 1789078230249382864, guid: 34a543bb31084bd4c9ebaf4bf09b411a, type: 3}
+  family: Human
+  paletteScope: 1
+  headTab: Face
+  headBone: head
+  previewIdleClip: {fileID: 7994627924475153551, guid: 49f634ba4bf97bf41999286252012b31, type: 3}

@@ -1,0 +1,22 @@
+{
+  "name": "VikingRaid.Appearance.Editor",
+  "rootNamespace": "VikingRaid.Appearance.Editor",
+  "references": [
+    "VikingRaid.Appearance",
+    "CRPG.Editor",
+    "CRPG.Core",
+    "CRPG.Actors",
+    "CRPG.Presentation"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

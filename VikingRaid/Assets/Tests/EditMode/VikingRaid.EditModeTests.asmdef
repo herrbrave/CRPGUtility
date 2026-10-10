@@ -1,0 +1,28 @@
+{
+  "name": "VikingRaid.EditModeTests",
+  "rootNamespace": "VikingRaid.Tests.EditMode",
+  "references": [
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner",
+    "VikingRaid.Game",
+    "VikingRaid.Appearance",
+    "VikingRaid.Appearance.Editor",
+    "CRPG.Core",
+    "CRPG.Rules",
+    "CRPG.Rules.SRD5",
+    "CRPG.Actors",
+    "CRPG.Gameplay",
+    "CRPG.Editor",
+    "CRPG.Abilities",
+    "CRPG.AI",
+    "CRPG.Combat",
+    "CRPG.Presentation"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "autoReferenced": false
+}

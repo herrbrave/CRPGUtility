@@ -1,0 +1,33 @@
+{
+  "name": "VikingRaid.Game",
+  "rootNamespace": "VikingRaid.Game",
+  "references": [
+    "CRPG.Core",
+    "CRPG.Rules",
+    "CRPG.Rules.SRD5",
+    "CRPG.Actors",
+    "CRPG.Abilities",
+    "CRPG.AI",
+    "CRPG.Combat",
+    "CRPG.Presentation",
+    "CRPG.Gameplay",
+    "CRPG.UI",
+    "CRPG.Navigation",
+    "CRPG.Party",
+    "CRPG.Exploration",
+    "CRPG.InputSystem",
+    "CRPG.Camera",
+    "Unity.InputSystem",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebf73e4fc1fb67408d55e0aefeb2df0, type: 3}
+  m_Name: SpikeGoblinProfile
+  m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.CharacterAnimationProfile
+  cues:
+  - cueId:
+      value: anim-idle
+    clip: {fileID: 9143937929783346939, guid: 92dc2765bff93f540a4433ac13713d72, type: 3}
+    crossfadeDuration: 0.2
+    loop: 1
+    referenceSpeed: 0
+  - cueId:
+      value: anim-moving
+    clip: {fileID: 8820744280266670002, guid: b4404e4282df08046b00981e8de3c810, type: 3}
+    crossfadeDuration: 0.2
+    loop: 1
+    referenceSpeed: 0
+  - cueId:
+      value: anim-attack-melee
+    clip: {fileID: -2807887025256620907, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
+    crossfadeDuration: 0.1
+    loop: 0
+    referenceSpeed: 0
+  - cueId:
+      value: anim-hit
+    clip: {fileID: -245273357908900549, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
+    crossfadeDuration: 0.05
+    loop: 0
+    referenceSpeed: 0
+  - cueId:
+      value: anim-death
+    clip: {fileID: 3532616527226485280, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
+    crossfadeDuration: 0.1
+    loop: 0
+    referenceSpeed: 0
+  stanceLocomotionSets: []
