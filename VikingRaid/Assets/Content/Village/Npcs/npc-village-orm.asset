@@ -18,7 +18,7 @@ MonoBehaviour:
   faction:
     value: faction-villagers
   dialogueId:
-    value: 
+    value: dlg-village-orm
   level: 1
   abilityScores:
   - statId:

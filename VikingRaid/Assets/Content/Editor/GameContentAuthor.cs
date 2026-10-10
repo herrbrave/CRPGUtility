@@ -76,6 +76,11 @@ namespace VikingRaid.ContentEditor
             var srd5 = Load<SRD5RulesetProvider>(Srd5 + "SRD5RulesetProvider.asset");
             var ruleset = LoadOrCreate<VikingRaidRulesetProvider>(RulesetPath);
             SetField(ruleset, "srd5", srd5);
+
+            // The village (quests, ...) registers its own content in this list; rewriting the list must not drop it.
+            foreach (var kept in ruleset.ExtraContent)
+                if (kept != null && AssetDatabase.GetAssetPath(kept).StartsWith("Assets/Content/Village/") && !content.Contains(kept)) content.Add(kept);
+
             SetField(ruleset, "extraContent", content);
             EditorUtility.SetDirty(ruleset);
 

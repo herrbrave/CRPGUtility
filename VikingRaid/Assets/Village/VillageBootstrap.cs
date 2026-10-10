@@ -8,6 +8,7 @@ using CRPG.Core;
 using CRPG.Exploration;
 using CRPG.Gameplay;
 using CRPG.Gameplay.Interactions;
+using CRPG.Gameplay.Ambient;
 using CRPG.Gameplay.Scenes;
 using CRPG.InputSystem;
 using CRPG.Navigation;
@@ -50,6 +51,13 @@ namespace VikingRaid.Village
         [SerializeField] private IsometricCameraRig cameraRig;
         [SerializeField] private PartyCameraFollowBehaviour cameraFollow;
         [SerializeField] private int seed;
+        [SerializeField] private UnityEngine.UIElements.PanelSettings dialoguePanelSettings;
+
+        /// <summary>The SRD gold piece: the village's currency (it is worth nothing as an item; it is the money).</summary>
+        public static readonly DefinitionId GoldItemId = new("item-gold-piece");
+
+        /// <summary>What the party carries into the village, enough that a purchase matters next to a 5 gold bed.</summary>
+        public const int StartingGold = 80;
         [SerializeField] private float partySpacing = 1.6f;
 
         private GameSessionHost host;
@@ -62,6 +70,14 @@ namespace VikingRaid.Village
         public PartyCommandFilter Commands { get; private set; }
         public PartyExplorationController Exploration { get; private set; }
         public InteractionControllerBehaviour Interactions { get; private set; }
+
+        /// <summary>Starts quests from dialogue and keeps their progress current (see <see cref="QuestTracker"/>).</summary>
+        public QuestTracker Quests { get; private set; }
+
+        public VillageHud Hud { get; private set; }
+
+        /// <summary>Turns a villager into a party member when a dialogue's Recruit action says so (at the end of that conversation).</summary>
+        public NpcRecruitment Recruitment { get; private set; }
         public IReadOnlyList<RuntimeEntityId> Party => party;
 
         /// <summary>The spawned NPC of each location spawn point, by spawn id.</summary>
@@ -86,9 +102,14 @@ namespace VikingRaid.Village
             host = gameObject.GetComponent<GameSessionHost>() ?? gameObject.AddComponent<GameSessionHost>();
             Session = host.StartSession(ruleset, new DiceService(new SeededRandomSource(seed != 0 ? seed : Environment.TickCount)), RequiredPolicies);
             Spawner = new WorldSpawnService(Session);
+            GrantStartingGold();
+            Quests = new QuestTracker(Session);
+            Recruitment = new NpcRecruitment(Spawner, Session, OnRecruited);
 
             SpawnParty();
             SpawnLocationNpcs();
+            NpcRoutines.AttachAll(location, Spawner);   // wander / work loops authored on the spawn points
+            AttachDialogues();
 
             var source = InputFactory?.Invoke() ?? (IPlayerCommandSource)inputSource;
             if (source == null) throw new InvalidOperationException("VillageBootstrap has no input source.");
@@ -107,11 +128,60 @@ namespace VikingRaid.Village
             interactionHost.transform.SetParent(transform, false);
             Interactions = interactionHost.AddComponent<InteractionControllerBehaviour>();
             Interactions.Initialize(Commands, Session.Party, Session);
+            Interactions.Controller.RequestEnded += _ => Quests.RefreshAll();   // what a conversation recorded may have advanced a quest
+
+            if (dialoguePanelSettings != null)
+            {
+                Hud = new GameObject("VillageHud").AddComponent<VillageHud>();
+                Hud.transform.SetParent(transform, false);
+                Hud.Initialize(Session, dialoguePanelSettings);
+            }
 
             if (location != null) LocationInitializer.RebindStoresAndLoot(location, Session);
 
             if (cameraRig != null && location != null) cameraRig.Rig.SetBounds(location.CameraBoundsXZ);
             if (cameraFollow != null) cameraFollow.Initialize(Session.Party, selectables);
+        }
+
+        // The recruit is already a party member (NpcRecruitment added its own character); what only the village can do: remember it as one of ours and let the party's orders move it.
+        private void OnRecruited(CharacterAgent agent)
+        {
+            party.Add(agent.EntityId);
+            if (agent.Motor != null) Exploration?.RegisterMotor(agent.EntityId, agent.Motor);
+            var name = "A new companion";
+            if (Spawner.TryGetSpawnId(agent.EntityId, out var spawnId) && location != null)
+            {
+                var point = location.SpawnPoints.FirstOrDefault(p => p != null && p.SpawnId == spawnId);
+                if (point?.Definition != null) name = point.Definition.DisplayName;
+            }
+
+            Hud?.ShowToast($"{name} joins the party.");
+        }
+
+        private void GrantStartingGold()
+        {
+            if (!Session.RulesDatabase.TryResolve<CRPG.Inventory.ItemDefinition>(GoldItemId, out _)) return;
+            Session.Inventory.AddItem(new CRPG.Inventory.ItemInstance(RuntimeEntityId.NewId(), GoldItemId, StartingGold));
+        }
+
+        /// <summary>Makes every NPC whose spawn point has a dialogue talkable (click it, the party walks up, the conversation opens). Needs the scene's dialogue panel settings; without them the NPCs just stand and wander.</summary>
+        private void AttachDialogues()
+        {
+            if (location == null) return;
+            if (dialoguePanelSettings == null)
+            {
+                Debug.LogWarning("[VillageBootstrap] no dialogue panel settings assigned: NPCs will not be talkable. Run 'Viking Raid/Village/3. Author NPC Dialogues'.", this);
+                return;
+            }
+
+            NpcDialogues.AttachAll(location, Spawner, Session, new NpcDialogueOptions
+            {
+                PanelSettings = dialoguePanelSettings,
+                CurrencyItemId = GoldItemId,
+                Quests = Quests,
+                RequestRecruitSpawn = (spawnId, key) => Recruitment.Queue(spawnId),
+                SkillCheckRuleFactory = session => new CRPG.Rules.SRD5.DefaultSkillCheckRule(session.Characters, session.RulesDatabase),
+            });
         }
 
         private void SpawnParty()
@@ -153,9 +223,13 @@ namespace VikingRaid.Village
             return null;
         }
 
+        private void Update() => Quests?.Tick();
+
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
+            Quests?.Dispose();
+            Recruitment?.Dispose();
             Exploration?.Dispose();
             Commands?.Dispose();
             host?.EndSession();

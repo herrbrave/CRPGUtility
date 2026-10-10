@@ -2,7 +2,7 @@
   "name": "VikingRaid.Village",
   "rootNamespace": "VikingRaid.Village",
   "references": [
-    "CRPG.Core",
+    "CRPG.Core", "CRPG.Inventory", "CRPG.Quests", "CRPG.UI", "Unity.InputSystem",
     "CRPG.Rules",
     "CRPG.Rules.SRD5",
     "CRPG.Actors",

@@ -16,7 +16,7 @@
     "Unity.RenderPipelines.Universal.Runtime",
     "Unity.RenderPipelines.Core.Runtime",
     "CRPG.Party",
-    "CRPG.UI",
+    "CRPG.UI", "CRPG.Dialogue", "CRPG.Inventory", "CRPG.Quests",
     "CRPG.Combat",
     "CRPG.Abilities",
     "CRPG.Rules",

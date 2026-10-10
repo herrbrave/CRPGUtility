@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717e225776756074ca23249af4a5d8ce, type: 3}
+  m_Name: Prop_Sack
+  m_EditorClassIdentifier: CRPG.Gameplay::CRPG.Gameplay.Ambient.CarriedPropDefinition
+  prefab: {fileID: 3909925262412752339, guid: 81951571c95158e4e92bb01a795890f4, type: 3}
+  bone: 54
+  localPosition: {x: -0.042, y: 0.271, z: 0.17}
+  localEulerAngles: {x: 21.8, y: 90, z: 180}
+  localScale: 0.8

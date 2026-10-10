@@ -98429,8 +98429,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 317599026}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.18960777, z: -0, w: 0.9818599}
-  m_LocalPosition: {x: -1.8406277, y: -5.6071014, z: 42.0101}
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 17.15, y: -0.81434596, z: 34.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -151965,6 +151965,7 @@ MonoBehaviour:
   cameraRig: {fileID: 209101258}
   cameraFollow: {fileID: 209101257}
   seed: 0
+  dialoguePanelSettings: {fileID: 11400000, guid: 401fe7685db5d3b4ab44911f92227399, type: 2}
   partySpacing: 1.6
 --- !u!1001 &506601708
 PrefabInstance:
@@ -245527,6 +245528,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3591575742520980499, guid: f3eb9ea900899d340a38cf8b4fc2c8de, type: 3}
   m_PrefabInstance: {fileID: 826911233}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &827257317
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 827257318}
+  m_Layer: 0
+  m_Name: Stop_village-orm_pile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &827257318
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 827257317}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 17.3, y: -0.83653766, z: 31}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1881306235}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &827550704
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -346581,12 +346613,95 @@ MonoBehaviour:
   - SpawnId: village-elder
     Definition: {fileID: 11400000, guid: 0807009866a1f024fab22e2dd3403602, type: 2}
     Anchor: {fileID: 119467874}
+    Routine:
+      Kind: 1
+      AreaCentre: {fileID: 0}
+      AreaRadius: 3.5
+      PauseMin: 5
+      PauseMax: 12
+      Stops: []
+      Seed: 0
+    Dialogue: {fileID: 11400000, guid: a4802919218c00d42a5d2bd03044d5e4, type: 2}
+    Store:
+      StoreId: 
+      Listings: []
+      BuyMultiplier: 1
+      SellMultiplier: 0.5
   - SpawnId: village-hild
     Definition: {fileID: 11400000, guid: 0dee51bcf0d283a4ea19ef3ebe926540, type: 2}
     Anchor: {fileID: 732935751}
+    Routine:
+      Kind: 1
+      AreaCentre: {fileID: 0}
+      AreaRadius: 7
+      PauseMin: 3
+      PauseMax: 8
+      Stops: []
+      Seed: 0
+    Dialogue: {fileID: 11400000, guid: 8ae3b2da9ed9dbd499d56dbc34a8466f, type: 2}
+    Store:
+      StoreId: 
+      Listings:
+      - Item: {fileID: 11400000, guid: 9703a978022dc20449917c8be768f0b3, type: 2}
+        Quantity: 2
+      - Item: {fileID: 11400000, guid: 1ea125543d8b123499ed3f8d626a0949, type: 2}
+        Quantity: -1
+      - Item: {fileID: 11400000, guid: a0e5069f8658425428a6b1dc21a12d80, type: 2}
+        Quantity: 2
+      - Item: {fileID: 11400000, guid: 219595010cef4f14ea2b3fb3131badc9, type: 2}
+        Quantity: -1
+      - Item: {fileID: 11400000, guid: 3d15df98086795046928ff9933e9c8b3, type: 2}
+        Quantity: -1
+      - Item: {fileID: 11400000, guid: 84d22f220a2494c40a62e8a069483cf2, type: 2}
+        Quantity: -1
+      BuyMultiplier: 1
+      SellMultiplier: 0.5
   - SpawnId: village-orm
     Definition: {fileID: 11400000, guid: 7e1bbf356664e5c4d9259e25805a92dd, type: 2}
     Anchor: {fileID: 317599027}
+    Routine:
+      Kind: 2
+      AreaCentre: {fileID: 0}
+      AreaRadius: 6
+      PauseMin: 2
+      PauseMax: 6
+      Stops:
+      - Point: {fileID: 827257318}
+        Action: 1
+        Seconds: 1.5
+        CueId:
+          value: work-pickup
+        Prop: {fileID: 11400000, guid: 3dd35bcd5012dce4a9cc1e35db3186d8, type: 2}
+      - Point: {fileID: 1940295551}
+        Action: 2
+        Seconds: 1.5
+        CueId:
+          value: work-pickup
+        Prop: {fileID: 0}
+      Seed: 0
+    Dialogue: {fileID: 11400000, guid: 7b497232bcf793f4d8852fac95e264a1, type: 2}
+    Store:
+      StoreId: 
+      Listings: []
+      BuyMultiplier: 1
+      SellMultiplier: 0.5
+  - SpawnId: village-ragna
+    Definition: {fileID: 11400000, guid: e43ceef2a010f674382e7398be57eced, type: 2}
+    Anchor: {fileID: 1287557234}
+    Routine:
+      Kind: 1
+      AreaCentre: {fileID: 0}
+      AreaRadius: 4
+      PauseMin: 3
+      PauseMax: 8
+      Stops: []
+      Seed: 0
+    Dialogue: {fileID: 11400000, guid: 84ec1788ae03d9c49a457ee29dee4d40, type: 2}
+    Store:
+      StoreId: 
+      Listings: []
+      BuyMultiplier: 1
+      SellMultiplier: 0.5
   stores: []
   lootContainers: []
   hasCameraBounds: 1
@@ -381153,6 +381268,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1724516218796569226, guid: 3580e0e183f48d64ca0e21e66b6e1020, type: 3}
   m_PrefabInstance: {fileID: 1287486989}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1287557233
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1287557234}
+  m_Layer: 0
+  m_Name: Anchor_village-ragna
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1287557234
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287557233}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.34395766, z: -0, w: 0.93898517}
+  m_LocalPosition: {x: -7.171091, y: -5.6539283, z: 41.08732}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1881306235}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1287623450
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -562690,6 +562836,9 @@ Transform:
   - {fileID: 119467874}
   - {fileID: 732935751}
   - {fileID: 317599027}
+  - {fileID: 827257318}
+  - {fileID: 1940295551}
+  - {fileID: 1287557234}
   m_Father: {fileID: 715473671}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1881519565
@@ -580506,6 +580655,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8791876844596797972, guid: 5bebec79c7ae85c45b62dc12049ed2f6, type: 3}
   m_PrefabInstance: {fileID: 1940112670}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1940295550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1940295551}
+  m_Layer: 0
+  m_Name: Stop_village-orm_cart
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1940295551
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940295550}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: -0.7071068}
+  m_LocalPosition: {x: 17, y: -0.8118001, z: 38.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1881306235}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1940592673
 PrefabInstance:
   m_ObjectHideFlags: 0

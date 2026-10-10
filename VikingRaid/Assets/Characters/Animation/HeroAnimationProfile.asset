@@ -49,4 +49,10 @@ MonoBehaviour:
     crossfadeDuration: 0.1
     loop: 0
     referenceSpeed: 0
+  - cueId:
+      value: work-pickup
+    clip: {fileID: 2857599376137209812, guid: 49f634ba4bf97bf41999286252012b31, type: 3}
+    crossfadeDuration: 0.2
+    loop: 0
+    referenceSpeed: 0
   stanceLocomotionSets: []

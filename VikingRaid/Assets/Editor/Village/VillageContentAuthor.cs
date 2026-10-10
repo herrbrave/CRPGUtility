@@ -37,6 +37,8 @@ namespace VikingRaid.EditorTools
                     Description = "A weaver who hears everything that is said at the well.", Look = new[] { ("body", "body-peasant-female-01"), ("look", "look-02-b"), ("hair", "hair-viking-hair-03"), ("gear", "gear-war-camp-bags-02") } },
             new() { NpcId = "npc-village-orm", DisplayName = "Orm", Hp = 5, Str = 12, Con = 12,
                     Description = "A fisherman with a bad knee and a good boat.", Look = new[] { ("body", "body-peasant-male-01"), ("look", "look-03-a"), ("headwear", "headwear-war-camp-hat-02"), ("gear", "gear-viking-pouch-02") } },
+            new() { NpcId = "npc-village-ragna", DisplayName = "Ragna", Hp = 7, Str = 12, Dex = 12, Con = 12,
+                    Description = "A shield-maiden between ships, who would rather be rowing than weaving.", Look = new[] { ("body", "body-peasant-female-01"), ("look", "look-02-a"), ("hair", "hair-viking-hair-02") } },
         };
 
         [MenuItem("Viking Raid/Village/Author Villager Content")]

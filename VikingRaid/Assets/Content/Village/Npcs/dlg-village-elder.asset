@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a279bd201a60a1c4c89c1acde0055a1a, type: 3}
+  m_Name: dlg-village-elder
+  m_EditorClassIdentifier: CRPG.Dialogue::CRPG.Dialogue.DialogueDefinition
+  id: dlg-village-elder
+  displayName: Elder Hrolf
+  startNodeId:
+    low: 7134157818277131895
+    high: 3830938505066324853
+  nodes:
+  - rid: 2954408867173761061
+  - rid: 2954408867173761062
+  - rid: 2954408867173761063
+  - rid: 2954408867173761064
+  references:
+    version: 2
+    RefIds:
+    - rid: 2954408867173761061
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 7134157818277131895
+          high: 3830938505066324853
+        editorPosition: {x: 0, y: 0}
+        speakerName: Elder
+        text: Ah, young ones. Sit, sit... well, stand, I suppose. It is the knees.
+        nextNodeId:
+          low: -7125689632280292514
+          high: -9104610580107238583
+    - rid: 2954408867173761062
+      type: {class: ChoiceNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: -7125689632280292514
+          high: -9104610580107238583
+        editorPosition: {x: 0, y: 0}
+        options:
+        - text: Have you any advice?
+          nextNodeId:
+            low: 7705615711553100285
+            high: 1693421827898342431
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+        - text: Farewell.
+          nextNodeId:
+            low: 3274037854792712831
+            high: 6029811905607383809
+          hasVisibilityCondition: 0
+          timelineKey: 
+          secondTimelineKey: 
+          conditionType: 0
+          threshold: 0
+    - rid: 2954408867173761063
+      type: {class: LineNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 7705615711553100285
+          high: 1693421827898342431
+        editorPosition: {x: 0, y: 0}
+        speakerName: Elder
+        text: Keep your shield high and your word higher. The rest is just rowing.
+        nextNodeId:
+          low: 3274037854792712831
+          high: 6029811905607383809
+    - rid: 2954408867173761064
+      type: {class: EndNode, ns: CRPG.Dialogue, asm: CRPG.Dialogue}
+      data:
+        nodeId:
+          low: 3274037854792712831
+          high: 6029811905607383809
+        editorPosition: {x: 0, y: 0}
