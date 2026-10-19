@@ -9,13 +9,23 @@ namespace CRPG.Camera
     /// </summary>
     public sealed class CameraRigState
     {
-        private readonly CRPGCameraSettings settings;
+        private CRPGCameraSettings settings;
         private Rect? boundsXZ;
         private bool manualOverrideActive;
 
         public CameraRigState(CRPGCameraSettings settings)
         {
             this.settings = settings;
+            BasePitch = Mathf.Clamp(settings.DefaultPitch, settings.MinimumPitch, settings.MaximumPitch);
+            Zoom = Mathf.Clamp(settings.DefaultZoom, settings.MinimumZoom, settings.MaximumZoom);
+            scaleIndex = NearestScaleIndex(settings.DefaultScale);
+        }
+
+        /// <summary>Switches to another settings asset (a different location wants a different camera: a ship deck and a city street are not framed alike). The pitch and zoom restart at the new defaults, clamped to the new limits; the focus point, yaw and bounds are kept.</summary>
+        public void UseSettings(CRPGCameraSettings next)
+        {
+            if (next == null) throw new System.ArgumentNullException(nameof(next));
+            settings = next;
             BasePitch = Mathf.Clamp(settings.DefaultPitch, settings.MinimumPitch, settings.MaximumPitch);
             Zoom = Mathf.Clamp(settings.DefaultZoom, settings.MinimumZoom, settings.MaximumZoom);
             scaleIndex = NearestScaleIndex(settings.DefaultScale);
@@ -28,7 +38,7 @@ namespace CRPG.Camera
         public Vector3 FocusPoint { get; private set; }
         public float Yaw { get; private set; }
         /// <summary>The pitch at the default zoom (and when the settings have no close-up offset).</summary>
-        public float BasePitch { get; }
+        public float BasePitch { get; private set; }
 
         /// <summary>The pitch at the current zoom: <see cref="PitchFor"/>.</summary>
         public float Pitch => PitchFor(Zoom);

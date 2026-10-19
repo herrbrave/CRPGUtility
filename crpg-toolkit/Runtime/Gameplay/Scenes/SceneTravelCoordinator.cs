@@ -241,12 +241,25 @@ namespace CRPG.Gameplay.Scenes
 
             SceneManager.SetActiveScene(targetScene);
             if (cameraRig != null && content != null) cameraRig.SetBounds(content.CameraBoundsXZ);
+            ActivateStagedViews(targetScene);
             SceneManager.UnloadSceneAsync(oldScene);
 
             gridSwapped = false; // committed: the new grid stays active
             gridToRestore = null;
             gate.EndBusy();
             onFinished(SceneTravelResult.Ok());
+        }
+
+        /// <summary>LocationInitializer.Prepare stages every NPC view of the location INACTIVE ("only once Prepare returns, and the caller commits, should the views go live"): this is the commit. Without it a location's NPCs are invisible,
+        /// unclickable and absent from CharacterAgent.AllLive after a travel (only a save load activated them). Mirrors SessionLoadCoordinator's own commit: activate, then Warp so the NavMeshAgent resyncs to where the transform actually is.</summary>
+        private void ActivateStagedViews(Scene targetScene)
+        {
+            foreach (var agent in worldSpawnService.OwnedAgents.ToList())
+            {
+                if (agent == null || agent.gameObject.activeSelf || agent.gameObject.scene != targetScene) continue;
+                agent.gameObject.SetActive(true);
+                agent.Motor?.Warp(agent.transform.position);
+            }
         }
 
         private void RestoreGrid()

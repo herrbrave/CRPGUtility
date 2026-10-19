@@ -23,6 +23,15 @@ namespace CRPG.Camera
         /// separate reference to the same asset.</summary>
         public CRPGCameraSettings Settings => settings;
 
+        /// <summary>Hands the rig another settings asset (see <see cref="CameraRigState.UseSettings"/>); the same <see cref="Rig"/> object lives on, so everything holding it keeps working.</summary>
+        public void UseSettings(CRPGCameraSettings next)
+        {
+            settings = next;
+            Rig.UseSettings(next);
+            shownZoom = float.NaN;
+            Apply();
+        }
+
         private void Awake()
         {
             Rig = new CameraRigState(settings);
