@@ -10,8 +10,11 @@ namespace CRPG.Rules.SRD5
     /// "AttackBonus" query key, same NumericRuleQuery + FeatureModifierCollector shape as
     /// <see cref="DefaultArmorClassRule"/>/<see cref="DefaultInitiativeRule"/>. Every attack is currently
     /// treated as proficient (see plan's scope note) -- there's no weapon-proficiency-gating step here yet.</summary>
-    public sealed class DefaultAttackBonusRule : IAttackBonusRule
+    public sealed class DefaultAttackBonusRule : IAttackBonusRule, IFlankingConfigurable
     {
+        /// <summary>The game's answer to "is this attacker flanking that target" (the optional 5e rule), set while a fight is on; null (the default) means no flanking.</summary>
+        public IFlankingQuery Flanking { get; set; }
+
         public const string AttackBonusQueryKey = "AttackBonus";
         public const string CriticalRangeQueryKey = "CriticalRange";
         public const string AttacksAgainstQueryKey = "AttacksAgainst";
@@ -68,6 +71,9 @@ namespace CRPG.Rules.SRD5
 
             if (characters.TryGetCharacter(target, out var targetCharacter))
                 states.Add(AdvantageCollector.Collect(targetCharacter, rulesDatabase, AttacksAgainstQueryKey));
+
+            // flanking is advantage from the battlefield itself: it combines like every other source (never stacks, opposite cancels)
+            if (Flanking != null && Flanking.IsFlanking(attacker, target)) states.Add(AdvantageState.Advantage);
 
             return AdvantageStateExtensions.Combine(states);
         }

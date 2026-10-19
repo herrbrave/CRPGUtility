@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ResourceDefinition_SpellSlotLevel1
   m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.ResourceDefinition
   id: resource-spell-slot-1
-  displayName: 
+  displayName: Spell Slots (Level 1)
   description: 
-  restTrigger: 0
+  restTrigger: 2
+  spellSlotLevel: 1

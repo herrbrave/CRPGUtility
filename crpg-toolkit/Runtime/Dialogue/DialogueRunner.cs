@@ -71,9 +71,32 @@ namespace CRPG.Dialogue
             return visible;
         }
 
+        /// <summary>Valid on a CheckNode. Looks at the check without rolling it: who rolls, with what bonus (named parts when the rule can name them), advantage and die. The conversation does not move.</summary>
+        public CheckPrompt PrepareCheck()
+        {
+            if (CurrentNode is not CheckNode check)
+                throw new InvalidOperationException($"PrepareCheck() isn't valid on a {CurrentNode.GetType().Name}.");
+            if (context.SkillCheckRule == null)
+                throw new InvalidOperationException("PrepareCheck() requires DialogueContext.SkillCheckRule to be set.");
+
+            var checkers = DialogueCheckResolver.ResolveCheckers(
+                check.Performer, context.NpcId, context.Party, context.Characters, context.SkillCheckRule, check.QueryKey);
+            var prompts = new List<CheckerPrompt>(checkers.Count);
+            foreach (var checkerId in checkers)
+            {
+                var bonus = context.SkillCheckRule.ComputeSkillCheckBonus(checkerId, check.QueryKey);
+                IReadOnlyList<CRPG.Actors.CheckBonusPart> parts = context.SkillCheckRule is CRPG.Actors.IDetailedSkillCheckRule detailed
+                    ? detailed.ComputeBreakdown(checkerId, check.QueryKey)
+                    : new[] { new CRPG.Actors.CheckBonusPart(check.QueryKey, bonus) };
+                prompts.Add(new CheckerPrompt(checkerId, parts, bonus, context.SkillCheckRule.ComputeAdvantage(checkerId, check.QueryKey), context.SkillCheckRule.CheckDie));
+            }
+
+            return new CheckPrompt(check.QueryKey, check.DifficultyClass, check.Performer, prompts);
+        }
+
         /// <summary>Valid on a CheckNode. Rolls (once per checker -- more than one only for EntireParty), logs,
-        /// branches, and returns every roll for the caller to display.</summary>
-        public DialogueCheckOutcome PerformCheck()
+        /// branches, and returns every roll for the caller to display. <paramref name="options"/> are the player's extras (null = none).</summary>
+        public DialogueCheckOutcome PerformCheck(CheckRollOptions options = null)
         {
             if (CurrentNode is not CheckNode check)
                 throw new InvalidOperationException($"PerformCheck() isn't valid on a {CurrentNode.GetType().Name}.");
@@ -92,9 +115,15 @@ namespace CRPG.Dialogue
             {
                 var bonus = context.SkillCheckRule.ComputeSkillCheckBonus(checkerId, check.QueryKey);
                 var advantage = context.SkillCheckRule.ComputeAdvantage(checkerId, check.QueryKey);
-                var modifiers = bonus != 0 ? new[] { new RollModifier(check.QueryKey, bonus) } : null;
+                var modifiers = new List<RollModifier>();
+                if (bonus != 0) modifiers.Add(new RollModifier(check.QueryKey, bonus));
+                if (options != null)
+                {
+                    modifiers.AddRange(options.ExtraModifiers);
+                    advantage = AdvantageStateExtensions.Combine(new[] { advantage, options.ExtraAdvantage });
+                }
 
-                var roll = context.DiceService.Roll(new RollRequest(context.SkillCheckRule.CheckDie, RollPurpose.AbilityCheck, advantage, source: checkerId, modifiers: modifiers));
+                var roll = context.DiceService.Roll(new RollRequest(context.SkillCheckRule.CheckDie, RollPurpose.AbilityCheck, advantage, source: checkerId, modifiers: modifiers.Count > 0 ? modifiers : null));
                 context.CombatLog?.Log(new RollLogEntry(roll));
                 rolls.Add(roll);
             }

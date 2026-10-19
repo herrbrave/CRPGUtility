@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Shield of Faith
   description: A shimmering field appears and surrounds a creature of your choice within range, granting it a +2 bonus to AC for the duration (concentration, up to 10 minutes). Modeled as a permanently granted FeatureDefinition (feature-shield-of-faith), same auto-expiring-buff gap as Bless.
   tags: 258
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}
     amount: 1

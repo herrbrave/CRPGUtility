@@ -9,7 +9,7 @@ namespace CRPG.UI
     /// convention as PartyView/CampView. Builds into an externally-supplied container region (see HudRoot)
     /// rather than owning its own UIDocument.
     /// </summary>
-    public sealed class TurnOrderView : MonoBehaviour
+    public sealed class TurnOrderView : MonoBehaviour, ITurnOrderDisplay
     {
         private TurnOrderPresenter presenter;
         private IGameEventBus eventBus;

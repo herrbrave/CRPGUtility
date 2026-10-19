@@ -23,6 +23,14 @@ namespace CRPG.Camera
         [SerializeField] private float followSmoothingSpeed = 8f;
         [SerializeField] private float edgeScrollMarginPixels = 20f;
 
+        [Header("Perspective feel")]
+        [Tooltip("Degrees added to the pitch when fully zoomed in (negative looks more level, so the characters are seen more from the front): 0 at the default zoom (or farther), the full offset at the minimum zoom, blended between. 0 = a fixed pitch. Ignored in orthographic mode.")]
+        [SerializeField] private float closeUpPitchOffset;
+        [Tooltip("Middle-mouse drag rotation: degrees of yaw per pixel dragged.")]
+        [SerializeField] private float rotateDragDegreesPerPixel = 0.25f;
+        [Tooltip("How fast the SHOWN zoom and pitch follow a zoom step, per second (the zoom itself is still stepped instantly). 0 = instantly. Ignored in orthographic mode.")]
+        [SerializeField] private float zoomSmoothingSpeed;
+
         [Header("Orthographic pixel-art mode (2D campaign). Off by default: every field below is ignored unless Orthographic is on.")]
         [Tooltip("Drive an orthographic camera by integer pixel scale instead of by distance. Yaw should stay locked (rotationSpeed and snapRotationDegrees 0) so sprite sorting holds.")]
         [SerializeField] private bool orthographic;
@@ -47,6 +55,9 @@ namespace CRPG.Camera
         public bool FollowSelection => followSelection;
         public float FollowSmoothingSpeed => followSmoothingSpeed;
         public float EdgeScrollMarginPixels => edgeScrollMarginPixels;
+        public float CloseUpPitchOffset => closeUpPitchOffset;
+        public float RotateDragDegreesPerPixel => rotateDragDegreesPerPixel;
+        public float ZoomSmoothingSpeed => zoomSmoothingSpeed;
         public bool Orthographic => orthographic;
         public int PixelsPerUnit => Mathf.Max(1, pixelsPerUnit);
         public IReadOnlyList<int> ZoomScales => zoomScales;

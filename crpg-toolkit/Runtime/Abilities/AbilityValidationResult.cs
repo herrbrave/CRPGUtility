@@ -17,7 +17,10 @@ namespace CRPG.Abilities
         NoLineOfSight,
         MissingRequiredEffectService,
         RitualTagRequired,
-        UpcastSlotBelowSpellLevel
+        UpcastSlotBelowSpellLevel,
+        ActionRestricted,
+        AimRequired,
+        InvalidAimPoint
     }
 
     public enum AbilityValidationOutcome { Valid, Rejected }

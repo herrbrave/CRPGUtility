@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Lesser Restoration
   description: 'You touch a creature and can end either one disease or one condition afflicting it: blinded, deafened, paralyzed, or poisoned. Poisoned is authored here as the one representative condition (condition-poisoned) this removes.'
   tags: 2
+  spellLevel: 2
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1

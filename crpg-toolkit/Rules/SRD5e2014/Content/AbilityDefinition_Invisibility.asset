@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Invisibility
   description: A creature you touch becomes invisible until the spell ends (up to 1 hour, concentration). Anything it wears or carries is invisible with it. The spell ends early if the target attacks or casts a spell (not modeled -- no auto-removal-on-action mechanism yet, applied with an indefinite duration). Higher-level-slot extra targets not modeled.
   tags: 1282
+  spellLevel: 2
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1

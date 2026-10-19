@@ -29,7 +29,7 @@ namespace CRPG.InputSystem
         private readonly IPointerCaptureProvider pointerCapture = new UIToolkitPointerCapture();
         private Vector2 lastPointerPosition;
         private Vector2 heldPanInput;
-        private float heldRotateInput;
+        private bool rotateGrabbed;
 
         // Lazily constructed rather than only in Awake: [SerializeField] values are already deserialized by
         // the time ANY code can run against this instance, but Unity does not guarantee this component's own
@@ -75,11 +75,12 @@ namespace CRPG.InputSystem
         private void OnDisable()
         {
             actions.Exploration.Disable();
+            Router.AbortGesture();   // a drag in progress must not leave its box (or a half-made selection) behind when the adapter is switched off
 
-            // A disabled-then-re-enabled adapter must never resume a stale pan/rotate from before it was
+            // A disabled-then-re-enabled adapter must never resume a stale pan or rotate-drag from before it was
             // disabled -- there is no "canceled" callback guaranteed to fire on disable for a still-held key.
             heldPanInput = Vector2.zero;
-            heldRotateInput = 0f;
+            rotateGrabbed = false;
         }
 
         private void OnDestroy() => actions?.Dispose();
@@ -98,7 +99,6 @@ namespace CRPG.InputSystem
             var pan = heldPanInput + ComputeEdgePan();
             if (pan != Vector2.zero) cameraRig.Rig.Pan(pan, Time.deltaTime);
 
-            if (heldRotateInput != 0f) cameraRig.Rig.Rotate(heldRotateInput, Time.deltaTime);
         }
 
         private Vector2 ComputeEdgePan()
@@ -158,8 +158,20 @@ namespace CRPG.InputSystem
         public void OnPan(InputAction.CallbackContext context) =>
             heldPanInput = context.canceled ? Vector2.zero : context.ReadValue<Vector2>();
 
-        public void OnRotate(InputAction.CallbackContext context) =>
-            heldRotateInput = context.canceled ? 0f : context.ReadValue<float>();
+        // Middle-mouse drag rotates the camera (it replaced the Q/E keys): a grab that STARTS over the UI is ignored, and the drag turns the view as if the
+        // world were being pulled (dragging right turns the camera left), by RotateDragDegreesPerPixel of yaw per pixel.
+        public void OnRotateGrab(InputAction.CallbackContext context)
+        {
+            if (context.started) rotateGrabbed = cameraRig != null && !pointerCapture.IsPointerOverUI(lastPointerPosition);
+            else if (context.canceled) rotateGrabbed = false;
+        }
+
+        public void OnRotateDelta(InputAction.CallbackContext context)
+        {
+            if (!rotateGrabbed || cameraRig == null || cameraRig.Settings == null) return;
+            var dx = context.ReadValue<Vector2>().x;
+            if (dx != 0f) cameraRig.Rig.RotateByDegrees(-dx * cameraRig.Settings.RotateDragDegreesPerPixel);
+        }
 
         // Zoom stays callback-driven (unlike Pan/Rotate): the mouse-scroll binding delivers a per-tick delta
         // that resets between reads -- a genuine discrete event, not something that needs continuous
@@ -170,7 +182,7 @@ namespace CRPG.InputSystem
             if (pointerCapture.IsPointerOverUI(lastPointerPosition)) return;
 
             var delta = context.ReadValue<float>();
-            if (delta != 0f) cameraRig.Rig.ApplyZoom(delta);
+            if (delta != 0f) cameraRig.Rig.ApplyZoom(CameraRigState.WheelToZoomDelta(cameraRig.Rig.Orthographic, delta));   // scrolling up zooms IN
         }
 
         public void OnRecenter(InputAction.CallbackContext context)

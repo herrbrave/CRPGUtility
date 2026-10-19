@@ -5,7 +5,7 @@ using CRPG.Core;
 
 namespace CRPG.Abilities
 {
-    public sealed class AbilityResolutionService : IAbilityResolutionService
+    public sealed partial class AbilityResolutionService : IAbilityResolutionService
     {
         private readonly ICharacterRegistry characters;
         private readonly IDiceService diceService;
@@ -51,6 +51,15 @@ namespace CRPG.Abilities
             this.lineOfSightProvider = lineOfSightProvider;
         }
 
+        /// <summary>Who could be inside an aimed shape (the character registry is lookup-only, so the game supplies the candidates). Without it an aimed SHAPE is refused, never silently resolved to nobody.</summary>
+        public ITargetCandidateSource CandidateSource { get; set; }
+
+        /// <summary>The game's say on a clicked ground point (standing room, walls, bodies); optional.</summary>
+        public IAimSurface AimSurface { get; set; }
+
+        /// <summary>Moves a creature for <see cref="RelocateEffect"/> (Misty Step, a leap); optional, but an ability with that effect is refused up front when it is missing.</summary>
+        public IRelocationService Relocation { get; set; }
+
         /// <summary>
         /// Task 4.2: the single preflight check that replaces CanUse/CanUseAsRitual/CanUseAtSlotLevel/
         /// IsValidTargetSelection -- safe to call repeatedly/non-destructively (never mutates anything), per
@@ -64,6 +73,10 @@ namespace CRPG.Abilities
         {
             var castingModeRejection = CheckCastingMode(source, ability, asRitual, upcastWithSlot);
             if (castingModeRejection != null) return castingModeRejection;
+
+            // An aimed ability (a point, a direction, a shaped area) is not cast by picking creatures: its targets are derived from where it is pointed.
+            if (ability.Targeting.RequiresAim || ability.Targeting.CasterCentred)
+                return AbilityValidationResult.Reject(AbilityRejectionReason.AimRequired, $"'{ability.DisplayName}' is aimed at the ground, not at creatures.");
 
             var targetCount = targets?.Count ?? 0;
             if (targetCount < ability.Targeting.MinTargets || targetCount > ability.Targeting.MaxTargets)
@@ -138,6 +151,20 @@ namespace CRPG.Abilities
             return AbilityValidationResult.Ok();
         }
 
+        /// <summary>True when a feature the character currently holds (a class feature, a racial one, or one an equipped item grants: a wielded weapon's attack) grants this ability. Such abilities are available without ever being
+        /// "learned": the ability bar already lists them, and without this the cast gate rejected them as AbilityNotKnown for any character that knew some other ability.</summary>
+        private bool IsGrantedByAFeature(CharacterState character, DefinitionId abilityId)
+        {
+            if (rulesDatabase == null) return false;
+            foreach (var featureId in character.Features)
+            {
+                if (!rulesDatabase.TryResolve<FeatureDefinition>(featureId, out var feature)) continue;
+                for (var i = 0; i < feature.GrantedAbilityIds.Count; i++) if (feature.GrantedAbilityIds[i] == abilityId) return true;
+            }
+
+            return false;
+        }
+
         private AbilityValidationResult CheckCastingMode(RuntimeEntityId source, AbilityDefinition ability, bool asRitual, ResourceDefinition upcastWithSlot)
         {
             if (!CanAct(source)) return AbilityValidationResult.Reject(AbilityRejectionReason.Incapacitated);
@@ -146,7 +173,7 @@ namespace CRPG.Abilities
             // demo NPCs, which Task 4.5 -- not 4.2 -- retrofits) is treated as not opted into this gate at all.
             // A character with at least one known ability is properly restricted to what it knows.
             if (characters.TryGetCharacter(source, out var gateCharacter)
-                && gateCharacter.KnownAbilities.Count > 0 && !gateCharacter.KnowsAbility(ability.Id))
+                && gateCharacter.KnownAbilities.Count > 0 && !gateCharacter.KnowsAbility(ability.Id) && !IsGrantedByAFeature(gateCharacter, ability.Id))
                 return AbilityValidationResult.Reject(AbilityRejectionReason.AbilityNotKnown);
 
             if (asRitual)
@@ -216,6 +243,23 @@ namespace CRPG.Abilities
         {
             var validation = Validate(source, ability, targets, asRitual, upcastWithSlot);
             if (!validation.IsValid) return AbilityExecutionResult.FromRejection(validation);
+            return ExecuteCore(source, ability, targets, AbilityAim.None, asRitual, upcastWithSlot);
+        }
+
+        /// <summary>Casts an AIMED ability: validates the aim (range, line of sight, the game's aim surface, the candidates in the shape), derives the creatures inside the shape and runs the effects over them with the aim in the context. Costs are spent once, exactly as for a creature-targeted cast.</summary>
+        public AbilityExecutionResult Execute(
+            RuntimeEntityId source, AbilityDefinition ability, AbilityAim aim,
+            bool asRitual = false, ResourceDefinition upcastWithSlot = null)
+        {
+            var validation = ValidateAim(source, ability, aim, asRitual, upcastWithSlot, out var accepted, out var derived);
+            if (!validation.IsValid) return AbilityExecutionResult.FromRejection(validation);
+            return ExecuteCore(source, ability, derived, accepted, asRitual, upcastWithSlot);
+        }
+
+        private AbilityExecutionResult ExecuteCore(
+            RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets, AbilityAim aim,
+            bool asRitual, ResourceDefinition upcastWithSlot)
+        {
 
             // Validate() already confirmed the caster resolves (both CanAct and the cost-affordability check
             // require it) -- re-resolving here rather than threading it through is simpler and just as safe.
@@ -241,7 +285,7 @@ namespace CRPG.Abilities
             var context = new AbilityExecutionContext(
                 source, targets, characters, diceService, combatLog, eventBus, positions, influenceMap,
                 attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
-                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId);
+                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId, aim: aim, relocation: Relocation);
 
             void RegisterConcentration()
             {
@@ -340,6 +384,8 @@ namespace CRPG.Abilities
                     return "A SavingThrowEffect requires SavingThrowRule to be wired up.";
                 case CreateInfluenceSourceEffect when positions == null || influenceMap == null:
                     return "A CreateInfluenceSourceEffect requires Positions and an InfluenceMap to be wired up.";
+                case RelocateEffect when Relocation == null:
+                    return "A RelocateEffect requires a relocation service to be wired up.";
             }
 
             foreach (var child in effect.GetChildEffects())

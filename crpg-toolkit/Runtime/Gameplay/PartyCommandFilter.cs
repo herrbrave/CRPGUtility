@@ -41,6 +41,9 @@ namespace CRPG.Gameplay
         /// <summary>While set, every Move command goes here instead of <see cref="Move"/> and Interact is dropped. Null (the default) passes Move through.</summary>
         public Action<MoveCommand> CombatMoveOverride { get; set; }
 
+        /// <summary>While set, an Interact command goes to it instead of being dropped by a fight (<see cref="CombatMoveOverride"/> alone drops it): the game decides what a click on an interactable means mid-fight (the ship lets the current hero open the cell gate).</summary>
+        public Action<InteractCommand> CombatInteractOverride { get; set; }
+
         /// <summary>While true, Move and Interact are swallowed entirely (takes precedence over <see cref="CombatMoveOverride"/>): a click during a walk the game itself ordered would override it.</summary>
         public bool MovesLocked { get; set; }
 
@@ -80,7 +83,9 @@ namespace CRPG.Gameplay
 
         private void OnInteract(InteractCommand command)
         {
-            if (MovesLocked || CombatMoveOverride != null) return;
+            if (MovesLocked) return;
+            if (CombatInteractOverride != null) { CombatInteractOverride(command); return; }
+            if (CombatMoveOverride != null) return;
             Interact?.Invoke(command);
         }
 

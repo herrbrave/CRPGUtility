@@ -77,13 +77,23 @@
                     "priority": 0
                 },
                 {
-                    "name": "Rotate",
-                    "type": "Value",
+                    "name": "RotateGrab",
+                    "type": "Button",
                     "id": "ad104ba8-dfb9-433c-aea2-6f08ff765ffb",
-                    "expectedControlType": "Axis",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true,
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "RotateDelta",
+                    "type": "PassThrough",
+                    "id": "5d1a1d5e-6d1f-4b43-9a55-0c3a7e4f21b9",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
                     "priority": 0
                 },
                 {
@@ -231,37 +241,26 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "1DAxis",
-                    "id": "86c63b84-5b59-4b83-9dc2-dcb3722d3260",
-                    "path": "1DAxis",
+                    "name": "",
+                    "id": "0c6f4a1e-7b52-4f0e-8d11-3a9c5e7f1b20",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
-                    "isComposite": true,
+                    "action": "RotateGrab",
+                    "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "Negative",
-                    "id": "b8a650cc-b61c-41f7-80fa-5b826e7071de",
-                    "path": "<Keyboard>/q",
+                    "name": "",
+                    "id": "8e2b7d94-1f63-4c0a-b5e8-62d4a90c3f17",
+                    "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateDelta",
                     "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Positive",
-                    "id": "44a1b351-dff2-4a3f-a3cd-94a28a450fa6",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",

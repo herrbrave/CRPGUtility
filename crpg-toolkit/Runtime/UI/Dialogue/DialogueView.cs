@@ -31,13 +31,17 @@ namespace CRPG.UI
         public event System.Action Driven;
 
         private bool plainStyle;
+        private IDialogueCheckPresenter checkPresenter;
+        private bool checkPresented;
 
         /// <param name="plainStyle">False (default) keeps the look a game's own USS skin paints over (Barrow's End). True is a self-contained dark panel with light text, for a game with no skin: the default
         /// look is mid-grey with dark text, which only reads well under that skin.</param>
-        public void Initialize(DialoguePresenter dialoguePresenter, bool plainStyle = false)
+        /// <param name="checkPresenter">Optional: a game's own presentation of a skill check (a dice popup). Null keeps the built-in Roll button.</param>
+        public void Initialize(DialoguePresenter dialoguePresenter, bool plainStyle = false, IDialogueCheckPresenter checkPresenter = null)
         {
             presenter = dialoguePresenter;
             this.plainStyle = plainStyle;
+            this.checkPresenter = checkPresenter; checkPresented = false;
             document = GetComponent<UIDocument>();
             BuildLayout();
             Refresh();
@@ -136,6 +140,16 @@ namespace CRPG.UI
                     choiceButton.style.marginBottom = 4;
                     StyleButton(choiceButton);
                     newResponseArea.Add(choiceButton);
+                }
+            }
+            else if (presenter.IsAtCheck && checkPresenter != null)
+            {
+                // the game shows the check (nothing to click here); presented once per check node, whatever refreshes meanwhile
+                if (!checkPresented)
+                {
+                    checkPresented = true;
+                    root.style.display = DisplayStyle.None;   // the game's own presentation of the check is up: this panel steps aside
+                    checkPresenter.Present(presenter.PrepareCheck(), options => presenter.PerformCheck(options), () => { checkPresented = false; root.style.display = DisplayStyle.Flex; Refresh(); if (!presenter.IsComplete) Driven?.Invoke(); });
                 }
             }
             else if (presenter.IsAtCheck)

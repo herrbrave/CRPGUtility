@@ -33,6 +33,7 @@ namespace CRPG.Camera
         private void LateUpdate() => Apply();
 
         private UnityEngine.Camera cachedCamera;
+        private float shownZoom = float.NaN;
 
         // Orthographic pixel-art mode: hand the rig the viewport being rendered (the render target's height when one is set, else the screen), then
         // make the camera's orthographicSize match the integer scale. The camera stays at its fixed distance (Zoom): scale, not distance, is the zoom.
@@ -56,8 +57,18 @@ namespace CRPG.Camera
 
             transform.position = settings.Orthographic ? Rig.PresentationFocus : Rig.FocusPoint;
             yawPivot.localRotation = Quaternion.Euler(0f, Rig.Yaw, 0f);
-            pitchPivot.localRotation = Quaternion.Euler(Rig.Pitch, 0f, 0f);
-            cameraTransform.localPosition = Vector3.back * Rig.Zoom;
+            // the SHOWN zoom may glide toward the stepped one (settings.ZoomSmoothingSpeed), and the pitch follows what is shown
+            var zoom = Rig.Zoom;
+            if (!settings.Orthographic && settings.ZoomSmoothingSpeed > 0f && Application.isPlaying)
+            {
+                if (float.IsNaN(shownZoom)) shownZoom = zoom;
+                shownZoom = Mathf.Lerp(shownZoom, zoom, 1f - Mathf.Exp(-settings.ZoomSmoothingSpeed * Time.unscaledDeltaTime));
+                zoom = shownZoom;
+            }
+            else shownZoom = zoom;
+
+            pitchPivot.localRotation = Quaternion.Euler(Rig.PitchFor(zoom), 0f, 0f);
+            cameraTransform.localPosition = Vector3.back * zoom;
         }
     }
 }

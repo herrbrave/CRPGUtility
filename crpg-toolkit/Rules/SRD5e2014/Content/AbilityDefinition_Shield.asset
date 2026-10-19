@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Shield
   description: An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from magic missile. Cast as a reaction. Granted permanently (no duration/"until start of your next turn" removal mechanism yet) -- see file header.
   tags: 130
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: 0e044852363362d44be2ee8ef0b053b8, type: 2}
     amount: 1

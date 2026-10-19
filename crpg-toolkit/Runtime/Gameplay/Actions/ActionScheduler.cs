@@ -81,6 +81,20 @@ namespace CRPG.Gameplay.Actions
             return execution;
         }
 
+        /// <summary>Starts an AIMED ability (a point, a shaped area): the targets are derived from the aim when it commits. Same rules as the creature-targeted overload: null when busy or not this actor's turn.</summary>
+        public AbilityActionExecution StartAbility(
+            RuntimeEntityId source, AbilityDefinition ability, AbilityAim aim,
+            bool asRitual = false, ResourceDefinition upcastWithSlot = null)
+        {
+            if (IsBusy || !IsAuthorized(source)) return null;
+
+            var facing = FindAgent(source)?.Facing;
+            var execution = new AbilityActionExecution(
+                source, abilityResolution, ability, System.Array.Empty<RuntimeEntityId>(), asRitual, upcastWithSlot, facing, positions, presentationHook, aim);
+            Adopt(execution);
+            return execution;
+        }
+
         /// <summary>Returns null (nothing started) if busy or not authorized for <paramref name="source"/>
         /// this turn -- the real-navigation planning itself (which can finish synchronously as Rejected, e.g.
         /// an unreachable destination) always happens and is always returned to the caller.</summary>

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Scorching Ray
   description: You create three rays of fire and hurl them at targets within range, one at a time or several. Make a ranged spell attack for each ray; on a hit, the target takes 2d6 fire damage. Modeled as up to 3 targets, each taking one attack-roll-gated 2d6 hit -- like Magic Missile, stacking multiple rays onto one target isn't modeled.
   tags: 11
+  spellLevel: 2
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1
@@ -52,4 +53,6 @@ MonoBehaviour:
           sides: 6
           modifier: 0
         damageTypeId:
-          value: 
+          value: damage-fire
+        scalesWithCasterLevel: 0
+        extraDiceCountPerSlotLevel: 0

@@ -24,8 +24,13 @@ namespace CRPG.Gameplay.Actions
         private readonly IPositionProvider positions;
         private readonly IActionPresentationHook presentationHook;
 
+        private readonly AbilityAim aim;
         private float elapsed;
         private bool facingClaimed;
+        private float turnWaited;
+
+        /// <summary>The longest a wind-up waits for the caster to finish turning toward its target before the ability commits anyway (a half turn at the default turn speed takes half a second).</summary>
+        public const float MaxTurnWaitSeconds = 0.7f;
 
         public AbilityActionExecution(
             RuntimeEntityId source,
@@ -36,7 +41,8 @@ namespace CRPG.Gameplay.Actions
             ResourceDefinition upcastWithSlot = null,
             FacingController facing = null,
             IPositionProvider positions = null,
-            IActionPresentationHook presentationHook = null)
+            IActionPresentationHook presentationHook = null,
+            AbilityAim aim = default)
             : base(source)
         {
             this.abilityResolution = abilityResolution ?? throw new ArgumentNullException(nameof(abilityResolution));
@@ -52,6 +58,7 @@ namespace CRPG.Gameplay.Actions
             this.facing = facing;
             this.positions = positions;
             this.presentationHook = presentationHook;
+            this.aim = aim;
 
             Phase = ActionPhase.Preparing;
             ClaimFacing();
@@ -64,9 +71,11 @@ namespace CRPG.Gameplay.Actions
         {
             // Both facing and positions are optional -- a caller with neither (e.g. a non-visual demo) simply
             // gets no facing behavior, same as every other optional collaborator in this codebase.
-            if (facing == null || positions == null || targets.Length == 0) return;
+            if (facing == null || positions == null) return;
+            if (targets.Length == 0 && !aim.IsSet) return;
 
-            var direction = positions.GetPosition(targets[0]) - facing.transform.position;
+            // an aimed cast turns toward the point it was aimed at; a creature-targeted one toward its first target
+            var direction = targets.Length > 0 ? positions.GetPosition(targets[0]) - facing.transform.position : aim.Point - facing.transform.position;
             facing.RequestFacing(FacingPriority.CommittedAction, direction);
             facingClaimed = true;
         }
@@ -97,6 +106,13 @@ namespace CRPG.Gameplay.Actions
                 switch (Phase)
                 {
                     case ActionPhase.Preparing:
+                        // the swing must not start before the caster faces its target (an attack with no wind-up would otherwise commit, and release the facing, in its very first tick)
+                        if (facingClaimed && turnWaited < MaxTurnWaitSeconds && facing.IsStillTurningToward(FacingPriority.CommittedAction))
+                        {
+                            turnWaited += Mathf.Min(deltaTime, MaxTurnWaitSeconds - turnWaited);
+                            return;
+                        }
+
                         remaining = Mathf.Max(0f, ability.PrepareSeconds - elapsed);
                         if (deltaTime < remaining)
                         {
@@ -136,7 +152,9 @@ namespace CRPG.Gameplay.Actions
             // (regardless of the outcome below) rather than waiting for Complete.
             ReleaseFacing();
 
-            ExecutionResult = abilityResolution.Execute(Source, ability, targets, asRitual, upcastWithSlot);
+            ExecutionResult = aim.IsSet
+                ? abilityResolution.Execute(Source, ability, aim, asRitual, upcastWithSlot)
+                : abilityResolution.Execute(Source, ability, targets, asRitual, upcastWithSlot);
 
             if (!ExecutionResult.Succeeded)
             {

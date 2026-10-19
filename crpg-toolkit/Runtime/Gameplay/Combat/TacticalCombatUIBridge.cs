@@ -17,7 +17,7 @@ namespace CRPG.Gameplay.Combat
     {
         private readonly TacticalEncounterController controller;
         private readonly AbilityTargetingGate targetingGate;
-        private readonly AbilityBarView abilityBarView;
+        private readonly IAbilityBar abilityBarView;
         private readonly IGameEventBus eventBus;
         private readonly DefinitionId playerFaction;
         private readonly Action<RuntimeEntityId> rollDeathSave;
@@ -28,7 +28,7 @@ namespace CRPG.Gameplay.Combat
         /// <summary><paramref name="rollDeathSave"/> is a plain delegate, not a direct SRD5 service reference
         /// -- see <see cref="TacticalAiTurnDriver"/>'s own identical reasoning.</summary>
         public TacticalCombatUIBridge(
-            TacticalEncounterController controller, AbilityTargetingGate targetingGate, AbilityBarView abilityBarView,
+            TacticalEncounterController controller, AbilityTargetingGate targetingGate, IAbilityBar abilityBarView,
             IGameEventBus eventBus, DefinitionId playerFaction, Action<RuntimeEntityId> rollDeathSave = null)
         {
             this.controller = controller ?? throw new ArgumentNullException(nameof(controller));
@@ -53,6 +53,16 @@ namespace CRPG.Gameplay.Combat
 
         private void OnAbilityChosen(RuntimeEntityId source, AbilityDefinition ability)
         {
+            // an aura (a sphere or cylinder on the caster) needs nothing to point at either, but its targets come from its shape: cast it with an aim on the caster
+            if (ability.Targeting.CasterCentred)
+            {
+                targetingGate.Disarm();
+                var agent = System.Linq.Enumerable.FirstOrDefault(CharacterAgent.AllLive, a => a != null && a.EntityId == source);
+                var here = agent != null ? agent.transform.position : UnityEngine.Vector3.zero;
+                controller.Scheduler.StartAbility(source, ability, new AbilityAim(here, UnityEngine.Vector3.forward));
+                return;
+            }
+
             // A self-targeted ability (Rage, Reckless Attack, ...) has nothing to point at: cast it at once rather
             // than arming the click gate, which would wait for a target click and reject any creature clicked.
             if (ability.Targeting.Mode == TargetMode.Self)

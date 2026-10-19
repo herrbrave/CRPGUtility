@@ -27,6 +27,7 @@ namespace CRPG.Gameplay
         private readonly DialogueRunner runner;
         private readonly PanelSettings panelSettings;
         private readonly bool plainStyle;
+        private readonly IDialogueCheckPresenter checkPresenter;
 
         private GameObject uiGo;
         private DialogueView dialogueView;
@@ -46,11 +47,12 @@ namespace CRPG.Gameplay
         public DialogueView CurrentDialogueView => dialogueView;
         public StoreView CurrentStoreView => storeView;
 
-        public ConversationController(DialogueDefinition dialogue, DialogueContext context, PanelSettings panelSettings, bool plainStyle = false)
+        public ConversationController(DialogueDefinition dialogue, DialogueContext context, PanelSettings panelSettings, bool plainStyle = false, IDialogueCheckPresenter checkPresenter = null)
         {
             this.context = context;
             this.panelSettings = panelSettings;
             this.plainStyle = plainStyle;
+            this.checkPresenter = checkPresenter;
             runner = new DialogueRunner(dialogue, context);
             modalScope = UIToolkitPointerCapture.BeginModal();
             try
@@ -154,7 +156,7 @@ namespace CRPG.Gameplay
             dialogueView = uiGo.AddComponent<DialogueView>();
             dialogueView.Completed += HandleDialogueViewCompleted;
             dialogueView.Driven += HandleDialogueViewDriven;
-            dialogueView.Initialize(new DialoguePresenter(runner, context), plainStyle);
+            dialogueView.Initialize(new DialoguePresenter(runner, context), plainStyle, checkPresenter);
         }
 
         private void HandleDialogueViewCompleted() => AdvancePresentation();

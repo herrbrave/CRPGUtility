@@ -33,7 +33,7 @@ MonoBehaviour:
     requireVisibleTarget: 1
   effects:
   - rid: 4304780644164829206
-  spellLevel: 0
+  spellLevel: 1
   prepareSeconds: 0
   recoverSeconds: 0
   animationCueId:

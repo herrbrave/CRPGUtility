@@ -588,6 +588,35 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void ValidateAcceptsAnAbilityGrantedByAFeatureTheCasterHoldsEvenThoughItWasNeverLearned()
+        {
+            var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");
+            var ability = CreateAbility(resource, 1, 1, 1); // id "ability-test"
+            var granting = TestDefinitionFactory.CreateFeatureDefinition("feature-wield-test", "Wield test");
+            TestDefinitionFactory.SetPrivateField(granting, "grantedAbilityIds", new List<DefinitionId> { ability.Id });
+            var other = TestDefinitionFactory.CreateFeatureDefinition("feature-other", "Other");
+            var rules = new RulesDatabase();
+            rules.Register(granting); rules.Register(other); rules.Register(ability);
+
+            var registry = new CharacterRegistry();
+            var caster = new CharacterState(RuntimeEntityId.NewId());
+            caster.AddResource(new ResourceState(resource.Id, max: 1));
+            caster.LearnAbility(new DefinitionId("some-other-ability"));   // opted into the known-ability gate
+            registry.Register(caster);
+            var target = RegisterTarget(registry);
+            var service = new AbilityResolutionService(registry, new DiceService(new SeededRandomSource(1)), rulesDatabase: rules);
+
+            caster.GrantFeature(other.Id);
+            Assert.AreEqual(AbilityRejectionReason.AbilityNotKnown, service.Validate(caster.Id, ability, new[] { target }).Reason, "a feature that does not grant it changes nothing");
+
+            caster.GrantFeature(granting.Id);
+            Assert.AreNotEqual(AbilityRejectionReason.AbilityNotKnown, service.Validate(caster.Id, ability, new[] { target }).Reason, "holding the granting feature makes it available");
+
+            caster.RemoveFeature(granting.Id);
+            Assert.AreEqual(AbilityRejectionReason.AbilityNotKnown, service.Validate(caster.Id, ability, new[] { target }).Reason, "and losing the feature takes it away again");
+        }
+
+        [Test]
         public void ValidateDoesNotGateOnKnownAbilitiesWhenTheCasterHasNeverLearnedAnything()
         {
             var resource = TestDefinitionFactory.CreateResourceDefinition("resource-action", "Action");

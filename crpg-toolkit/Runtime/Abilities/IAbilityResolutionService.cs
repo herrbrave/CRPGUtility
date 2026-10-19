@@ -29,5 +29,17 @@ namespace CRPG.Abilities
         AbilityExecutionResult Execute(
             RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
             bool asRitual = false, ResourceDefinition upcastWithSlot = null);
+
+        /// <summary>The aimed counterpart of <see cref="Validate"/>: an ability pointed at the ground (a Point, a shaped area) is validated from its aim (range, line of sight, the game's aim surface); its targets are derived from the shape.</summary>
+        AbilityValidationResult Validate(
+            RuntimeEntityId source, AbilityDefinition ability, AbilityAim aim,
+            bool asRitual = false, ResourceDefinition upcastWithSlot = null);
+
+        /// <summary>The creatures an aimed ability would hit from this aim, without validating the aim (for a preview).</summary>
+        IReadOnlyList<RuntimeEntityId> ResolveTargets(RuntimeEntityId source, AbilityDefinition ability, AbilityAim aim);
+
+        AbilityExecutionResult Execute(
+            RuntimeEntityId source, AbilityDefinition ability, AbilityAim aim,
+            bool asRitual = false, ResourceDefinition upcastWithSlot = null);
     }
 }

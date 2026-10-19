@@ -15,7 +15,8 @@ MonoBehaviour:
   id: spell-detect-magic
   displayName: Detect Magic
   description: For the duration (up to 10 minutes, concentration), you sense the presence of magic within 30 feet of you, and can use your action to see a faint aura around a visible magical creature or object and learn its school of magic. Can be cast as a ritual (not modeled -- no ritual-casting mechanism yet). Pure utility -- no mechanical effect authored.
-  tags: 1282
+  tags: 3330
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1

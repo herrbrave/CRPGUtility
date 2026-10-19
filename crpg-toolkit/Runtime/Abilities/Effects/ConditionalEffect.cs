@@ -33,11 +33,7 @@ namespace CRPG.Abilities
             // ConditionalEffect wrapping an AttackRollEffect/SavingThrowEffect/DamageEffect/ApplyConditionEffect
             // must not silently drop the rules (or the ownership tracking) those need to resolve correctly.
             // OwnedTargets in particular MUST be the SAME instance, not a fresh one -- see its own remarks.
-            var filteredContext = new AbilityExecutionContext(
-                context.Source, eligibleTargets, context.Characters, context.DiceService, context.CombatLog,
-                context.EventBus, context.Positions, context.InfluenceMap, context.AttackBonusRule, context.ArmorClassRule,
-                context.CriticalTargets, context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels,
-                context.OwnerId, context.OwnedTargets);
+            var filteredContext = context.Narrow(eligibleTargets);
             thenEffect.Apply(filteredContext);
         }
 

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Cure Wounds
   description: A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier (fixed at +3 for this sample -- see header comment). This spell has no effect on undead or constructs. When cast using a higher-level slot, healing increases by 1d8 per slot level above 1st.
   tags: 34
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1
@@ -44,3 +45,4 @@ MonoBehaviour:
           count: 1
           sides: 8
           modifier: 3
+        extraDiceCountPerSlotLevel: 1

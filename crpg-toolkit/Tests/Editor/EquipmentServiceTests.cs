@@ -262,5 +262,52 @@ namespace CRPG.Tests.EditMode
 
             Assert.AreEqual(dagger.Id, unequippedItemId);
         }
+
+        [Test]
+        public void EquippingAnItemAnotherMemberWearsTakesItAwayFromThemFeatureAndAll()
+        {
+            var rulesDatabase = new RulesDatabase();
+            var armorFeature = TestDefinitionFactory.CreateFeatureDefinition("feature-chain-shirt", "Chain Shirt Armor");
+            rulesDatabase.Register(armorFeature);
+            var chainShirt = TestDefinitionFactory.CreateItemDefinition("item-chain-shirt", "Chain Shirt", equipmentSlotId: MainHand, equippedFeatureId: armorFeature.Id);
+            rulesDatabase.Register(chainShirt);
+            var inventory = new PartyInventoryState();
+            var instance = new ItemInstance(RuntimeEntityId.NewId(), chainShirt.Id);
+            inventory.AddItem(instance);
+            var registry = new CharacterRegistry();
+            var first = new CharacterState(RuntimeEntityId.NewId()); var second = new CharacterState(RuntimeEntityId.NewId());
+            registry.Register(first); registry.Register(second);
+            var eventBus = new GameEventBus();
+            var unequipped = new List<RuntimeEntityId>();
+            eventBus.Subscribe(GameEvent.ItemUnequipped, context => unequipped.Add(context.Target));
+
+            var service = new EquipmentService(registry, rulesDatabase, inventory, eventBus);
+            service.Equip(instance.InstanceId, first.Id, MainHand);
+            service.Equip(instance.InstanceId, second.Id, MainHand);
+
+            Assert.AreEqual(second.Id, inventory.GetLocation(instance.InstanceId).Character);
+            Assert.IsFalse(first.HasFeature(armorFeature.Id), "the previous wearer no longer has the item's feature");
+            Assert.IsTrue(second.HasFeature(armorFeature.Id));
+            CollectionAssert.AreEqual(new[] { first.Id }, unequipped, "the previous wearer was told (his model stops showing it)");
+            Assert.IsFalse(inventory.TryGetEquippedItem(first.Id, MainHand, out _));
+        }
+
+        [Test]
+        public void ReEquippingTheSameItemInTheSameSlotChangesNothing()
+        {
+            var rulesDatabase = new RulesDatabase();
+            var sword = TestDefinitionFactory.CreateItemDefinition("item-sword", "Longsword", equipmentSlotId: MainHand);
+            rulesDatabase.Register(sword);
+            var inventory = new PartyInventoryState();
+            var instance = new ItemInstance(RuntimeEntityId.NewId(), sword.Id);
+            inventory.AddItem(instance);
+            var character = RuntimeEntityId.NewId();
+            var eventBus = new GameEventBus(); var unequips = 0;
+            eventBus.Subscribe(GameEvent.ItemUnequipped, _ => unequips++);
+            var service = new EquipmentService(new CharacterRegistry(), rulesDatabase, inventory, eventBus);
+            service.Equip(instance.InstanceId, character, MainHand);
+            Assert.IsNull(service.Equip(instance.InstanceId, character, MainHand));
+            Assert.AreEqual(0, unequips); Assert.AreEqual(character, inventory.GetLocation(instance.InstanceId).Character);
+        }
     }
 }

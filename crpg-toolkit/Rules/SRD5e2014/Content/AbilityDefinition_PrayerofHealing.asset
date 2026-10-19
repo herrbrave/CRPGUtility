@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Prayer of Healing
   description: Up to six creatures of your choice that you can see within range each regain hit points equal to 2d8 + your spellcasting ability modifier (fixed at +3 for this sample). No effect on undead or constructs. Casting time is 10 minutes, which has no matching action-economy resource here (only Action/Bonus Action/Reaction exist), so this ability only costs the spell slot. When cast using a higher-level slot, healing increases by 1d8 per slot level above 2nd.
   tags: 34
+  spellLevel: 2
   costs:
   - resource: {fileID: 11400000, guid: 88c970066da9eae4b816c66b9b46854b, type: 2}
     amount: 1
@@ -42,3 +43,4 @@ MonoBehaviour:
           count: 2
           sides: 8
           modifier: 3
+        extraDiceCountPerSlotLevel: 1

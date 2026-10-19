@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Web
   description: Thick, sticky webbing fills a 20-foot cube within range for up to 1 hour (concentration). Each creature that starts its turn in the webs, or enters them, must make a Dexterity saving throw or become restrained as long as it remains in the webs (a Strength check against your spell save DC frees it early -- escape not modeled). Difficult terrain/light obscurement/flammability not modeled. Restrained condition applied with an indefinite duration -- no auto-removal on escape or on the spell ending yet, see file header.
   tags: 770
+  spellLevel: 2
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1
@@ -23,7 +24,7 @@ MonoBehaviour:
     amount: 1
   targeting:
     mode: 5
-    relation: 2
+    relation: 4
     minTargets: 1
     maxTargets: 6
     range: 18

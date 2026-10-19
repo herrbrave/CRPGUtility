@@ -22,7 +22,7 @@ namespace CRPG.UI
         private readonly VisualElement box;
         private readonly IDragSelectionFeedback feedback;
 
-        public DragSelectionOverlay(VisualElement hudDocumentRoot, IDragSelectionFeedback feedback)
+        public DragSelectionOverlay(VisualElement hudDocumentRoot, IDragSelectionFeedback feedback, Color? border = null, Color? fill = null)
         {
             if (hudDocumentRoot == null) throw new ArgumentNullException(nameof(hudDocumentRoot));
             this.feedback = feedback ?? throw new ArgumentNullException(nameof(feedback));
@@ -34,12 +34,12 @@ namespace CRPG.UI
             box.style.borderBottomWidth = 2;
             box.style.borderLeftWidth = 2;
             box.style.borderRightWidth = 2;
-            var borderColor = new Color(0.4f, 0.9f, 0.4f, 0.9f);
+            var borderColor = border ?? new Color(0.4f, 0.9f, 0.4f, 0.9f);
             box.style.borderTopColor = borderColor;
             box.style.borderBottomColor = borderColor;
             box.style.borderLeftColor = borderColor;
             box.style.borderRightColor = borderColor;
-            box.style.backgroundColor = new Color(0.4f, 0.9f, 0.4f, 0.15f);
+            box.style.backgroundColor = fill ?? new Color(0.4f, 0.9f, 0.4f, 0.15f);
             hudDocumentRoot.Add(box);
 
             this.feedback.DragBoxChanged += OnDragBoxChanged;

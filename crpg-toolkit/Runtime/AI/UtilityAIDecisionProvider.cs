@@ -68,7 +68,7 @@ namespace CRPG.AI
                 }
 
                 if (!rulesDatabase.TryResolve<AbilityDefinition>(behavior.AbilityId, out var ability)) continue;
-                if (ability.Targeting.MaxTargets != 1) continue; // v1 scope: single-target abilities only
+                if (ability.Targeting.MaxTargets != 1 || ability.Targeting.RequiresAim || ability.Targeting.CasterCentred) continue; // v1 scope: single-target abilities only (an aimed ability is the player's to point)
 
                 // Task 4.2: range/relation used to be duplicated here (a manual Vector3.Distance check
                 // alongside CanUse) -- now Validate is the single authoritative check for a specific candidate,

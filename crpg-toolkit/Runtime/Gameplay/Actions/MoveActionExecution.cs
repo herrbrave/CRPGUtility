@@ -207,7 +207,7 @@ namespace CRPG.Gameplay.Actions
 
             var currentPosition = positions.GetPosition(Source);
             var targetStop = stops[nextStopIndex];
-            var remainingBudget = movementResolution.GetEffectiveRemainingBudget(Source, movementResourceId);
+            var remainingBudget = LegBudget(movementResolution.GetEffectiveRemainingBudget(Source, movementResourceId), alreadySpent, distanceTraveled);
             var distanceToStop = Vector3.Distance(currentPosition, targetStop.Position);
 
             if (distanceToStop <= remainingBudget)
@@ -228,6 +228,12 @@ namespace CRPG.Gameplay.Actions
                 IssueLeg(currentPosition, clipped);
             }
         }
+
+        /// <summary>How far the NEXT leg may go. The Movement resource is an integer and is spent as <c>Ceil(distance walked so far)</c> at every leg arrival, so what is left in it (<paramref name="effectiveRemaining"/>) is rounded DOWN
+        /// at each corner; clipping to it alone would stop a path with corners up to a metre short of its budget. The real distance left is the start budget minus the distance walked, which is the resource plus the part of the
+        /// rounding already spent but not walked (<c>alreadySpent - distanceTraveled</c>, between 0 and 1). The total spend still ends at <c>Ceil(total distance)</c>.</summary>
+        public static float LegBudget(float effectiveRemaining, int alreadySpent, float distanceTraveled) =>
+            Mathf.Max(0f, effectiveRemaining + Mathf.Max(0f, alreadySpent - distanceTraveled));
 
         private void IssueLeg(Vector3 currentPosition, Vector3 destination)
         {

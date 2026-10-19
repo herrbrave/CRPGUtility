@@ -24,7 +24,9 @@ namespace CRPG.Abilities
             IDamageResistanceRule damageResistanceRule = null,
             int upcastLevels = 0,
             EffectOwnerId ownerId = default,
-            HashSet<RuntimeEntityId> ownedTargets = null)
+            HashSet<RuntimeEntityId> ownedTargets = null,
+            AbilityAim aim = default,
+            IRelocationService relocation = null)
         {
             Source = source;
             Targets = targets;
@@ -42,6 +44,8 @@ namespace CRPG.Abilities
             UpcastLevels = upcastLevels;
             OwnerId = ownerId;
             OwnedTargets = ownedTargets ?? new HashSet<RuntimeEntityId>();
+            Aim = aim;
+            Relocation = relocation;
         }
 
         public RuntimeEntityId Source { get; }
@@ -90,5 +94,17 @@ namespace CRPG.Abilities
         /// with this SAME instance (not a fresh one) so a nested ApplyConditionEffect's recordings are visible
         /// to whoever reads the outer, top-level context afterward -- see those two classes' own remarks.</summary>
         public HashSet<RuntimeEntityId> OwnedTargets { get; }
+
+        /// <summary>Where an aimed ability was pointed (a ground point and a direction); <see cref="AbilityAim.None"/> for an ability that takes creatures. Effects that act on a place (a relocation) read this; area effects just use <see cref="Targets"/>, which the service derived from the same aim.</summary>
+        public AbilityAim Aim { get; }
+        public bool HasAim => Aim.IsSet;
+
+        /// <summary>Null unless the game wired a relocation service -- only <see cref="RelocateEffect"/> requires it.</summary>
+        public IRelocationService Relocation { get; }
+
+        /// <summary>A copy for a nested effect that acts on a subset of the targets (an attack roll hit, a failed save, a condition filter): EVERY other field is forwarded, including the ownership tracking (<see cref="OwnerId"/> and the SAME <see cref="OwnedTargets"/> instance, so a condition applied inside is owned by the cast and ends with its concentration) and the aim. Pass <paramref name="criticalTargets"/> only where the subset has criticals; otherwise the outer context's are kept.</summary>
+        public AbilityExecutionContext Narrow(IReadOnlyList<RuntimeEntityId> targets, IReadOnlyCollection<RuntimeEntityId> criticalTargets = null) => new(
+            Source, targets, Characters, DiceService, CombatLog, EventBus, Positions, InfluenceMap, AttackBonusRule, ArmorClassRule,
+            criticalTargets ?? CriticalTargets, SavingThrowRule, DamageResistanceRule, UpcastLevels, OwnerId, OwnedTargets, Aim, Relocation);
     }
 }

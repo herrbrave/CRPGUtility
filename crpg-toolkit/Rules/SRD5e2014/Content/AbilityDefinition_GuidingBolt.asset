@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-guiding-bolt
   displayName: Guiding Bolt
-  description: A flash of light streaks toward a creature of your choice within range. Make a ranged spell attack against the target. On a hit, the target takes 4d6 radiant damage (treated as generic damage), and the next attack roll made against this target before the end of your next turn has advantage (not modeled -- no 'advantage until next turn' timer exists yet). When cast using a higher-level slot, damage increases by 1d6 per slot level above 1st.
+  description: A flash of light streaks toward a creature of your choice within range. Make a ranged spell attack against the target. On a hit, the target takes 4d6 radiant damage, and the next attack roll made against this target before the end of your next turn has advantage (not modeled -- no 'advantage until next turn' timer exists yet). When cast using a higher-level slot, damage increases by 1d6 per slot level above 1st.
   tags: 2
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1
@@ -52,4 +53,6 @@ MonoBehaviour:
           sides: 6
           modifier: 0
         damageTypeId:
-          value: 
+          value: damage-radiant
+        scalesWithCasterLevel: 0
+        extraDiceCountPerSlotLevel: 1

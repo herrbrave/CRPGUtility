@@ -165,13 +165,23 @@ namespace CRPG.InputSystem
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""Rotate"",
-                    ""type"": ""Value"",
+                    ""name"": ""RotateGrab"",
+                    ""type"": ""Button"",
                     ""id"": ""ad104ba8-dfb9-433c-aea2-6f08ff765ffb"",
-                    ""expectedControlType"": ""Axis"",
+                    ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": true,
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""RotateDelta"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""5d1a1d5e-6d1f-4b43-9a55-0c3a7e4f21b9"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
                     ""priority"": 0
                 },
                 {
@@ -319,37 +329,26 @@ namespace CRPG.InputSystem
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""1DAxis"",
-                    ""id"": ""86c63b84-5b59-4b83-9dc2-dcb3722d3260"",
-                    ""path"": ""1DAxis"",
+                    ""name"": """",
+                    ""id"": ""0c6f4a1e-7b52-4f0e-8d11-3a9c5e7f1b20"",
+                    ""path"": ""<Mouse>/middleButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Rotate"",
-                    ""isComposite"": true,
+                    ""action"": ""RotateGrab"",
+                    ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""Negative"",
-                    ""id"": ""b8a650cc-b61c-41f7-80fa-5b826e7071de"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""name"": """",
+                    ""id"": ""8e2b7d94-1f63-4c0a-b5e8-62d4a90c3f17"",
+                    ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Rotate"",
+                    ""action"": ""RotateDelta"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""Positive"",
-                    ""id"": ""44a1b351-dff2-4a3f-a3cd-94a28a450fa6"",
-                    ""path"": ""<Keyboard>/e"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Rotate"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
+                    ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
@@ -376,7 +375,8 @@ namespace CRPG.InputSystem
             m_Exploration_AbilityTarget = m_Exploration.FindAction("AbilityTarget", throwIfNotFound: true);
             m_Exploration_Pan = m_Exploration.FindAction("Pan", throwIfNotFound: true);
             m_Exploration_Zoom = m_Exploration.FindAction("Zoom", throwIfNotFound: true);
-            m_Exploration_Rotate = m_Exploration.FindAction("Rotate", throwIfNotFound: true);
+            m_Exploration_RotateGrab = m_Exploration.FindAction("RotateGrab", throwIfNotFound: true);
+            m_Exploration_RotateDelta = m_Exploration.FindAction("RotateDelta", throwIfNotFound: true);
             m_Exploration_Recenter = m_Exploration.FindAction("Recenter", throwIfNotFound: true);
         }
 
@@ -465,7 +465,8 @@ namespace CRPG.InputSystem
         private readonly InputAction m_Exploration_AbilityTarget;
         private readonly InputAction m_Exploration_Pan;
         private readonly InputAction m_Exploration_Zoom;
-        private readonly InputAction m_Exploration_Rotate;
+        private readonly InputAction m_Exploration_RotateGrab;
+        private readonly InputAction m_Exploration_RotateDelta;
         private readonly InputAction m_Exploration_Recenter;
         /// <summary>
         /// Provides access to input actions defined in input action map "Exploration".
@@ -507,9 +508,13 @@ namespace CRPG.InputSystem
             /// </summary>
             public InputAction @Zoom => m_Wrapper.m_Exploration_Zoom;
             /// <summary>
-            /// Provides access to the underlying input action "Exploration/Rotate".
+            /// Provides access to the underlying input action "Exploration/RotateGrab".
             /// </summary>
-            public InputAction @Rotate => m_Wrapper.m_Exploration_Rotate;
+            public InputAction @RotateGrab => m_Wrapper.m_Exploration_RotateGrab;
+            /// <summary>
+            /// Provides access to the underlying input action "Exploration/RotateDelta".
+            /// </summary>
+            public InputAction @RotateDelta => m_Wrapper.m_Exploration_RotateDelta;
             /// <summary>
             /// Provides access to the underlying input action "Exploration/Recenter".
             /// </summary>
@@ -561,9 +566,12 @@ namespace CRPG.InputSystem
                 @Zoom.started += instance.OnZoom;
                 @Zoom.performed += instance.OnZoom;
                 @Zoom.canceled += instance.OnZoom;
-                @Rotate.started += instance.OnRotate;
-                @Rotate.performed += instance.OnRotate;
-                @Rotate.canceled += instance.OnRotate;
+                @RotateGrab.started += instance.OnRotateGrab;
+                @RotateGrab.performed += instance.OnRotateGrab;
+                @RotateGrab.canceled += instance.OnRotateGrab;
+                @RotateDelta.started += instance.OnRotateDelta;
+                @RotateDelta.performed += instance.OnRotateDelta;
+                @RotateDelta.canceled += instance.OnRotateDelta;
                 @Recenter.started += instance.OnRecenter;
                 @Recenter.performed += instance.OnRecenter;
                 @Recenter.canceled += instance.OnRecenter;
@@ -599,9 +607,12 @@ namespace CRPG.InputSystem
                 @Zoom.started -= instance.OnZoom;
                 @Zoom.performed -= instance.OnZoom;
                 @Zoom.canceled -= instance.OnZoom;
-                @Rotate.started -= instance.OnRotate;
-                @Rotate.performed -= instance.OnRotate;
-                @Rotate.canceled -= instance.OnRotate;
+                @RotateGrab.started -= instance.OnRotateGrab;
+                @RotateGrab.performed -= instance.OnRotateGrab;
+                @RotateGrab.canceled -= instance.OnRotateGrab;
+                @RotateDelta.started -= instance.OnRotateDelta;
+                @RotateDelta.performed -= instance.OnRotateDelta;
+                @RotateDelta.canceled -= instance.OnRotateDelta;
                 @Recenter.started -= instance.OnRecenter;
                 @Recenter.performed -= instance.OnRecenter;
                 @Recenter.canceled -= instance.OnRecenter;
@@ -695,12 +706,19 @@ namespace CRPG.InputSystem
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnZoom(InputAction.CallbackContext context);
             /// <summary>
-            /// Method invoked when associated input action "Rotate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// Method invoked when associated input action "RotateGrab" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>
             /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-            void OnRotate(InputAction.CallbackContext context);
+            void OnRotateGrab(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "RotateDelta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnRotateDelta(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "Recenter" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

@@ -16,7 +16,7 @@ namespace CRPG.Camera
         public CameraRigState(CRPGCameraSettings settings)
         {
             this.settings = settings;
-            Pitch = Mathf.Clamp(settings.DefaultPitch, settings.MinimumPitch, settings.MaximumPitch);
+            BasePitch = Mathf.Clamp(settings.DefaultPitch, settings.MinimumPitch, settings.MaximumPitch);
             Zoom = Mathf.Clamp(settings.DefaultZoom, settings.MinimumZoom, settings.MaximumZoom);
             scaleIndex = NearestScaleIndex(settings.DefaultScale);
         }
@@ -27,7 +27,27 @@ namespace CRPG.Camera
 
         public Vector3 FocusPoint { get; private set; }
         public float Yaw { get; private set; }
-        public float Pitch { get; }
+        /// <summary>The pitch at the default zoom (and when the settings have no close-up offset).</summary>
+        public float BasePitch { get; }
+
+        /// <summary>The pitch at the current zoom: <see cref="PitchFor"/>.</summary>
+        public float Pitch => PitchFor(Zoom);
+
+        /// <summary>The pitch for a camera distance: the base pitch, lowered by <see cref="CRPGCameraSettings.CloseUpPitchOffset"/> as the camera comes in from the default zoom to the minimum (so zooming in looks more level at the characters), clamped to the pitch limits. Fixed in orthographic mode.</summary>
+        public float PitchFor(float zoom)
+        {
+            if (settings.Orthographic || Mathf.Approximately(settings.CloseUpPitchOffset, 0f)) return BasePitch;
+            var closeness = 1f - Mathf.InverseLerp(settings.MinimumZoom, Mathf.Max(settings.MinimumZoom + 0.01f, settings.DefaultZoom), zoom);
+            return Mathf.Clamp(BasePitch + settings.CloseUpPitchOffset * Mathf.Clamp01(closeness), settings.MinimumPitch, settings.MaximumPitch);
+        }
+
+        /// <summary>What a mouse-wheel reading means for <see cref="ApplyZoom"/>: scrolling UP zooms IN. The reading is normalised to notches first. A perspective rig zooms in by shrinking the camera distance (a negative delta); the orthographic pixel rig steps its scale up (a positive one).</summary>
+        public static float WheelToZoomDelta(bool orthographic, float wheel)
+        {
+            // Windows reports a wheel notch as +-120 (other platforms and touchpads report small fractions): normalise to NOTCHES, at most three per event, or one notch would fling the camera to its far limit
+            var notches = Mathf.Clamp(Mathf.Abs(wheel) >= 10f ? wheel / 120f : wheel, -3f, 3f);
+            return orthographic ? notches : -notches;
+        }
         public float Zoom { get; private set; }
 
         /// <summary>True while a manual pan is in effect -- <see cref="FollowTarget"/> no-ops until
@@ -88,16 +108,29 @@ namespace CRPG.Camera
             manualOverrideActive = true;
         }
 
-        /// <summary>Continuous rotation, e.g. holding Q/E.</summary>
+        /// <summary>Continuous rotation at the settings' rotation speed (a held key or button; the default input map has none now: middle-drag uses <see cref="RotateByDegrees"/>).</summary>
         public void Rotate(float direction, float deltaTime)
         {
             Yaw = Mathf.Repeat(Yaw + direction * settings.RotationSpeed * deltaTime, 360f);
         }
 
+        /// <summary>Rotates by an exact number of degrees (a mouse drag), wrapped into one turn.</summary>
+        public void RotateByDegrees(float degrees) => Yaw = Mathf.Repeat(Yaw + degrees, 360f);
+
         /// <summary>Discrete jump by SnapRotationDegrees.</summary>
         public void SnapRotate(float direction)
         {
             Yaw = Mathf.Repeat(Yaw + settings.SnapRotationDegrees * Mathf.Sign(direction), 360f);
+        }
+
+        /// <summary>Sets the yaw to an absolute angle (wrapped into one turn), e.g. to restore a view after a scripted camera. Not a re-centre: it does not touch the follow override.</summary>
+        public void SetYaw(float degrees) => Yaw = Mathf.Repeat(degrees, 360f);
+
+        /// <summary>Sets the perspective zoom (the camera distance parameter) to an absolute value inside the settings' limits. Ignored in orthographic mode, where zoom is the integer scale list (use <see cref="StepScale"/>).</summary>
+        public void SetZoom(float zoom)
+        {
+            if (settings.Orthographic) return;
+            Zoom = Mathf.Clamp(zoom, settings.MinimumZoom, settings.MaximumZoom);
         }
 
         public void ApplyZoom(float delta)

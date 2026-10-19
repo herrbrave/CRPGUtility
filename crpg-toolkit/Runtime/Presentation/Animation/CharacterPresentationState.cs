@@ -57,6 +57,7 @@ namespace CRPG.Presentation.Animation
         private DefinitionId currentActionCueId = DefinitionId.None;
         private Action<AnimationOutcome> currentActionCallback;
         private bool isTerminal;
+        private DefinitionId heldPoseCueId = DefinitionId.None;
 
         public bool IsMoving => isMoving;
         public DefinitionId StanceId => stanceId;
@@ -64,6 +65,8 @@ namespace CRPG.Presentation.Animation
         public AnimationRequestToken CurrentActionToken => currentActionToken;
         public DefinitionId CurrentActionCueId => currentActionCueId;
         public bool IsTerminal => isTerminal;
+        public bool IsPoseHeld => heldPoseCueId.IsValid;
+        public DefinitionId HeldPoseCueId => heldPoseCueId;
 
         /// <summary>Fires only when the stance actually changes -- setting the identical stance again is a
         /// no-op and does not raise this (repeating a stance request must not restart anything).</summary>
@@ -109,7 +112,7 @@ namespace CRPG.Presentation.Animation
         /// death cannot be displaced by a cosmetic hit request.</summary>
         public AnimationRequestToken RequestAction(DefinitionId cueId, Action<AnimationOutcome> onOutcome = null)
         {
-            if (isTerminal) return AnimationRequestToken.None;
+            if (isTerminal || IsPoseHeld) return AnimationRequestToken.None;
 
             // Commit the NEW token/callback before invoking the OLD one's callback (below), not after -- a
             // reentrant RequestAction called synchronously from within that old callback must see and extend
@@ -133,8 +136,26 @@ namespace CRPG.Presentation.Animation
             return newToken;
         }
 
-        /// <summary>Explicitly cancels the current action, if any, notifying its callback with Cancelled
-        /// exactly once. A no-op if nothing is active.</summary>
+        /// <summary>Persistent gameplay pose, below terminal and above actions/locomotion. Not incapacitation.</summary>
+        public void HoldPose(DefinitionId cueId)
+        {
+            if (!cueId.IsValid) throw new ArgumentException("A held pose needs a valid cue.", nameof(cueId));
+            if (isTerminal) throw new InvalidOperationException("Cannot enter a held pose while terminal.");
+            if (heldPoseCueId == cueId) return;
+            if (IsPoseHeld) throw new InvalidOperationException("Release the existing held pose before replacing it.");
+            heldPoseCueId = cueId; // Commit before cancellation callbacks: reentrant actions are rejected.
+            CancelCurrentAction();
+        }
+
+        public void ReleasePose(DefinitionId cueId)
+        {
+            if (!cueId.IsValid) throw new ArgumentException("A pose release needs its owning cue.", nameof(cueId));
+            if (!IsPoseHeld) return;
+            if (heldPoseCueId != cueId) throw new InvalidOperationException("Cannot release another owner's held pose.");
+            heldPoseCueId = DefinitionId.None;
+        }
+
+        /// <summary>Cancels the current action and reports Cancelled exactly once.</summary>
         public void CancelCurrentAction()
         {
             if (!currentActionToken.IsValid) return;
@@ -190,6 +211,7 @@ namespace CRPG.Presentation.Animation
         {
             CancelCurrentAction();
             isTerminal = false;
+            heldPoseCueId = DefinitionId.None;
             isMoving = false;
             if (!stanceId.IsValid) return;
             stanceId = DefinitionId.None;

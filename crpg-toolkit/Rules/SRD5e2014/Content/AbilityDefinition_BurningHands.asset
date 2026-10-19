@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-burning-hands
   displayName: Burning Hands
-  description: A thin sheet of flame shoots from your outstretched fingertips. Each creature in a 15-foot cone must make a Dexterity saving throw, taking 3d6 fire damage on a failed save, or half as much on a successful one. Damage type not modeled (generic HP damage only). Half-damage-on-success is approximated by reusing the same DamageEffect for both outcomes (see file header) -- a successful save currently still takes full damage.
+  description: A thin sheet of flame shoots from your outstretched fingertips. Each creature in a 15-foot cone must make a Dexterity saving throw, taking 3d6 fire damage on a failed save, or half as much on a successful one. A successful save takes half (a second, halved copy of the same damage effect).
   tags: 514
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1
@@ -46,7 +47,7 @@ MonoBehaviour:
         onFailure:
           rid: 4304780644164829191
         onSuccess:
-          rid: 4304780644164829191
+          rid: 4304780644164829192
     - rid: 4304780644164829191
       type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
       data:
@@ -56,4 +57,19 @@ MonoBehaviour:
           sides: 6
           modifier: 0
         damageTypeId:
-          value: 
+          value: damage-fire
+        scalesWithCasterLevel: 0
+        extraDiceCountPerSlotLevel: 1
+    - rid: 4304780644164829192
+      type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+        amount:
+          count: 3
+          sides: 6
+          modifier: 0
+        damageTypeId:
+          value: damage-fire
+        scalesWithCasterLevel: 0
+        extraDiceCountPerSlotLevel: 1
+        halved: 1

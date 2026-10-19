@@ -66,6 +66,19 @@ namespace CRPG.Actors
         // while a stance is active without CharacterPlayableAnimator hardcoding stance-specific cue ids.
         [SerializeField] private List<StanceLocomotionSet> stanceLocomotionSets = new();
 
+        /// <summary>Caller-owned runtime extension; all original cues/stance mappings remain intact.</summary>
+        public CharacterAnimationProfile CloneWithAdditionalCue(AnimationCueClip cue)
+        {
+            if (cue == null || !cue.CueId.IsValid || cue.Clip == null)
+                throw new System.ArgumentException("A profile extension requires a valid cue and clip.", nameof(cue));
+            if (TryGetCue(cue.CueId, out _))
+                throw new System.InvalidOperationException("Cannot overwrite an authored cue with a runtime extension.");
+            var copy = Instantiate(this);
+            copy.name = name + " (runtime extended)";
+            copy.cues.Add(cue);
+            return copy;
+        }
+
         public bool TryGetCue(DefinitionId cueId, out AnimationCueClip entry)
         {
             foreach (var candidate in cues)

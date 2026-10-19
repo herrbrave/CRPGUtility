@@ -15,7 +15,8 @@ MonoBehaviour:
   id: spell-comprehend-languages
   displayName: Comprehend Languages
   description: For 1 hour, you understand the literal meaning of any spoken language you hear, and any written language you touch. Can be cast as a ritual (not modeled). Pure utility -- no mechanical effect authored.
-  tags: 1026
+  tags: 3074
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1

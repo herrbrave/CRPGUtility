@@ -26,6 +26,12 @@ namespace CRPG.Abilities
         [SerializeField] private DefinitionId governingStatId;
         [SerializeReference] private AbilityEffect onHit;
 
+        /// <summary>The stat the attack bonus is governed by (None: the caster's own spellcasting stat).</summary>
+        public DefinitionId GoverningStatId => governingStatId;
+
+        /// <summary>The effect applied to the targets that were hit.</summary>
+        public AbilityEffect OnHit => onHit;
+
         public override void Apply(AbilityExecutionContext context)
         {
             if (onHit == null || context.AttackBonusRule == null || context.ArmorClassRule == null) return;
@@ -35,8 +41,11 @@ namespace CRPG.Abilities
                 resolvedStatId = caster.SpellcastingStatId;
 
             var attackBonus = context.AttackBonusRule.ComputeAttackBonus(context.Source, resolvedStatId);
-            var criticalThreshold = context.AttackBonusRule.ComputeCriticalThreshold(context.Source);
-            var attackCount = context.AttackBonusRule.ComputeAttackCount(context.Source);
+            // An unset authored stat already denotes a spell attack (see GoverningStatId).
+            // Extra Attack and Improved Critical are weapon policies, not extra spell casts.
+            var isSpellAttack = !governingStatId.IsValid;
+            var criticalThreshold = isSpellAttack ? 20 : context.AttackBonusRule.ComputeCriticalThreshold(context.Source);
+            var attackCount = isSpellAttack ? 1 : context.AttackBonusRule.ComputeAttackCount(context.Source);
 
             // Extra Attack: each pass is a fully independent roll/hit/damage instance against the same targets
             // (an approximation -- real SRD5 lets you split extra attacks across different targets, which this
@@ -70,11 +79,7 @@ namespace CRPG.Abilities
 
                 if (hitTargets.Count == 0) continue;
 
-                var hitContext = new AbilityExecutionContext(
-                    context.Source, hitTargets, context.Characters, context.DiceService, context.CombatLog, context.EventBus,
-                    context.Positions, context.InfluenceMap, context.AttackBonusRule, context.ArmorClassRule, criticalTargets,
-                    context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels,
-                    context.OwnerId, context.OwnedTargets);
+                var hitContext = context.Narrow(hitTargets, criticalTargets);
                 onHit.Apply(hitContext);
             }
         }

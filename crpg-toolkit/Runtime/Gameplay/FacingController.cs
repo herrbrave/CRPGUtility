@@ -64,6 +64,13 @@ namespace CRPG.Gameplay
 
         public void ClearFacing(FacingPriority priority) => requestsByPriority.Remove(priority);
 
+        /// <summary>True while a request at this tier exists and the character is still visibly turning toward it (more than <paramref name="toleranceDegrees"/> off). Always false outside play mode or while disabled: nothing turns the character then, so waiting would never end.</summary>
+        public bool IsStillTurningToward(FacingPriority priority, float toleranceDegrees = 8f)
+        {
+            if (!Application.isPlaying || !isActiveAndEnabled || !requestsByPriority.TryGetValue(priority, out var direction)) return false;
+            return Vector3.Angle(Vector3.ProjectOnPlane(transform.forward, Vector3.up), direction) > toleranceDegrees;
+        }
+
         private void Update()
         {
             UpdateMotionFacing();

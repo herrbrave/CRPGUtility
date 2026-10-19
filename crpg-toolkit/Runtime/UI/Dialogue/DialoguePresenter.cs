@@ -55,6 +55,7 @@ namespace CRPG.UI
 
         public void Advance() => runner.Advance();
         public void ChooseOption(int optionIndex) => runner.ChooseOption(optionIndex);
-        public DialogueCheckOutcome PerformCheck() => runner.PerformCheck();
+        public CheckPrompt PrepareCheck() => runner.PrepareCheck();
+        public DialogueCheckOutcome PerformCheck(CheckRollOptions options = null) => runner.PerformCheck(options);
     }
 }

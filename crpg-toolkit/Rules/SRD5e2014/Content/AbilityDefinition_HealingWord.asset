@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Healing Word
   description: A creature of your choice that you can see within range regains hit points equal to 1d4 + your spellcasting ability modifier (fixed at +3 for this sample). No effect on undead or constructs. When cast using a higher-level slot, healing increases by 1d4 per slot level above 1st.
   tags: 34
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}
     amount: 1
@@ -44,3 +45,4 @@ MonoBehaviour:
           count: 1
           sides: 4
           modifier: 3
+        extraDiceCountPerSlotLevel: 1

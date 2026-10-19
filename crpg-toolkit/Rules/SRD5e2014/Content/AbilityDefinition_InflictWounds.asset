@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_InflictWounds
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: spell-inflict-wounds
+  displayName: Inflict Wounds
+  description: "Make a melee spell attack against a creature you can reach. On a hit, it takes 3d10 necrotic damage, plus 1d10 for each slot level above 1st. Source: SRD5.1 p.157. Touch is authored as 1.5 world units under the existing package distance convention; global component and line-of-effect enforcement remain package-wide limitations."
+  tags: 519
+  spellLevel: 1
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  - resource: {fileID: 11400000, guid: 8cfe51950e82e104380cf1391b7fa15d, type: 2}
+    amount: 1
+  targeting:
+    mode: 1
+    relation: 4
+    minTargets: 1
+    maxTargets: 1
+    range: 1.5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+  effects:
+  - rid: 920000000000000001
+  references:
+    version: 2
+    RefIds:
+    - rid: 920000000000000001
+      type: {class: AttackRollEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        governingStatId:
+          value: 
+        onHit:
+          rid: 920000000000000002
+    - rid: 920000000000000002
+      type: {class: DamageEffect, ns: CRPG.Abilities, asm: CRPG.Abilities}
+      data:
+        hitPointResource: {fileID: 11400000, guid: 3183465af0e590a46917c49a6e4aef59, type: 2}
+        amount:
+          count: 3
+          sides: 10
+          modifier: 0
+        damageTypeId:
+          value: damage-necrotic
+        scalesWithCasterLevel: 0
+        extraDiceCountPerSlotLevel: 1

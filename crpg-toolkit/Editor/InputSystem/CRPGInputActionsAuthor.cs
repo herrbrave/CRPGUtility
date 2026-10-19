@@ -53,14 +53,12 @@ namespace CRPG.Editor
             var zoom = exploration.AddAction("Zoom", InputActionType.PassThrough, expectedControlLayout: "Axis");
             zoom.AddBinding("<Mouse>/scroll/y");
 
-            // Task 3.2: redefined from the Task 3.1 placeholder (<Mouse>/middleButton, a plain Button that
-            // cannot supply a signed value at all) to a real signed 1D axis -- matches
-            // CameraRigState.Rotate(float direction, float deltaTime)'s existing continuous-while-held
-            // signature, the same composite-binding pattern already used for Pan's WASD 2D-vector.
-            var rotate = exploration.AddAction("Rotate", InputActionType.Value, expectedControlLayout: "Axis");
-            rotate.AddCompositeBinding("1DAxis")
-                .With("Negative", "<Keyboard>/q")
-                .With("Positive", "<Keyboard>/e");
+            // Middle-mouse drag rotates the camera (it replaced the Q/E keys): RotateGrab is the button, RotateDelta the pointer movement that turns the view while it is held
+            // (InputSystemCommandSource applies it, scaled by CRPGCameraSettings.RotateDragDegreesPerPixel).
+            var rotateGrab = exploration.AddAction("RotateGrab", InputActionType.Button);
+            rotateGrab.AddBinding("<Mouse>/middleButton");
+            var rotateDelta = exploration.AddAction("RotateDelta", InputActionType.PassThrough, expectedControlLayout: "Vector2");
+            rotateDelta.AddBinding("<Mouse>/delta");
 
             var recenter = exploration.AddAction("Recenter", InputActionType.Button);
             recenter.AddBinding("<Keyboard>/space");

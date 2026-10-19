@@ -38,6 +38,10 @@ namespace CRPG.Inventory
             if (definition.EquipmentSlotId != slot)
                 throw new InvalidOperationException($"'{definition.DisplayName}' does not fit the requested slot.");
 
+            // an item another member is wearing is taken away from them first (their feature goes, their model is told), never silently shared
+            var current = inventory.GetLocation(instanceId);
+            if (current.IsEquipped && current.Character != character) Unequip(instanceId);
+
             ItemInstance displaced = null;
             if (inventory.TryGetEquippedItem(character, slot, out var occupant) && occupant.InstanceId != instanceId)
             {

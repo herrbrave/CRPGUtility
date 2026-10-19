@@ -75,9 +75,6 @@ namespace CRPG.Abilities
             if (onSuccess != null) yield return onSuccess;
         }
 
-        private static AbilityExecutionContext Narrow(AbilityExecutionContext context, IReadOnlyList<RuntimeEntityId> targets) => new(
-            context.Source, targets, context.Characters, context.DiceService, context.CombatLog, context.EventBus,
-            context.Positions, context.InfluenceMap, context.AttackBonusRule, context.ArmorClassRule, context.CriticalTargets,
-            context.SavingThrowRule, context.DamageResistanceRule, context.UpcastLevels);
+        private static AbilityExecutionContext Narrow(AbilityExecutionContext context, IReadOnlyList<RuntimeEntityId> targets) => context.Narrow(targets);   // forwards the ownership tracking and the aim too: a condition applied on a failed save belongs to the cast
     }
 }

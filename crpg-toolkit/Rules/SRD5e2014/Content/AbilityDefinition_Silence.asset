@@ -15,7 +15,8 @@ MonoBehaviour:
   id: spell-silence
   displayName: Silence
   description: For the duration (concentration, up to 10 minutes), no sound can be created within or pass through a 20-foot-radius sphere centered on a point you choose within range. Creatures entirely inside are immune to thunder damage and deafened, and casting a spell with a verbal component is impossible there. No sound system or verbal-component gating exists yet, so this is authored with Sphere targeting/range/area declared and zero mechanical Effects.
-  tags: 258
+  tags: 2306
+  spellLevel: 2
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1

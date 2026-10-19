@@ -55,6 +55,11 @@ namespace CRPG.Presentation.Animation
         private DefinitionId lastTerminalCueId;
 
         public CharacterPresentationState PresentationState => presentationState;
+        public CharacterAnimationProfile Profile => profile;
+        /// <summary>The requested held clip has full mixer ownership, not merely an incoming port.</summary>
+        public bool IsHeldPoseSettled => presentationState.IsPoseHeld && !presentationState.IsTerminal && driver.IsBound &&
+            profile != null && profile.TryGetCue(presentationState.HeldPoseCueId, out var cue) && cue.Clip != null &&
+            CurrentClip == cue.Clip && driver is PlayableCharacterAnimationDriver playable && playable.GetPortWeight(playable.ActivePort) >= .999f;
 
         /// <summary>Looks a cue up in the bound profile (false when there is no profile or no such cue), so a caller
         /// can tell a looping pose from a one-shot and read its clip length before asking for it.</summary>
@@ -157,7 +162,8 @@ namespace CRPG.Presentation.Animation
                 driver.PlayLoop(terminalEntry);
             }
 
-            wasMaskedLastTick = presentationState.IsTerminal || presentationState.IsActionActive;
+            if (!presentationState.IsTerminal && presentationState.IsPoseHeld) PlayHeldPose();
+            wasMaskedLastTick = presentationState.IsTerminal || presentationState.IsPoseHeld || presentationState.IsActionActive;
             RefreshBaseline(force: true);
         }
 
@@ -200,11 +206,16 @@ namespace CRPG.Presentation.Animation
             // be called every tick so it's accurate the instant Recover() is called. Hysteresis (Task 2.3)
             // keeps a velocity hovering near the threshold from chattering idle/moving every frame; the same
             // speed reading also drives the driver's continuous locomotion-speed blending.
-            if (agent != null)
+            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
             {
                 var speed = agent.velocity.magnitude;
                 presentationState.SetMovingWithHysteresis(speed, movingSpeedThreshold, movingStopSpeedThreshold);
                 driver.SetLocomotionSpeed(speed);
+            }
+            else if (agent != null)
+            {
+                presentationState.SetMoving(false);
+                driver.SetLocomotionSpeed(0f);
             }
 
             // Phase 2 correction pass (R3): detect the exact tick an action/terminal mask LIFTS (regardless of
@@ -214,7 +225,7 @@ namespace CRPG.Presentation.Animation
             // happens to be the same identity afterward (e.g. still idle), it wrongly concludes the driver is
             // already showing it -- when the driver's actual active clip is whatever the action/terminal pose
             // left behind (e.g. the attack swing's final frame).
-            var isMaskedNow = presentationState.IsTerminal || presentationState.IsActionActive;
+            var isMaskedNow = presentationState.IsTerminal || presentationState.IsPoseHeld || presentationState.IsActionActive;
             var justUnmasked = wasMaskedLastTick && !isMaskedNow;
             wasMaskedLastTick = isMaskedNow;
 
@@ -224,7 +235,7 @@ namespace CRPG.Presentation.Animation
         private void RefreshBaseline(bool force)
         {
             if (!driver.IsBound || profile == null) return;
-            if (presentationState.IsTerminal || presentationState.IsActionActive) return; // masked/overridden -- do not touch the driver
+            if (presentationState.IsTerminal || presentationState.IsPoseHeld || presentationState.IsActionActive) return; // masked/overridden -- do not touch the driver
 
             var desiredCueId = ResolveBaselineCueId();
             if (!force && hasPlayedBaseline && desiredCueId == lastPlayedBaselineCueId) return;
@@ -248,6 +259,44 @@ namespace CRPG.Presentation.Animation
         /// stance chooses a locomotion set; it does not freeze movement animation, so baseline Idle/Moving
         /// keeps updating within whatever stance is active. DefinitionId.None means the default set.</summary>
         public void SetStance(DefinitionId stanceId) => presentationState.SetStance(stanceId);
+
+        /// <summary>Changes authored presentation data without adding another graph or mutating shared assets.</summary>
+        public void SetProfile(CharacterAnimationProfile next)
+        {
+            if (next == null) throw new ArgumentNullException(nameof(next));
+            if (presentationState.IsActionActive) throw new InvalidOperationException("Cancel an action before changing its profile.");
+            if (presentationState.IsPoseHeld && (!next.TryGetCue(presentationState.HeldPoseCueId, out var held) || !held.Loop || held.Clip == null))
+                throw new InvalidOperationException("The new profile does not support the held pose.");
+            profile = next;
+            hasPlayedBaseline = false;
+            if (presentationState.IsTerminal) return;
+            if (presentationState.IsPoseHeld) PlayHeldPose();
+            else RefreshBaseline(force: true);
+        }
+
+        public void HoldPose(DefinitionId cueId)
+        {
+            if (profile == null || !profile.TryGetCue(cueId, out var entry) || !entry.Loop || entry.Clip == null)
+                throw new InvalidOperationException("A held pose must resolve to an authored looping cue.");
+            var alreadyHeld = presentationState.IsPoseHeld && presentationState.HeldPoseCueId == cueId;
+            presentationState.HoldPose(cueId);
+            if (!alreadyHeld && !presentationState.IsTerminal && presentationState.IsPoseHeld) PlayHeldPose();
+        }
+
+        public void ReleasePose(DefinitionId cueId)
+        {
+            presentationState.ReleasePose(cueId);
+            hasPlayedBaseline = false;
+            RefreshBaseline(force: true);
+        }
+
+        private void PlayHeldPose()
+        {
+            if (!driver.IsBound) return;
+            if (profile == null || !profile.TryGetCue(presentationState.HeldPoseCueId, out var entry) || !entry.Loop || entry.Clip == null)
+                throw new InvalidOperationException("Held pose lost its looping clip during presentation rebind.");
+            driver.PlayLoop(entry);
+        }
 
         /// <summary>Requests an exclusive full-body action (e.g. a melee swing). Returns
         /// AnimationRequestToken.None (and does not touch the driver) if the cue isn't authored in the bound
@@ -287,6 +336,7 @@ namespace CRPG.Presentation.Animation
         {
             presentationState.Recover();
             lastTerminalCueId = DefinitionId.None;
+            if (presentationState.IsPoseHeld) PlayHeldPose();
         }
 
         // Legacy entrypoint, kept as a compatibility adapter until every AnimationOrderService.RequestAnimation

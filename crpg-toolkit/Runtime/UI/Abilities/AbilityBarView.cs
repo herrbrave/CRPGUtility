@@ -14,7 +14,7 @@ namespace CRPG.UI
     /// only raises a plain event; the Gameplay-layer <c>TacticalCombatUIBridge</c> is the sole place player
     /// intent crosses into real scheduler/targeting authority.
     /// </summary>
-    public sealed class AbilityBarView : MonoBehaviour
+    public sealed class AbilityBarView : MonoBehaviour, IAbilityBar
     {
         private AbilityBarPresenter presenter;
         private VisualElement container;

@@ -20,6 +20,42 @@ namespace CRPG.Tests.EditMode
         }
 
         [Test]
+        public void SetZoomIsAbsoluteAndClampedAndLeavesTheFollowAlone()
+        {
+            var settings = CreateSettings();
+            var rig = new CameraRigState(settings);
+            rig.Pan(new Vector2(1f, 0f), 0.1f);   // a manual pan is in effect
+
+            rig.SetZoom((settings.MinimumZoom + settings.MaximumZoom) * 0.5f);
+            Assert.AreEqual((settings.MinimumZoom + settings.MaximumZoom) * 0.5f, rig.Zoom, 1e-4f, "an absolute value, not a delta");
+            rig.SetZoom(settings.MaximumZoom * 10f); Assert.AreEqual(settings.MaximumZoom, rig.Zoom, 1e-4f);
+            rig.SetZoom(-5f); Assert.AreEqual(settings.MinimumZoom, rig.Zoom, 1e-4f);
+            Assert.IsTrue(rig.IsManualOverrideActive, "a zoom is not a re-centre");
+        }
+
+        [Test]
+        public void SetYawIsAbsoluteAndWrapsIntoOneTurn()
+        {
+            var rig = new CameraRigState(CreateSettings());
+            rig.SetYaw(90f); Assert.AreEqual(90f, rig.Yaw, 1e-4f);
+            rig.SetYaw(450f); Assert.AreEqual(90f, rig.Yaw, 1e-3f);
+            rig.SetYaw(-30f); Assert.AreEqual(330f, rig.Yaw, 1e-3f);
+            rig.Pan(new Vector2(0f, 1f), 1f);   // the pan follows the new yaw: the yaw really took effect
+            Assert.Less(Mathf.Abs(rig.FocusPoint.x - -Mathf.Sin(30f * Mathf.Deg2Rad) * CreateSettings().PanSpeed), 0.05f);
+        }
+
+        [Test]
+        public void SetZoomIsIgnoredInOrthographicMode()
+        {
+            var settings = CreateSettings();
+            typeof(CRPGCameraSettings).GetField("orthographic", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(settings, true);
+            var rig = new CameraRigState(settings);
+            var before = rig.Zoom;
+            rig.SetZoom(before + 3f);
+            if (rig.Orthographic) Assert.AreEqual(before, rig.Zoom, 1e-4f, "orthographic zoom is the integer scale list, not a distance");
+        }
+
+        [Test]
         public void PanMovesFocusAlongYawRelativeAxes()
         {
             var settings = CreateSettings();

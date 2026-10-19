@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Magic Missile
   description: You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range, dealing 1d4 + 1 force damage. The darts all strike simultaneously and the attack automatically hits. Modeled here as up to 3 targets, each taking one guaranteed 1d4+1 hit -- stacking multiple darts onto a single target isn't modeled (no per-effect repeat/stack mechanism yet), so a focused single-target cast undercounts the real 3d4+3 total.
   tags: 2
+  spellLevel: 1
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
     amount: 1
@@ -45,4 +46,6 @@ MonoBehaviour:
           sides: 4
           modifier: 1
         damageTypeId:
-          value: 
+          value: damage-force
+        scalesWithCasterLevel: 0
+        extraDiceCountPerSlotLevel: 0

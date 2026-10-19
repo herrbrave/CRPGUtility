@@ -24,6 +24,9 @@ namespace CRPG.Abilities
         [SerializeField] private ResourceDefinition hitPointResource;
         [SerializeField] private DiceExpression amount;
 
+        /// <summary>The base damage dice (before cantrip scaling, upcasting and critical doubling).</summary>
+        public DiceExpression Amount => amount;
+
         /// <summary>Optional -- DefinitionId.None (the default) means untyped damage, which never triggers
         /// resistance/immunity/vulnerability (matches every DamageEffect authored before damage types existed).
         /// Set this to apply the target's DefaultDamageResistanceRule-gathered modifiers for this damage type.</summary>
@@ -40,6 +43,10 @@ namespace CRPG.Abilities
         /// level above 1st" is 1 here, matching its base 1d8. Zero (the default) means this spell doesn't scale
         /// with upcasting.</summary>
         [SerializeField] private int extraDiceCountPerSlotLevel;
+
+        /// <summary>Half the rolled damage, rounded down (a successful save against Burning Hands, Shatter, Fireball: the 5e "half as much damage on a successful save"). Authored as a second copy of the damage effect on the save effect's success branch.</summary>
+        [SerializeField] private bool halved;
+        public bool Halved => halved;
 
         public override void Apply(AbilityExecutionContext context)
         {
@@ -59,6 +66,7 @@ namespace CRPG.Abilities
                 var rollAmount = new DiceExpression(isCritical ? scaledCount * 2 : scaledCount, amount.Sides, amount.Modifier);
                 var roll = context.DiceService.Roll(new RollRequest(rollAmount, RollPurpose.DamageRoll, source: context.Source, target: targetId));
                 var rawAmount = Mathf.RoundToInt((float)roll.Total);
+                if (halved) rawAmount /= 2;
                 if (damageTypeId.IsValid && context.DamageResistanceRule != null)
                     rawAmount = context.DamageResistanceRule.ApplyResistance(targetId, damageTypeId, rawAmount);
 
