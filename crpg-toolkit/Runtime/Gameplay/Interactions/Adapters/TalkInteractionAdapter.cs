@@ -5,6 +5,7 @@ using CRPG.Dialogue;
 using CRPG.Inventory;
 using CRPG.Party;
 using CRPG.Rules;
+using CRPG.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -29,6 +30,10 @@ namespace CRPG.Gameplay.Interactions.Adapters
 
         /// <summary>True shows the conversation in the self-contained dark panel (a game with no USS skin); false keeps the default look a skin paints over.</summary>
         public bool PlainStyle { get; set; }
+
+        /// <summary>Optional game-owned presentation, created for the actual talking performer. Null uses
+        /// the toolkit DialogueView. Each call transfers ownership of a fresh view to the controller.</summary>
+        public Func<RuntimeEntityId, IConversationView> ViewFactory { get; set; }
 
         /// <summary>A conversation began: the performer who is talking. Fires before the first line is shown.</summary>
         public event Action<RuntimeEntityId> ConversationStarted;
@@ -70,6 +75,21 @@ namespace CRPG.Gameplay.Interactions.Adapters
         public DefinitionId ActionId { get; } = new("interact-talk");
 
         private bool conversationOpen;
+        private Execution activeExecution;
+        private bool startupDisablePending;
+
+        private void OnDisable()
+        {
+            if (activeExecution != null)
+            {
+                activeExecution.TerminateFromOwner();
+            }
+            else if (conversationOpen)
+            {
+                // Startup has claimed this conversation but has not installed its execution yet.
+                startupDisablePending = true;
+            }
+        }
 
         public bool IsAvailable(RuntimeEntityId performer) => dialogue != null && !conversationOpen;
 
@@ -79,23 +99,29 @@ namespace CRPG.Gameplay.Interactions.Adapters
                 store: Store, currencyItemId: CurrencyItemId, restService: RestService, requestSave: RequestSave,
                 requestRecruit: RequestRecruit, requestStartQuest: RequestStartQuest);
 
-            // Open only once the controller really exists: a conversation that throws while starting (a bad start node, a view that cannot be built)
-            // must not leave this NPC permanently "in conversation". The controller releases its own modal scope on a failed start.
+            // Claim before the start notification, so composition callbacks see this NPC as occupied.
+            // A startup failure resets admission and the controller releases its own modal scope.
             conversationOpen = true;
+            startupDisablePending = false;
             ConversationController controller;
             try
             {
                 ConversationStarted?.Invoke(performer);
-                controller = new ConversationController(dialogue, context, panelSettings, PlainStyle);
+                var factory = ViewFactory;
+                controller = new ConversationController(dialogue, context, panelSettings, PlainStyle,
+                    viewFactory: factory == null ? null : () => factory(performer));
             }
             catch
             {
                 conversationOpen = false;
+                startupDisablePending = false;
                 ConversationEnded?.Invoke(performer);
                 throw;
             }
 
-            return new Execution(this, controller, performer, onFinished);
+            bool cancelOnStart = startupDisablePending;
+            startupDisablePending = false;
+            return new Execution(this, controller, performer, onFinished, cancelOnStart);
         }
 
         private sealed class Execution : IInteractionExecution
@@ -106,25 +132,57 @@ namespace CRPG.Gameplay.Interactions.Adapters
             private readonly Action<InteractionExecutionResult> onFinished;
             private bool ended;
 
-            public Execution(TalkInteractionAdapter owner, ConversationController controller, RuntimeEntityId performer, Action<InteractionExecutionResult> onFinished)
+            public Execution(TalkInteractionAdapter owner, ConversationController controller, RuntimeEntityId performer, Action<InteractionExecutionResult> onFinished, bool cancelOnStart)
             {
                 this.owner = owner;
                 this.controller = controller;
                 this.performer = performer;
                 this.onFinished = onFinished;
+                owner.activeExecution = this;
                 controller.Completed += HandleCompleted;
+                controller.Cancelled += HandleCancelled;
+                // End-on-start and a custom view completing inside Initialize both happen before we can
+                // subscribe. Observe the terminal state after subscribing instead of deferring events.
+                if (controller.IsEnded)
+                {
+                    HandleCompleted();
+                }
+                else if (cancelOnStart)
+                {
+                    // Native disable must finish the waiting interaction before this token escapes.
+                    TerminateFromOwner();
+                }
             }
 
-            private void HandleCompleted()
+            private void HandleCompleted() => Finish(InteractionExecutionResult.Succeeded);
+
+            private void HandleCancelled() => Finish(InteractionExecutionResult.Failed);
+
+            // Owner disable is not controller-requested execution cancellation: keep the completion
+            // subscription so Cancelled -> Finish(Failed) notifies the waiting interaction exactly once.
+            public void TerminateFromOwner() => controller.Cancel();
+
+            private void Finish(InteractionExecutionResult result)
             {
                 if (ended) return;
                 ended = true;
+                Detach();
+                try
+                {
+                    owner.ConversationEnded?.Invoke(performer);
+                }
+                finally
+                {
+                    onFinished(result);
+                }
+            }
 
+            private void Detach()
+            {
                 controller.Completed -= HandleCompleted;
+                controller.Cancelled -= HandleCancelled;
+                owner.activeExecution = null;
                 owner.conversationOpen = false;
-
-                owner.ConversationEnded?.Invoke(performer);
-                onFinished(InteractionExecutionResult.Succeeded);
             }
 
             public void Cancel()
@@ -132,10 +190,15 @@ namespace CRPG.Gameplay.Interactions.Adapters
                 if (ended) return;
                 ended = true;
 
-                controller.Completed -= HandleCompleted;
-                owner.conversationOpen = false;
-                controller.Cancel();
-                owner.ConversationEnded?.Invoke(performer);
+                Detach();
+                try
+                {
+                    controller.Cancel();
+                }
+                finally
+                {
+                    owner.ConversationEnded?.Invoke(performer);
+                }
 
                 // Deliberately does NOT invoke onFinished -- the controller already knows this request is
                 // ending (that's why Cancel was called) and isn't expecting a result from it anymore.

@@ -18,6 +18,56 @@ namespace CRPG.Camera
 
         public CameraRigState Rig { get; private set; }
 
+        /// <summary>The currently displayed distance, including zoom smoothing, rather than the logical zoom target.</summary>
+        public float DisplayedZoom => this.shownZoom;
+
+        /// <summary>Immutable state and actual local poses for a temporary takeover of this initialized rig.
+        /// Settings, hierarchy, lens and component enable flags remain the current owner's responsibility.</summary>
+        public readonly struct Snapshot
+        {
+            internal IsometricCameraRig Owner { get; }
+            internal CameraRigState.Snapshot State { get; }
+            internal float ShownZoom { get; }
+            internal Pose Root { get; }
+            internal Pose Yaw { get; }
+            internal Pose Pitch { get; }
+            internal Pose Camera { get; }
+
+            internal Snapshot(IsometricCameraRig owner)
+            {
+                Owner = owner;
+                State = owner.Rig.CaptureState();
+                ShownZoom = owner.shownZoom;
+                Root = new Pose(owner.transform.localPosition, owner.transform.localRotation);
+                Yaw = new Pose(owner.yawPivot.localPosition, owner.yawPivot.localRotation);
+                Pitch = new Pose(owner.pitchPivot.localPosition, owner.pitchPivot.localRotation);
+                Camera = new Pose(owner.cameraTransform.localPosition, owner.cameraTransform.localRotation);
+            }
+        }
+
+        /// <summary>Captures logical state, the smoothing accumulator and actual presentation without advancing a frame.</summary>
+        public Snapshot CaptureState() => new Snapshot(this);
+
+        /// <summary>Restores this rig's snapshot immediately, even while disabled. Does not run Apply or advance smoothing.</summary>
+        public void RestoreState(Snapshot snapshot)
+        {
+            if (!ReferenceEquals(snapshot.Owner, this))
+            {
+                throw new System.ArgumentException("The snapshot must have been captured from this camera rig.", nameof(snapshot));
+            }
+
+            Rig.RestoreState(snapshot.State);
+            this.shownZoom = snapshot.ShownZoom;
+            transform.localPosition = snapshot.Root.position;
+            transform.localRotation = snapshot.Root.rotation;
+            this.yawPivot.localPosition = snapshot.Yaw.position;
+            this.yawPivot.localRotation = snapshot.Yaw.rotation;
+            this.pitchPivot.localPosition = snapshot.Pitch.position;
+            this.pitchPivot.localRotation = snapshot.Pitch.rotation;
+            this.cameraTransform.localPosition = snapshot.Camera.position;
+            this.cameraTransform.localRotation = snapshot.Camera.rotation;
+        }
+
         /// <summary>The settings this rig was built from -- exposed so an input adapter can read
         /// configuration (e.g. <see cref="CRPGCameraSettings.EnableEdgeScrolling"/>) without needing its own
         /// separate reference to the same asset.</summary>

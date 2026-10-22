@@ -13,6 +13,42 @@ namespace CRPG.Camera
         private Rect? boundsXZ;
         private bool manualOverrideActive;
 
+        /// <summary>Immutable logical focus/yaw/perspective-distance/manual-follow state from one rig. Orthographic scale selection, settings, bounds, ground and viewport remain current.</summary>
+        public readonly struct Snapshot
+        {
+            internal CameraRigState Owner { get; }
+            internal Vector3 FocusPoint { get; }
+            internal float Yaw { get; }
+            internal float Zoom { get; }
+            internal bool ManualOverrideActive { get; }
+
+            internal Snapshot(CameraRigState owner)
+            {
+                Owner = owner;
+                FocusPoint = owner.FocusPoint;
+                Yaw = owner.Yaw;
+                Zoom = owner.Zoom;
+                ManualOverrideActive = owner.manualOverrideActive;
+            }
+        }
+
+        /// <summary>Captures logical view state for temporary camera ownership, not orthographic scale selection or location/configuration rollback.</summary>
+        public Snapshot CaptureState() => new Snapshot(this);
+
+        /// <summary>Restores captured logical view state exactly, without recentering, clamping or sampling ground. Does not rewind orthographic scale selection or configuration.</summary>
+        public void RestoreState(Snapshot snapshot)
+        {
+            if (!ReferenceEquals(snapshot.Owner, this))
+            {
+                throw new System.ArgumentException("The snapshot must have been captured from this camera state.", nameof(snapshot));
+            }
+
+            FocusPoint = snapshot.FocusPoint;
+            Yaw = snapshot.Yaw;
+            Zoom = snapshot.Zoom;
+            this.manualOverrideActive = snapshot.ManualOverrideActive;
+        }
+
         public CameraRigState(CRPGCameraSettings settings)
         {
             this.settings = settings;

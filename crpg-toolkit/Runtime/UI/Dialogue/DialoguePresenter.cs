@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CRPG.Core;
 using CRPG.Dialogue;
 
 namespace CRPG.UI
@@ -19,19 +20,26 @@ namespace CRPG.UI
         {
         }
 
-        /// <summary>Wraps an ALREADY-RUNNING DialogueRunner instead of starting a fresh conversation --
-        /// ConversationController uses this to rebuild the View layer around the same runner across a store
-        /// hand-off round-trip (Task 3.4) without restarting the conversation from its StartNodeId.</summary>
+        /// <summary>Wraps an already-running runner. Retain this presenter when rebuilding views so the
+        /// last spoken prompt survives choices and store hand-offs without replaying the graph.</summary>
         public DialoguePresenter(DialogueRunner runner, DialogueContext context)
         {
             this.context = context;
             this.runner = runner;
+            RetainCurrentLine();
         }
 
         public bool IsComplete => runner.IsComplete;
         public bool IsAtLine => runner.CurrentNode is LineNode;
         public bool IsAtChoice => runner.CurrentNode is ChoiceNode;
         public bool IsAtCheck => runner.CurrentNode is CheckNode;
+
+        public SerializableGuid CurrentNodeId => runner.CurrentNode.NodeId;
+
+        /// <summary>The most recent settled Line, retained at choices/checks/end. Empty before any Line.</summary>
+        public string LastLineText { get; private set; } = string.Empty;
+        public string LastSpeakerName { get; private set; } = string.Empty;
+        public SerializableGuid LastLineNodeId { get; private set; } = SerializableGuid.Empty;
 
         public string SpeakerName => (runner.CurrentNode as LineNode)?.SpeakerName ?? string.Empty;
         public string LineText => (runner.CurrentNode as LineNode)?.Text ?? string.Empty;
@@ -53,9 +61,35 @@ namespace CRPG.UI
             return summaries;
         }
 
-        public void Advance() => runner.Advance();
-        public void ChooseOption(int optionIndex) => runner.ChooseOption(optionIndex);
+        public void Advance()
+        {
+            runner.Advance();
+            RetainCurrentLine();
+        }
+
+        public void ChooseOption(int optionIndex)
+        {
+            runner.ChooseOption(optionIndex);
+            RetainCurrentLine();
+        }
+
         public CheckPrompt PrepareCheck() => runner.PrepareCheck();
-        public DialogueCheckOutcome PerformCheck(CheckRollOptions options = null) => runner.PerformCheck(options);
+
+        public DialogueCheckOutcome PerformCheck(CheckRollOptions options = null)
+        {
+            var outcome = runner.PerformCheck(options);
+            RetainCurrentLine();
+            return outcome;
+        }
+
+        private void RetainCurrentLine()
+        {
+            if (runner.CurrentNode is LineNode line)
+            {
+                LastLineText = line.Text;
+                LastSpeakerName = line.SpeakerName;
+                LastLineNodeId = line.NodeId;
+            }
+        }
     }
 }

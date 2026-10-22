@@ -1,3 +1,4 @@
+using System.Reflection;
 using CRPG.Actors;
 using CRPG.Core;
 using CRPG.Dialogue;
@@ -37,6 +38,98 @@ namespace CRPG.Tests.EditMode
             Assert.IsTrue(presenter.IsAtLine);
             Assert.AreEqual("Eldor", presenter.SpeakerName);
             Assert.AreEqual("Greetings, traveler.", presenter.LineText);
+        }
+
+        // Reflection keeps these regressions compilable before the retained-prompt API is implemented.
+        private static T ReadPresenterProperty<T>(DialoguePresenter presenter, string propertyName)
+        {
+            var property = typeof(DialoguePresenter).GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
+            Assert.NotNull(property, $"DialoguePresenter must expose public read-only {typeof(T).Name} {propertyName} for retained dialogue context.");
+            Assert.AreEqual(typeof(T), property.PropertyType, $"DialoguePresenter.{propertyName} has the wrong type.");
+            Assert.NotNull(property.GetGetMethod(), $"DialoguePresenter.{propertyName} must have a public getter.");
+            Assert.IsNull(property.GetSetMethod(), $"DialoguePresenter.{propertyName} must not have a public setter.");
+            return (T)property.GetValue(presenter);
+        }
+
+        [Test]
+        public void AdvancingFromALineToChoicesRetainsTheLastNpcPrompt()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var choice = DialogueTestFactory.CreateChoice("reply", DialogueTestFactory.CreateOption("Leave", "end"));
+            var line = DialogueTestFactory.CreateLine("start", "Eldor", "What brings you here?", "reply");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg", "start", line, choice, end);
+            var presenter = new DialoguePresenter(dialogue, CreateContext());
+
+            Assert.AreEqual(SerializableGuid.FromString("start"), ReadPresenterProperty<SerializableGuid>(presenter, "CurrentNodeId"));
+            Assert.AreEqual("What brings you here?", ReadPresenterProperty<string>(presenter, "LastLineText"));
+            Assert.AreEqual("Eldor", ReadPresenterProperty<string>(presenter, "LastSpeakerName"));
+            Assert.AreEqual(SerializableGuid.FromString("start"), ReadPresenterProperty<SerializableGuid>(presenter, "LastLineNodeId"));
+
+            presenter.Advance();
+
+            Assert.IsTrue(presenter.IsAtChoice);
+            Assert.AreEqual(SerializableGuid.FromString("reply"), ReadPresenterProperty<SerializableGuid>(presenter, "CurrentNodeId"));
+            Assert.AreEqual(string.Empty, presenter.LineText, "LineText still describes only the current node.");
+            Assert.AreEqual(string.Empty, presenter.SpeakerName, "SpeakerName still describes only the current node.");
+            Assert.AreEqual("What brings you here?", ReadPresenterProperty<string>(presenter, "LastLineText"));
+            Assert.AreEqual("Eldor", ReadPresenterProperty<string>(presenter, "LastSpeakerName"));
+            Assert.AreEqual(SerializableGuid.FromString("start"), ReadPresenterProperty<SerializableGuid>(presenter, "LastLineNodeId"));
+            Assert.AreEqual("Leave", presenter.GetChoices()[0].Text);
+        }
+
+        [Test]
+        public void ReachingASecondLineReplacesTheRetainedNpcPrompt()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var finalChoice = DialogueTestFactory.CreateChoice("final-reply", DialogueTestFactory.CreateOption("Goodbye", "end"));
+            var secondLine = DialogueTestFactory.CreateLine("second", "Mira", "The road is clear now.", "final-reply");
+            var firstChoice = DialogueTestFactory.CreateChoice("first-reply", DialogueTestFactory.CreateOption("Ask about the road", "second"));
+            var firstLine = DialogueTestFactory.CreateLine("start", "Eldor", "What do you need?", "first-reply");
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg", "start", firstLine, firstChoice, secondLine, finalChoice, end);
+            var presenter = new DialoguePresenter(dialogue, CreateContext());
+
+            presenter.Advance();
+            Assert.AreEqual("What do you need?", ReadPresenterProperty<string>(presenter, "LastLineText"));
+            Assert.AreEqual("Eldor", ReadPresenterProperty<string>(presenter, "LastSpeakerName"));
+            Assert.AreEqual(SerializableGuid.FromString("start"), ReadPresenterProperty<SerializableGuid>(presenter, "LastLineNodeId"));
+
+            presenter.ChooseOption(0);
+
+            Assert.IsTrue(presenter.IsAtLine);
+            Assert.AreEqual(SerializableGuid.FromString("second"), ReadPresenterProperty<SerializableGuid>(presenter, "CurrentNodeId"));
+            Assert.AreEqual("The road is clear now.", presenter.LineText);
+            Assert.AreEqual("Mira", presenter.SpeakerName);
+            Assert.AreEqual("The road is clear now.", ReadPresenterProperty<string>(presenter, "LastLineText"));
+            Assert.AreEqual("Mira", ReadPresenterProperty<string>(presenter, "LastSpeakerName"));
+            Assert.AreEqual(SerializableGuid.FromString("second"), ReadPresenterProperty<SerializableGuid>(presenter, "LastLineNodeId"));
+
+            presenter.Advance();
+
+            Assert.IsTrue(presenter.IsAtChoice);
+            Assert.AreEqual(SerializableGuid.FromString("final-reply"), ReadPresenterProperty<SerializableGuid>(presenter, "CurrentNodeId"));
+            Assert.AreEqual(string.Empty, presenter.LineText);
+            Assert.AreEqual(string.Empty, presenter.SpeakerName);
+            Assert.AreEqual("The road is clear now.", ReadPresenterProperty<string>(presenter, "LastLineText"));
+            Assert.AreEqual("Mira", ReadPresenterProperty<string>(presenter, "LastSpeakerName"));
+            Assert.AreEqual(SerializableGuid.FromString("second"), ReadPresenterProperty<SerializableGuid>(presenter, "LastLineNodeId"));
+        }
+
+        [Test]
+        public void AChoiceOnlyEntryDoesNotInventRetainedNpcSpeech()
+        {
+            var end = DialogueTestFactory.CreateEnd("end");
+            var choice = DialogueTestFactory.CreateChoice("start", DialogueTestFactory.CreateOption("Leave", "end"));
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg", "start", choice, end);
+            var presenter = new DialoguePresenter(dialogue, CreateContext());
+
+            Assert.IsTrue(presenter.IsAtChoice);
+            Assert.AreEqual(SerializableGuid.FromString("start"), ReadPresenterProperty<SerializableGuid>(presenter, "CurrentNodeId"));
+            Assert.AreEqual(string.Empty, presenter.LineText);
+            Assert.AreEqual(string.Empty, presenter.SpeakerName);
+            Assert.AreEqual(string.Empty, ReadPresenterProperty<string>(presenter, "LastLineText"));
+            Assert.AreEqual(string.Empty, ReadPresenterProperty<string>(presenter, "LastSpeakerName"));
+            Assert.AreEqual(SerializableGuid.Empty, ReadPresenterProperty<SerializableGuid>(presenter, "LastLineNodeId"));
+            Assert.AreEqual("Leave", presenter.GetChoices()[0].Text);
         }
 
         [Test]
@@ -103,10 +196,11 @@ namespace CRPG.Tests.EditMode
         [Test]
         public void PerformCheckAdvancesToTheOutcomeNodeAndReturnsTheRoll()
         {
-            var success = DialogueTestFactory.CreateEnd("success");
+            var end = DialogueTestFactory.CreateEnd("end");
+            var success = DialogueTestFactory.CreateLine("success", "Mira", "You may pass.", "end");
             var failure = DialogueTestFactory.CreateEnd("failure");
             var check = DialogueTestFactory.CreateCheck("start", "Skill:Persuasion", 15, CheckPerformer.ActiveCharacter, "success", "failure");
-            var dialogue = DialogueTestFactory.CreateDialogue("dlg", "start", check, success, failure);
+            var dialogue = DialogueTestFactory.CreateDialogue("dlg", "start", check, success, failure, end);
             var random = new TestRandomSource();
             random.EnqueueResult(18);
             var presenter = new DialoguePresenter(dialogue, CreateContext(new DiceService(random)));
@@ -114,7 +208,18 @@ namespace CRPG.Tests.EditMode
             var outcome = presenter.PerformCheck();
 
             Assert.IsTrue(outcome.Success);
+            Assert.IsTrue(presenter.IsAtLine);
+            Assert.AreEqual(SerializableGuid.FromString("success"), presenter.CurrentNodeId);
+            Assert.AreEqual("You may pass.", presenter.LastLineText);
+            Assert.AreEqual("Mira", presenter.LastSpeakerName);
+            Assert.AreEqual(SerializableGuid.FromString("success"), presenter.LastLineNodeId);
+
+            presenter.Advance();
+
             Assert.IsTrue(presenter.IsComplete);
+            Assert.AreEqual(SerializableGuid.FromString("end"), presenter.CurrentNodeId);
+            Assert.AreEqual("You may pass.", presenter.LastLineText);
+            Assert.AreEqual(string.Empty, presenter.LineText);
         }
     }
 }

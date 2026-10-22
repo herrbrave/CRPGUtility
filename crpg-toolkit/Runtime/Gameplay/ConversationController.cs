@@ -8,97 +8,98 @@ using UnityEngine.UIElements;
 namespace CRPG.Gameplay
 {
     /// <summary>
-    /// Task 3.4 (Production Foundation): owns one conversation's full lifecycle -- the single DialogueRunner
-    /// instance (constructed once, never restarted), the modal pointer-capture lease, and swapping between the
-    /// DialogueView and StoreView presentation. Lives in CRPG.Gameplay alongside InteractionController/
-    /// PlayerCommandRouter -- the layer that composes Dialogue/UI/Inventory rather than any one of them owning
-    /// the others. Replaces what TalkInteractionAdapter used to hand-roll inline.
-    /// <para>
-    /// Store hand-off is a genuine round-trip: opening the store pauses the conversation; closing it resumes
-    /// the SAME DialogueRunner wherever it already left off (not necessarily where the store was entered --
-    /// DialogueRunner may have auto-settled further while executing the OpenStoreAction). AdvancePresentation
-    /// is re-entered after every driving call and after the store closes, so this works for any graph shape
-    /// without special-casing "store immediately followed by End" versus "more dialogue follows the shop."
-    /// </para>
+    /// Owns one retained DialoguePresenter/runner, the modal pointer lease, and dialogue/store presentation.
+    /// A store round-trip rebuilds only the view, never the graph or its retained spoken prompt.
     /// </summary>
     public sealed class ConversationController : IDisposable
     {
         private readonly DialogueContext context;
-        private readonly DialogueRunner runner;
         private readonly PanelSettings panelSettings;
         private readonly bool plainStyle;
         private readonly IDialogueCheckPresenter checkPresenter;
+        private readonly Func<IConversationView> viewFactory;
+        private readonly IDisposable modalScope;
 
         private GameObject uiGo;
-        private DialogueView dialogueView;
+        private IConversationView currentView;
+        private Action viewChanged;
         private StoreView storeView;
-        private IDisposable modalScope;
         private bool ended;
 
-        /// <summary>The conversation reached its End node with no further store hand-off pending.</summary>
+        /// <summary>The conversation reached End with no further store hand-off pending.</summary>
         public event Action Completed;
 
-        /// <summary>Cancelled from outside (e.g. the interaction was superseded) -- never fires alongside Completed.</summary>
+        /// <summary>Cancelled externally or after a presentation failure; never fires alongside Completed.</summary>
         public event Action Cancelled;
 
-        /// <summary>Diagnostics -- whichever view is currently shown, if any (mirrors PlayableCharacterAnimationDriver's
-        /// ActivePort/GetPortClip precedent: exposed specifically so tests can assert against the real live view
-        /// instead of reflection or fragile UI event simulation).</summary>
-        public DialogueView CurrentDialogueView => dialogueView;
+        public DialoguePresenter Presenter { get; }
+
+        /// <summary>Includes synchronous completion during construction, before callers can subscribe.</summary>
+        public bool IsEnded => ended;
+
+        /// <summary>Diagnostics for the live presentation; the concrete view is null on the custom path.</summary>
+        public IConversationView CurrentView => currentView;
+        public DialogueView CurrentDialogueView => currentView as DialogueView;
         public StoreView CurrentStoreView => storeView;
 
-        public ConversationController(DialogueDefinition dialogue, DialogueContext context, PanelSettings panelSettings, bool plainStyle = false, IDialogueCheckPresenter checkPresenter = null)
+        public ConversationController(DialogueDefinition dialogue, DialogueContext context, PanelSettings panelSettings, bool plainStyle = false,
+            IDialogueCheckPresenter checkPresenter = null, Func<IConversationView> viewFactory = null)
         {
             this.context = context;
             this.panelSettings = panelSettings;
             this.plainStyle = plainStyle;
             this.checkPresenter = checkPresenter;
-            runner = new DialogueRunner(dialogue, context);
+            this.viewFactory = viewFactory;
+            Presenter = new DialoguePresenter(dialogue, context);
             modalScope = UIToolkitPointerCapture.BeginModal();
+            AdvancePresentation();
+        }
+
+        public void Cancel() => EndConversation(Cancelled);
+
+        public void Dispose() => Cancel();
+
+        private void EndConversation(Action notification)
+        {
+            if (ended) return;
+            ended = true;
             try
             {
-                AdvancePresentation();
+                TearDownCurrentView();
+            }
+            finally
+            {
+                modalScope.Dispose();
+                notification?.Invoke();
+            }
+        }
+
+        private void AdvancePresentation()
+        {
+            if (ended) return; // A late view/check callback after cancellation owns no presentation.
+
+            try
+            {
+                if (TryOpenRequestedStore()) return;
+
+                if (Presenter.IsComplete)
+                {
+                    EndConversation(Completed);
+                }
+                else if (currentView == null)
+                {
+                    OpenDialogueView();
+                }
             }
             catch
             {
-                // A view that cannot be built must not leave the modal pointer lease held: every world click would be swallowed from then on.
-                ended = true;
-                TearDownCurrentView();
-                modalScope.Dispose();
+                // Also covers factory/Initialize failures after returning from a store, not only startup.
+                Cancel();
                 throw;
             }
         }
 
-        public void Cancel()
-        {
-            if (ended) return;
-            ended = true;
-            TearDownCurrentView();
-            modalScope.Dispose();
-            Cancelled?.Invoke();
-        }
-
-        public void Dispose() => Cancel();
-
-        private void AdvancePresentation()
-        {
-            if (ended) return;
-
-            if (TryOpenRequestedStore()) return;
-
-            if (runner.IsComplete)
-            {
-                ended = true;
-                TearDownCurrentView();
-                modalScope.Dispose();
-                Completed?.Invoke();
-                return;
-            }
-
-            OpenDialogueView();
-        }
-
-        // True when the conversation had asked for the store and it is now showing. An Open Store action in a conversation that has no store wired (the presenter would throw) is skipped with a warning.
+        // An authored store request without a configured store is skipped with a warning.
         private bool TryOpenRequestedStore()
         {
             if (!context.ConsumeStoreOpenRequest()) return false;
@@ -112,13 +113,6 @@ namespace CRPG.Gameplay
             return false;
         }
 
-        // The player drove the dialogue one step; if that step reached an Open Store action (the runner then settled on whatever follows it, which the view is now showing), swap to the shop.
-        private void HandleDialogueViewDriven()
-        {
-            if (ended || dialogueView == null) return;
-            TryOpenRequestedStore();
-        }
-
         private void EnsureUiGameObject()
         {
             if (uiGo != null) return;
@@ -128,38 +122,65 @@ namespace CRPG.Gameplay
 
         private void TearDownCurrentView()
         {
-            if (dialogueView != null)
+            // Detach ownership BEFORE external Dispose: callbacks/reentrant initialization must not clear a
+            // newer view or destroy its document. The controller disposes each custom view exactly once.
+            var oldView = currentView;
+            var oldChanged = viewChanged;
+            var oldStore = storeView;
+            var oldGo = uiGo;
+            currentView = null;
+            viewChanged = null;
+            storeView = null;
+            uiGo = null;
+
+            if (oldView != null)
             {
-                dialogueView.Completed -= HandleDialogueViewCompleted;
-                dialogueView.Driven -= HandleDialogueViewDriven;
-                dialogueView = null;
+                oldView.Completed -= oldChanged;
+                oldView.Driven -= oldChanged;
             }
 
-            if (storeView != null)
-            {
-                storeView.Closed -= HandleStoreClosed;
-                storeView = null;
-            }
+            if (oldStore != null) oldStore.Closed -= HandleStoreClosed;
 
-            if (uiGo != null)
+            try
             {
-                UnityEngine.Object.Destroy(uiGo);
-                uiGo = null;
+                oldView?.Dispose();
+            }
+            finally
+            {
+                if (oldGo != null)
+                {
+                    oldGo.SetActive(false);
+                    UnityEngine.Object.Destroy(oldGo);
+                }
             }
         }
 
         private void OpenDialogueView()
         {
             TearDownCurrentView();
-            EnsureUiGameObject();
 
-            dialogueView = uiGo.AddComponent<DialogueView>();
-            dialogueView.Completed += HandleDialogueViewCompleted;
-            dialogueView.Driven += HandleDialogueViewDriven;
-            dialogueView.Initialize(new DialoguePresenter(runner, context), plainStyle, checkPresenter);
+            IConversationView view;
+            if (viewFactory != null)
+            {
+                // Custom presentation creates no default UIDocument or DialogueView.
+                view = viewFactory() ?? throw new InvalidOperationException("The conversation view factory returned null.");
+            }
+            else
+            {
+                EnsureUiGameObject();
+                view = uiGo.AddComponent<DialogueView>();
+            }
+
+            currentView = view;
+            viewChanged = () =>
+            {
+                if (ReferenceEquals(currentView, view)) AdvancePresentation();
+            };
+            view.Completed += viewChanged;
+            view.Driven += viewChanged;
+            // Initialize may synchronously complete or open a store. Do not touch view ownership afterwards.
+            view.Initialize(Presenter, plainStyle, checkPresenter);
         }
-
-        private void HandleDialogueViewCompleted() => AdvancePresentation();
 
         private void OpenStoreView()
         {

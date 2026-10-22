@@ -179,6 +179,221 @@ namespace CRPG.Tests.EditMode
             Assert.AreNotEqual(afterPan, rig.FocusPoint); // now resumes
         }
 
+        private static object CaptureState(CameraRigState rig)
+        {
+            var capture = typeof(CameraRigState).GetMethod("CaptureState",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance,
+                null, System.Type.EmptyTypes, null);
+            Assert.NotNull(capture, "CameraRigState must expose CaptureState() for exact scripted-camera restoration.");
+            var snapshot = capture.Invoke(rig, null);
+            Assert.NotNull(snapshot, "CaptureState must return a snapshot, not an absent-state fallback.");
+            return snapshot;
+        }
+
+        private static void RestoreState(CameraRigState rig, object snapshot)
+        {
+            var restore = typeof(CameraRigState).GetMethod("RestoreState",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance,
+                null, new[] { snapshot.GetType() }, null);
+            Assert.NotNull(restore, "CameraRigState must expose RestoreState(snapshot) for the captured snapshot type.");
+            restore.Invoke(rig, new[] { snapshot });
+        }
+
+        [Test]
+        public void RestoreStateRestoresManualPanViewExactlyAndKeepsFollowSuspended()
+        {
+            var settings = CreateSettings();
+            try
+            {
+                var rig = new CameraRigState(settings);
+                rig.SnapTo(new Vector3(2f, 1f, -3f));
+                rig.FollowTarget(new Vector3(8f, 1f, 4f), deltaTime: 0.1f);
+                rig.SetYaw(37f);
+                rig.SetZoom(settings.MinimumZoom + 1f);
+                rig.Pan(new Vector2(1f, -0.5f), deltaTime: 0.1f);
+                Assert.IsTrue(rig.IsManualOverrideActive);
+                var focus = rig.FocusPoint;
+                var yaw = rig.Yaw;
+                var zoom = rig.Zoom;
+                var snapshot = CaptureState(rig);
+
+                rig.SnapTo(new Vector3(-20f, 5f, 30f));
+                rig.SetYaw(210f);
+                rig.SetZoom(settings.MaximumZoom);
+                Assert.IsFalse(rig.IsManualOverrideActive, "the scripted snap clears the original manual override");
+
+                RestoreState(rig, snapshot);
+
+                Assert.AreEqual(focus, rig.FocusPoint);
+                Assert.AreEqual(yaw, rig.Yaw);
+                Assert.AreEqual(zoom, rig.Zoom);
+                Assert.IsTrue(rig.IsManualOverrideActive, "restoration must not act like SnapTo/recenter");
+                rig.FollowTarget(new Vector3(50f, 0f, 50f), deltaTime: 1f);
+                Assert.AreEqual(focus, rig.FocusPoint, "manual pan must still win after the dialogue ends");
+                rig.ResumeFollow();
+                rig.FollowTarget(new Vector3(50f, 0f, 50f), deltaTime: 0.1f);
+                Assert.AreNotEqual(focus, rig.FocusPoint, "an explicit recenter must still release the restored override");
+            }
+            finally { Object.DestroyImmediate(settings); }
+        }
+
+        [Test]
+        public void RestoreStateRestoresNonmanualViewAndResumesSmoothedFollow()
+        {
+            var settings = CreateSettings();
+            try
+            {
+                var rig = new CameraRigState(settings);
+                rig.SnapTo(new Vector3(2f, 1f, -3f));
+                rig.SetYaw(123f);
+                rig.SetZoom(settings.MinimumZoom + 2f);
+                Assert.IsFalse(rig.IsManualOverrideActive);
+                var focus = rig.FocusPoint;
+                var yaw = rig.Yaw;
+                var zoom = rig.Zoom;
+                var snapshot = CaptureState(rig);
+
+                rig.SnapTo(new Vector3(-20f, 5f, 30f));
+                rig.SetYaw(270f);
+                rig.SetZoom(settings.MaximumZoom);
+                rig.Pan(Vector2.right, deltaTime: 0.1f);
+                Assert.IsTrue(rig.IsManualOverrideActive, "the temporary view must differ in follow state too");
+
+                RestoreState(rig, snapshot);
+
+                Assert.AreEqual(focus, rig.FocusPoint);
+                Assert.AreEqual(yaw, rig.Yaw);
+                Assert.AreEqual(zoom, rig.Zoom);
+                Assert.IsFalse(rig.IsManualOverrideActive);
+                var target = focus + Vector3.right * 10f;
+                rig.FollowTarget(target, deltaTime: 0.1f);
+                Assert.Greater(rig.FocusPoint.x, focus.x, "following resumes without a separate ResumeFollow call");
+                Assert.Less(rig.FocusPoint.x, target.x, "restoration must retain smoothed rather than snapping follow");
+            }
+            finally { Object.DestroyImmediate(settings); }
+        }
+
+        [Test]
+        public void RestoreStateLeavesCurrentSettingsBoundsAndGroundProviderUntouched()
+        {
+            var settings = CreateSettings();
+            var currentSettings = CreateSettings();
+            try
+            {
+                JsonUtility.FromJsonOverwrite("{\"maximumZoom\":7,\"defaultZoom\":6}", currentSettings);
+                var settingsBefore = JsonUtility.ToJson(settings);
+                var currentSettingsBefore = JsonUtility.ToJson(currentSettings);
+                var rig = new CameraRigState(settings);
+                rig.SetBounds(new Rect(-10f, -10f, 20f, 20f));
+                var originalProvider = new FakeGroundHeightProvider { Height = 3f };
+                rig.GroundHeightProvider = originalProvider;
+                rig.SnapTo(new Vector3(4f, 0f, 4f));
+                var focus = rig.FocusPoint;
+                var snapshot = CaptureState(rig);
+
+                rig.UseSettings(currentSettings);
+                rig.SetBounds(new Rect(-2f, -2f, 4f, 4f));
+                var currentProvider = new FakeGroundHeightProvider { Height = 9f };
+                rig.GroundHeightProvider = currentProvider;
+                rig.SnapTo(Vector3.zero);
+                currentProvider.LastQueriedXZ = null;
+
+                RestoreState(rig, snapshot);
+
+                Assert.AreEqual(focus, rig.FocusPoint, "restore is exact, not another bounds/ground projection");
+                Assert.AreSame(currentProvider, rig.GroundHeightProvider);
+                Assert.IsFalse(currentProvider.LastQueriedXZ.HasValue, "restore must not re-sample ground height");
+                rig.FollowTarget(new Vector3(100f, 0f, 100f), deltaTime: 1000f);
+                Assert.AreEqual(new Vector3(2f, 9f, 2f), rig.FocusPoint, "subsequent movement must use current bounds and provider");
+                rig.SetZoom(100f);
+                Assert.AreEqual(currentSettings.MaximumZoom, rig.Zoom, "the current settings asset must remain active");
+                Assert.AreEqual(settingsBefore, JsonUtility.ToJson(settings));
+                Assert.AreEqual(currentSettingsBefore, JsonUtility.ToJson(currentSettings));
+            }
+            finally
+            {
+                Object.DestroyImmediate(settings);
+                Object.DestroyImmediate(currentSettings);
+            }
+        }
+
+        [Test]
+        public void RestoreStateKeepsCurrentOrthographicScaleWhenSettingsHaveFewerSteps()
+        {
+            var settings = CreateSettings();
+            var currentSettings = CreateSettings();
+            try
+            {
+                JsonUtility.FromJsonOverwrite("{\"orthographic\":true,\"defaultScale\":3}", settings);
+                JsonUtility.FromJsonOverwrite("{\"orthographic\":true,\"zoomScales\":[2],\"defaultScale\":2,\"defaultPitch\":40}", currentSettings);
+                var settingsBefore = JsonUtility.ToJson(settings);
+                var currentSettingsBefore = JsonUtility.ToJson(currentSettings);
+                var rig = new CameraRigState(settings);
+                Assert.AreEqual(3, rig.Scale, "Capture a selected index above zero in the original default scale list.");
+                rig.GroundHeightProvider = new FakeGroundHeightProvider { Height = 3f };
+                rig.SetBounds(new Rect(-10f, -10f, 20f, 20f));
+                rig.SnapTo(new Vector3(4f, 0f, 4f));
+                rig.SetYaw(37f);
+                var focus = rig.FocusPoint;
+                var zoom = rig.Zoom;
+                var snapshot = CaptureState(rig);
+
+                rig.UseSettings(currentSettings);
+                Assert.AreEqual(2, rig.Scale);
+                rig.SetBounds(new Rect(-2f, -2f, 4f, 4f));
+                var currentProvider = new FakeGroundHeightProvider { Height = 9f };
+                rig.GroundHeightProvider = currentProvider;
+                rig.SnapTo(Vector3.zero);
+                rig.SetYaw(210f);
+                rig.Pan(Vector2.right, deltaTime: 0.1f);
+                currentProvider.LastQueriedXZ = null;
+
+                RestoreState(rig, snapshot);
+
+                Assert.AreEqual(2, rig.Scale, "Restore must leave the current scale selection alone, not reinstate the old out-of-range index.");
+                Assert.IsTrue(rig.Orthographic);
+                Assert.AreEqual(currentSettings.DefaultPitch, rig.BasePitch);
+                Assert.AreEqual(focus, rig.FocusPoint, "Logical focus is restored exactly even outside the current bounds.");
+                Assert.AreEqual(37f, rig.Yaw);
+                Assert.AreEqual(zoom, rig.Zoom);
+                Assert.IsFalse(rig.IsManualOverrideActive);
+                Assert.AreSame(currentProvider, rig.GroundHeightProvider);
+                Assert.IsFalse(currentProvider.LastQueriedXZ.HasValue, "Restore must not sample the provider.");
+                rig.FollowTarget(new Vector3(100f, 0f, 100f), deltaTime: 1000f);
+                Assert.AreEqual(new Vector3(2f, 9f, 2f), rig.FocusPoint, "Later movement must still use current bounds and provider.");
+                rig.SetViewport(160f, 1f);
+                Assert.AreEqual(160f / (2f * currentSettings.PixelsPerUnit * 2f), rig.OrthographicSize,
+                    "The real orthographic rig consumer must remain safe to read after restoration.");
+                Assert.AreEqual(settingsBefore, JsonUtility.ToJson(settings));
+                Assert.AreEqual(currentSettingsBefore, JsonUtility.ToJson(currentSettings));
+            }
+            finally
+            {
+                Object.DestroyImmediate(settings);
+                Object.DestroyImmediate(currentSettings);
+            }
+        }
+
+        [Test]
+        public void RestoreStateDoesNotRewindOrthographicScaleSelectedSinceCapture()
+        {
+            var settings = CreateSettings();
+            try
+            {
+                JsonUtility.FromJsonOverwrite("{\"orthographic\":true,\"defaultScale\":3}", settings);
+                var rig = new CameraRigState(settings);
+                Assert.AreEqual(3, rig.Scale);
+                var snapshot = CaptureState(rig);
+
+                rig.StepScale(1);
+                Assert.AreEqual(4, rig.Scale, "A real user/configuration scale change happened after capture.");
+                RestoreState(rig, snapshot);
+
+                Assert.AreEqual(4, rig.Scale, "The dialogue snapshot owns focus/yaw/distance/manual follow, not orthographic scale selection.");
+            }
+            finally { Object.DestroyImmediate(settings); }
+        }
+
         [Test]
         public void BoundsClampFocusPointForEveryMutator()
         {

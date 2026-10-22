@@ -13,7 +13,7 @@ namespace CRPG.UI
     /// across a refresh (see StoreView.SwapContainer).
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
-    public sealed class DialogueView : MonoBehaviour
+    public sealed class DialogueView : MonoBehaviour, IConversationView
     {
         private DialoguePresenter presenter;
         private UIDocument document;
@@ -33,6 +33,21 @@ namespace CRPG.UI
         private bool plainStyle;
         private IDialogueCheckPresenter checkPresenter;
         private bool checkPresented;
+        private bool disposed;
+
+        /// <summary>Releases this component's presentation immediately. Its creator owns destroying the
+        /// GameObject/document; OnDestroy is an idempotent fallback, not a second ownership transfer.</summary>
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            Completed = null;
+            Driven = null;
+            enabled = false;
+            if (root != null) root.Clear();
+        }
+
+        private void OnDestroy() => Dispose();
 
         /// <param name="plainStyle">False (default) keeps the look a game's own USS skin paints over (Barrow's End). True is a self-contained dark panel with light text, for a game with no skin: the default
         /// look is mid-grey with dark text, which only reads well under that skin.</param>
@@ -118,10 +133,10 @@ namespace CRPG.UI
                 return;
             }
 
-            speakerLabel.text = presenter.IsAtCheck ? "Check" : presenter.SpeakerName;
+            speakerLabel.text = presenter.IsAtCheck ? "Check" : presenter.LastSpeakerName;
             textLabel.text = presenter.IsAtCheck
                 ? $"{presenter.CheckLabel} (DC {presenter.CheckDifficultyClass})"
-                : presenter.LineText;
+                : presenter.LastLineText;
 
             var newResponseArea = new VisualElement();
 
@@ -142,17 +157,7 @@ namespace CRPG.UI
                     newResponseArea.Add(choiceButton);
                 }
             }
-            else if (presenter.IsAtCheck && checkPresenter != null)
-            {
-                // the game shows the check (nothing to click here); presented once per check node, whatever refreshes meanwhile
-                if (!checkPresented)
-                {
-                    checkPresented = true;
-                    root.style.display = DisplayStyle.None;   // the game's own presentation of the check is up: this panel steps aside
-                    checkPresenter.Present(presenter.PrepareCheck(), options => presenter.PerformCheck(options), () => { checkPresented = false; root.style.display = DisplayStyle.Flex; Refresh(); if (!presenter.IsComplete) Driven?.Invoke(); });
-                }
-            }
-            else if (presenter.IsAtCheck)
+            else if (presenter.IsAtCheck && checkPresenter == null)
             {
                 var rollButton = new Button(OnRollClicked) { text = "Roll" };
                 StyleButton(rollButton);
@@ -163,6 +168,26 @@ namespace CRPG.UI
             responseArea.parent.Insert(index, newResponseArea);
             responseArea.RemoveFromHierarchy();
             responseArea = newResponseArea;
+
+            // Finish layout before invoking game code: a synchronous check completion may recursively
+            // refresh, open a store, or dispose this view. There is no layout work after that callback.
+            if (presenter.IsAtCheck && checkPresenter != null && !checkPresented)
+            {
+                checkPresented = true;
+                root.style.display = DisplayStyle.None;
+                checkPresenter.Present(presenter.PrepareCheck(), options =>
+                {
+                    if (disposed) throw new System.ObjectDisposedException(nameof(DialogueView));
+                    return presenter.PerformCheck(options);
+                }, () =>
+                {
+                    if (disposed) return; // A cancelled check popup may close after its conversation.
+                    checkPresented = false;
+                    root.style.display = DisplayStyle.Flex;
+                    Refresh();
+                    if (!presenter.IsComplete) Driven?.Invoke();
+                });
+            }
         }
 
         // The plain style's buttons: a dark fill with the panel's light text (the default button is light grey, on which the inherited light text would vanish).
@@ -202,6 +227,7 @@ namespace CRPG.UI
                 ? $"Rolled {outcome.Rolls[0].Total} -- Success!"
                 : $"Rolled {outcome.Rolls[0].Total} -- Failure.";
             Refresh();
+            if (!presenter.IsComplete) Driven?.Invoke();
         }
 
         private void HideResult() => resultLabel.style.display = DisplayStyle.None;

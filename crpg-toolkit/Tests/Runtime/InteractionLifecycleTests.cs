@@ -2,11 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using CRPG.Core;
+using CRPG.Dialogue;
 using CRPG.Gameplay;
 using CRPG.Gameplay.Interactions;
+using CRPG.Gameplay.Interactions.Adapters;
 using CRPG.Navigation;
 using CRPG.Party;
 using CRPG.Saving;
+using CRPG.UI;
 using NUnit.Framework;
 using Unity.AI.Navigation;
 using UnityEngine;
@@ -27,6 +30,9 @@ namespace CRPG.Tests.PlayMode
     {
         private readonly List<GameObject> spawned = new();
         private readonly List<GameSession> sessions = new();
+
+        private static int ModalDepth => (int)typeof(UIToolkitPointerCapture).GetField("modalDepth",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).GetValue(null);
 
         [TearDown]
         public void TearDown()
@@ -91,6 +97,26 @@ namespace CRPG.Tests.PlayMode
         {
             public int CancelCount;
             public void Cancel() => CancelCount++;
+        }
+
+        private sealed class TestConversationView : IConversationView
+        {
+            public event Action Completed;
+            public event Action Driven;
+            public Action OnInitialize;
+            public DialoguePresenter Presenter;
+            public int DisposeCount;
+
+            public void Initialize(DialoguePresenter presenter, bool plainStyle = false, IDialogueCheckPresenter checkPresenter = null)
+            {
+                Presenter = presenter;
+                OnInitialize?.Invoke();
+            }
+
+            // Retain delegates deliberately: stale signals must be detached by the real owner.
+            public void EmitCompleted() => Completed?.Invoke();
+            public void EmitDriven() => Driven?.Invoke();
+            public void Dispose() => DisposeCount++;
         }
 
         private sealed class FakeAdapter : MonoBehaviour, IInteractionAdapter
@@ -416,6 +442,145 @@ namespace CRPG.Tests.PlayMode
         }
 
         // ---------------------------------------------------------------- 5: disabled (not destroyed) target
+
+        [UnityTest]
+        public IEnumerator DisablingOnlyTheTalkAdapterFinishesExecutingRequestAndReleasesOwnership()
+            => TalkAdapterTerminationReleasesOwnership("disable");
+
+        [UnityTest]
+        public IEnumerator DisablingOnlyTheTalkAdapterInsideInitializeFinishesRequestBeforeBeginExecuteReturns()
+            => TalkAdapterTerminationReleasesOwnership("disable-initialize");
+
+        [UnityTest]
+        public IEnumerator CancelCommandDuringRealTalkRemainsCancelledAndReleasesOwnershipOnce()
+            => TalkAdapterTerminationReleasesOwnership("cancel");
+
+        private IEnumerator TalkAdapterTerminationReleasesOwnership(string termination)
+        {
+            var session = NewSession();
+            var (performerGo, performer, _, facing) = CreatePerformerWithFacing(session, session.Party, Vector3.zero);
+            var npcGo = new GameObject("TalkNpc") { transform = { position = Vector3.forward * 0.5f } };
+            npcGo.SetActive(false);
+            spawned.Add(npcGo);
+            var npc = npcGo.AddComponent<CharacterAgent>();
+            npc.Bind(RuntimeEntityId.NewId(), session);
+            var adapter = npcGo.AddComponent<TalkInteractionAdapter>();
+            var target = npcGo.GetComponent<WorldInteractable>();
+            target.ConfigureForCharacter(npcGo.transform, 1.5f);
+            adapter.Party = session.Party;
+            adapter.Characters = session.Characters;
+            adapter.RulesDatabase = session.RulesDatabase;
+            adapter.Timeline = session.Timeline;
+            adapter.Inventory = session.Inventory;
+            adapter.DiceService = session.DiceService;
+
+            // Only authored dialogue data uses reflection; lifecycle entry is the real command source,
+            // public Tick and native adapter.enabled transition, never reflected OnDisable/Update.
+            var dialogue = ScriptableObject.CreateInstance<DialogueDefinition>();
+            var line = new LineNode();
+            SetDialogueField(line, "nodeId", SerializableGuid.FromString("talk-disable-start"));
+            SetDialogueField(line, "text", "Stay here.");
+            SetDialogueField(line, "nextNodeId", SerializableGuid.FromString("talk-disable-end"));
+            var end = new EndNode();
+            SetDialogueField(end, "nodeId", SerializableGuid.FromString("talk-disable-end"));
+            SetDialogueField(dialogue, "id", "talk-disable-test");
+            SetDialogueField(dialogue, "startNodeId", SerializableGuid.FromString("talk-disable-start"));
+            SetDialogueField(dialogue, "nodes", new List<DialogueNode> { line, end });
+            adapter.Dialogue = dialogue;
+            npcGo.SetActive(true);
+
+            var commandSource = new FakeCommandSource();
+            var interaction = new InteractionController(commandSource, session.Party, session);
+            var outcomes = new List<InteractionOutcome>();
+            var events = new List<string>();
+            interaction.RequestEnded += outcomes.Add;
+            adapter.ConversationStarted += actual => { Assert.AreEqual(performer.EntityId, actual); events.Add("start"); };
+            adapter.ConversationEnded += actual => { Assert.AreEqual(performer.EntityId, actual); events.Add("end"); };
+            var depth = ModalDepth;
+            var view = new TestConversationView
+            {
+                OnInitialize = () =>
+                {
+                    Assert.AreEqual(InteractionPhase.Executing, interaction.CurrentRequest.Phase);
+                    Assert.IsTrue(session.Ambient.IsSuspended(npc.EntityId));
+                    if (termination == "disable-initialize") adapter.enabled = false;
+                }
+            };
+            adapter.ViewFactory = actual => { Assert.AreEqual(performer.EntityId, actual); return view; };
+            try
+            {
+                commandSource.RaiseInteract(target.EntityId);
+                Assert.AreEqual(InteractionPhase.TurningToFace, interaction.CurrentRequest.Phase);
+                Assert.IsTrue(session.Ambient.IsSuspended(npc.EntityId), "The genuine request must first own the NPC ambient suspension.");
+                yield return null; // let the real FacingController.Update observe its new +Z request
+                interaction.Tick(0f);
+                Assert.NotNull(view.Presenter, "The real request must reach the adapter's custom Initialize.");
+                Assert.IsFalse(view.Presenter.IsComplete, "Disable/cancel interrupts a live Line, not a completed dialogue.");
+
+                if (termination != "disable-initialize")
+                {
+                    Assert.AreEqual(InteractionPhase.Executing, interaction.CurrentRequest.Phase);
+                    Assert.AreEqual(depth + 1, ModalDepth);
+                    if (termination == "cancel") commandSource.RaiseCancel();
+                    else adapter.enabled = false;
+                }
+
+                Assert.IsTrue(target.isActiveAndEnabled, "Only the adapter may be disabled; TargetLost would mask the missing completion.");
+                Assert.IsTrue(target.IsConfigured);
+                Assert.AreSame(adapter, target.Adapter);
+                Assert.AreEqual(termination == "cancel", adapter.isActiveAndEnabled);
+                Assert.IsNull(interaction.CurrentRequest,
+                    "Adapter-owner disable must notify the real waiting request, including synchronous startup disable.");
+                var expected = termination == "cancel" ? InteractionOutcome.Cancelled : InteractionOutcome.Failed;
+                CollectionAssert.AreEqual(new[] { expected }, outcomes);
+                CollectionAssert.AreEqual(new[] { "start", "end" }, events);
+                Assert.IsFalse(session.Ambient.IsSuspended(npc.EntityId), "The interaction's ambient lease must be released.");
+                Assert.AreEqual(1, view.DisposeCount);
+                Assert.AreEqual(depth, ModalDepth);
+
+                // Prove release behaviorally: Ambient is lower than Interaction. A leaked +Z interaction
+                // request prevents this real FacingController.Update loop from turning toward -Z.
+                facing.RequestFacing(FacingPriority.Ambient, Vector3.back);
+                var elapsed = 0f;
+                while (Vector3.Dot(performerGo.transform.forward, Vector3.back) < 0.9f && elapsed < 3f)
+                {
+                    elapsed += Time.deltaTime;
+                    yield return null;
+                }
+                Assert.Greater(Vector3.Dot(performerGo.transform.forward, Vector3.back), 0.9f,
+                    "Interaction-facing ownership must be released so a lower-priority request can win.");
+
+                interaction.Tick(100f);
+                commandSource.RaiseCancel();
+                view.EmitCompleted();
+                view.EmitDriven();
+                adapter.enabled = false; // cancellation control must not emit an owner failure afterward
+                CollectionAssert.AreEqual(new[] { expected }, outcomes);
+                CollectionAssert.AreEqual(new[] { "start", "end" }, events);
+                Assert.AreEqual(1, view.DisposeCount);
+                Assert.IsNull(interaction.CurrentRequest);
+                Assert.AreEqual(depth, ModalDepth);
+            }
+            finally
+            {
+                // Red must not leak a live request, modal scope or subscriptions into another test.
+                interaction.Dispose();
+                UnityEngine.Object.DestroyImmediate(dialogue);
+            }
+        }
+
+        private static void SetDialogueField(object target, string name, object value)
+        {
+            for (var type = target.GetType(); type != null; type = type.BaseType)
+            {
+                var field = type.GetField(name, System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+                if (field == null) continue;
+                field.SetValue(target, value);
+                return;
+            }
+            throw new InvalidOperationException($"Dialogue field '{name}' not found.");
+        }
 
         [Test]
         public void DisablingTheTargetDuringApproachEndsAsTargetLost()
