@@ -25,6 +25,9 @@ namespace CRPG.Gameplay.Scenes
 
         public Color Tint = Color.white;
 
+        [Tooltip("The silhouette drawn when there is no icon: a kind of place gets its own shape. Diamond is the default symbol.")]
+        public MapGlyphShape Shape = MapGlyphShape.Diamond;
+
         public string DisplayLabel => string.IsNullOrEmpty(Label) ? Id : Label;
     }
 

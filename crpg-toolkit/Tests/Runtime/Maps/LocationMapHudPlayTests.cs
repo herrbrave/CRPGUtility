@@ -67,6 +67,8 @@ namespace CRPG.Tests.PlayMode
             if (hud != null) hud.CloseAreaMap();
             if (root != null) UnityEngine.Object.DestroyImmediate(root);
             if (panelSettings != null) UnityEngine.Object.DestroyImmediate(panelSettings);
+            foreach (var o in created) if (o != null) UnityEngine.Object.DestroyImmediate(o);
+            created.Clear();
             UnityEngine.Object.DestroyImmediate(definition);
             UnityEngine.Object.DestroyImmediate(texture);
         }
@@ -266,9 +268,98 @@ namespace CRPG.Tests.PlayMode
             Assert.AreEqual(1, lease.Disposed);
         }
 
-        private static void SendPointer<T>(VisualElement target, EventType type, Vector2 position) where T : PointerEventBase<T>, new()
+        // ----- clicks (cards and pins are the host's; the HUD only says where and what) -------------------------
+
+        [UnityTest]
+        public IEnumerator ACleanClickOnBareGroundRaisesAnAreaClickWithTheWorldPositionAndNoPan()
         {
-            var systemEvent = new Event { type = type, mousePosition = position, button = 0 };
+            yield return Build();
+            hud.OpenAreaMap();
+            for (var i = 0; i < 4; i++) yield return null;
+            MapClick? seen = null; hud.AreaClicked += c => seen = c;
+            var canvas = hud.AreaView.Root; var at = canvas.worldBound.center + new Vector2(20f, -10f);
+            var centreBefore = hud.Presenter.Area.Center;
+            SendPointer<PointerDownEvent>(canvas, EventType.MouseDown, at);
+            SendPointer<PointerUpEvent>(canvas, EventType.MouseUp, at);
+            Assert.IsTrue(seen.HasValue, "a press and release without moving is a click");
+            Assert.AreEqual(0, seen.Value.Button); Assert.IsFalse(seen.Value.OnMarker);
+            var expected = hud.Presenter.Area.Projection.ViewportToWorld(canvas.WorldToLocal(at));
+            Assert.AreEqual(expected.x, seen.Value.WorldXZ.x, 0.01f); Assert.AreEqual(expected.y, seen.Value.WorldXZ.y, 0.01f);
+            Assert.AreEqual(centreBefore, hud.Presenter.Area.Center, "a click does not pan");
+            Assert.IsFalse(hud.IsDragging);
+        }
+
+        [UnityTest]
+        public IEnumerator ARightClickIsAClickWithButtonOneAndNeverPans()
+        {
+            yield return Build();
+            hud.OpenAreaMap();
+            for (var i = 0; i < 4; i++) yield return null;
+            MapClick? seen = null; hud.AreaClicked += c => seen = c;
+            var canvas = hud.AreaView.Root; var at = canvas.worldBound.center; var centreBefore = hud.Presenter.Area.Center;
+            SendPointer<PointerDownEvent>(canvas, EventType.MouseDown, at, 1);
+            Assert.IsFalse(hud.IsDragging, "the right button never starts a pan");
+            SendPointer<PointerMoveEvent>(canvas, EventType.MouseDrag, at + new Vector2(2f, 0f), 1);
+            SendPointer<PointerUpEvent>(canvas, EventType.MouseUp, at + new Vector2(2f, 0f), 1);
+            Assert.IsTrue(seen.HasValue); Assert.AreEqual(1, seen.Value.Button);
+            Assert.AreEqual(centreBefore, hud.Presenter.Area.Center);
+        }
+
+        [UnityTest]
+        public IEnumerator ADragPastTheThresholdPansAndIsNotAClick()
+        {
+            yield return Build();
+            hud.OpenAreaMap();
+            for (var i = 0; i < 4; i++) yield return null;
+            hud.ZoomArea(4f);
+            var clicks = 0; hud.AreaClicked += _ => clicks++;
+            var canvas = hud.AreaView.Root; var start = canvas.worldBound.center; var centreBefore = hud.Presenter.Area.Center;
+            SendPointer<PointerDownEvent>(canvas, EventType.MouseDown, start);
+            SendPointer<PointerMoveEvent>(canvas, EventType.MouseDrag, start + new Vector2(-30f, 0f));
+            SendPointer<PointerUpEvent>(canvas, EventType.MouseUp, start + new Vector2(-30f, 0f));
+            Assert.AreEqual(0, clicks, "a drag is not a click"); Assert.AreNotEqual(centreBefore, hud.Presenter.Area.Center);
+        }
+
+        [UnityTest]
+        public IEnumerator AClickOnALandmarkOrAPinNamesItsKey()
+        {
+            source.Markers.Add(MapMarkerSnapshot.ForLandmark("play-loc", "temple", "Temple", new Vector2(10f, 5f), null, null, MapGlyphShape.Hexagon));
+            source.Markers.Add(MapMarkerSnapshot.ForPin("play-loc", 4, new Vector2(-30f, 10f)));
+            yield return Build();
+            hud.OpenAreaMap();
+            for (var i = 0; i < 4; i++) yield return null;
+            var keys = new List<(string key, int button)>(); hud.AreaClicked += c => keys.Add((c.MarkerKey, c.Button));
+            var canvas = hud.AreaView.Root;
+            foreach (var (key, button) in new[] { (MapMarkerKeys.Landmark("play-loc", "temple"), 0), (MapMarkerKeys.Pin("play-loc", 4), 1) })
+            {
+                Assert.IsTrue(hud.AreaView.TryGetMarkerVisual(key, out var marker));
+                var centre = marker.worldBound.center;
+                SendPointer<PointerDownEvent>(marker, EventType.MouseDown, centre, button);
+                SendPointer<PointerUpEvent>(canvas, EventType.MouseUp, centre, button);   // the view root holds the capture, so the release arrives there
+            }
+
+            CollectionAssert.AreEqual(new[] { (MapMarkerKeys.Landmark("play-loc", "temple"), 0), (MapMarkerKeys.Pin("play-loc", 4), 1) }, keys);
+        }
+
+        [UnityTest]
+        public IEnumerator TheOverlayCoversBothViewsAndSurvivesAReinitialisation()
+        {
+            yield return Build();
+            var mask = new Texture2D(8, 4); created.Add(mask);
+            hud.SetOverlay(mask, new Color(1f, 1f, 1f, 0.7f));
+            Assert.AreSame(mask, ((Image)hud.MinimapView.OverlayElement).image); Assert.AreSame(mask, ((Image)hud.AreaView.OverlayElement).image);
+            hud.Initialize(definition, source, region, document.rootVisualElement);
+            for (var i = 0; i < 3; i++) yield return null;
+            Assert.AreSame(mask, ((Image)hud.MinimapView.OverlayElement).image, "a rebuilt HUD keeps the fog");
+            hud.ClearOverlay();
+            Assert.AreEqual(DisplayStyle.None, hud.AreaView.OverlayElement.style.display.value);
+        }
+
+        private readonly List<UnityEngine.Object> created = new();
+
+        private static void SendPointer<T>(VisualElement target, EventType type, Vector2 position, int button = 0) where T : PointerEventBase<T>, new()
+        {
+            var systemEvent = new Event { type = type, mousePosition = position, button = button };
             using var evt = PointerEventBase<T>.GetPooled(systemEvent);
             evt.target = target;
             target.SendEvent(evt);

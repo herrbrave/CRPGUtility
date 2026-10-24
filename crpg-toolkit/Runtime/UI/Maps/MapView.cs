@@ -25,6 +25,8 @@ namespace CRPG.UI
             public MapPartyMarkerState PartyState;
             public Sprite Icon;
             public Color Tint;
+            public MapGlyphShape Shape;
+            public int Number;
             public string Label;
             public float Size;
             public Vector2 Local;
@@ -34,6 +36,7 @@ namespace CRPG.UI
         private readonly MapViewStyle style;
         private readonly bool hoverLabels;
         private readonly Image image;
+        private readonly Image overlayImage;
         private readonly VisualElement landmarkLayer;
         private readonly VisualElement partyLayer;
         private readonly Label hoverLabel;
@@ -60,6 +63,12 @@ namespace CRPG.UI
             image.pickingMode = PickingMode.Ignore;
             image.style.position = Position.Absolute;
             Root.Add(image);
+
+            // an optional layer over the image and under every marker (the fog of war): always the image's own rectangle
+            overlayImage = new Image { name = "map-overlay", scaleMode = ScaleMode.StretchToFill, pickingMode = PickingMode.Ignore };
+            overlayImage.style.position = Position.Absolute;
+            overlayImage.style.display = DisplayStyle.None;
+            Root.Add(overlayImage);
 
             landmarkLayer = CreateLayer("map-landmarks");
             partyLayer = CreateLayer("map-party");
@@ -104,6 +113,18 @@ namespace CRPG.UI
         /// <summary>The element showing the background image (position/size set from the projection).</summary>
         public VisualElement ImageElement => image;
 
+        /// <summary>The overlay layer (null texture: hidden).</summary>
+        public VisualElement OverlayElement => overlayImage;
+
+        /// <summary>Puts a texture over the background and under the markers, covering exactly the same world rectangle as the image and following the same pan and zoom (a fog-of-war mask: its alpha is the veil). Borrowed, never destroyed here. Null removes it.</summary>
+        public void SetOverlay(Texture overlay, Color tint)
+        {
+            overlayImage.image = overlay;
+            overlayImage.tintColor = tint;
+            overlayImage.style.display = overlay != null ? DisplayStyle.Flex : DisplayStyle.None;
+            Refresh(lastMarkers);
+        }
+
         /// <summary>Feeds the viewport size (UI points) into the state, then re-lays-out. Normally driven by
         /// layout; also callable directly.</summary>
         public void SetViewportSize(Vector2 size)
@@ -132,6 +153,10 @@ namespace CRPG.UI
             image.style.top = imageRect.y;
             image.style.width = imageRect.width;
             image.style.height = imageRect.height;
+            overlayImage.style.left = imageRect.x;
+            overlayImage.style.top = imageRect.y;
+            overlayImage.style.width = imageRect.width;
+            overlayImage.style.height = imageRect.height;
 
             generation++;
             if (markers != null)
@@ -201,14 +226,14 @@ namespace CRPG.UI
 
         private MarkerEntry CreateEntry(in MapMarkerSnapshot marker)
         {
-            var element = new VisualElement { name = "map-marker" };
-            element.AddToClassList(marker.Kind == MapMarkerKind.Party ? "map-marker--party" : "map-marker--landmark");
+            var element = marker.Kind == MapMarkerKind.Party ? new VisualElement { name = "map-marker" } : new MapGlyphElement { name = "map-marker" };
+            element.AddToClassList(marker.Kind == MapMarkerKind.Party ? "map-marker--party" : marker.Kind == MapMarkerKind.Pin ? "map-marker--pin" : "map-marker--landmark");
             element.userData = marker.Key;
 
             var entry = new MarkerEntry { Element = element };
             Restyle(entry, marker);
 
-            if (marker.Kind == MapMarkerKind.Landmark)
+            if (marker.Kind != MapMarkerKind.Party)
             {
                 landmarkLayer.Add(element);
                 if (hoverLabels)
@@ -233,7 +258,7 @@ namespace CRPG.UI
 
         private static bool NeedsRestyle(MarkerEntry entry, in MapMarkerSnapshot marker) =>
             entry.Kind != marker.Kind || entry.PartyState != marker.PartyState
-            || entry.Icon != marker.Icon || entry.Tint != marker.Tint;
+            || entry.Icon != marker.Icon || entry.Tint != marker.Tint || entry.Shape != marker.Shape || entry.Number != marker.Number;
 
         private void Restyle(MarkerEntry entry, in MapMarkerSnapshot marker)
         {
@@ -241,6 +266,8 @@ namespace CRPG.UI
             entry.PartyState = marker.PartyState;
             entry.Icon = marker.Icon;
             entry.Tint = marker.Tint;
+            entry.Shape = marker.Shape;
+            entry.Number = marker.Number;
             entry.Size = MapMarkerGlyphs.Apply(entry.Element, marker, style);
 
             // The active character is always drawn above the other party markers.

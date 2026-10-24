@@ -102,7 +102,7 @@ namespace CRPG.Gameplay
 
                 var p = landmark.Anchor.position;
                 buffer.Add(MapMarkerSnapshot.ForLandmark(locationId, landmark.Id, landmark.DisplayLabel,
-                    new Vector2(p.x, p.z), landmark.Icon, landmark.Tint));
+                    new Vector2(p.x, p.z), landmark.Icon, landmark.Tint, landmark.Shape));
             }
         }
 

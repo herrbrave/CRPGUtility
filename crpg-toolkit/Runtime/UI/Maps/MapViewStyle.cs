@@ -36,6 +36,16 @@ namespace CRPG.UI
         public float LandmarkDiamondSide = 10f;
         public Color LandmarkOutline = new Color(0.05f, 0.05f, 0.05f, 1f);
 
+        // Shaped landmarks (anything but the default diamond) and the player's pins
+        public float ShapedLandmarkSize = 16f;
+        public float PinSize = 22f;
+
+        // The fog overlay (see MapView.SetOverlay): the tint is multiplied into the overlay texture
+        public Color OverlayTint = Color.white;
+
+        // A press that moves less than this many UI points is a click; more is a drag
+        public float ClickDragThreshold = 4f;
+
         // Minimap
         public float MinimapSize = 240f;
         public float MinimapMargin = 16f;

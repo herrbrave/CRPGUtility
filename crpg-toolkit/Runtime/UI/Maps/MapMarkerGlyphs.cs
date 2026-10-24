@@ -22,6 +22,20 @@ namespace CRPG.UI
             element.style.backgroundColor = Color.clear;
             SetBorder(element, 0f, Color.clear);
 
+            var glyph = element as MapGlyphElement;
+            if (marker.Kind == MapMarkerKind.Pin || (marker.Kind == MapMarkerKind.Landmark && marker.Icon == null && marker.Shape != MapGlyphShape.Diamond))
+            {
+                if (glyph == null) throw new System.ArgumentException("A shaped marker needs a MapGlyphElement.", nameof(element));
+                var shaped = marker.Kind == MapMarkerKind.Pin ? style.PinSize : style.ShapedLandmarkSize;
+                SetBox(element, shaped, shaped);
+                element.style.marginLeft = 0f;
+                element.style.marginTop = 0f;
+                SetRadius(element, 0f);
+                glyph.Show(marker.Shape, marker.Tint, style.LandmarkOutline, marker.Number);
+                return shaped;
+            }
+
+            glyph?.Clear();
             float size;
             if (marker.Kind == MapMarkerKind.Landmark)
             {

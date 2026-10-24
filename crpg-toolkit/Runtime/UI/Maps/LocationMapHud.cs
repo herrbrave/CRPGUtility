@@ -36,6 +36,12 @@ namespace CRPG.UI
         private bool dragging;
         private int dragPointerId = -1;
         private Vector2 dragLast;
+        private int pressButton = -1, pressPointerId = -1;
+        private Vector2 pressStart;
+        private bool pressMoved;
+        private string pressKey;
+        private Texture fogTexture;
+        private Color fogTint = Color.white;
 
         /// <summary>Optional localizer for the location title.</summary>
         public ITextLocalizer Localizer { get; set; }
@@ -56,6 +62,24 @@ namespace CRPG.UI
         public VisualElement AreaOverlay => areaOverlay;
         public VisualElement MinimapPanel => minimapPanel;
         public bool IsDragging => dragging;
+
+        /// <summary>A click (not a drag) on the area map: the world position, the button (0 left, 1 right) and the landmark or pin under the pointer. The host decides what it means; nothing here moves anything in the world.</summary>
+        public event Action<MapClick> AreaClicked;
+
+        /// <summary>Puts a texture (a fog-of-war mask) over the map image and under the markers, in both views, covering the image's own world rectangle. Borrowed, never destroyed here. Survives a re-initialisation.</summary>
+        public void SetOverlay(Texture overlay, Color? tint = null)
+        {
+            fogTexture = overlay; fogTint = tint ?? Color.white;
+            ApplyOverlay();
+        }
+
+        public void ClearOverlay() => SetOverlay(null);
+
+        private void ApplyOverlay()
+        {
+            minimapView?.SetOverlay(fogTexture, fogTint);
+            areaView?.SetOverlay(fogTexture, fogTint);
+        }
 
         /// <summary>Builds the minimap into <paramref name="minimapRegion"/> (already anchored by the host, e.g.
         /// via HudRoot.CreateRegion) and the area-map overlay under <paramref name="hudDocumentRoot"/>. An invalid
@@ -81,6 +105,7 @@ namespace CRPG.UI
 
             BuildMinimap();
             BuildAreaOverlay();
+            ApplyOverlay();
 
             documentRoot.RegisterCallback<GeometryChangedEvent>(OnDocumentGeometryChanged);
             ApplyMinimapSize(documentRoot.layout.size);
@@ -126,6 +151,7 @@ namespace CRPG.UI
             areaOpen = false;
 
             EndDrag();
+            ClearPress();
             if (areaOverlay != null) areaOverlay.style.display = DisplayStyle.None;
             if (minimapPanel != null) minimapPanel.style.display = DisplayStyle.Flex;
 
@@ -403,34 +429,65 @@ namespace CRPG.UI
 
         private void OnAreaPointerDown(PointerDownEvent evt)
         {
-            if (evt.button != 0 || dragging) return;
+            if ((evt.button != 0 && evt.button != 1) || dragging || pressButton >= 0) return;
 
-            dragging = true;
-            dragPointerId = evt.pointerId;
-            dragLast = areaView.Root.WorldToLocal(evt.position);
-            areaView.Root.CapturePointer(dragPointerId);
+            var local = areaView.Root.WorldToLocal(evt.position);
+            pressButton = evt.button; pressPointerId = evt.pointerId; pressStart = local; pressMoved = false; pressKey = MarkerKeyUnder(evt.target as VisualElement);
+            if (evt.button == 0)
+            {
+                dragging = true;
+                dragPointerId = evt.pointerId;
+                dragLast = local;
+            }
+
+            areaView.Root.CapturePointer(evt.pointerId);
             evt.StopPropagation();
         }
 
         private void OnAreaPointerMove(PointerMoveEvent evt)
         {
-            if (!dragging || evt.pointerId != dragPointerId) return;
+            if (pressButton < 0 || evt.pointerId != pressPointerId) return;
 
             var local = areaView.Root.WorldToLocal(evt.position);
-            PanArea(local - dragLast);
-            dragLast = local;
+            if (!pressMoved && (local - pressStart).magnitude > style.ClickDragThreshold) pressMoved = true;
+            if (dragging)
+            {
+                PanArea(local - dragLast);
+                dragLast = local;
+            }
+
             evt.StopPropagation();
         }
 
         private void OnAreaPointerUp(PointerUpEvent evt)
         {
-            if (!dragging || evt.pointerId != dragPointerId) return;
+            if (pressButton < 0 || evt.pointerId != pressPointerId || evt.button != pressButton) return;
+
+            var button = pressButton; var key = pressKey; var moved = pressMoved; var id = pressPointerId;
+            ClearPress();
             EndDrag();
+            if (areaView.Root.HasPointerCapture(id)) areaView.Root.ReleasePointer(id);
+            if (!moved)
+            {
+                var local = areaView.Root.WorldToLocal(evt.position);
+                AreaClicked?.Invoke(new MapClick(areaView.State.Projection.ViewportToWorld(local), local, button, key));
+            }
+
             evt.StopPropagation();
         }
 
-        // Capture can be lost without a pointer-up (window focus, panel change): the drag must end too.
-        private void OnAreaPointerCaptureOut(PointerCaptureOutEvent evt) => ClearDragState();
+        // Capture can be lost without a pointer-up (window focus, panel change): the press and the drag must end too.
+        private void OnAreaPointerCaptureOut(PointerCaptureOutEvent evt) { ClearPress(); ClearDragState(); }
+
+        private void ClearPress() { pressButton = -1; pressPointerId = -1; pressMoved = false; pressKey = null; }
+
+        /// <summary>The key of the landmark or pin element the pointer went down on (the element or an ancestor below the view root), or null.</summary>
+        private string MarkerKeyUnder(VisualElement target)
+        {
+            for (var e = target; e != null && e != areaView.Root; e = e.parent)
+                if (e.userData is string key && (e.ClassListContains("map-marker--landmark") || e.ClassListContains("map-marker--pin"))) return key;
+            return null;
+        }
 
         private void EndDrag()
         {
