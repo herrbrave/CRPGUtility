@@ -55,6 +55,11 @@ namespace CRPG.Gameplay
         /// check entirely, matching TargetingGate's own "reserved seam ahead of its consumer" precedent.</summary>
         public CRPG.Gameplay.Scenes.IWorldTransitionGate TransitionGate { get; set; }
 
+        /// <summary>Optional: lets a game decline colliders a click should pass through and characters a drag box should not catch (see <see cref="IPointerWorldFilter"/>). Null (the default) skips it entirely: one nearest raycast, every selectable on screen.</summary>
+        public IPointerWorldFilter WorldFilter { get; set; }
+
+        private readonly RaycastHit[] filteredHits = new RaycastHit[64];
+
         public PlayerCommandRouter(
             ISelectableSource selectableSource,
             IPointerCaptureProvider pointerCapture,
@@ -166,7 +171,7 @@ namespace CRPG.Gameplay
 
             // Trigger volumes (encounter / quest zones) are not clickable world: ignoring them keeps a click on the ground
             // under one a real ground click, and keeps an interactable inside one reachable.
-            if (!Physics.Raycast(ray, out var hit, maxRayDistance, hittableMask, QueryTriggerInteraction.Ignore)) return;
+            if (!NearestHit(ray, out var hit)) return;
 
             // Interactable/selectable tier. A CharacterAgent is checked first -- a selectable character always
             // resolves as Select, never Interact, even if a WorldInteractable also happened to sit on the same
@@ -204,6 +209,29 @@ namespace CRPG.Gameplay
             Move?.Invoke(new MoveCommand(hit.point, Vector3.forward));
         }
 
+        /// <summary>The nearest hittable hit, or, with a <see cref="WorldFilter"/>, the nearest the filter accepts.</summary>
+        private bool NearestHit(Ray ray, out RaycastHit hit)
+        {
+            if (WorldFilter == null) return Physics.Raycast(ray, out hit, maxRayDistance, hittableMask, QueryTriggerInteraction.Ignore);
+            var count = Physics.RaycastNonAlloc(ray, filteredHits, maxRayDistance, hittableMask, QueryTriggerInteraction.Ignore);
+            System.Array.Sort(filteredHits, 0, count, HitDistanceComparer.Instance);
+            for (var i = 0; i < count; i++)
+            {
+                if (!WorldFilter.IsPickable(filteredHits[i].collider)) continue;
+                hit = filteredHits[i];
+                return true;
+            }
+
+            hit = default;
+            return false;
+        }
+
+        private sealed class HitDistanceComparer : System.Collections.Generic.IComparer<RaycastHit>
+        {
+            public static readonly HitDistanceComparer Instance = new();
+            public int Compare(RaycastHit a, RaycastHit b) => a.distance.CompareTo(b.distance);
+        }
+
         private void ResolveDragSelect(UnityEngine.Camera camera, bool shiftHeld)
         {
             if (camera == null) return;
@@ -216,6 +244,7 @@ namespace CRPG.Gameplay
                 var screenPoint = camera.WorldToScreenPoint(selectable.WorldPosition);
                 if (screenPoint.z < 0f) continue; // behind the camera -- not actually visible in the drag rect
                 if (!rect.Contains(screenPoint)) continue;
+                if (WorldFilter != null && !WorldFilter.IsSelectable(selectable.Id, selectable.WorldPosition)) continue;   // on a floor that is not shown
 
                 hits ??= new List<RuntimeEntityId>();
                 hits.Add(selectable.Id);

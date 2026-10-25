@@ -62,6 +62,9 @@ namespace CRPG.InputSystem
         /// to real click resolution.</summary>
         public IPointerTargetingGate TargetingGate { get => Router.TargetingGate; set => Router.TargetingGate = value; }
 
+        /// <summary>The same forwarding shape, for a game's say over what a click may stop on and which characters a drag box may catch (a building shown one floor at a time): see <see cref="IPointerWorldFilter"/>. Null by default: no change.</summary>
+        public IPointerWorldFilter WorldFilter { get => Router.WorldFilter; set => Router.WorldFilter = value; }
+
         private UnityEngine.Camera ActiveCamera => raycastCamera != null ? raycastCamera : UnityEngine.Camera.main;
 
         private void Awake()
