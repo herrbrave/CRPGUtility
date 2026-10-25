@@ -26,7 +26,9 @@ namespace CRPG.Abilities
             EffectOwnerId ownerId = default,
             HashSet<RuntimeEntityId> ownedTargets = null,
             AbilityAim aim = default,
-            IRelocationService relocation = null)
+            IRelocationService relocation = null,
+            IAttackRiderRule attackRiderRule = null,
+            AbilityDefinition ability = null)
         {
             Source = source;
             Targets = targets;
@@ -46,6 +48,8 @@ namespace CRPG.Abilities
             OwnedTargets = ownedTargets ?? new HashSet<RuntimeEntityId>();
             Aim = aim;
             Relocation = relocation;
+            AttackRiderRule = attackRiderRule;
+            Ability = ability;
         }
 
         public RuntimeEntityId Source { get; }
@@ -102,9 +106,15 @@ namespace CRPG.Abilities
         /// <summary>Null unless the game wired a relocation service -- only <see cref="RelocateEffect"/> requires it.</summary>
         public IRelocationService Relocation { get; }
 
+        /// <summary>Null unless the ruleset adds extra damage to hits (Sneak Attack): <see cref="AttackRollEffect"/> asks it once per hit target.</summary>
+        public IAttackRiderRule AttackRiderRule { get; }
+
+        /// <summary>The ability being resolved, when the caller says (AbilityResolutionService always does); null for a context built by hand.</summary>
+        public AbilityDefinition Ability { get; }
+
         /// <summary>A copy for a nested effect that acts on a subset of the targets (an attack roll hit, a failed save, a condition filter): EVERY other field is forwarded, including the ownership tracking (<see cref="OwnerId"/> and the SAME <see cref="OwnedTargets"/> instance, so a condition applied inside is owned by the cast and ends with its concentration) and the aim. Pass <paramref name="criticalTargets"/> only where the subset has criticals; otherwise the outer context's are kept.</summary>
         public AbilityExecutionContext Narrow(IReadOnlyList<RuntimeEntityId> targets, IReadOnlyCollection<RuntimeEntityId> criticalTargets = null) => new(
             Source, targets, Characters, DiceService, CombatLog, EventBus, Positions, InfluenceMap, AttackBonusRule, ArmorClassRule,
-            criticalTargets ?? CriticalTargets, SavingThrowRule, DamageResistanceRule, UpcastLevels, OwnerId, OwnedTargets, Aim, Relocation);
+            criticalTargets ?? CriticalTargets, SavingThrowRule, DamageResistanceRule, UpcastLevels, OwnerId, OwnedTargets, Aim, Relocation, AttackRiderRule, Ability);
     }
 }

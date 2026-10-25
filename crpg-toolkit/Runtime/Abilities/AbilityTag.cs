@@ -17,6 +17,8 @@ namespace CRPG.Abilities
         Concentration = 1 << 8,
         Hostile = 1 << 9,
         Utility = 1 << 10,
-        Ritual = 1 << 11
+        Ritual = 1 << 11,
+        /// <summary>A weapon attack made with a finesse weapon (a dagger, a shortsword, a rapier): the 5e Sneak Attack qualifier, with <see cref="Ranged"/>.</summary>
+        Finesse = 1 << 12
     }
 }

@@ -48,6 +48,16 @@ namespace CRPG.Abilities
         [SerializeField] private bool halved;
         public bool Halved => halved;
 
+        /// <summary>The hit-point-like resource this damage spends.</summary>
+        public ResourceDefinition HitPointResource => hitPointResource;
+
+        /// <summary>The damage type (None: untyped).</summary>
+        public DefinitionId DamageTypeId => damageTypeId;
+
+        /// <summary>The extra damage of an attack rider: plain dice of the same resource and type as the weapon's own damage, dealt through <see cref="Apply"/> (resistance, events, the log, doubled dice on a critical hit).</summary>
+        public static DamageEffect CreateRider(ResourceDefinition hitPointResource, DiceExpression amount, DefinitionId damageTypeId) =>
+            new() { hitPointResource = hitPointResource, amount = amount, damageTypeId = damageTypeId };
+
         public override void Apply(AbilityExecutionContext context)
         {
             var casterLevel = context.Characters.TryGetCharacter(context.Source, out var caster) ? caster.Level : 1;

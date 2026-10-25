@@ -54,6 +54,7 @@ namespace CRPG.Abilities
             {
                 var hitTargets = new List<RuntimeEntityId>();
                 var criticalTargets = new HashSet<RuntimeEntityId>();
+                var riders = new List<(RuntimeEntityId Target, AttackRider Rider, bool Critical)>();
 
                 foreach (var targetId in context.Targets)
                 {
@@ -75,13 +76,43 @@ namespace CRPG.Abilities
                     if (!isHit) continue;
                     hitTargets.Add(targetId);
                     if (isCriticalHit) criticalTargets.Add(targetId);
+                    // a rule may add extra damage to this hit (Sneak Attack): decided now, while the roll's own advantage is known, dealt after the weapon's damage
+                    if (context.AttackRiderRule != null && context.AttackRiderRule.TryGetRider(new AttackRiderQuery(context.Source, targetId, context.Ability, advantage, isCriticalHit), out var rider))
+                        riders.Add((targetId, rider, isCriticalHit));
                 }
 
                 if (hitTargets.Count == 0) continue;
 
                 var hitContext = context.Narrow(hitTargets, criticalTargets);
                 onHit.Apply(hitContext);
+                ApplyRiders(context, riders);
             }
+        }
+
+        // the extra damage uses the weapon's own hit-point resource and damage type, found in the on-hit effect
+        private void ApplyRiders(AbilityExecutionContext context, List<(RuntimeEntityId Target, AttackRider Rider, bool Critical)> riders)
+        {
+            if (riders.Count == 0) return;
+            var weaponDamage = FindDamage(onHit);
+            if (weaponDamage == null || weaponDamage.HitPointResource == null) return;
+            foreach (var (target, rider, critical) in riders)
+            {
+                context.CombatLog?.Log(new AttackRiderLogEntry(context.Source, target, rider.Label, critical));
+                DamageEffect.CreateRider(weaponDamage.HitPointResource, rider.ExtraDamage, weaponDamage.DamageTypeId)
+                    .Apply(context.Narrow(new[] { target }, critical ? new[] { target } : Array.Empty<RuntimeEntityId>()));
+            }
+        }
+
+        private static DamageEffect FindDamage(AbilityEffect effect)
+        {
+            if (effect is DamageEffect damage) return damage;
+            foreach (var child in effect.GetChildEffects())
+            {
+                var found = FindDamage(child);
+                if (found != null) return found;
+            }
+
+            return null;
         }
 
         public override IEnumerable<AbilityEffect> GetChildEffects() =>

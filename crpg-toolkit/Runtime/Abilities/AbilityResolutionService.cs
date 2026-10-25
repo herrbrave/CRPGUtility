@@ -57,6 +57,9 @@ namespace CRPG.Abilities
         /// <summary>The game's say on a clicked ground point (standing room, walls, bodies); optional.</summary>
         public IAimSurface AimSurface { get; set; }
 
+        /// <summary>The ruleset's extra damage on a weapon hit (Sneak Attack); optional.</summary>
+        public IAttackRiderRule AttackRiderRule { get; set; }
+
         /// <summary>Moves a creature for <see cref="RelocateEffect"/> (Misty Step, a leap); optional, but an ability with that effect is refused up front when it is missing.</summary>
         public IRelocationService Relocation { get; set; }
 
@@ -285,7 +288,7 @@ namespace CRPG.Abilities
             var context = new AbilityExecutionContext(
                 source, StrikesFor(ability, targets), characters, diceService, combatLog, eventBus, positions, influenceMap,
                 attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
-                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId, aim: aim, relocation: Relocation);
+                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId, aim: aim, relocation: Relocation, attackRiderRule: AttackRiderRule, ability: ability);
 
             void RegisterConcentration()
             {
