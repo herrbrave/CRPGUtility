@@ -283,7 +283,7 @@ namespace CRPG.Abilities
 
             var upcastLevels = upcastWithSlot != null ? Math.Max(0, upcastWithSlot.SpellSlotLevel - ability.SpellLevel) : 0;
             var context = new AbilityExecutionContext(
-                source, targets, characters, diceService, combatLog, eventBus, positions, influenceMap,
+                source, StrikesFor(ability, targets), characters, diceService, combatLog, eventBus, positions, influenceMap,
                 attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
                 damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId, aim: aim, relocation: Relocation);
 
@@ -308,6 +308,16 @@ namespace CRPG.Abilities
             RegisterConcentration();
             eventBus?.Publish(new GameEventContext(GameEvent.AbilityResolved, source));
             return AbilityExecutionResult.Ok();
+        }
+
+        /// <summary>The creatures each effect runs over: the chosen ones, or for an ability that fires several projectiles, the chosen ones dealt out in turn until every projectile has a creature (three darts on two targets: first, second, first).</summary>
+        private static IReadOnlyList<RuntimeEntityId> StrikesFor(AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> chosen)
+        {
+            var targeting = ability.Targeting;
+            if (!targeting.SpreadProjectiles || chosen == null || chosen.Count == 0 || chosen.Count >= targeting.MaxTargets || targeting.RequiresAim || targeting.CasterCentred) return chosen;
+            var strikes = new List<RuntimeEntityId>(targeting.MaxTargets);
+            for (var i = 0; i < targeting.MaxTargets; i++) strikes.Add(chosen[i % chosen.Count]);
+            return strikes;
         }
 
         /// <summary>Shared incapacitation gate: unconscious-and-dying (DeathSaves) or any currently-applied

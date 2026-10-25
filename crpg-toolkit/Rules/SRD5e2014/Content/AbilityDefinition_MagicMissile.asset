@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-magic-missile
   displayName: Magic Missile
-  description: You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range, dealing 1d4 + 1 force damage. The darts all strike simultaneously and the attack automatically hits. Modeled here as up to 3 targets, each taking one guaranteed 1d4+1 hit -- stacking multiple darts onto a single target isn't modeled (no per-effect repeat/stack mechanism yet), so a focused single-target cast undercounts the real 3d4+3 total.
+  description: You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range, dealing 1d4 + 1 force damage. The darts all strike simultaneously and the attack automatically hits. The darts are dealt out to the creatures you choose (up to 3): one target takes all three, two take two and one, three take one each, and every dart is rolled on its own.
   tags: 2
   spellLevel: 1
   costs:
@@ -32,6 +32,7 @@ MonoBehaviour:
     requireLineOfSight: 1
     requireLineOfEffect: 1
     requireVisibleTarget: 1
+    spreadProjectiles: 1
   effects:
   - rid: 4304780644164829194
   references:

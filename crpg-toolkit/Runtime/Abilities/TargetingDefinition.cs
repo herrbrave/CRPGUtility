@@ -29,6 +29,7 @@ namespace CRPG.Abilities
         [SerializeField] private AreaAnchor areaAnchor = AreaAnchor.AtAim;
         [SerializeField] private float areaHeight = 6f;
         [SerializeField] private int areaTargetCap;
+        [SerializeField] private bool spreadProjectiles;
 
         public TargetMode Mode => mode;
         public TargetRelation Relation => relation;
@@ -46,6 +47,10 @@ namespace CRPG.Abilities
         public float AreaHeight => areaHeight;
         /// <summary>The only cap on how many creatures an area can hit (nearest to its origin first); 0 = no cap. MinTargets and MaxTargets do NOT apply to an aimed ability: the shape decides who is hit.</summary>
         public int AreaTargetCap => areaTargetCap;
+
+        /// <summary>The ability fires <see cref="MaxTargets"/> projectiles (Magic Missile's three darts) and the caster may put them on fewer creatures: they are dealt out to the chosen creatures in turn, so one target takes all of them, two take two and one, and each dart is its own roll.
+        /// Off: one strike per chosen creature. The list the caller passes stays free of duplicates either way.</summary>
+        public bool SpreadProjectiles => spreadProjectiles;
 
         /// <summary>A shaped area: the creatures inside decide the targets.</summary>
         public bool IsShaped => mode == TargetMode.Area || mode == TargetMode.Line || mode == TargetMode.Cone || mode == TargetMode.Sphere || mode == TargetMode.Cylinder;

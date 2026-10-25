@@ -38,6 +38,7 @@ namespace CRPG.Gameplay.Combat
 
         private RuntimeEntityId source;
         private AbilityDefinition armedAbility;
+        private readonly List<RuntimeEntityId> picked = new();
 
         public AbilityTargetingGate(ActionScheduler scheduler, IAbilityResolutionService abilityResolution, LayerMask hittableMask, float maxRayDistance = 500f)
         {
@@ -48,6 +49,15 @@ namespace CRPG.Gameplay.Combat
         }
 
         public bool IsArmed => armedAbility != null;
+
+        /// <summary>The armed ability takes several creatures (Bless, Magic Missile, Prayer of Healing): a click picks one more instead of casting, up to <see cref="TargetingDefinition.MaxTargets"/>. Self, aimed and single-target abilities are not.</summary>
+        public bool IsMultiTarget => armedAbility != null && !armedAbility.Targeting.RequiresAim && armedAbility.Targeting.Mode != TargetMode.Self && armedAbility.Targeting.MaxTargets > 1;
+
+        /// <summary>The creatures picked so far for a multi-target ability, in the order they were clicked.</summary>
+        public IReadOnlyList<RuntimeEntityId> PickedTargets => picked;
+
+        /// <summary>The picks changed (one was added, or they were cleared by a cast, a cancel or arming again): a presentation redraws its markers.</summary>
+        public event Action PicksChanged;
 
         /// <summary>Which layers an aimed click may hit for its ground point (default: the gate's own mask). A game that already has a move-preview mask passes the same one, so aiming and moving agree.</summary>
         public LayerMask AimMask { get; set; } = default;
@@ -71,11 +81,27 @@ namespace CRPG.Gameplay.Combat
         {
             this.source = source;
             armedAbility = ability;
+            ClearPicks();
         }
 
         /// <summary>Leaves targeting mode without starting anything -- an explicit cancel, or the UI bridge's
         /// own cleanup once a target was chosen (successfully or not).</summary>
-        public void Disarm() => armedAbility = null;
+        public void Disarm() { armedAbility = null; ClearPicks(); }
+
+        private void ClearPicks() { if (picked.Count == 0) return; picked.Clear(); PicksChanged?.Invoke(); }
+
+        /// <summary>Casts a multi-target ability on the creatures picked so far (the player's "that is enough"): false, and still armed, when too few are picked or the picks no longer validate.</summary>
+        public bool Confirm()
+        {
+            if (!IsMultiTarget || picked.Count < armedAbility.Targeting.MinTargets) return false;
+            var targets = picked.ToArray();
+            var validation = abilityResolution.Validate(source, armedAbility, targets);
+            if (!validation.IsValid) { TargetRejected?.Invoke(armedAbility, default, validation); return false; }
+            var ability = armedAbility; var caster = source;
+            Disarm();
+            scheduler.StartAbility(caster, ability, targets);
+            return true;
+        }
 
         private LayerMask EffectiveAimMask => AimMask.value != 0 ? AimMask : hittableMask;
 
@@ -127,6 +153,18 @@ namespace CRPG.Gameplay.Combat
             return true;
         }
 
+        // a click on a creature for a multi-target ability: a creature already picked confirms what is picked; a new one is checked together with the picks (range, relation, count) and added, and the last free slot casts
+        private bool PickOrConfirm(RuntimeEntityId id)
+        {
+            if (picked.Contains(id)) { Confirm(); return true; }
+            var tentative = new List<RuntimeEntityId>(picked) { id };
+            var validation = abilityResolution.Validate(source, armedAbility, tentative);
+            if (!validation.IsValid) { TargetRejected?.Invoke(armedAbility, id, validation); return true; }   // stay armed, the earlier picks stay
+            picked.Add(id); PicksChanged?.Invoke();
+            if (picked.Count >= armedAbility.Targeting.MaxTargets) Confirm();
+            return true;
+        }
+
         /// <returns>True whenever armed -- every click is consumed while choosing a target, whether it lands
         /// on a valid target, an invalid one (stays armed so the player can simply try again), or empty space/
         /// a non-combatant (cancels targeting). False (falls through to ordinary Select/Move/Interact) only
@@ -154,6 +192,8 @@ namespace CRPG.Gameplay.Combat
                 Disarm();
                 return true;
             }
+
+            if (IsMultiTarget) return PickOrConfirm(agent.EntityId);
 
             var targets = new[] { agent.EntityId };
             var validation = abilityResolution.Validate(source, armedAbility, targets);
