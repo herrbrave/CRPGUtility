@@ -275,6 +275,8 @@ namespace CRPG.Abilities
             }
 
             eventBus?.Publish(new GameEventContext(GameEvent.AbilityStarted, source));
+            var strikes = StrikesFor(ability, targets);
+            combatLog?.Log(new AbilityUsedLogEntry(source, ability.Id.Value, strikes));   // what it is and who it strikes, before any roll: a presentation starts its cast effect and projectiles from this
 
             var isConcentration = (ability.Tags & AbilityTag.Concentration) != 0;
             var ownerId = EffectOwnerId.NewOwner();
@@ -286,7 +288,7 @@ namespace CRPG.Abilities
 
             var upcastLevels = upcastWithSlot != null ? Math.Max(0, upcastWithSlot.SpellSlotLevel - ability.SpellLevel) : 0;
             var context = new AbilityExecutionContext(
-                source, StrikesFor(ability, targets), characters, diceService, combatLog, eventBus, positions, influenceMap,
+                source, strikes, characters, diceService, combatLog, eventBus, positions, influenceMap,
                 attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
                 damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId, aim: aim, relocation: Relocation, attackRiderRule: AttackRiderRule, ability: ability);
 
