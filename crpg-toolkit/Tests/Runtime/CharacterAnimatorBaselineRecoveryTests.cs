@@ -151,6 +151,78 @@ namespace CRPG.Tests.PlayMode
         }
 
         [UnityTest]
+        public IEnumerator SameFrameCancellationReplaysBaselineAndCompletesExactlyOnce()
+        {
+            var animator = CreateBoundAnimator();
+            yield return null;
+            var outcomes = new List<AnimationOutcome>();
+            animator.RequestAction(AttackCue, outcomes.Add);
+            Assert.AreSame(attackClip, animator.CurrentClip);
+
+            // No Update observes the action mask between request and cancellation.
+            animator.CancelCurrentAction();
+            animator.CancelCurrentAction();
+            CollectionAssert.AreEqual(new[] { AnimationOutcome.Cancelled }, outcomes);
+            Assert.IsFalse(animator.PresentationState.IsActionActive);
+            Assert.AreSame(idleClip, animator.CurrentClip, "Cancellation must release the actual graph, not only the request state.");
+            yield return null;
+            yield return null;
+            Assert.AreSame(idleClip, animator.CurrentClip);
+            Assert.AreEqual(1, outcomes.Count);
+        }
+
+        [UnityTest]
+        public IEnumerator SameFrameCancellationPreservesAnActionStartedByItsCallback()
+        {
+            var animator = CreateBoundAnimator();
+            yield return null;
+            var cancelled = 0;
+            animator.RequestAction(AttackCue, outcome =>
+            {
+                Assert.AreEqual(AnimationOutcome.Cancelled, outcome);
+                cancelled++;
+                Assert.IsTrue(animator.RequestAction(AttackCue).IsValid);
+            });
+            animator.CancelCurrentAction();
+            Assert.AreEqual(1, cancelled);
+            Assert.IsTrue(animator.PresentationState.IsActionActive);
+            Assert.AreSame(attackClip, animator.CurrentClip, "The replacement action owns the driver, not the old baseline.");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator SameFrameCancellationRestoresBaselineEvenWhenItsCallbackThrows()
+        {
+            var animator = CreateBoundAnimator();
+            yield return null;
+            var calls = 0;
+            var failure = new System.InvalidOperationException("Cancellation callback failed.");
+            animator.RequestAction(AttackCue, _ => { calls++; throw failure; });
+            Assert.AreSame(failure, Assert.Throws<System.InvalidOperationException>(() => animator.CancelCurrentAction()));
+            Assert.AreEqual(1, calls);
+            Assert.IsFalse(animator.PresentationState.IsActionActive);
+            Assert.AreSame(idleClip, animator.CurrentClip, "Caller failure must not strand the cancelled clip.");
+            animator.CancelCurrentAction();
+            yield return null;
+            Assert.AreEqual(1, calls);
+            Assert.AreSame(idleClip, animator.CurrentClip);
+        }
+
+        [UnityTest]
+        public IEnumerator SameFrameCancellationPreservesATerminalPoseStartedByItsCallback()
+        {
+            var animator = CreateBoundAnimator();
+            yield return null;
+            animator.RequestAction(AttackCue, _ => animator.RequestTerminal(DeathCue));
+            animator.CancelCurrentAction();
+            animator.CancelCurrentAction();
+            Assert.IsTrue(animator.PresentationState.IsTerminal);
+            Assert.AreSame(deathClip, animator.CurrentClip);
+            yield return null;
+            Assert.AreSame(deathClip, animator.CurrentClip);
+        }
+
+        [UnityTest]
         public IEnumerator BaselineResumesAfterRecoveringFromTerminal()
         {
             var animator = CreateBoundAnimator();

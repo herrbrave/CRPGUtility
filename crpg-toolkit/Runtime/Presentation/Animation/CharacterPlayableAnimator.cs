@@ -316,7 +316,18 @@ namespace CRPG.Presentation.Animation
 
         /// <summary>Cancels the current action, if any (its onOutcome fires with Cancelled). A no-op if
         /// nothing is active.</summary>
-        public void CancelCurrentAction() => presentationState.CancelCurrentAction();
+        public void CancelCurrentAction()
+        {
+            if (!presentationState.IsActionActive) return;
+            try { presentationState.CancelCurrentAction(); }
+            finally
+            {
+                // A request cancelled before Update never sets wasMaskedLastTick. Release its
+                // graph even if caller code throws; preserve any callback-acquired action/pose.
+                hasPlayedBaseline = false;
+                RefreshBaseline(force: true);
+            }
+        }
 
         /// <summary>Enters the terminal (death/incapacitated) pose, optionally crossfading to a specific
         /// authored cue first. Cancels any in-flight action first. Nothing -- a move, a stance change, another
