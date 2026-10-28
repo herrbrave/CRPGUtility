@@ -40,6 +40,15 @@ namespace CRPG.Rules.SRD5
 
         public bool TryGetRider(in AttackRiderQuery attack, out AttackRider rider)
         {
+            if (!TryPreviewRider(attack, out rider)) return false;
+            spentThisTurn.Add(attack.Attacker);
+            return true;
+        }
+
+        /// <summary>Queries the same eligibility and unspent allowance as a hit, without consuming it.
+        /// Use the live fight's rule so repeated previews respect the attacker's current turn.</summary>
+        public bool TryPreviewRider(in AttackRiderQuery attack, out AttackRider rider)
+        {
             rider = default;
             if (!characters.TryGetCharacter(attack.Attacker, out var attacker) || !HasFeature(attacker)) return false;
             if (attack.Ability == null || !IsEligibleWeapon(attack.Ability.Tags, RequireFinesseOrRanged)) return false;
@@ -47,7 +56,6 @@ namespace CRPG.Rules.SRD5
             var qualifies = attack.Advantage == AdvantageState.Advantage || (AllyAdjacency != null && AllyAdjacency.IsAllyAdjacentToTarget(attack.Attacker, attack.Target));
             if (!qualifies || spentThisTurn.Contains(attack.Attacker)) return false;
 
-            spentThisTurn.Add(attack.Attacker);
             rider = new AttackRider(new DiceExpression((attacker.Level + 1) / 2, 6, 0), Label);
             return true;
         }

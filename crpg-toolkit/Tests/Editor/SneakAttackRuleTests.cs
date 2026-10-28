@@ -42,6 +42,72 @@ namespace CRPG.Tests.EditMode
             => rule.TryGetRider(new AttackRiderQuery(rogue, target, Weapon(tags), advantage, critical), out rider);
 
         [Test]
+        public void RepeatedPreviewsDoNotSpendTheRider_AndTheFirstHitSpendsIt()
+        {
+            var (rule, _, bus, rogue, target, _) = Setup(3);
+            var weapon = Weapon(Longsword);
+            try
+            {
+                var attack = new AttackRiderQuery(rogue, target, weapon, AdvantageState.Advantage, false);
+                for (var i = 0; i < 10; i++)
+                {
+                    Assert.IsTrue(rule.TryPreviewRider(attack, out var preview));
+                    Assert.AreEqual(new DiceExpression(2, 6, 0), preview.ExtraDamage);
+                }
+                Assert.IsTrue(rule.TryGetRider(attack, out var hit));
+                Assert.AreEqual(new DiceExpression(2, 6, 0), hit.ExtraDamage);
+                Assert.IsFalse(rule.TryPreviewRider(attack, out _));
+                Assert.IsFalse(rule.TryGetRider(attack, out _));
+                bus.Publish(new GameEventContext(GameEvent.TurnStarted, target));
+                Assert.IsFalse(rule.TryPreviewRider(attack, out _), "another creature's turn does not reset it");
+                bus.Publish(new GameEventContext(GameEvent.TurnStarted, rogue));
+                Assert.IsTrue(rule.TryPreviewRider(attack, out _));
+                Assert.IsTrue(rule.TryGetRider(attack, out _));
+                bus.Publish(new GameEventContext(GameEvent.CombatEnded, rogue));
+                Assert.IsTrue(rule.TryPreviewRider(attack, out _));
+            }
+            finally { rule.Dispose(); UnityEngine.Object.DestroyImmediate(weapon); }
+        }
+
+        [TestCase(Dagger, AdvantageState.Normal, true, true)]
+        [TestCase(Dagger, AdvantageState.Disadvantage, true, false)]
+        [TestCase(Longsword, AdvantageState.Advantage, false, true)]
+        [TestCase(FireBolt, AdvantageState.Advantage, true, false)]
+        [TestCase(Dagger, AdvantageState.Normal, false, false)]
+        public void PreviewAndHitShareEligibility(AbilityTag tags, AdvantageState advantage, bool adjacent, bool expected)
+        {
+            var (rule, _, _, rogue, target, allies) = Setup();
+            var weapon = Weapon(tags);
+            try
+            {
+                allies.Answer = adjacent;
+                var attack = new AttackRiderQuery(rogue, target, weapon, advantage, false);
+                Assert.AreEqual(expected, rule.TryPreviewRider(attack, out _));
+                Assert.AreEqual(expected, rule.TryPreviewRider(attack, out _));
+                Assert.AreEqual(expected, rule.TryGetRider(attack, out _));
+            }
+            finally { rule.Dispose(); UnityEngine.Object.DestroyImmediate(weapon); }
+        }
+
+        [Test]
+        public void PreviewPreservesStrictWeaponAndFeatureRequirements()
+        {
+            var (rule, _, _, rogue, target, _) = Setup();
+            var (without, _, _, other, otherTarget, _) = Setup(hasFeature: false);
+            var weapon = Weapon(Longsword);
+            try
+            {
+                rule.RequireFinesseOrRanged = true;
+                Assert.IsFalse(rule.TryPreviewRider(new AttackRiderQuery(rogue, target, weapon, AdvantageState.Advantage, false), out _));
+                Assert.IsFalse(without.TryPreviewRider(new AttackRiderQuery(other, otherTarget, weapon, AdvantageState.Advantage, false), out _));
+                rule.RequireFinesseOrRanged = false;
+                Assert.IsTrue(rule.TryPreviewRider(new AttackRiderQuery(rogue, target, weapon, AdvantageState.Advantage, true), out _));
+                Assert.IsTrue(rule.TryGetRider(new AttackRiderQuery(rogue, target, weapon, AdvantageState.Advantage, true), out _));
+            }
+            finally { rule.Dispose(); without.Dispose(); UnityEngine.Object.DestroyImmediate(weapon); }
+        }
+
+        [Test]
         public void AFinesseWeaponWithAdvantageGetsOneDieAtLevelOne_AndOneMoreEveryTwoLevels()
         {
             foreach (var (level, dice) in new[] { (1, 1), (2, 1), (3, 2), (4, 2), (5, 3), (9, 5), (11, 6) })
