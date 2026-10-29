@@ -175,7 +175,19 @@ namespace CRPG.Actors
         /// (just their cantrips; leveled spells go through PreparedAbilities instead).</summary>
         public IReadOnlyCollection<DefinitionId> KnownAbilities => knownAbilities;
 
-        public void LearnAbility(DefinitionId abilityId) => knownAbilities.Add(abilityId);
+        /// <summary>Once a loadout is assigned, an empty loadout must not fall back to legacy unrestricted
+        /// NPC casting. The latch survives forgetting the last spell and is persisted by SaveService.</summary>
+        public bool HasRestrictedAbilityAccess { get; private set; }
+
+        public void LearnAbility(DefinitionId abilityId)
+        {
+            HasRestrictedAbilityAccess = true;
+            knownAbilities.Add(abilityId);
+        }
+
+        /// <summary>Removes a permanent learned entry. Preparation and feature grants have independent
+        /// ownership and are unchanged; callers migrating old prepared-as-known data can move it explicitly.</summary>
+        public bool ForgetAbility(DefinitionId abilityId) => knownAbilities.Remove(abilityId);
 
         public bool KnowsAbility(DefinitionId abilityId) => knownAbilities.Contains(abilityId);
 
@@ -186,6 +198,7 @@ namespace CRPG.Actors
 
         public void PrepareSpells(IEnumerable<DefinitionId> abilityIds)
         {
+            HasRestrictedAbilityAccess = true;
             preparedAbilities.Clear();
             foreach (var abilityId in abilityIds) preparedAbilities.Add(abilityId);
         }

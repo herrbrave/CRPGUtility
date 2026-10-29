@@ -68,6 +68,7 @@ namespace CRPG.Saving
 
         public List<string> KnownAbilities = new();
         public List<string> PreparedAbilities = new();
+        public bool HasRestrictedAbilityAccess;
 
         // 2D campaign Task 2.4 (format v3): layer slot -> option id. Absent from v2 saves, where the initializer
         // correctly leaves it empty.

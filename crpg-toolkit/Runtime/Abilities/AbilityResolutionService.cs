@@ -172,11 +172,11 @@ namespace CRPG.Abilities
         {
             if (!CanAct(source)) return AbilityValidationResult.Reject(AbilityRejectionReason.Incapacitated);
 
-            // Legacy/compatibility mode: a character that has never called LearnAbility (e.g. AICombatDemoBootstrap's
-            // demo NPCs, which Task 4.5 -- not 4.2 -- retrofits) is treated as not opted into this gate at all.
-            // A character with at least one known ability is properly restricted to what it knows.
+            // Legacy NPCs with neither learned nor prepared abilities retain unrestricted access.
+            // Preparation is independent of permanent learning, including a prepared-only caster.
             if (characters.TryGetCharacter(source, out var gateCharacter)
-                && gateCharacter.KnownAbilities.Count > 0 && !gateCharacter.KnowsAbility(ability.Id) && !IsGrantedByAFeature(gateCharacter, ability.Id))
+                && gateCharacter.HasRestrictedAbilityAccess
+                && !gateCharacter.KnowsAbility(ability.Id) && !gateCharacter.HasPrepared(ability.Id) && !IsGrantedByAFeature(gateCharacter, ability.Id))
                 return AbilityValidationResult.Reject(AbilityRejectionReason.AbilityNotKnown);
 
             if (asRitual)

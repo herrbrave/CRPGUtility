@@ -172,6 +172,7 @@ namespace CRPG.Saving
                 foreach (var targetId in character.ConcentrationAffectedTargets) entry.ConcentrationAffectedTargets.Add(targetId.ToString());
                 foreach (var abilityId in character.KnownAbilities) entry.KnownAbilities.Add(abilityId.Value);
                 foreach (var abilityId in character.PreparedAbilities) entry.PreparedAbilities.Add(abilityId.Value);
+                entry.HasRestrictedAbilityAccess = character.HasRestrictedAbilityAccess;
                 foreach (var pair in character.Appearance.OrderBy(p => p.Key.Value, StringComparer.Ordinal))
                     entry.Appearance.Add(new AppearanceSaveEntry { Slot = pair.Key.Value, Option = pair.Value.Value });
 
@@ -209,7 +210,9 @@ namespace CRPG.Saving
                     EffectOwnerId.FromString(entry.ConcentrationEffectOwnerId),
                     entry.ConcentrationAffectedTargets.Select(RuntimeEntityId.FromString));
                 foreach (var abilityId in entry.KnownAbilities) character.LearnAbility(new DefinitionId(abilityId));
-                character.PrepareSpells(entry.PreparedAbilities.Select(id => new DefinitionId(id)));
+                // Old unrestricted NPC saves have neither a loadout nor the explicit latch.
+                if (entry.HasRestrictedAbilityAccess || entry.PreparedAbilities.Count > 0)
+                    character.PrepareSpells(entry.PreparedAbilities.Select(id => new DefinitionId(id)));
                 foreach (var appearance in entry.Appearance)
                 {
                     if (appearance == null || string.IsNullOrEmpty(appearance.Slot) || string.IsNullOrEmpty(appearance.Option)) continue;
