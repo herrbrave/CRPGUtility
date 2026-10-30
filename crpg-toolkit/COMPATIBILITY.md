@@ -76,13 +76,15 @@ Two genuinely different things can need migrating, and this package treats them 
 
 - **The package's own PlayMode suite is not fully environment-independent.** A handful of PlayMode tests
   (`CharacterWrapperTests`, `CrossSceneLoadTests`, `GateAFixtureTests`, `SceneTravelTests`, and in a consumer
-  project without them, `UIToolkitPointerCaptureTests`) reference fixture scenes/prefabs that physically live
-  under `TestProject/Assets/` rather than inside the package itself (e.g. `BaseHumanMaleCharacter.prefab`,
-  `SceneTravelTestA/B` scenes). Confirmed via the clean-install harness (`Docs/Verification/
-  Task-5.3-BasicCRPG.md`) and separately from inside `ConsumerGame/` (`Docs/Verification/Consumer-Game.md`):
-  running the package's own EditMode+PlayMode suites from any project other than `TestProject/` will show these
-  as failures, not a regression in your own project. Not fixed -- would mean relocating/duplicating fixture
-  assets the whole existing suite depends on.
+  project without them, `UIToolkitPointerCaptureTests`) reference fixture scenes/prefabs that never lived inside
+  the package itself (e.g. `BaseHumanMaleCharacter.prefab`, `SceneTravelTestA/B` scenes). They were kept in the
+  repository's old `TestProject/Assets/`, which was removed when Spirit of Vengeance became the toolkit's test bed
+  (the fixtures remain in git history before commit `1f2eee8`). Confirmed via the clean-install harness
+  (`Docs/Verification/Task-5.3-BasicCRPG.md`) and separately from inside `ConsumerGame/`
+  (`Docs/Verification/Consumer-Game.md`): running the package's own EditMode+PlayMode suites from a project that
+  does not carry those fixtures will show these as failures, not a regression in your own project. Not fixed --
+  would mean relocating/duplicating fixture assets the whole existing suite depends on. The consumer game
+  `SpiritOfVengeance` exercises the toolkit through its own tests, pinning the package by git URL.
 
 ## Checking your own project
 
