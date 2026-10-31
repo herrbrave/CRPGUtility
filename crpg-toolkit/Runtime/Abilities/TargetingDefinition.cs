@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CRPG.Abilities
@@ -30,6 +31,7 @@ namespace CRPG.Abilities
         [SerializeField] private float areaHeight = 6f;
         [SerializeField] private int areaTargetCap;
         [SerializeField] private bool spreadProjectiles;
+        [SerializeField] private List<TargetRequirement> orderedTargets = new();
 
         public TargetMode Mode => mode;
         public TargetRelation Relation => relation;
@@ -40,6 +42,9 @@ namespace CRPG.Abilities
         public bool RequireLineOfSight => requireLineOfSight;
         public bool RequireLineOfEffect => requireLineOfEffect;
         public bool RequireVisibleTarget => requireVisibleTarget;
+
+        /// <summary>Optional distinct roles, in pick order (for example an enemy followed by a beneficiary). Empty preserves ordinary targeting.</summary>
+        public IReadOnlyList<TargetRequirement> OrderedTargets => orderedTargets;
 
         /// <summary>Where a shaped area is anchored; AtAim by default. Cone and Line always start at the caster.</summary>
         public AreaAnchor Anchor => areaAnchor;
@@ -63,5 +68,20 @@ namespace CRPG.Abilities
 
         /// <summary>Range limits where the aim point may be: a Point, or an area anchored at the aim. A cone, a line or a cube on the caster only takes a direction.</summary>
         public bool UsesRange => mode == TargetMode.Point || (IsShaped && !CasterCentred && areaAnchor == AreaAnchor.AtAim && mode != TargetMode.Cone && mode != TargetMode.Line);
+    }
+
+    [Serializable]
+    public sealed class TargetRequirement
+    {
+        [SerializeField] private string prompt;
+        [SerializeField] private TargetRelation relation;
+        [SerializeField] private float range = -1f;
+        [SerializeField] private bool requireLineOfSight = true;
+
+        public string Prompt => prompt;
+        public TargetRelation Relation => relation;
+        /// <summary>Negative means no distance limit from the caster for this role.</summary>
+        public float Range => range;
+        public bool RequireLineOfSight => requireLineOfSight;
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: ability-action-surge
   displayName: Action Surge
-  description: 
+  description: 'Restore 1 Action up to your normal maximum; usable once per short or long rest.'
   tags: 1024
   costs:
   - resource: {fileID: 11400000, guid: 6b04f302d9a27bf48a60ea1f434a56c6, type: 2}

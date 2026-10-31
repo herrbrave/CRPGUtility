@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-burning-hands
   displayName: Burning Hands
-  description: A thin sheet of flame shoots from your outstretched fingertips. Each creature in a 15-foot cone must make a Dexterity saving throw, taking 3d6 fire damage on a failed save, or half as much on a successful one. A successful save takes half (a second, halved copy of the same damage effect).
+  description: 'Unleash flame in a 4.5 m cone for 3d6 fire damage, halved on a successful Dexterity save.'
   tags: 514
   spellLevel: 1
   costs:

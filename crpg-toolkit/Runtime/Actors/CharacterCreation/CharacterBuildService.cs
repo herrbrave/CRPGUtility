@@ -36,6 +36,7 @@ namespace CRPG.Actors
                 throw new InvalidOperationException($"Cannot build: {plan.PendingChoices.Count} choice(s) still unresolved.");
 
             var character = new CharacterState(id) { Level = plan.Level };
+            UniversalFeatures.Grant(character, rulesDatabase);
 
             foreach (var (statId, score) in plan.AbilityScores.AllScores) character.Stats.SetScore(statId, score);
             foreach (var pair in plan.Appearance) character.SetAppearance(pair.Key, pair.Value);
@@ -48,6 +49,7 @@ namespace CRPG.Actors
 
             foreach (var featureId in CollectGrantedFeatureIds(plan).Distinct())
             {
+                if (character.HasFeature(featureId)) continue;
                 character.GrantFeature(featureId);
                 ApplyFeatureGrants(character, featureId);
             }

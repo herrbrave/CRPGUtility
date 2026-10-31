@@ -10,10 +10,22 @@ namespace CRPG.Rules.SRD5
     /// "AttackBonus" query key, same NumericRuleQuery + FeatureModifierCollector shape as
     /// <see cref="DefaultArmorClassRule"/>/<see cref="DefaultInitiativeRule"/>. Every attack is currently
     /// treated as proficient (see plan's scope note) -- there's no weapon-proficiency-gating step here yet.</summary>
-    public sealed class DefaultAttackBonusRule : IAttackBonusRule, IFlankingConfigurable
+    public sealed class DefaultAttackBonusRule : IAttackBonusRule, IFlankingConfigurable, IAttackRollObserver
     {
         /// <summary>The game's answer to "is this attacker flanking that target" (the optional 5e rule), set while a fight is on; null (the default) means no flanking.</summary>
         public IFlankingQuery Flanking { get; set; }
+        public CommonActionRules CommonActions { get; set; }
+        /// <summary>Who can see whom, when the game wires it: an attacker the target cannot see has advantage, one who cannot see its target has disadvantage (the SRD's unseen attacker and unseen target; darkness, blindness, invisibility and hiding all come through here).</summary>
+        public IPerceptionQuery Perception { get; set; }
+
+        /// <summary>Hiding, when the game has stealth: making an attack (hit or miss) reveals the attacker.</summary>
+        public StealthRules Stealth { get; set; }
+
+        public void OnAttackRolled(RuntimeEntityId attacker, RuntimeEntityId target)
+        {
+            CommonActions?.OnAttackRolled(attacker, target);
+            Stealth?.OnAttackRolled(attacker);
+        }
 
         public const string AttackBonusQueryKey = "AttackBonus";
         public const string CriticalRangeQueryKey = "CriticalRange";
@@ -74,6 +86,18 @@ namespace CRPG.Rules.SRD5
 
             // flanking is advantage from the battlefield itself: it combines like every other source (never stacks, opposite cancels)
             if (Flanking != null && Flanking.IsFlanking(attacker, target)) states.Add(AdvantageState.Advantage);
+
+            if (Perception != null && attacker != target)
+            {
+                if (!Perception.CanSee(target, attacker)) states.Add(AdvantageState.Advantage);
+                if (!Perception.CanSee(attacker, target)) states.Add(AdvantageState.Disadvantage);
+            }
+
+            if (CommonActions != null)
+            {
+                states.Add(CommonActions.HelpAdvantage(attacker, target));
+                states.Add(CommonActions.DodgeAgainst(attacker, target));
+            }
 
             return AdvantageStateExtensions.Combine(states);
         }

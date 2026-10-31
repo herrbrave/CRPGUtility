@@ -21,6 +21,7 @@ namespace CRPG.Actors
         [SerializeField] private List<ResourceGrant> grantedResources = new();
         [SerializeField] private List<DefinitionId> grantedProficiencies = new();
         [SerializeField] private List<ChoiceRequirement> choices = new();
+        [SerializeField] private bool universal;
 
         public string DisplayName => displayName;
         public string Description => description;
@@ -28,6 +29,8 @@ namespace CRPG.Actors
         public IReadOnlyList<DefinitionId> GrantedAbilityIds => grantedAbilityIds;
         public IReadOnlyList<ResourceGrant> GrantedResources => grantedResources;
         public IReadOnlyList<DefinitionId> GrantedProficiencies => grantedProficiencies;
+        /// <summary>A ruleset default, independent of class/race; also reconciled at registration when loading an older save.</summary>
+        public bool Universal => universal;
 
         /// <summary>Choices this feature introduces (spec "ChoiceRequirement") -- e.g. High Elf granting a
         /// wizard-cantrip pick. Resolving one can reveal further features (a chosen subrace) whose own choices

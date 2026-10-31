@@ -19,12 +19,17 @@ namespace CRPG.Rules.SRD5
         private readonly ICharacterRegistry characters;
         private readonly IRulesDatabase rulesDatabase;
         private readonly DefinitionId exhaustionConditionId;
+        private readonly bool baseIncludesFeatures;
+        private readonly float distanceScale;
 
-        public DefaultMovementSpeedRule(ICharacterRegistry characters, IRulesDatabase rulesDatabase, DefinitionId exhaustionConditionId = default)
+        public DefaultMovementSpeedRule(ICharacterRegistry characters, IRulesDatabase rulesDatabase, DefinitionId exhaustionConditionId = default,
+            bool baseIncludesFeatures = false, float distanceScale = 1f)
         {
             this.characters = characters;
             this.rulesDatabase = rulesDatabase;
             this.exhaustionConditionId = exhaustionConditionId;
+            this.baseIncludesFeatures = baseIncludesFeatures;
+            this.distanceScale = distanceScale;
         }
 
         public float ComputeEffectiveSpeed(RuntimeEntityId entityId, float baseSpeed)
@@ -32,8 +37,19 @@ namespace CRPG.Rules.SRD5
             if (!characters.TryGetCharacter(entityId, out var character)) return baseSpeed;
 
             var query = new NumericRuleQuery(character, baseSpeed);
-            foreach (var (source, modifier) in FeatureModifierCollector.Collect(character, rulesDatabase, SpeedQueryKey))
-                query.AddModifier(modifier.ToRuleModifier(source));
+            if (!this.baseIncludesFeatures)
+            {
+                foreach (DefinitionId featureId in character.Features)
+                {
+                    if (!this.rulesDatabase.TryResolve<FeatureDefinition>(featureId, out FeatureDefinition feature)) continue;
+                    foreach (FeatureModifier modifier in feature.Modifiers) AddSpeedModifier(query, modifier, feature.DisplayName);
+                }
+            }
+            foreach (ConditionInstance condition in character.Conditions)
+            {
+                if (!this.rulesDatabase.TryResolve<ConditionDefinition>(condition.ConditionId, out ConditionDefinition definition)) continue;
+                foreach (FeatureModifier modifier in definition.Modifiers) AddSpeedModifier(query, modifier, definition.DisplayName);
+            }
             var speed = (float)query.Evaluate();
 
             if (exhaustionConditionId.IsValid)
@@ -47,6 +63,14 @@ namespace CRPG.Rules.SRD5
             }
 
             return Mathf.Max(0f, speed);
+        }
+
+        private void AddSpeedModifier(NumericRuleQuery query, FeatureModifier modifier, string source)
+        {
+            if (modifier.QueryKey != SpeedQueryKey) return;
+            RuleModifier rule = modifier.ToRuleModifier(source);
+            double value = rule.Operation == RuleModifierOperation.Multiply ? rule.Value : rule.Value * this.distanceScale;
+            query.AddModifier(new RuleModifier(rule.Operation, value, rule.Source, rule.Priority));
         }
     }
 }

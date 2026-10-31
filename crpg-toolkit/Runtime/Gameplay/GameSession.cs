@@ -73,7 +73,7 @@ namespace CRPG.Gameplay
             Policies = policies ?? new PolicyRegistry();
 
             Party = new PartyState();
-            Characters = new CharacterRegistry();
+            Characters = new CharacterRegistry(rulesDatabase);
             Inventory = new PartyInventoryState();
             Timeline = new Timeline();
             Quests = new QuestLog();

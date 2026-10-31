@@ -106,7 +106,7 @@ namespace CRPG.Gameplay.Actions
 
             var execution = new MoveActionExecution(
                 source, motor, movementResolution, navMeshService, characters, positions, movementResourceId,
-                towardTarget, stopDistance, potentialReactors);
+                towardTarget, stopDistance, ReactorsFor(source, potentialReactors));
             Adopt(execution);
             return execution;
         }
@@ -122,9 +122,15 @@ namespace CRPG.Gameplay.Actions
 
             var execution = new MoveActionExecution(
                 source, motor, movementResolution, navMeshService, characters, positions, movementResourceId,
-                destination, potentialReactors);
+                destination, ReactorsFor(source, potentialReactors));
             Adopt(execution);
             return execution;
+        }
+
+        private IReadOnlyList<RuntimeEntityId> ReactorsFor(RuntimeEntityId source, IReadOnlyList<RuntimeEntityId> requested)
+        {
+            // A configured opportunity policy applies to every walk, including AI moves without an explicit candidate list.
+            return requested ?? (movementResolution.OpportunityAttacks != null ? encounterService?.Encounter?.GetEnemiesOf(source) : null);
         }
 
         private void Adopt(ActionExecution execution)

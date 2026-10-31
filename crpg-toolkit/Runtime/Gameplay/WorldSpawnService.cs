@@ -244,6 +244,14 @@ namespace CRPG.Gameplay
             }
         }
 
+        /// <summary>A saved pose can stand just off the mesh (an NPC seated on a bench), and a NavMeshAgent enabled there fails to create: the body appears on the nearest mesh point (within 1.5 m) and whatever owns the pose puts it back when it rebinds.</summary>
+        private static Vector3 OnNearestMesh(GameObject prefab, Vector3 position)
+        {
+            var nav = prefab.GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (nav == null || UnityEngine.AI.NavMesh.SamplePosition(position, out _, 0.1f, nav.areaMask)) return position;
+            return UnityEngine.AI.NavMesh.SamplePosition(position, out var nearest, 1.5f, nav.areaMask) ? nearest.position : position;
+        }
+
         private CharacterAgent BindView(string spawnId, RuntimeEntityId entityId, GameObject visualPrefab, Vector3 position, Quaternion rotation, DefinitionId faction, bool startInactive)
         {
             if (visualPrefab == null) throw new InvalidOperationException($"No VisualPrefab available to bind a view for '{entityId}'.");
@@ -251,7 +259,7 @@ namespace CRPG.Gameplay
             GameObject instance = null;
             try
             {
-                instance = UnityEngine.Object.Instantiate(visualPrefab, position, rotation);
+                instance = UnityEngine.Object.Instantiate(visualPrefab, OnNearestMesh(visualPrefab, position), rotation);
                 if (startInactive) instance.SetActive(false); // see BindRestoredView's remarks -- staged, not yet live
 
                 if (GridNavigation != null)

@@ -14,6 +14,9 @@ namespace CRPG.Abilities
     {
         public abstract void Apply(AbilityExecutionContext context);
 
+        /// <summary>Pure effect preflight, before any costs are spent. Null Targets means only caster readiness is being queried.</summary>
+        public virtual AbilityValidationResult Validate(AbilityExecutionContext context) => AbilityValidationResult.Ok();
+
         /// <summary>Task 4.2: the effect(s) this one wraps and forwards Apply to, if any -- lets
         /// AbilityResolutionService's required-effect-service preflight walk a wrapped effect (SequenceEffect,
         /// ConditionalEffect, AttackRollEffect's onHit) without needing reflection into each wrapper's private

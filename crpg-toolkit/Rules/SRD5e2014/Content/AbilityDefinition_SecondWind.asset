@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: ability-second-wind
   displayName: Second Wind
-  description: 
+  description: 'Use a Bonus Action to regain 1d10+3 hit points; usable once per short or long rest.'
   tags: 32
   costs:
   - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}

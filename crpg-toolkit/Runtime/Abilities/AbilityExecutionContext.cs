@@ -28,7 +28,9 @@ namespace CRPG.Abilities
             AbilityAim aim = default,
             IRelocationService relocation = null,
             IAttackRiderRule attackRiderRule = null,
-            AbilityDefinition ability = null)
+            AbilityDefinition ability = null,
+            IMovementSpeedRule movementSpeedRule = null,
+            IStealthService stealth = null)
         {
             Source = source;
             Targets = targets;
@@ -50,6 +52,8 @@ namespace CRPG.Abilities
             Relocation = relocation;
             AttackRiderRule = attackRiderRule;
             Ability = ability;
+            MovementSpeedRule = movementSpeedRule;
+            Stealth = stealth;
         }
 
         public RuntimeEntityId Source { get; }
@@ -111,10 +115,14 @@ namespace CRPG.Abilities
 
         /// <summary>The ability being resolved, when the caller says (AbilityResolutionService always does); null for a context built by hand.</summary>
         public AbilityDefinition Ability { get; }
+        public IMovementSpeedRule MovementSpeedRule { get; }
+
+        /// <summary>Null unless the game wired stealth: only the Hide effect requires it.</summary>
+        public IStealthService Stealth { get; }
 
         /// <summary>A copy for a nested effect that acts on a subset of the targets (an attack roll hit, a failed save, a condition filter): EVERY other field is forwarded, including the ownership tracking (<see cref="OwnerId"/> and the SAME <see cref="OwnedTargets"/> instance, so a condition applied inside is owned by the cast and ends with its concentration) and the aim. Pass <paramref name="criticalTargets"/> only where the subset has criticals; otherwise the outer context's are kept.</summary>
         public AbilityExecutionContext Narrow(IReadOnlyList<RuntimeEntityId> targets, IReadOnlyCollection<RuntimeEntityId> criticalTargets = null) => new(
             Source, targets, Characters, DiceService, CombatLog, EventBus, Positions, InfluenceMap, AttackBonusRule, ArmorClassRule,
-            criticalTargets ?? CriticalTargets, SavingThrowRule, DamageResistanceRule, UpcastLevels, OwnerId, OwnedTargets, Aim, Relocation, AttackRiderRule, Ability);
+            criticalTargets ?? CriticalTargets, SavingThrowRule, DamageResistanceRule, UpcastLevels, OwnerId, OwnedTargets, Aim, Relocation, AttackRiderRule, Ability, MovementSpeedRule, Stealth);
     }
 }

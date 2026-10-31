@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 704e38f7a3cac074db6cad2305fb0669, type: 3}
+  m_Name: AbilityDefinition_Help
+  m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
+  id: ability-help
+  displayName: Help
+  description: Distract an enemy within 1.5 m so a chosen ally gains advantage on their next attack against it.
+  tags: 1024
+  costs:
+  - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}
+    amount: 1
+  combatOnly: 1
+  targeting:
+    mode: 2
+    relation: 4
+    minTargets: 2
+    maxTargets: 2
+    range: 1.5
+    areaSize: 0
+    requireLineOfSight: 1
+    requireLineOfEffect: 1
+    requireVisibleTarget: 1
+    orderedTargets:
+    - prompt: Choose an enemy within 1.5 m to distract.
+      relation: 2
+      range: 1.5
+      requireLineOfSight: 1
+    - prompt: Choose another ally to receive advantage against that enemy.
+      relation: 1
+      range: -1
+      requireLineOfSight: 0
+  effects:
+  - rid: 1001
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: HelpAttackEffect, ns: CRPG.Rules.SRD5, asm: CRPG.Rules.SRD5}
+      data:
+        helped: {fileID: 11400000, guid: 8a2575c1cd3b4b8e83e8ef8266cbc565, type: 2}
+        distracted: {fileID: 11400000, guid: 0dbc095e047c44ccb4a8b2b49c027c36, type: 2}

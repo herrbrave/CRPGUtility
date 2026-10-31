@@ -26,6 +26,9 @@ namespace CRPG.Abilities
         /// is still the sole authority once a real target exists.</summary>
         AbilityValidationResult CanAttempt(RuntimeEntityId source, AbilityDefinition ability, bool asRitual = false, ResourceDefinition upcastWithSlot = null);
 
+        /// <summary>Validates an incomplete ordered selection without admitting it for execution. Legacy implementations keep their existing validation.</summary>
+        AbilityValidationResult ValidateTargetPick(RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets) => Validate(source, ability, targets);
+
         AbilityExecutionResult Execute(
             RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
             bool asRitual = false, ResourceDefinition upcastWithSlot = null);

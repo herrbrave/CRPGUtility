@@ -31,6 +31,7 @@ namespace CRPG.Abilities
         /// CRPG.Gameplay.Actions.AbilityActionExecution, the only consumer.</summary>
         [SerializeField] private float prepareSeconds;
         [SerializeField] private float recoverSeconds;
+        [SerializeField] private bool combatOnly;
 
         /// <summary>Task 4.5: a bare presentation tag (not resolved through <see cref="IRulesDatabase"/>), same
         /// treatment as <see cref="CRPG.Actors.CharacterAnimationProfile"/>'s own cue ids -- what
@@ -49,6 +50,20 @@ namespace CRPG.Abilities
         public int SpellLevel => spellLevel;
         public float PrepareSeconds => prepareSeconds;
         public float RecoverSeconds => recoverSeconds;
+        public bool CombatOnly => combatOnly;
         public DefinitionId AnimationCueId => animationCueId;
+
+        /// <summary>A single opportunity attack using the same attack/loadout identity, but only its reaction cost.</summary>
+        public static AbilityDefinition CreateReaction(AbilityDefinition original, CRPG.Actors.ResourceDefinition reactionResource)
+        {
+            AbilityDefinition reaction = Instantiate(original);
+            reaction.name = original.name + " (Reaction)";
+            reaction.tags |= AbilityTag.Reaction;
+            reaction.costs = new List<AbilityCost> { new AbilityCost(reactionResource, 1) };
+            reaction.prepareSeconds = 0f;
+            reaction.recoverSeconds = 0f;
+            reaction.combatOnly = true;
+            return reaction;
+        }
     }
 }

@@ -45,7 +45,8 @@ namespace CRPG.Abilities
             // Extra Attack and Improved Critical are weapon policies, not extra spell casts.
             var isSpellAttack = !governingStatId.IsValid;
             var criticalThreshold = isSpellAttack ? 20 : context.AttackBonusRule.ComputeCriticalThreshold(context.Source);
-            var attackCount = isSpellAttack ? 1 : context.AttackBonusRule.ComputeAttackCount(context.Source);
+            var attackCount = isSpellAttack || (context.Ability != null && (context.Ability.Tags & AbilityTag.Reaction) != 0)
+                ? 1 : context.AttackBonusRule.ComputeAttackCount(context.Source);
 
             // Extra Attack: each pass is a fully independent roll/hit/damage instance against the same targets
             // (an approximation -- real SRD5 lets you split extra attacks across different targets, which this
@@ -62,6 +63,9 @@ namespace CRPG.Abilities
                     var roll = context.DiceService.Roll(new RollRequest(
                         new DiceExpression(1, 20), RollPurpose.AttackRoll, advantage, source: context.Source, target: targetId,
                         modifiers: new[] { new RollModifier("Attack Bonus", attackBonus) }));
+
+                    // One-shot roll benefits are consumed on a real roll, never by a preview and never only on a hit.
+                    if (context.AttackBonusRule is IAttackRollObserver observer) observer.OnAttackRolled(context.Source, targetId);
 
                     // With Advantage/Disadvantage, DiceService rolls two d20s and marks only one Kept -- index 0
                     // isn't necessarily the one actually used for the total.

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-mage-armor
   displayName: Mage Armor
-  description: You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends (8 hours). The target's base AC becomes 13 + its Dexterity modifier. Flattened to a fixed Override(ArmorClass, 13) -- there's no way to author "base + another stat's modifier" as one FeatureModifier, so the Dex contribution is lost. Granted permanently (no duration/unequip-removal mechanism yet) -- see file header.
+  description: 'Set an ally''s Armor Class to 13; this protection does not expire automatically.'
   tags: 1026
   spellLevel: 1
   costs:

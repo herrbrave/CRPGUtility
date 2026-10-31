@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-shield
   displayName: Shield
-  description: An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from magic missile. Cast as a reaction. Granted permanently (no duration/"until start of your next turn" removal mechanism yet) -- see file header.
+  description: 'Use a Reaction to gain +5 Armor Class; this bonus does not expire automatically or block Magic Missile.'
   tags: 130
   spellLevel: 1
   costs:

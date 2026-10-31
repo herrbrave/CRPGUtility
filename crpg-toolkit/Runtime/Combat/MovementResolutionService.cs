@@ -24,6 +24,11 @@ namespace CRPG.Combat
         private readonly IRulesDatabase rulesDatabase;
         private readonly IMovementSpeedRule speedRule;
         private readonly float threatRange;
+        public IOpportunityAttackRule OpportunityAttacks { get; set; }
+
+        /// <summary>Called every frame a walk is in progress (not only at its stops), so something that depends on where the mover is along the path (a hider stepping out of cover) sees every part of it. Null when nothing cares.</summary>
+        public System.Action<RuntimeEntityId> Moved { get; set; }
+        public void NotifyMoved(RuntimeEntityId mover) => Moved?.Invoke(mover);
 
         public MovementResolutionService(
             ICharacterRegistry characters,
@@ -48,7 +53,6 @@ namespace CRPG.Combat
         public bool CanMove(RuntimeEntityId entity, DefinitionId movementResourceId) =>
             characters.TryGetCharacter(entity, out var character)
             && character.TryGetResource(movementResourceId, out var movement)
-            && movement.Current > 0
             && EffectiveCap(entity, movement) > 0f;
 
         /// <summary>Task 4.3: public wrapper around <see cref="EffectiveCap"/> so
@@ -73,32 +77,32 @@ namespace CRPG.Combat
                 movement.Spend(amount);
         }
 
-        /// <summary>Caps the Movement resource's remaining Current by any condition currently reducing this
-        /// entity's speed (Grappled, Exhaustion, ...) -- seeded from the resource's own Max (the character's
-        /// true speed for the turn), not Current, so e.g. a halving condition halves the real speed rather than
-        /// whatever happens to be left after partial movement already spent this turn. Doesn't mutate the
-        /// resource itself, so the reduction disappears on its own once the condition does. No-op (returns
-        /// Current unchanged) if no IMovementSpeedRule was supplied.</summary>
-        private float EffectiveCap(RuntimeEntityId entity, ResourceState movement) =>
-            speedRule == null ? movement.Current : Mathf.Min(movement.Current, speedRule.ComputeEffectiveSpeed(entity, movement.Max));
+        /// <summary>Synchronizes the effective turn capacity, preserving distance already spent through
+        /// speed increases, penalties and repeated Dashes. Max remains the permanent, unmodified base.</summary>
+        private float EffectiveCap(RuntimeEntityId entity, ResourceState movement)
+        {
+            if (speedRule == null) return movement.Current;
+            if (movement.Max <= 0) return 0f;
+            float allowances = 1f + (float)movement.TemporaryMaximum / movement.Max;
+            float totalBudget = Mathf.Max(0f, speedRule.ComputeEffectiveSpeed(entity, movement.Max) * allowances);
+            int capacity = Mathf.CeilToInt(totalBudget);
+            movement.SetEffectiveMaximum(capacity);
+            return Mathf.Max(0f, totalBudget - (capacity - movement.Current));
+        }
 
         /// <summary>Moves <paramref name="entity"/> toward <paramref name="towardTarget"/>, spending at most
         /// the entity's remaining Movement resource and never closing past <paramref name="stopDistance"/>
         /// away from the target. A no-op (and no log entry) if the entity has no Movement resource left or is
         /// already within stopDistance.
         /// <para><paramref name="potentialReactors"/> (optional): candidates to check for opportunity attacks.
-        /// Anyone in this list who was within threatRange of the mover before the move and isn't after gets a
-        /// ReactionOpportunity resolved via the already-existing ReactionService, using whatever of their
-        /// granted abilities are tagged Reaction. Resolved synchronously right after the move completes, not a
-        /// true interrupt of a partially-finished move -- see ReactionService's own remarks on why that's the
-        /// deliberate scope here, not a gap. No-ops (silently skips the opportunity-attack check) if
-        /// potentialReactors, ReactionService, or IRulesDatabase weren't supplied.</para></summary>
+        /// The opportunity policy resolves attacks just inside each exit boundary before movement continues.
+        /// Legacy ReactionService-only callers retain their original after-move reaction timing.</para></summary>
         public void MoveToward(
             RuntimeEntityId entity, RuntimeEntityId towardTarget, DefinitionId movementResourceId, float stopDistance,
             IReadOnlyList<RuntimeEntityId> potentialReactors = null)
         {
             if (!characters.TryGetCharacter(entity, out var character)) return;
-            if (!character.TryGetResource(movementResourceId, out var movement) || movement.Current <= 0) return;
+            if (!character.TryGetResource(movementResourceId, out var movement)) return;
 
             var selfPosition = positions.GetPosition(entity);
             var targetPosition = positions.GetPosition(towardTarget);
@@ -106,6 +110,12 @@ namespace CRPG.Combat
             var desiredDistance = Mathf.Max(0f, fullDistance - stopDistance);
             var moveDistance = Mathf.Min(desiredDistance, EffectiveCap(entity, movement));
             if (moveDistance <= 0f) return;
+
+            if (OpportunityAttacks != null)
+            {
+                MoveThroughThreatBoundaries(entity, towardTarget, movement, selfPosition, targetPosition, moveDistance, potentialReactors);
+                return;
+            }
 
             var threatsBefore = GetThreatsInRange(entity, potentialReactors);
 
@@ -116,6 +126,39 @@ namespace CRPG.Combat
             combatLog?.Log(new MovementLogEntry(entity, towardTarget, actualDistance));
 
             if (threatsBefore != null) TriggerOpportunityAttacks(entity, threatsBefore);
+        }
+
+        private void MoveThroughThreatBoundaries(RuntimeEntityId entity, RuntimeEntityId target, ResourceState movement,
+            Vector3 start, Vector3 destination, float distance, IReadOnlyList<RuntimeEntityId> reactors)
+        {
+            Vector3 end = Vector3.MoveTowards(start, destination, distance);
+            var crossings = FindThreatBoundaryCrossings(start, end, reactors, entity);
+            float traveled = 0f;
+            int spent = 0;
+            for (int i = 0; i <= crossings.Count; i++)
+            {
+                float stop = i < crossings.Count ? crossings[i].DistanceAlongSegment : distance;
+                float leg = Mathf.Max(0f, stop - traveled);
+                if (leg > 0f)
+                {
+                    if (speedRule != null && speedRule.ComputeEffectiveSpeed(entity, movement.Max) <= 0f) break;
+                    // Carry the fraction already paid by cumulative ceil-rounding, just like native navigation legs.
+                    float budget = EffectiveCap(entity, movement) + Mathf.Max(0f, spent - traveled);
+                    float allowed = Mathf.Min(leg, budget);
+                    if (allowed <= 0f) break;
+                    float actual = movementController.TryMoveTowards(entity, destination, allowed);
+                    if (actual <= 0f) break;
+                    traveled += actual;
+                    int totalSpent = Mathf.CeilToInt(traveled);
+                    movement.Spend(totalSpent - spent); spent = totalSpent;
+                    if (actual + .001f < leg) break; // A clipped/blocked move never reached this boundary.
+                }
+
+                if (i == crossings.Count) break;
+                ResolveReactionForCrossing(entity, crossings[i].Reactor, crossings[i].Entering);
+                if (!characters.TryGetCharacter(entity, out var mover) || mover.DeathSaves != null) break;
+            }
+            if (traveled > 0f) combatLog?.Log(new MovementLogEntry(entity, target, traveled));
         }
 
         private HashSet<RuntimeEntityId> GetThreatsInRange(RuntimeEntityId entity, IReadOnlyList<RuntimeEntityId> potentialReactors)
@@ -157,10 +200,11 @@ namespace CRPG.Combat
         /// the mover was already within range of before this whole move began was never "left" by this
         /// segment. No-op (empty list) if potentialReactors or Positions weren't supplied.</summary>
         public IReadOnlyList<ThreatBoundaryCrossing> FindThreatBoundaryCrossings(
-            Vector3 segmentStart, Vector3 segmentEnd, IReadOnlyList<RuntimeEntityId> potentialReactors)
+            Vector3 segmentStart, Vector3 segmentEnd, IReadOnlyList<RuntimeEntityId> potentialReactors, RuntimeEntityId mover = default)
         {
             var results = new List<ThreatBoundaryCrossing>();
             if (potentialReactors == null || positions == null) return results;
+            if (OpportunityAttacks != null && mover.IsValid && !OpportunityAttacks.CanProvoke(mover)) return results;
 
             var segment = segmentEnd - segmentStart;
             var segmentLengthSquared = segment.sqrMagnitude;
@@ -170,12 +214,15 @@ namespace CRPG.Combat
 
             foreach (var reactorId in potentialReactors)
             {
+                if (OpportunityAttacks != null && mover.IsValid && !OpportunityAttacks.CanReact(reactorId, mover)) continue;
+                float reach = OpportunityAttacks?.ReachOf(reactorId) ?? threatRange;
+                if (reach <= 0f) continue;
                 var center = positions.GetPosition(reactorId);
                 var f = segmentStart - center;
 
                 var a = segmentLengthSquared;
                 var b = 2f * Vector3.Dot(f, segment);
-                var c = Vector3.Dot(f, f) - threatRange * threatRange;
+                var c = Vector3.Dot(f, f) - reach * reach;
                 var discriminant = b * b - 4f * a * c;
                 if (discriminant < 0f) continue; // this segment never touches the reactor's threat circle
 
@@ -186,8 +233,9 @@ namespace CRPG.Combat
                 var t1 = (-b - sqrtDiscriminant) / (2f * a);
                 var t2 = (-b + sqrtDiscriminant) / (2f * a);
 
-                if (t1 >= 0f && t1 <= 1f) results.Add(new ThreatBoundaryCrossing(t1 * segmentLength, reactorId, entering: true));
-                if (t2 >= 0f && t2 <= 1f) results.Add(new ThreatBoundaryCrossing(t2 * segmentLength, reactorId, entering: false));
+                if (OpportunityAttacks == null && t1 >= 0f && t1 <= 1f) results.Add(new ThreatBoundaryCrossing(t1 * segmentLength, reactorId, entering: true));
+                // Stop just inside reach: native motor arrival tolerances must not turn a valid reaction into an out-of-range rejection.
+                if (t2 >= 0f && t2 <= 1f) results.Add(new ThreatBoundaryCrossing(Mathf.Max(0f, t2 * segmentLength - (OpportunityAttacks != null ? 0.03f : 0f)), reactorId, entering: false));
             }
 
             results.Sort((x, y) => x.DistanceAlongSegment.CompareTo(y.DistanceAlongSegment));
@@ -204,6 +252,7 @@ namespace CRPG.Combat
         public bool ResolveReactionForCrossing(RuntimeEntityId mover, RuntimeEntityId reactorId, bool entering)
         {
             if (entering) return false;
+            if (OpportunityAttacks != null) return OpportunityAttacks.CanProvoke(mover) && OpportunityAttacks.Resolve(reactorId, mover);
             if (reactionService == null || rulesDatabase == null) return false;
             if (!characters.TryGetCharacter(reactorId, out var reactor)) return false;
 

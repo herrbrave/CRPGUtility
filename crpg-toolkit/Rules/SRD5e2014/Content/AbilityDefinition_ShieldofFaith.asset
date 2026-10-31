@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-shield-of-faith
   displayName: Shield of Faith
-  description: A shimmering field appears and surrounds a creature of your choice within range, granting it a +2 bonus to AC for the duration (concentration, up to 10 minutes). Modeled as a permanently granted FeatureDefinition (feature-shield-of-faith), same auto-expiring-buff gap as Bless.
+  description: 'Use a Bonus Action to grant an ally +2 Armor Class; this bonus does not expire automatically.'
   tags: 258
   spellLevel: 1
   costs:

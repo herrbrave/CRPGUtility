@@ -166,7 +166,7 @@ namespace CRPG.Gameplay.Actions
 
                 if (potentialReactors != null)
                 {
-                    var crossings = movementResolution.FindThreatBoundaryCrossings(segmentStart, segmentEnd, potentialReactors);
+                    var crossings = movementResolution.FindThreatBoundaryCrossings(segmentStart, segmentEnd, potentialReactors, Source);
                     foreach (var crossing in crossings)
                     {
                         var segmentLength = Vector3.Distance(segmentStart, segmentEnd);
@@ -194,6 +194,7 @@ namespace CRPG.Gameplay.Actions
             }
 
             PollCurrentLeg();
+            movementResolution.NotifyMoved(Source);
         }
 
         private void PlanNextLeg()
@@ -302,7 +303,7 @@ namespace CRPG.Gameplay.Actions
             {
                 movementResolution.ResolveReactionForCrossing(Source, reachedStop.Reactor, reachedStop.Entering);
 
-                if (!characters.TryGetCharacter(Source, out _))
+                if (!characters.TryGetCharacter(Source, out var mover) || mover.DeathSaves != null)
                 {
                     // Death during reaction -- the mover no longer exists; nothing further to do.
                     Finish(ActionOutcome.Interrupted);

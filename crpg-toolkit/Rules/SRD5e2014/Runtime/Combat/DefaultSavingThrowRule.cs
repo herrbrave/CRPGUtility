@@ -14,6 +14,7 @@ namespace CRPG.Rules.SRD5
     {
         public const string QueryKeyPrefix = "SavingThrow:";
         public const string SpellSaveDCQueryKey = "SpellSaveDC";
+        public CommonActionRules CommonActions { get; set; }
 
         private readonly ICharacterRegistry characters;
         private readonly IRulesDatabase rulesDatabase;
@@ -40,7 +41,11 @@ namespace CRPG.Rules.SRD5
         public AdvantageState ComputeAdvantage(RuntimeEntityId characterId, DefinitionId savingStatId)
         {
             if (!characters.TryGetCharacter(characterId, out var character)) return AdvantageState.Normal;
-            return AdvantageCollector.Collect(character, rulesDatabase, QueryKeyPrefix + savingStatId.Value);
+            return AdvantageStateExtensions.Combine(new[]
+            {
+                AdvantageCollector.Collect(character, rulesDatabase, QueryKeyPrefix + savingStatId.Value),
+                CommonActions?.DodgeSave(characterId, savingStatId) ?? AdvantageState.Normal
+            });
         }
 
         public bool AutoFails(RuntimeEntityId characterId, DefinitionId savingStatId)

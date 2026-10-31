@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-comprehend-languages
   displayName: Comprehend Languages
-  description: For 1 hour, you understand the literal meaning of any spoken language you hear, and any written language you touch. Can be cast as a ritual (not modeled). Pure utility -- no mechanical effect authored.
+  description: 'A language-reading spell with no gameplay effect in this version.'
   tags: 3074
   spellLevel: 1
   costs:

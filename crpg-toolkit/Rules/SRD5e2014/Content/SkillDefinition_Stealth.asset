@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SkillDefinition_Stealth
   m_EditorClassIdentifier: CRPG.Actors::CRPG.Actors.SkillDefinition
   id: skill-stealth
-  displayName: 
-  governingStat: {fileID: 0}
+  displayName: Stealth
+  governingStat: {fileID: 11400000, guid: 25a44f67bc9d80d4caa5bcd64181cfe8, type: 2}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CRPG.AI;
 using CRPG.Actors;
 using CRPG.Combat;
@@ -29,6 +30,7 @@ namespace CRPG.Gameplay.Combat
         private readonly ITurnDecisionProvider brain;
         private readonly DefinitionId faction;
         private readonly Action<RuntimeEntityId> rollDeathSave;
+        private readonly IPerceptionQuery perception;
 
         private RuntimeEntityId? trackedTurnFor;
         private int decisionsThisTurn;
@@ -42,13 +44,14 @@ namespace CRPG.Gameplay.Combat
         /// combatants on this faction -- the branch simply never fires.</summary>
         public TacticalAiTurnDriver(
             TacticalEncounterController controller, ICharacterRegistry characters, ITurnDecisionProvider brain,
-            DefinitionId faction, Action<RuntimeEntityId> rollDeathSave = null)
+            DefinitionId faction, Action<RuntimeEntityId> rollDeathSave = null, IPerceptionQuery perception = null)
         {
             this.controller = controller ?? throw new ArgumentNullException(nameof(controller));
             this.characters = characters ?? throw new ArgumentNullException(nameof(characters));
             this.brain = brain ?? throw new ArgumentNullException(nameof(brain));
             this.faction = faction;
             this.rollDeathSave = rollDeathSave;
+            this.perception = perception;
         }
 
         public void Tick(float deltaTime)
@@ -96,7 +99,7 @@ namespace CRPG.Gameplay.Combat
                 return;
             }
 
-            var decision = brain.GetDecision(new TurnContext(current.Id, encounter.GetEnemiesOf(current.Id), encounter.GetAlliesOf(current.Id)));
+            var decision = brain.GetDecision(new TurnContext(current.Id, Visible(current.Id, encounter.GetEnemiesOf(current.Id)), encounter.GetAlliesOf(current.Id)));
             if (decision == null)
             {
                 // Genuinely nothing left worth doing -- done for the turn, not merely done for this attempt.
@@ -119,6 +122,19 @@ namespace CRPG.Gameplay.Combat
             }
 
             consecutiveRejectedStarts = 0;
+        }
+
+        /// <summary>An AI chooses among the enemies it can see: a hidden, invisible or unseen creature is not a target it knows about.</summary>
+        private IReadOnlyList<RuntimeEntityId> Visible(RuntimeEntityId self, IReadOnlyList<RuntimeEntityId> enemies)
+        {
+            if (perception == null) return enemies;
+            var seen = new List<RuntimeEntityId>(enemies.Count);
+            foreach (var enemy in enemies)
+            {
+                if (perception.CanSee(self, enemy)) seen.Add(enemy);
+            }
+
+            return seen;
         }
 
         private static IMovable FindMotor(RuntimeEntityId id)

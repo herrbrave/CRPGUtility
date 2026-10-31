@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-prestidigitation
   displayName: Prestidigitation
-  description: 'A minor magical trick: create a harmless sensory effect, light/snuff a small flame, clean or soil an object, chill/warm/flavor nonliving material, or make a mark/small image, lasting up to 1 hour. Pure utility -- no mechanical effect authored.'
+  description: 'Perform a harmless magical flourish with no gameplay effect.'
   tags: 1026
   costs: []
   targeting:

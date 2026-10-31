@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: ability-cunning-action
   displayName: Cunning Action
-  description: 'Your quick thinking and agility allow you to move and act quickly. You can take a bonus action on each of your turns to take the Dash, Disengage, or Hide action. INERT effects: Dash/Disengage/Hide have no engine-level meaning yet -- there is no Speed/movement-as-a-resource concept in this content folder. This ability is real data (it costs a bonus action and is granted at level 2) with zero mechanical effects pending that system.'
+  description: 'This Bonus Action feature is not implemented yet; use the common Dash or Disengage actions instead.'
   tags: 1088
   costs:
   - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}

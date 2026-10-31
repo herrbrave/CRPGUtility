@@ -36,6 +36,10 @@ MonoBehaviour:
     operation: 0
     value: 30
     priority: 0
+  - queryKey: Sense:Darkvision
+    operation: 0
+    value: 60
+    priority: 0
   grantedAbilityIds: []
   grantedResources: []
   grantedProficiencies:

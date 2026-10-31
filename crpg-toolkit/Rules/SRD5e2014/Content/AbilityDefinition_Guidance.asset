@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-guidance
   displayName: Guidance
-  description: You touch one willing creature. Once before the spell ends, the target can roll a d4 and add the number rolled to one ability check of its choice. It can roll the die before or after making the ability check. The spell then ends. (No ability-check system exists yet to hook this into -- authored as a zero-effect utility spell, same as Light/Thaumaturgy.)
+  description: 'Add 1d4 to an ability check through the check dialog; casting from the action bar does not store a bonus.'
   tags: 258
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}

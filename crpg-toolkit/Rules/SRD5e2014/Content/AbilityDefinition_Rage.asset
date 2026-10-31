@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: ability-rage
   displayName: Rage
-  description: 'In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action. REAL/WORKING activation loop: costs a bonus action plus one use of resource-rage-uses (long-rest recovery) and applies condition-raging to yourself for 10 rounds (~1 minute). See condition-raging for which of Rage''s numeric benefits are still pending an engine hook.'
+  description: 'Enter the Raging state; its combat bonuses and automatic expiry are not implemented yet.'
   tags: 1024
   costs:
   - resource: {fileID: 11400000, guid: 3768a1d56ba16e5439078b005dcf05cf, type: 2}

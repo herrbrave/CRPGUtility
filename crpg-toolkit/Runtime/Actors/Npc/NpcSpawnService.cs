@@ -21,6 +21,7 @@ namespace CRPG.Actors
         public static CharacterState Spawn(NpcDefinition definition, IRulesDatabase rulesDatabase, RuntimeEntityId id)
         {
             var character = new CharacterState(id) { Level = definition.Level, SpellcastingStatId = definition.SpellcastingStatId };
+            UniversalFeatures.Grant(character, rulesDatabase);
 
             foreach (var entry in definition.AbilityScores) character.Stats.SetScore(entry.StatId, entry.Score);
             foreach (var proficiencyId in definition.Proficiencies) character.GrantProficiency(proficiencyId);
@@ -31,6 +32,7 @@ namespace CRPG.Actors
 
             foreach (var featureId in definition.FeatureIds.Distinct())
             {
+                if (character.HasFeature(featureId)) continue;
                 character.GrantFeature(featureId);
                 ApplyFeatureGrants(character, rulesDatabase, featureId);
             }

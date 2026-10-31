@@ -56,6 +56,9 @@ namespace CRPG.Gameplay.Combat
         /// <summary>The creatures picked so far for a multi-target ability, in the order they were clicked.</summary>
         public IReadOnlyList<RuntimeEntityId> PickedTargets => picked;
 
+        public string TargetPrompt => armedAbility != null && picked.Count < armedAbility.Targeting.OrderedTargets.Count
+            ? armedAbility.Targeting.OrderedTargets[picked.Count].Prompt : null;
+
         /// <summary>The picks changed (one was added, or they were cleared by a cast, a cancel or arming again): a presentation redraws its markers.</summary>
         public event Action PicksChanged;
 
@@ -158,7 +161,7 @@ namespace CRPG.Gameplay.Combat
         {
             if (picked.Contains(id)) { Confirm(); return true; }
             var tentative = new List<RuntimeEntityId>(picked) { id };
-            var validation = abilityResolution.Validate(source, armedAbility, tentative);
+            var validation = abilityResolution.ValidateTargetPick(source, armedAbility, tentative);
             if (!validation.IsValid) { TargetRejected?.Invoke(armedAbility, id, validation); return true; }   // stay armed, the earlier picks stay
             picked.Add(id); PicksChanged?.Invoke();
             if (picked.Count >= armedAbility.Targeting.MaxTargets) Confirm();

@@ -15,6 +15,12 @@ namespace CRPG.Abilities
         [SerializeField] private ResourceDefinition resource;
         [SerializeField] private int amount;
 
+        public AbilityCost(ResourceDefinition resource, int amount)
+        {
+            this.resource = resource;
+            this.amount = amount;
+        }
+
         public readonly ResourceDefinition Resource => resource;
         public readonly int Amount => amount;
     }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-cure-wounds
   displayName: Cure Wounds
-  description: A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier (fixed at +3 for this sample -- see header comment). This spell has no effect on undead or constructs. When cast using a higher-level slot, healing increases by 1d8 per slot level above 1st.
+  description: 'Touch an ally to restore 1d8+3 hit points.'
   tags: 34
   spellLevel: 1
   costs:

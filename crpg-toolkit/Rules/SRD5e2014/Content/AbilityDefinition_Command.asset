@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CRPG.Abilities::CRPG.Abilities.AbilityDefinition
   id: spell-command
   displayName: Command
-  description: You speak a one-word command to a creature you can see within range. The target must succeed on a Wisdom saving throw or follow the command on its next turn (Approach/Drop/Flee/Grovel/Halt; the DM decides other commands' effects). No effect on undead, creatures that don't understand your language, or creatures immune to being charmed by a command that would harm it. Simplified here to a single representative outcome -- 'Grovel', modeled as the Prone condition for 1 round -- since there's no branching command-word choice system. When cast using a higher-level slot, affects one additional creature per slot level above 1st.
+  description: 'Command an enemy to fall Prone on a failed Wisdom save until the end of its next turn.'
   tags: 2
   costs:
   - resource: {fileID: 11400000, guid: f7aeac38fae50ee47a6193b89ec390ed, type: 2}

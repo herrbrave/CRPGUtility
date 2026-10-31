@@ -20,6 +20,7 @@ namespace CRPG.Abilities
         private readonly IRulesDatabase rulesDatabase;
         private readonly IFactionProvider factionProvider;
         private readonly ILineOfSightProvider lineOfSightProvider;
+        private readonly IPerceptionQuery perception;
 
         public AbilityResolutionService(
             ICharacterRegistry characters,
@@ -34,7 +35,8 @@ namespace CRPG.Abilities
             IDamageResistanceRule damageResistanceRule = null,
             IRulesDatabase rulesDatabase = null,
             IFactionProvider factionProvider = null,
-            ILineOfSightProvider lineOfSightProvider = null)
+            ILineOfSightProvider lineOfSightProvider = null,
+            IPerceptionQuery perception = null)
         {
             this.characters = characters;
             this.diceService = diceService;
@@ -49,6 +51,7 @@ namespace CRPG.Abilities
             this.rulesDatabase = rulesDatabase;
             this.factionProvider = factionProvider;
             this.lineOfSightProvider = lineOfSightProvider;
+            this.perception = perception;
         }
 
         /// <summary>Who could be inside an aimed shape (the character registry is lookup-only, so the game supplies the candidates). Without it an aimed SHAPE is refused, never silently resolved to nobody.</summary>
@@ -63,6 +66,12 @@ namespace CRPG.Abilities
         /// <summary>Moves a creature for <see cref="RelocateEffect"/> (Misty Step, a leap); optional, but an ability with that effect is refused up front when it is missing.</summary>
         public IRelocationService Relocation { get; set; }
 
+        /// <summary>Combat-only abilities are refused unless the composition root supplies an active encounter.</summary>
+        public Func<bool> IsCombatActive { get; set; }
+        public IMovementSpeedRule MovementSpeedRule { get; set; }
+        /// <summary>Hiding, when the game has stealth: carried to effects (the Hide effect) on the context.</summary>
+        public IStealthService Stealth { get; set; }
+
         /// <summary>
         /// Task 4.2: the single preflight check that replaces CanUse/CanUseAsRitual/CanUseAtSlotLevel/
         /// IsValidTargetSelection -- safe to call repeatedly/non-destructively (never mutates anything), per
@@ -73,6 +82,14 @@ namespace CRPG.Abilities
         public AbilityValidationResult Validate(
             RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
             bool asRitual = false, ResourceDefinition upcastWithSlot = null)
+            => ValidateTargets(source, ability, targets, asRitual, upcastWithSlot, allowIncomplete: false);
+
+        public AbilityValidationResult ValidateTargetPick(RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets)
+            => ValidateTargets(source, ability, targets, false, null, allowIncomplete: true);
+
+        private AbilityValidationResult ValidateTargets(
+            RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets,
+            bool asRitual, ResourceDefinition upcastWithSlot, bool allowIncomplete)
         {
             var castingModeRejection = CheckCastingMode(source, ability, asRitual, upcastWithSlot);
             if (castingModeRejection != null) return castingModeRejection;
@@ -82,9 +99,14 @@ namespace CRPG.Abilities
                 return AbilityValidationResult.Reject(AbilityRejectionReason.AimRequired, $"'{ability.DisplayName}' is aimed at the ground, not at creatures.");
 
             var targetCount = targets?.Count ?? 0;
-            if (targetCount < ability.Targeting.MinTargets || targetCount > ability.Targeting.MaxTargets)
+            if ((!allowIncomplete && targetCount < ability.Targeting.MinTargets) || targetCount > ability.Targeting.MaxTargets)
                 return AbilityValidationResult.Reject(AbilityRejectionReason.InvalidTargetCount,
                     $"'{ability.DisplayName}' requires between {ability.Targeting.MinTargets} and {ability.Targeting.MaxTargets} targets.");
+
+            targets ??= Array.Empty<RuntimeEntityId>();
+            var requirements = ability.Targeting.OrderedTargets;
+            if (requirements.Count > 0 && (requirements.Count != ability.Targeting.MaxTargets || requirements.Count != ability.Targeting.MinTargets))
+                return AbilityValidationResult.Reject(AbilityRejectionReason.InvalidTargetCount, "Ordered targeting must have exactly one requirement per required target.");
 
             var seenTargets = new HashSet<RuntimeEntityId>();
             foreach (var targetId in targets)
@@ -97,13 +119,18 @@ namespace CRPG.Abilities
             {
                 if (!characters.TryGetCharacter(targetId, out _))
                     return AbilityValidationResult.Reject(AbilityRejectionReason.InvalidTarget, $"Target '{targetId}' does not resolve to a live character.");
+                if (ability.Targeting.Mode == TargetMode.Self && targetId != source)
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.WrongRelation, "This action targets only its user.");
             }
+
+            if (requirements.Count > 0 && (factionProvider == null || positions == null))
+                return AbilityValidationResult.Reject(AbilityRejectionReason.MissingRequiredEffectService, "Ordered targets require faction and position services.");
 
             if (factionProvider != null)
             {
-                foreach (var targetId in targets)
+                for (int i = 0; i < targets.Count; i++)
                 {
-                    var rejection = CheckRelation(source, targetId, ability.Targeting.Relation);
+                    var rejection = CheckRelation(source, targets[i], requirements.Count > 0 ? requirements[i].Relation : ability.Targeting.Relation);
                     if (rejection != null) return rejection;
                 }
             }
@@ -111,28 +138,25 @@ namespace CRPG.Abilities
             if (positions != null)
             {
                 var sourcePosition = positions.GetPosition(source);
-                foreach (var targetId in targets)
+                for (int i = 0; i < targets.Count; i++)
                 {
-                    if (UnityEngine.Vector3.Distance(sourcePosition, positions.GetPosition(targetId)) > ability.Targeting.Range)
+                    var targetId = targets[i];
+                    float range = requirements.Count > 0 ? requirements[i].Range : ability.Targeting.Range;
+                    if (range >= 0f && UnityEngine.Vector3.Distance(sourcePosition, positions.GetPosition(targetId)) > range + 0.01f)
                         return AbilityValidationResult.Reject(AbilityRejectionReason.OutOfRange,
-                            $"Target '{targetId}' is beyond '{ability.DisplayName}''s range ({ability.Targeting.Range}).");
-                }
+                            $"Target '{targetId}' is beyond '{ability.DisplayName}''s range ({range}).");
 
-                if (lineOfSightProvider != null && ability.Targeting.RequireLineOfSight)
-                {
-                    foreach (var targetId in targets)
-                    {
-                        if (!lineOfSightProvider.HasLineOfSight(sourcePosition, positions.GetPosition(targetId)))
-                            return AbilityValidationResult.Reject(AbilityRejectionReason.NoLineOfSight,
-                                $"No line of sight to target '{targetId}'.");
-                    }
+                    bool needsSight = requirements.Count > 0 ? requirements[i].RequireLineOfSight : ability.Targeting.RequireLineOfSight;
+                    // a target the caster cannot see (blind, invisible, in darkness, hiding) is not a target "you can see"; without a perception query the plain sight line decides
+                    if (needsSight && targetId != source && (perception != null ? !perception.CanSee(source, targetId) : lineOfSightProvider != null && !lineOfSightProvider.HasLineOfSight(sourcePosition, positions.GetPosition(targetId))))
+                        return AbilityValidationResult.Reject(AbilityRejectionReason.NoLineOfSight, $"No line of sight to target '{targetId}'.");
                 }
             }
 
             var readinessRejection = CheckReadiness(source, ability, asRitual, upcastWithSlot);
             if (readinessRejection != null) return readinessRejection;
 
-            return AbilityValidationResult.Ok();
+            return ValidateEffects(ability, ValidationContext(source, ability, targets));
         }
 
         /// <summary>Task 4.5: the target-INDEPENDENT subset of <see cref="Validate"/> -- can this caster even
@@ -171,6 +195,8 @@ namespace CRPG.Abilities
         private AbilityValidationResult CheckCastingMode(RuntimeEntityId source, AbilityDefinition ability, bool asRitual, ResourceDefinition upcastWithSlot)
         {
             if (!CanAct(source)) return AbilityValidationResult.Reject(AbilityRejectionReason.Incapacitated);
+            if (ability.CombatOnly && !(IsCombatActive?.Invoke() ?? false))
+                return AbilityValidationResult.Reject(AbilityRejectionReason.ActionRestricted, "Available only during combat.");
 
             // Legacy NPCs with neither learned nor prepared abilities retain unrestricted access.
             // Preparation is independent of permanent learning, including a prepared-only caster.
@@ -204,6 +230,14 @@ namespace CRPG.Abilities
             if (!characters.TryGetCharacter(source, out var costCaster))
                 return AbilityValidationResult.Reject(AbilityRejectionReason.InsufficientResources, "Caster not found.");
 
+            foreach (TargetRequirement requirement in ability.Targeting.OrderedTargets)
+            {
+                bool needsFaction = requirement.Relation == TargetRelation.Ally || requirement.Relation == TargetRelation.Enemy;
+                if ((needsFaction && factionProvider == null) || (requirement.Range >= 0f && positions == null)
+                    || (requirement.RequireLineOfSight && (positions == null || (lineOfSightProvider == null && perception == null))))
+                    return AbilityValidationResult.Reject(AbilityRejectionReason.MissingRequiredEffectService, "Required targeting services are not configured.");
+            }
+
             var costPlan = AbilityCostPlan.Build(ability, asRitual, upcastWithSlot);
             foreach (var entry in costPlan.Entries)
             {
@@ -216,7 +250,35 @@ namespace CRPG.Abilities
             if (missingService != null)
                 return AbilityValidationResult.Reject(AbilityRejectionReason.MissingRequiredEffectService, missingService);
 
-            return null;
+            var effectValidation = ValidateEffects(ability, ValidationContext(source, ability, null));
+            return effectValidation.IsValid ? null : effectValidation;
+        }
+
+        private AbilityExecutionContext ValidationContext(RuntimeEntityId source, AbilityDefinition ability, IReadOnlyList<RuntimeEntityId> targets) =>
+            new(source, targets, characters, diceService, combatLog, eventBus, positions, influenceMap, attackBonusRule, armorClassRule,
+                savingThrowRule: savingThrowRule, damageResistanceRule: damageResistanceRule, relocation: Relocation,
+                attackRiderRule: AttackRiderRule, ability: ability, movementSpeedRule: MovementSpeedRule, stealth: Stealth);
+
+        private static AbilityValidationResult ValidateEffects(AbilityDefinition ability, AbilityExecutionContext context)
+        {
+            foreach (AbilityEffect effect in ability.Effects)
+            {
+                AbilityValidationResult validation = ValidateEffect(effect, context);
+                if (!validation.IsValid) return validation;
+            }
+            return AbilityValidationResult.Ok();
+        }
+
+        private static AbilityValidationResult ValidateEffect(AbilityEffect effect, AbilityExecutionContext context)
+        {
+            AbilityValidationResult validation = effect.Validate(context);
+            if (!validation.IsValid) return validation;
+            foreach (AbilityEffect child in effect.GetChildEffects())
+            {
+                validation = ValidateEffect(child, context);
+                if (!validation.IsValid) return validation;
+            }
+            return AbilityValidationResult.Ok();
         }
 
         /// <summary>Task 4.2: builds an ability, applies its effects, and reports the real outcome -- never
@@ -290,7 +352,8 @@ namespace CRPG.Abilities
             var context = new AbilityExecutionContext(
                 source, strikes, characters, diceService, combatLog, eventBus, positions, influenceMap,
                 attackBonusRule, armorClassRule, criticalTargets: null, savingThrowRule: savingThrowRule,
-                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId, aim: aim, relocation: Relocation, attackRiderRule: AttackRiderRule, ability: ability);
+                damageResistanceRule: damageResistanceRule, upcastLevels: upcastLevels, ownerId: ownerId, aim: aim, relocation: Relocation, attackRiderRule: AttackRiderRule, ability: ability,
+                movementSpeedRule: MovementSpeedRule, stealth: Stealth);
 
             void RegisterConcentration()
             {
@@ -311,7 +374,12 @@ namespace CRPG.Abilities
             }
 
             RegisterConcentration();
-            eventBus?.Publish(new GameEventContext(GameEvent.AbilityResolved, source));
+            if (eventBus != null)
+            {
+                var resolved = new GameEventContext(GameEvent.AbilityResolved, source);
+                resolved.Data["ability"] = ability; resolved.Data["targets"] = targets;   // the stealth rules decide from these whether the cast gave the caster away
+                eventBus.Publish(resolved);
+            }
             return AbilityExecutionResult.Ok();
         }
 
